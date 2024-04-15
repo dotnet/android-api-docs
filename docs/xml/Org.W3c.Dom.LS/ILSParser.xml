@@ -1,0 +1,758 @@
+<Type Name="ILSParser" FullName="Org.W3c.Dom.LS.ILSParser">
+  <TypeSignature Language="C#" Value="public interface ILSParser : Android.Runtime.IJavaObject, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit ILSParser implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Org.W3c.Dom.LS.ILSParser" />
+  <TypeSignature Language="F#" Value="type ILSParser = interface&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("org/w3c/dom/ls/LSParser", "", "Org.W3c.Dom.LS.ILSParserInvoker")]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("org/w3c/dom/ls/LSParser", "", "Org.W3c.Dom.LS.ILSParserInvoker")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="8">
+    <summary>An interface to an object that is able to build, or augment, a DOM tree
+            from various input sources.</summary>
+    <remarks>
+      <para>An interface to an object that is able to build, or augment, a DOM tree
+            from various input sources.</para>
+      <para>
+        <c>LSParser</c> provides an API for parsing XML and building the
+            corresponding DOM document structure. A <c>LSParser</c> instance
+            can be obtained by invoking the
+            <c>DOMImplementationLS.createLSParser()</c> method.</para>
+      <para>As specified in [<see href="http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407">DOM Level 3 Core</see>]
+            , when a document is first made available via the LSParser:
+            &lt;ul&gt;
+            &lt;li&gt; there will
+            never be two adjacent nodes of type NODE_TEXT, and there will never be
+            empty text nodes.
+            &lt;/li&gt;
+            &lt;li&gt; it is expected that the <c>value</c> and
+            <c>nodeValue</c> attributes of an <c>Attr</c> node initially
+            return the <see href="http://www.w3.org/TR/2004/REC-xml-20040204#AVNormalize">XML 1.0
+            normalized value</see>. However, if the parameters "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-validate-if-schema">
+            validate-if-schema</see>" and "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-datatype-normalization">
+            datatype-normalization</see>" are set to <c>true</c>, depending on the attribute normalization
+            used, the attribute values may differ from the ones obtained by the XML
+            1.0 attribute normalization. If the parameters "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-datatype-normalization">
+            datatype-normalization</see>" is set to <c>false</c>, the XML 1.0 attribute normalization is
+            guaranteed to occur, and if the attributes list does not contain
+            namespace declarations, the <c>attributes</c> attribute on
+            <c>Element</c> node represents the property &lt;b&gt;[attributes]&lt;/b&gt; defined in [<see href="http://www.w3.org/TR/2004/REC-xml-infoset-20040204/">XML Information Set</see>]
+            .
+            &lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>Asynchronous <c>LSParser</c> objects are expected to also
+            implement the <c>events::EventTarget</c> interface so that event
+            listeners can be registered on asynchronous <c>LSParser</c>
+            objects.</para>
+      <para>Events supported by asynchronous <c>LSParser</c> objects are:
+            &lt;dl&gt;
+            &lt;dt&gt;load&lt;/dt&gt;
+            &lt;dd&gt;
+             The <c>LSParser</c> finishes to load the document. See also the
+            definition of the <c>LSLoadEvent</c> interface. &lt;/dd&gt;
+            &lt;dt&gt;progress&lt;/dt&gt;
+            &lt;dd&gt; The
+            <c>LSParser</c> signals progress as data is parsed.  This
+            specification does not attempt to define exactly when progress events
+            should be dispatched. That is intentionally left as
+            implementation-dependent. Here is one example of how an application might
+            dispatch progress events: Once the parser starts receiving data, a
+            progress event is dispatched to indicate that the parsing starts. From
+            there on, a progress event is dispatched for every 4096 bytes of data
+            that is received and processed. This is only one example, though, and
+            implementations can choose to dispatch progress events at any time while
+            parsing, or not dispatch them at all.  See also the definition of the
+            <c>LSProgressEvent</c> interface. &lt;/dd&gt;
+            &lt;/dl&gt;
+            &lt;p &gt;&lt;b&gt;Note:&lt;/b&gt;  All events defined in this specification use the
+            namespace URI <c>"http://www.w3.org/2002/DOMLS"</c>.</para>
+      <para>While parsing an input source, errors are reported to the application
+            through the error handler (<c>LSParser.domConfig</c>'s "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-error-handler">
+            error-handler</see>" parameter). This specification does in no way try to define all possible
+            errors that can occur while parsing XML, or any other markup, but some
+            common error cases are defined. The types (<c>DOMError.type</c>) of
+            errors and warnings defined by this specification are:
+            &lt;dl&gt;
+            &lt;dt&gt;
+            <c>"check-character-normalization-failure" [error]</c>&lt;/dt&gt;
+            &lt;dd&gt; Raised if
+            the parameter "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-check-character-normalization">
+            check-character-normalization</see>" is set to true and a string is encountered that fails normalization
+            checking. &lt;/dd&gt;
+            &lt;dt&gt;<c>"doctype-not-allowed" [fatal]</c>&lt;/dt&gt;
+            &lt;dd&gt; Raised if the
+            configuration parameter "disallow-doctype" is set to <c>true</c>
+            and a doctype is encountered. &lt;/dd&gt;
+            &lt;dt&gt;<c>"no-input-specified" [fatal]</c>&lt;/dt&gt;
+            &lt;dd&gt;
+            Raised when loading a document and no input is specified in the
+            <c>LSInput</c> object. &lt;/dd&gt;
+            &lt;dt&gt;
+            <c>"pi-base-uri-not-preserved" [warning]</c>&lt;/dt&gt;
+            &lt;dd&gt; Raised if a processing
+            instruction is encountered in a location where the base URI of the
+            processing instruction can not be preserved.  One example of a case where
+            this warning will be raised is if the configuration parameter "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-entities">
+            entities</see>" is set to <c>false</c> and the following XML file is parsed:</para>
+      <code lang="text/java">&amp;lt;!DOCTYPE root [ &amp;lt;!ENTITY e SYSTEM 'subdir/myentity.ent' ]&amp;gt;
+            &amp;lt;root&amp;gt; &amp;amp;e; &amp;lt;/root&amp;gt;</code>
+      <para>And <c>subdir/myentity.ent</c>
+            contains:</para>
+      <code lang="text/java">&amp;lt;one&amp;gt; &amp;lt;two/&amp;gt; &amp;lt;/one&amp;gt; &amp;lt;?pi 3.14159?&amp;gt;
+            &amp;lt;more/&amp;gt;</code>
+      <para>&lt;/dd&gt;
+            &lt;dt&gt;<c>"unbound-prefix-in-entity" [warning]</c>&lt;/dt&gt;
+            &lt;dd&gt; An
+            implementation dependent warning that may be raised if the configuration
+            parameter "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-namespaces">
+            namespaces</see>" is set to <c>true</c> and an unbound namespace prefix is
+            encountered in an entity's replacement text. Raising this warning is not
+            enforced since some existing parsers may not recognize unbound namespace
+            prefixes in the replacement text of entities. &lt;/dd&gt;
+            &lt;dt&gt;
+            <c>"unknown-character-denormalization" [fatal]</c>&lt;/dt&gt;
+            &lt;dd&gt; Raised if the
+            configuration parameter "ignore-unknown-character-denormalizations" is
+            set to <c>false</c> and a character is encountered for which the
+            processor cannot determine the normalization properties. &lt;/dd&gt;
+            &lt;dt&gt;
+            <c>"unsupported-encoding" [fatal]</c>&lt;/dt&gt;
+            &lt;dd&gt; Raised if an unsupported
+            encoding is encountered. &lt;/dd&gt;
+            &lt;dt&gt;<c>"unsupported-media-type" [fatal]</c>&lt;/dt&gt;
+            &lt;dd&gt;
+            Raised if the configuration parameter "supported-media-types-only" is set
+            to <c>true</c> and an unsupported media type is encountered. &lt;/dd&gt;
+            &lt;/dl&gt;</para>
+      <para>In addition to raising the defined errors and warnings, implementations
+            are expected to raise implementation specific errors and warnings for any
+            other error and warning cases such as IO errors (file not found,
+            permission denied,...), XML well-formedness errors, and so on.</para>
+      <para>See also the <see href="http://www.w3.org/TR/2004/REC-DOM-Level-3-LS-20040407">Document Object Model (DOM) Level 3 Load
+            and Save Specification</see>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 8" />
+  </Docs>
+  <Members>
+    <Member MemberName="Abort">
+      <MemberSignature Language="C#" Value="public void Abort ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Abort() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.LS.ILSParser.Abort" />
+      <MemberSignature Language="F#" Value="abstract member Abort : unit -&gt; unit" Usage="iLSParser.Abort " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("abort", "()V", "GetAbortHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("abort", "()V", "GetAbortHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Abort the loading of the document that is currently being loaded by
+            the <c>LSParser</c>.</summary>
+        <remarks>
+          <para>Abort the loading of the document that is currently being loaded by
+            the <c>LSParser</c>. If the <c>LSParser</c> is currently
+            not busy, a call to this method does nothing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#abort()" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.abort()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="ActionAppendAsChildren">
+      <MemberSignature Language="C#" Value="public const short ActionAppendAsChildren = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 ActionAppendAsChildren = (1)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.LS.ILSParser.ActionAppendAsChildren" />
+      <MemberSignature Language="F#" Value="val mutable ActionAppendAsChildren : int16" Usage="Org.W3c.Dom.LS.ILSParser.ActionAppendAsChildren" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_APPEND_AS_CHILDREN")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_APPEND_AS_CHILDREN")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Append the result of the parse operation as children of the context
+            node.</summary>
+        <remarks>
+          <para>Append the result of the parse operation as children of the context
+            node. For this action to work, the context node must be an
+            <c>Element</c> or a <c>DocumentFragment</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#ACTION_APPEND_AS_CHILDREN" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.ACTION_APPEND_AS_CHILDREN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionInsertAfter">
+      <MemberSignature Language="C#" Value="public const short ActionInsertAfter = 4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 ActionInsertAfter = (4)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.LS.ILSParser.ActionInsertAfter" />
+      <MemberSignature Language="F#" Value="val mutable ActionInsertAfter : int16" Usage="Org.W3c.Dom.LS.ILSParser.ActionInsertAfter" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_INSERT_AFTER")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_INSERT_AFTER")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>4</MemberValue>
+      <Docs>
+        <summary>Insert the result of the parse operation as the immediately following
+            sibling of the context node.</summary>
+        <remarks>
+          <para>Insert the result of the parse operation as the immediately following
+            sibling of the context node. For this action to work the context
+            node's parent must be an <c>Element</c> or a
+            <c>DocumentFragment</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#ACTION_INSERT_AFTER" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.ACTION_INSERT_AFTER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionInsertBefore">
+      <MemberSignature Language="C#" Value="public const short ActionInsertBefore = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 ActionInsertBefore = (3)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.LS.ILSParser.ActionInsertBefore" />
+      <MemberSignature Language="F#" Value="val mutable ActionInsertBefore : int16" Usage="Org.W3c.Dom.LS.ILSParser.ActionInsertBefore" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_INSERT_BEFORE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_INSERT_BEFORE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>Insert the result of the parse operation as the immediately preceding
+            sibling of the context node.</summary>
+        <remarks>
+          <para>Insert the result of the parse operation as the immediately preceding
+            sibling of the context node. For this action to work the context
+            node's parent must be an <c>Element</c> or a
+            <c>DocumentFragment</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#ACTION_INSERT_BEFORE" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.ACTION_INSERT_BEFORE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionReplace">
+      <MemberSignature Language="C#" Value="public const short ActionReplace = 5;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 ActionReplace = (5)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.LS.ILSParser.ActionReplace" />
+      <MemberSignature Language="F#" Value="val mutable ActionReplace : int16" Usage="Org.W3c.Dom.LS.ILSParser.ActionReplace" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_REPLACE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_REPLACE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>5</MemberValue>
+      <Docs>
+        <summary>Replace the context node with the result of the parse operation.</summary>
+        <remarks>
+          <para>Replace the context node with the result of the parse operation. For
+            this action to work, the context node must have a parent, and the
+            parent must be an <c>Element</c> or a
+            <c>DocumentFragment</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#ACTION_REPLACE" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.ACTION_REPLACE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionReplaceChildren">
+      <MemberSignature Language="C#" Value="public const short ActionReplaceChildren = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 ActionReplaceChildren = (2)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.LS.ILSParser.ActionReplaceChildren" />
+      <MemberSignature Language="F#" Value="val mutable ActionReplaceChildren : int16" Usage="Org.W3c.Dom.LS.ILSParser.ActionReplaceChildren" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_REPLACE_CHILDREN")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_REPLACE_CHILDREN")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Replace all the children of the context node with the result of the
+            parse operation.</summary>
+        <remarks>
+          <para>Replace all the children of the context node with the result of the
+            parse operation. For this action to work, the context node must be an
+            <c>Element</c>, a <c>Document</c>, or a
+            <c>DocumentFragment</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#ACTION_REPLACE_CHILDREN" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.ACTION_REPLACE_CHILDREN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Async">
+      <MemberSignature Language="C#" Value="public bool Async { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool Async" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.LS.ILSParser.Async" />
+      <MemberSignature Language="F#" Value="member this.Async : bool" Usage="Org.W3c.Dom.LS.ILSParser.Async" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAsync", "()Z", "GetGetAsyncHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAsync", "()Z", "GetGetAsyncHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+          <c>true</c> if the <c>LSParser</c> is asynchronous,
+ <c>false</c> if it is synchronous.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="Busy">
+      <MemberSignature Language="C#" Value="public bool Busy { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool Busy" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.LS.ILSParser.Busy" />
+      <MemberSignature Language="F#" Value="member this.Busy : bool" Usage="Org.W3c.Dom.LS.ILSParser.Busy" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getBusy", "()Z", "GetGetBusyHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getBusy", "()Z", "GetGetBusyHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+          <c>true</c> if the <c>LSParser</c> is currently busy
+ loading a document, otherwise <c>false</c>.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="DomConfig">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.IDOMConfiguration? DomConfig { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.IDOMConfiguration DomConfig" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.LS.ILSParser.DomConfig" />
+      <MemberSignature Language="F#" Value="member this.DomConfig : Org.W3c.Dom.IDOMConfiguration" Usage="Org.W3c.Dom.LS.ILSParser.DomConfig" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDomConfig", "()Lorg/w3c/dom/DOMConfiguration;", "GetGetDomConfigHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDomConfig", "()Lorg/w3c/dom/DOMConfiguration;", "GetGetDomConfigHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.IDOMConfiguration</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The <c>DOMConfiguration</c> object used when parsing an input
+ source.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="Filter">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.LS.ILSParserFilter? Filter { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.LS.ILSParserFilter Filter" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.LS.ILSParser.Filter" />
+      <MemberSignature Language="F#" Value="member this.Filter : Org.W3c.Dom.LS.ILSParserFilter with get, set" Usage="Org.W3c.Dom.LS.ILSParser.Filter" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getFilter", "()Lorg/w3c/dom/ls/LSParserFilter;", "GetGetFilterHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getFilter", "()Lorg/w3c/dom/ls/LSParserFilter;", "GetGetFilterHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setFilter", "(Lorg/w3c/dom/ls/LSParserFilter;)V", "GetSetFilter_Lorg_w3c_dom_ls_LSParserFilter_Handler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setFilter", "(Lorg/w3c/dom/ls/LSParserFilter;)V", "GetSetFilter_Lorg_w3c_dom_ls_LSParserFilter_Handler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.LS.ILSParserFilter</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>When a filter is provided, the implementation will call out to the
+ filter as it is constructing the DOM tree structure.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.IDocument? Parse (Org.W3c.Dom.LS.ILSInput? input);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.IDocument Parse(class Org.W3c.Dom.LS.ILSInput input) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.LS.ILSParser.Parse(Org.W3c.Dom.LS.ILSInput)" />
+      <MemberSignature Language="F#" Value="abstract member Parse : Org.W3c.Dom.LS.ILSInput -&gt; Org.W3c.Dom.IDocument" Usage="iLSParser.Parse input" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("parse", "(Lorg/w3c/dom/ls/LSInput;)Lorg/w3c/dom/Document;", "GetParse_Lorg_w3c_dom_ls_LSInput_Handler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("parse", "(Lorg/w3c/dom/ls/LSInput;)Lorg/w3c/dom/Document;", "GetParse_Lorg_w3c_dom_ls_LSInput_Handler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.IDocument</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="Org.W3c.Dom.LS.ILSInput" />
+      </Parameters>
+      <Docs>
+        <param name="input">The <c>LSInput</c> from which the source of the
+              document is to be read.</param>
+        <summary>Parse an XML document from a resource identified by a
+            <c>LSInput</c>.</summary>
+        <returns>If the <c>LSParser</c> is a synchronous
+              <c>LSParser</c>, the newly created and populated
+              <c>Document</c> is returned. If the <c>LSParser</c> is
+              asynchronous, <c>null</c> is returned since the document
+              object may not yet be constructed when this method returns.</returns>
+        <remarks>
+          <para>Parse an XML document from a resource identified by a
+            <c>LSInput</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#parse(org.w3c.dom.ls.LSInput)" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.parse(org.w3c.dom.ls.LSInput)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+        <exception cref="T:Org.W3c.Dom.DOMException">INVALID_STATE_ERR: Raised if the <c>LSParser</c>'s
+   <c>LSParser.busy</c> attribute is <c>true</c>.</exception>
+        <exception cref="T:Org.W3c.Dom.LS.LSException">PARSE_ERR: Raised if the <c>LSParser</c> was unable to load
+   the XML document. DOM applications should attach a
+   <c>DOMErrorHandler</c> using the parameter "" if they wish to get details on the error.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ParseURI">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.IDocument? ParseURI (string? uri);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.IDocument ParseURI(string uri) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.LS.ILSParser.ParseURI(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member ParseURI : string -&gt; Org.W3c.Dom.IDocument" Usage="iLSParser.ParseURI uri" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("parseURI", "(Ljava/lang/String;)Lorg/w3c/dom/Document;", "GetParseURI_Ljava_lang_String_Handler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("parseURI", "(Ljava/lang/String;)Lorg/w3c/dom/Document;", "GetParseURI_Ljava_lang_String_Handler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.IDocument</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="uri" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="uri">The location of the XML document to be read.</param>
+        <summary>Parse an XML document from a location identified by a URI reference [<see href="http://www.ietf.org/rfc/rfc2396.txt">IETF RFC 2396</see>].</summary>
+        <returns>If the <c>LSParser</c> is a synchronous
+              <c>LSParser</c>, the newly created and populated
+              <c>Document</c> is returned, or <c>null</c> if an error
+              occured. If the <c>LSParser</c> is asynchronous,
+              <c>null</c> is returned since the document object may not yet
+              be constructed when this method returns.</returns>
+        <remarks>
+          <para>Parse an XML document from a location identified by a URI reference [<see href="http://www.ietf.org/rfc/rfc2396.txt">IETF RFC 2396</see>]. If the URI
+            contains a fragment identifier (see section 4.1 in [<see href="http://www.ietf.org/rfc/rfc2396.txt">IETF RFC 2396</see>]), the
+            behavior is not defined by this specification, future versions of
+            this specification may define the behavior.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#parseURI(java.lang.String)" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.parseURI(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+        <exception cref="T:Org.W3c.Dom.DOMException">INVALID_STATE_ERR: Raised if the <c>LSParser.busy</c>
+   attribute is <c>true</c>.</exception>
+        <exception cref="T:Org.W3c.Dom.LS.LSException">PARSE_ERR: Raised if the <c>LSParser</c> was unable to load
+   the XML document. DOM applications should attach a
+   <c>DOMErrorHandler</c> using the parameter "" if they wish to get details on the error.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ParseWithContext">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? ParseWithContext (Org.W3c.Dom.LS.ILSInput? input, Org.W3c.Dom.INode? contextArg, short action);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.INode ParseWithContext(class Org.W3c.Dom.LS.ILSInput input, class Org.W3c.Dom.INode contextArg, int16 action) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.LS.ILSParser.ParseWithContext(Org.W3c.Dom.LS.ILSInput,Org.W3c.Dom.INode,System.Int16)" />
+      <MemberSignature Language="F#" Value="abstract member ParseWithContext : Org.W3c.Dom.LS.ILSInput * Org.W3c.Dom.INode * int16 -&gt; Org.W3c.Dom.INode" Usage="iLSParser.ParseWithContext (input, contextArg, action)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("parseWithContext", "(Lorg/w3c/dom/ls/LSInput;Lorg/w3c/dom/Node;S)Lorg/w3c/dom/Node;", "GetParseWithContext_Lorg_w3c_dom_ls_LSInput_Lorg_w3c_dom_Node_SHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("parseWithContext", "(Lorg/w3c/dom/ls/LSInput;Lorg/w3c/dom/Node;S)Lorg/w3c/dom/Node;", "GetParseWithContext_Lorg_w3c_dom_ls_LSInput_Lorg_w3c_dom_Node_SHandler:Org.W3c.Dom.LS.ILSParserInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="Org.W3c.Dom.LS.ILSInput" />
+        <Parameter Name="contextArg" Type="Org.W3c.Dom.INode" />
+        <Parameter Name="action" Type="System.Int16" />
+      </Parameters>
+      <Docs>
+        <param name="input">The <c>LSInput</c> from which the source document
+              is to be read. The source document must be an XML fragment, i.e.
+              anything except a complete XML document (except in the case where
+              the context node of type <c>DOCUMENT_NODE</c>, and the action
+              is <c>ACTION_REPLACE_CHILDREN</c>), a DOCTYPE (internal
+              subset), entity declaration(s), notation declaration(s), or XML or
+              text declaration(s).</param>
+        <param name="contextArg">The node that is used as the context for the data
+              that is being parsed. This node must be a <c>Document</c>
+              node, a <c>DocumentFragment</c> node, or a node of a type
+              that is allowed as a child of an <c>Element</c> node, e.g. it
+              cannot be an <c>Attribute</c> node.</param>
+        <param name="action">This parameter describes which action should be taken
+              between the new set of nodes being inserted and the existing
+              children of the context node. The set of possible actions is
+              defined in <c>ACTION_TYPES</c> above.</param>
+        <summary>Parse an XML fragment from a resource identified by a
+            <c>LSInput</c> and insert the content into an existing document
+            at the position specified with the <c>context</c> and
+            <c>action</c> arguments.</summary>
+        <returns>Return the node that is the result of the parse operation. If
+              the result is more than one top-level node, the first one is
+              returned.</returns>
+        <remarks>
+          <para>Parse an XML fragment from a resource identified by a
+            <c>LSInput</c> and insert the content into an existing document
+            at the position specified with the <c>context</c> and
+            <c>action</c> arguments. When parsing the input stream, the
+            context node (or its parent, depending on where the result will be
+            inserted) is used for resolving unbound namespace prefixes. The
+            context node's <c>ownerDocument</c> node (or the node itself if
+            the node of type <c>DOCUMENT_NODE</c>) is used to resolve
+            default attributes and entity references.
+            &lt;br&gt; As the new data is inserted into the document, at least one
+            mutation event is fired per new immediate child or sibling of the
+            context node.
+            &lt;br&gt; If the context node is a <c>Document</c> node and the action
+            is <c>ACTION_REPLACE_CHILDREN</c>, then the document that is
+            passed as the context node will be changed such that its
+            <c>xmlEncoding</c>, <c>documentURI</c>,
+            <c>xmlVersion</c>, <c>inputEncoding</c>,
+            <c>xmlStandalone</c>, and all other such attributes are set to
+            what they would be set to if the input source was parsed using
+            <c>LSParser.parse()</c>.
+            &lt;br&gt; This method is always synchronous, even if the
+            <c>LSParser</c> is asynchronous (<c>LSParser.async</c> is
+            <c>true</c>).
+            &lt;br&gt; If an error occurs while parsing, the caller is notified through
+            the <c>ErrorHandler</c> instance associated with the "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-error-handler">
+            error-handler</see>" parameter of the <c>DOMConfiguration</c>.
+            &lt;br&gt; When calling <c>parseWithContext</c>, the values of the
+            following configuration parameters will be ignored and their default
+            values will always be used instead: "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-validate">
+            validate</see>", "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-validate-if-schema">
+            validate-if-schema</see>", and "<see href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#parameter-element-content-whitespace">
+            element-content-whitespace</see>". Other parameters will be treated normally, and the parser is expected
+            to call the <c>LSParserFilter</c> just as if a whole document
+            was parsed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/ls/LSParser#parseWithContext(org.w3c.dom.ls.LSInput,%20org.w3c.dom.Node,%20short)" title="Reference documentation">Java documentation for <code>org.w3c.dom.ls.LSParser.parseWithContext(org.w3c.dom.ls.LSInput, org.w3c.dom.Node, short)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+        <exception cref="T:Org.W3c.Dom.DOMException">HIERARCHY_REQUEST_ERR: Raised if the content cannot replace, be
+   inserted before, after, or as a child of the context node (see also
+   <c>Node.insertBefore</c> or <c>Node.replaceChild</c> in []
+   ).
+   <format type="text/html"><br /></format> NOT_SUPPORTED_ERR: Raised if the <c>LSParser</c> doesn't
+   support this method, or if the context node is of type
+   <c>Document</c> and the DOM implementation doesn't support
+   the replacement of the <c>DocumentType</c> child or
+   <c>Element</c> child.
+   <format type="text/html"><br /></format> NO_MODIFICATION_ALLOWED_ERR: Raised if the context node is a
+   read only node and the content is being appended to its child list,
+   or if the parent node of the context node is read only node and the
+   content is being inserted in its child list.
+   <format type="text/html"><br /></format> INVALID_STATE_ERR: Raised if the <c>LSParser.busy</c>
+   attribute is <c>true</c>.</exception>
+        <exception cref="T:Org.W3c.Dom.LS.LSException">PARSE_ERR: Raised if the <c>LSParser</c> was unable to load
+   the XML fragment. DOM applications should attach a
+   <c>DOMErrorHandler</c> using the parameter "" if they wish to get details on the error.
+</exception>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

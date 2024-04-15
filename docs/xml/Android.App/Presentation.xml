@@ -1,0 +1,464 @@
+<Type Name="Presentation" FullName="Android.App.Presentation">
+  <TypeSignature Language="C#" Value="public class Presentation : Android.App.Dialog" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Presentation extends Android.App.Dialog" />
+  <TypeSignature Language="DocId" Value="T:Android.App.Presentation" />
+  <TypeSignature Language="F#" Value="type Presentation = class&#xA;    inherit Dialog" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Android.App.Dialog</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/app/Presentation", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/Presentation", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="17">
+    <summary>Base class for presentations.</summary>
+    <remarks>
+      <para>Base class for presentations.</para>
+      <para>A presentation is a special kind of dialog whose purpose is to present
+            content on a secondary display.  A <c>Presentation</c> is associated with
+            the target <c>Display</c> at creation time and configures its context and
+            resource configuration according to the display's metrics.</para>
+      <para>Notably, the <c>Context</c> of a presentation is different from the context
+            of its containing <c>Activity</c>.  It is important to inflate the layout
+            of a presentation and load other resources using the presentation's own context
+            to ensure that assets of the correct size and density for the target display
+            are loaded.</para>
+      <para>A presentation is automatically canceled (see <c>Dialog#cancel()</c>) when
+            the display to which it is attached is removed.  An activity should take
+            care of pausing and resuming whatever content is playing within the presentation
+            whenever the activity itself is paused or resumed.</para>
+      <para>&lt;h3&gt;Choosing a presentation display&lt;/h3&gt;</para>
+      <para>Before showing a <c>Presentation</c> it's important to choose the <c>Display</c>
+            on which it will appear.  Choosing a presentation display is sometimes difficult
+            because there may be multiple displays attached.  Rather than trying to guess
+            which display is best, an application should let the system choose a suitable
+            presentation display.</para>
+      <para>There are two main ways to choose a <c>Display</c>.</para>
+      <para>&lt;h4&gt;Using the media router to choose a presentation display&lt;/h4&gt;</para>
+      <para>The easiest way to choose a presentation display is to use the
+            <c>android.media.MediaRouter MediaRouter</c> API.  The media router service keeps
+            track of which audio and video routes are available on the system.
+            The media router sends notifications whenever routes are selected or unselected
+            or when the preferred presentation display of a route changes.
+            So an application can simply watch for these notifications and show or dismiss
+            a presentation on the preferred presentation display automatically.</para>
+      <para>The preferred presentation display is the display that the media router recommends
+            that the application should use if it wants to show content on the secondary display.
+            Sometimes there may not be a preferred presentation display in which
+            case the application should show its content locally without using a presentation.</para>
+      <para>Here's how to use the media router to create and show a presentation on the preferred
+            presentation display using <c>android.media.MediaRouter.RouteInfo#getPresentationDisplay()</c>.</para>
+      <code lang="text/java">MediaRouter mediaRouter = (MediaRouter) context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+            MediaRouter.RouteInfo route = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_VIDEO);
+            if (route != null) {
+                Display presentationDisplay = route.getPresentationDisplay();
+                if (presentationDisplay != null) {
+                    Presentation presentation = new MyPresentation(context, presentationDisplay);
+                    presentation.show();
+                }
+            }</code>
+      <para>The following sample code from <c>ApiDemos</c> demonstrates how to use the media
+            router to automatically switch between showing content in the main activity and showing
+            the content in a presentation when a presentation display is available.</para>
+      <para>{</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/Presentation" title="Reference documentation">Java documentation for <code>android.app.Presentation</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 17" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Presentation (Android.Content.Context? outerContext, Android.Views.Display? display);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.Content.Context outerContext, class Android.Views.Display display) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Presentation.#ctor(Android.Content.Context,Android.Views.Display)" />
+      <MemberSignature Language="F#" Value="new Android.App.Presentation : Android.Content.Context * Android.Views.Display -&gt; Android.App.Presentation" Usage="new Android.App.Presentation (outerContext, display)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Landroid/content/Context;Landroid/view/Display;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Landroid/content/Context;Landroid/view/Display;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="outerContext" Type="Android.Content.Context" />
+        <Parameter Name="display" Type="Android.Views.Display" />
+      </Parameters>
+      <Docs>
+        <param name="outerContext">The context of the application that is showing the presentation.
+            The presentation will create its own context (see <c>#getContext()</c>) based
+            on this context and information about the associated display.</param>
+        <param name="display">The display to which the presentation should be attached.</param>
+        <summary>Creates a new presentation that is attached to the specified display
+            using the default theme.</summary>
+        <remarks>
+          <para>Creates a new presentation that is attached to the specified display
+            using the default theme.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Presentation#Presentation(android.content.Context,%20android.view.Display)" title="Reference documentation">Java documentation for <code>android.app.Presentation.Presentation(android.content.Context, android.view.Display)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 17" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected Presentation (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Presentation.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Android.App.Presentation : nativeint * Android.Runtime.JniHandleOwnership -&gt; Android.App.Presentation" Usage="new Android.App.Presentation (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Presentation (Android.Content.Context? outerContext, Android.Views.Display? display, int theme);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.Content.Context outerContext, class Android.Views.Display display, int32 theme) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Presentation.#ctor(Android.Content.Context,Android.Views.Display,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Android.App.Presentation : Android.Content.Context * Android.Views.Display * int -&gt; Android.App.Presentation" Usage="new Android.App.Presentation (outerContext, display, theme)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Landroid/content/Context;Landroid/view/Display;I)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Landroid/content/Context;Landroid/view/Display;I)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="outerContext" Type="Android.Content.Context" />
+        <Parameter Name="display" Type="Android.Views.Display" />
+        <Parameter Name="theme" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="outerContext">The context of the application that is showing the presentation.
+            The presentation will create its own context (see <c>#getContext()</c>) based
+            on this context and information about the associated display.
+            From <c>android.os.Build.VERSION_CODES#S</c>, the presentation will create its own window
+            context based on this context, information about the associated display. Customizing window
+            type by <c>Window#setType(int) #getWindow#setType(int)</c> causes the mismatch of the window
+            and the created window context, which leads to
+            <c>android.view.WindowManager.InvalidDisplayException</c> when invoking <c>#show()</c>.</param>
+        <param name="display">The display to which the presentation should be attached.</param>
+        <param name="theme">A style resource describing the theme to use for the window.
+            See <see href="https://developer.android.com/guide/topics/resources/available-resources.html#stylesandthemes">
+            Style and Theme Resources</see> for more information about defining and using
+            styles.  This theme is applied on top of the current theme in
+            &lt;var&gt;outerContext&lt;/var&gt;.  If 0, the default presentation theme will be used.</param>
+        <summary>Creates a new presentation that is attached to the specified display
+            using the optionally specified theme.</summary>
+        <remarks>
+          <para>Creates a new presentation that is attached to the specified display
+            using the optionally specified theme.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Presentation#Presentation(android.content.Context,%20android.view.Display,%20int)" title="Reference documentation">Java documentation for <code>android.app.Presentation.Presentation(android.content.Context, android.view.Display, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 17" />
+      </Docs>
+    </Member>
+    <Member MemberName="Display">
+      <MemberSignature Language="C#" Value="public virtual Android.Views.Display? Display { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Views.Display Display" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Presentation.Display" />
+      <MemberSignature Language="F#" Value="member this.Display : Android.Views.Display" Usage="Android.App.Presentation.Display" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDisplay", "()Landroid/view/Display;", "GetGetDisplayHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDisplay", "()Landroid/view/Display;", "GetGetDisplayHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.Display</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the <c>Display</c> that this presentation appears on.</summary>
+        <value>The display.</value>
+        <remarks>
+          <para>Gets the <c>Display</c> that this presentation appears on.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Presentation#getDisplay()" title="Reference documentation">Java documentation for <code>android.app.Presentation.getDisplay()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 17" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Presentation.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.App.Presentation.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnDisplayChanged">
+      <MemberSignature Language="C#" Value="public virtual void OnDisplayChanged ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnDisplayChanged() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Presentation.OnDisplayChanged" />
+      <MemberSignature Language="F#" Value="abstract member OnDisplayChanged : unit -&gt; unit&#xA;override this.OnDisplayChanged : unit -&gt; unit" Usage="presentation.OnDisplayChanged " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onDisplayChanged", "()V", "GetOnDisplayChangedHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onDisplayChanged", "()V", "GetOnDisplayChangedHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Called by the system when the properties of the <c>Display</c> to which
+            the presentation is attached have changed.</summary>
+        <remarks>
+          <para>Called by the system when the properties of the <c>Display</c> to which
+            the presentation is attached have changed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Presentation#onDisplayChanged()" title="Reference documentation">Java documentation for <code>android.app.Presentation.onDisplayChanged()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 17" />
+        <altmember cref="P:Android.App.Presentation.Display" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnDisplayRemoved">
+      <MemberSignature Language="C#" Value="public virtual void OnDisplayRemoved ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnDisplayRemoved() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Presentation.OnDisplayRemoved" />
+      <MemberSignature Language="F#" Value="abstract member OnDisplayRemoved : unit -&gt; unit&#xA;override this.OnDisplayRemoved : unit -&gt; unit" Usage="presentation.OnDisplayRemoved " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onDisplayRemoved", "()V", "GetOnDisplayRemovedHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onDisplayRemoved", "()V", "GetOnDisplayRemovedHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Called by the system when the <c>Display</c> to which the presentation
+            is attached has been removed.</summary>
+        <remarks>
+          <para>Called by the system when the <c>Display</c> to which the presentation
+            is attached has been removed.
+            
+            The system automatically calls <c>#cancel</c> to dismiss the presentation
+            after sending this event.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Presentation#onDisplayRemoved()" title="Reference documentation">Java documentation for <code>android.app.Presentation.onDisplayRemoved()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 17" />
+        <altmember cref="P:Android.App.Presentation.Display" />
+      </Docs>
+    </Member>
+    <Member MemberName="Resources">
+      <MemberSignature Language="C#" Value="public virtual Android.Content.Res.Resources? Resources { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Content.Res.Resources Resources" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Presentation.Resources" />
+      <MemberSignature Language="F#" Value="member this.Resources : Android.Content.Res.Resources" Usage="Android.App.Presentation.Resources" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getResources", "()Landroid/content/res/Resources;", "GetGetResourcesHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getResources", "()Landroid/content/res/Resources;", "GetGetResourcesHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Content.Res.Resources</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the <c>Resources</c> that should be used to inflate the layout of this presentation.</summary>
+        <value>The presentation resources object.</value>
+        <remarks>
+          <para>Gets the <c>Resources</c> that should be used to inflate the layout of this presentation.
+            This resources object has been configured according to the metrics of the
+            display that the presentation appears on.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Presentation#getResources()" title="Reference documentation">Java documentation for <code>android.app.Presentation.getResources()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 17" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Presentation.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.App.Presentation.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Presentation.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.App.Presentation.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

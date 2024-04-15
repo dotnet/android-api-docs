@@ -1,0 +1,1394 @@
+<Type Name="DatagramChannel" FullName="Java.Nio.Channels.DatagramChannel">
+  <TypeSignature Language="C#" Value="public abstract class DatagramChannel : Java.Nio.Channels.Spi.AbstractSelectableChannel, IDisposable, Java.Interop.IJavaPeerable, Java.Nio.Channels.IByteChannel, Java.Nio.Channels.IGatheringByteChannel, Java.Nio.Channels.IScatteringByteChannel" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit DatagramChannel extends Java.Nio.Channels.Spi.AbstractSelectableChannel implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ICloseable, class Java.Nio.Channels.IByteChannel, class Java.Nio.Channels.IChannel, class Java.Nio.Channels.IGatheringByteChannel, class Java.Nio.Channels.IReadableByteChannel, class Java.Nio.Channels.IScatteringByteChannel, class Java.Nio.Channels.IWritableByteChannel, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Nio.Channels.DatagramChannel" />
+  <TypeSignature Language="F#" Value="type DatagramChannel = class&#xA;    inherit AbstractSelectableChannel&#xA;    interface IByteChannel&#xA;    interface IReadableByteChannel&#xA;    interface IChannel&#xA;    interface ICloseable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface IWritableByteChannel&#xA;    interface IGatheringByteChannel&#xA;    interface IScatteringByteChannel" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Nio.Channels.Spi.AbstractSelectableChannel</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.IO.ICloseable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IGatheringByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IReadableByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IScatteringByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IWritableByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/nio/channels/DatagramChannel", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/nio/channels/DatagramChannel", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>A selectable channel for datagram-oriented sockets.</summary>
+    <remarks>
+      <para>A selectable channel for datagram-oriented sockets.</para>
+      <para>A datagram channel is created by invoking one of the <c>#open open</c> methods
+            of this class. It is not possible to create a channel for an arbitrary,
+            pre-existing datagram socket. A newly-created datagram channel is open but not
+            connected. A datagram channel need not be connected in order for the <c>#send
+            send</c> and <c>#receive receive</c> methods to be used.  A datagram channel may be
+            connected, by invoking its <c>#connect connect</c> method, in order to
+            avoid the overhead of the security checks are otherwise performed as part of
+            every send and receive operation.  A datagram channel must be connected in
+            order to use the <c>#read(java.nio.ByteBuffer) read</c> and <c>#write(java.nio.ByteBuffer) write</c> methods, since those methods do not
+            accept or return socket addresses.</para>
+      <para>Once connected, a datagram channel remains connected until it is
+            disconnected or closed.  Whether or not a datagram channel is connected may
+            be determined by invoking its <c>#isConnected isConnected</c> method.</para>
+      <para>Socket options are configured using the <c>#setOption(SocketOption,Object)
+            setOption</c> method. A datagram channel to an Internet Protocol socket supports
+            the following options:
+            &lt;blockquote&gt;
+            &lt;table class="striped"&gt;
+            &lt;caption style="display:none"&gt;Socket options&lt;/caption&gt;
+            &lt;thead&gt;
+              &lt;tr&gt;
+                &lt;th scope="col"&gt;Option Name&lt;/th&gt;
+                &lt;th scope="col"&gt;Description&lt;/th&gt;
+              &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_SNDBUF SO_SNDBUF</c>&lt;/th&gt;
+                &lt;td&gt; The size of the socket send buffer &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_RCVBUF SO_RCVBUF</c>&lt;/th&gt;
+                &lt;td&gt; The size of the socket receive buffer &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_REUSEADDR SO_REUSEADDR</c>&lt;/th&gt;
+                &lt;td&gt; Re-use address &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_BROADCAST SO_BROADCAST</c>&lt;/th&gt;
+                &lt;td&gt; Allow transmission of broadcast datagrams &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#IP_TOS IP_TOS</c>&lt;/th&gt;
+                &lt;td&gt; The Type of Service (ToS) octet in the Internet Protocol (IP) header &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#IP_MULTICAST_IF IP_MULTICAST_IF</c>&lt;/th&gt;
+                &lt;td&gt; The network interface for Internet Protocol (IP) multicast datagrams &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#IP_MULTICAST_TTL
+                  IP_MULTICAST_TTL</c>&lt;/th&gt;
+                &lt;td&gt; The &lt;em&gt;time-to-live&lt;/em&gt; for Internet Protocol (IP) multicast
+                  datagrams &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#IP_MULTICAST_LOOP
+                  IP_MULTICAST_LOOP</c>&lt;/th&gt;
+                &lt;td&gt; Loopback for Internet Protocol (IP) multicast datagrams &lt;/td&gt;
+              &lt;/tr&gt;
+            &lt;/tbody&gt;
+            &lt;/table&gt;
+            &lt;/blockquote&gt;
+            Additional (implementation specific) options may also be supported.</para>
+      <para>Datagram channels are safe for use by multiple concurrent threads.  They
+            support concurrent reading and writing, though at most one thread may be
+            reading and at most one thread may be writing at any given time.</para>
+      <para>Added in 1.4.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected DatagramChannel (Java.Nio.Channels.Spi.SelectorProvider? provider);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class Java.Nio.Channels.Spi.SelectorProvider provider) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.#ctor(Java.Nio.Channels.Spi.SelectorProvider)" />
+      <MemberSignature Language="F#" Value="new Java.Nio.Channels.DatagramChannel : Java.Nio.Channels.Spi.SelectorProvider -&gt; Java.Nio.Channels.DatagramChannel" Usage="new Java.Nio.Channels.DatagramChannel provider" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/nio/channels/spi/SelectorProvider;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/nio/channels/spi/SelectorProvider;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="provider" Type="Java.Nio.Channels.Spi.SelectorProvider" />
+      </Parameters>
+      <Docs>
+        <param name="provider">The provider that created this channel</param>
+        <summary>Initializes a new instance of this class.</summary>
+        <remarks>
+          <para>Initializes a new instance of this class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#DatagramChannel(java.nio.channels.spi.SelectorProvider)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.DatagramChannel(java.nio.channels.spi.SelectorProvider)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected DatagramChannel (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Nio.Channels.DatagramChannel : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Nio.Channels.DatagramChannel" Usage="new Java.Nio.Channels.DatagramChannel (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Bind">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.DatagramChannel? Bind (Java.Net.SocketAddress? local);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.DatagramChannel Bind(class Java.Net.SocketAddress local) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Bind(Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="abstract member Bind : Java.Net.SocketAddress -&gt; Java.Nio.Channels.DatagramChannel" Usage="datagramChannel.Bind local" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("bind", "(Ljava/net/SocketAddress;)Ljava/nio/channels/DatagramChannel;", "GetBind_Ljava_net_SocketAddress_Handler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("bind", "(Ljava/net/SocketAddress;)Ljava/nio/channels/DatagramChannel;", "GetBind_Ljava_net_SocketAddress_Handler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.DatagramChannel</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="local" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="local">To be added.</param>
+        <summary>Added in 1.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Added in 1.7.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#bind(java.net.SocketAddress)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.bind(java.net.SocketAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Connect">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.DatagramChannel? Connect (Java.Net.SocketAddress? remote);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.DatagramChannel Connect(class Java.Net.SocketAddress remote) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Connect(Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="abstract member Connect : Java.Net.SocketAddress -&gt; Java.Nio.Channels.DatagramChannel" Usage="datagramChannel.Connect remote" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("connect", "(Ljava/net/SocketAddress;)Ljava/nio/channels/DatagramChannel;", "GetConnect_Ljava_net_SocketAddress_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("connect", "(Ljava/net/SocketAddress;)Ljava/nio/channels/DatagramChannel;", "GetConnect_Ljava_net_SocketAddress_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.DatagramChannel</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="remote" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="remote">The remote address to which this channel is to be connected</param>
+        <summary>Connects this channel's socket.</summary>
+        <returns>This datagram channel</returns>
+        <remarks>
+          <para>Connects this channel's socket.</para>
+          <para>The channel's socket is configured so that it only receives
+            datagrams from, and sends datagrams to, the given remote <i>peer</i>
+            address.  Once connected, datagrams may not be received from or sent to
+            any other address.  A datagram socket remains connected until it is
+            explicitly disconnected or until it is closed.</para>
+          <para>This method performs exactly the same security checks as the <c>java.net.DatagramSocket#connect connect</c> method of the <c>java.net.DatagramSocket</c> class.  That is, if a security manager has been
+            installed then this method verifies that its <c>java.lang.SecurityManager#checkAccept checkAccept</c> and <c>java.lang.SecurityManager#checkConnect checkConnect</c> methods permit
+            datagrams to be received from and sent to, respectively, the given
+            remote address.</para>
+          <para>This method may be invoked at any time.  It will not have any effect
+            on read or write operations that are already in progress at the moment
+            that it is invoked. If this channel's socket is not bound then this method
+            will first cause the socket to be bound to an address that is assigned
+            automatically, as if invoking the <c>#bind bind</c> method with a
+            parameter of <c>null</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#connect(java.net.SocketAddress)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.connect(java.net.SocketAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">if some other I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ConnectAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;Java.Nio.Channels.DatagramChannel?&gt; ConnectAsync (Java.Net.SocketAddress? remote);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;class Java.Nio.Channels.DatagramChannel&gt; ConnectAsync(class Java.Net.SocketAddress remote) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.ConnectAsync(Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="member this.ConnectAsync : Java.Net.SocketAddress -&gt; System.Threading.Tasks.Task&lt;Java.Nio.Channels.DatagramChannel&gt;" Usage="datagramChannel.ConnectAsync remote" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;Java.Nio.Channels.DatagramChannel&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="remote" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="remote">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Disconnect">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.DatagramChannel? Disconnect ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.DatagramChannel Disconnect() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Disconnect" />
+      <MemberSignature Language="F#" Value="abstract member Disconnect : unit -&gt; Java.Nio.Channels.DatagramChannel" Usage="datagramChannel.Disconnect " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("disconnect", "()Ljava/nio/channels/DatagramChannel;", "GetDisconnectHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("disconnect", "()Ljava/nio/channels/DatagramChannel;", "GetDisconnectHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.DatagramChannel</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Disconnects this channel's socket.</summary>
+        <returns>This datagram channel</returns>
+        <remarks>
+          <para>Disconnects this channel's socket.</para>
+          <para>The channel's socket is configured so that it can receive datagrams
+            from, and sends datagrams to, any remote address so long as the security
+            manager, if installed, permits it.</para>
+          <para>This method may be invoked at any time.  It will not have any effect
+            on read or write operations that are already in progress at the moment
+            that it is invoked.</para>
+          <para>If this channel's socket is not connected, or if the channel is
+            closed, then invoking this method has no effect.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#disconnect()" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.disconnect()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="IsConnected">
+      <MemberSignature Language="C#" Value="public abstract bool IsConnected { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsConnected" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.DatagramChannel.IsConnected" />
+      <MemberSignature Language="F#" Value="member this.IsConnected : bool" Usage="Java.Nio.Channels.DatagramChannel.IsConnected" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isConnected", "()Z", "GetIsConnectedHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isConnected", "()Z", "GetIsConnectedHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns whether this channel's socket is connected or not.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.DatagramChannel.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Nio.Channels.DatagramChannel.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="LocalAddress">
+      <MemberSignature Language="C#" Value="public abstract Java.Net.SocketAddress? LocalAddress { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Net.SocketAddress LocalAddress" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.DatagramChannel.LocalAddress" />
+      <MemberSignature Language="F#" Value="member this.LocalAddress : Java.Net.SocketAddress" Usage="Java.Nio.Channels.DatagramChannel.LocalAddress" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLocalAddress", "()Ljava/net/SocketAddress;", "GetGetLocalAddressHandler", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLocalAddress", "()Ljava/net/SocketAddress;", "GetGetLocalAddressHandler", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Net.SocketAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Open">
+      <MemberSignature Language="C#" Value="public static Java.Nio.Channels.DatagramChannel? Open ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Nio.Channels.DatagramChannel Open() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Open" />
+      <MemberSignature Language="F#" Value="static member Open : unit -&gt; Java.Nio.Channels.DatagramChannel" Usage="Java.Nio.Channels.DatagramChannel.Open " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("open", "()Ljava/nio/channels/DatagramChannel;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("open", "()Ljava/nio/channels/DatagramChannel;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.DatagramChannel</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Opens a datagram channel.</summary>
+        <returns>A new datagram channel</returns>
+        <remarks>
+          <para>Opens a datagram channel.</para>
+          <para>The new channel is created by invoking the <c>java.nio.channels.spi.SelectorProvider#openDatagramChannel()
+            openDatagramChannel</c> method of the system-wide default <c>java.nio.channels.spi.SelectorProvider</c> object.  The channel will not be
+            connected.</para>
+          <para>The <c>ProtocolFamily ProtocolFamily</c> of the channel's socket
+            is platform (and possibly configuration) dependent and therefore unspecified.
+            The <c>#open(ProtocolFamily) open</c> allows the protocol family to be
+            selected when opening a datagram channel, and should be used to open
+            datagram channels that are intended for Internet Protocol multicasting.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#open()" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.open()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.IO.IOException">if some I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Open">
+      <MemberSignature Language="C#" Value="public static Java.Nio.Channels.DatagramChannel? Open (Java.Net.IProtocolFamily? family);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Nio.Channels.DatagramChannel Open(class Java.Net.IProtocolFamily family) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Open(Java.Net.IProtocolFamily)" />
+      <MemberSignature Language="F#" Value="static member Open : Java.Net.IProtocolFamily -&gt; Java.Nio.Channels.DatagramChannel" Usage="Java.Nio.Channels.DatagramChannel.Open family" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("open", "(Ljava/net/ProtocolFamily;)Ljava/nio/channels/DatagramChannel;", "", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("open", "(Ljava/net/ProtocolFamily;)Ljava/nio/channels/DatagramChannel;", "", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.DatagramChannel</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="family" Type="Java.Net.IProtocolFamily" />
+      </Parameters>
+      <Docs>
+        <param name="family">The protocol family</param>
+        <summary>Opens a datagram channel.</summary>
+        <returns>A new datagram channel</returns>
+        <remarks>
+          <para>Opens a datagram channel.</para>
+          <para>The <c>family</c> parameter is used to specify the <c>ProtocolFamily</c>. If the datagram channel is to be used for IP multicasting
+            then this should correspond to the address type of the multicast groups
+            that this channel will join.</para>
+          <para>The new channel is created by invoking the <c>java.nio.channels.spi.SelectorProvider#openDatagramChannel(ProtocolFamily)
+            openDatagramChannel</c> method of the system-wide default <c>java.nio.channels.spi.SelectorProvider</c> object.  The channel will not be
+            connected.</para>
+          <para>Added in 1.7.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#open(java.net.ProtocolFamily)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.open(java.net.ProtocolFamily)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Read">
+      <MemberSignature Language="C#" Value="public abstract int Read (Java.Nio.ByteBuffer? dst);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Read(class Java.Nio.ByteBuffer dst) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Read(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member Read : Java.Nio.ByteBuffer -&gt; int" Usage="datagramChannel.Read dst" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IReadableByteChannel.Read(Java.Nio.ByteBuffer)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("read", "(Ljava/nio/ByteBuffer;)I", "GetRead_Ljava_nio_ByteBuffer_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("read", "(Ljava/nio/ByteBuffer;)I", "GetRead_Ljava_nio_ByteBuffer_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dst" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="dst">To be added.</param>
+        <summary>Reads a datagram from this channel.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Reads a datagram from this channel.</para>
+          <para>This method may only be invoked if this channel's socket is
+            connected, and it only accepts datagrams from the socket's peer.  If
+            there are more bytes in the datagram than remain in the given buffer
+            then the remainder of the datagram is silently discarded.  Otherwise
+            this method behaves exactly as specified in the <c>ReadableByteChannel</c> interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#read(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.read(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if the channel is not connected yet.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+        <altmember cref="M:Java.Nio.Channels.IReadableByteChannel.Read(Java.Nio.ByteBuffer)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Read">
+      <MemberSignature Language="C#" Value="public long Read (Java.Nio.ByteBuffer[]? dsts);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Read(class Java.Nio.ByteBuffer[] dsts) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Read(Java.Nio.ByteBuffer[])" />
+      <MemberSignature Language="F#" Value="abstract member Read : Java.Nio.ByteBuffer[] -&gt; int64&#xA;override this.Read : Java.Nio.ByteBuffer[] -&gt; int64" Usage="datagramChannel.Read dsts" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IScatteringByteChannel.Read(Java.Nio.ByteBuffer[])</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;)J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;)J", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dsts" Type="Java.Nio.ByteBuffer[]" />
+      </Parameters>
+      <Docs>
+        <param name="dsts">To be added.</param>
+        <summary>Reads a datagram from this channel.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Reads a datagram from this channel.</para>
+          <para>This method may only be invoked if this channel's socket is
+            connected, and it only accepts datagrams from the socket's peer.  If
+            there are more bytes in the datagram than remain in the given buffers
+            then the remainder of the datagram is silently discarded.  Otherwise
+            this method behaves exactly as specified in the <c>ScatteringByteChannel</c> interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#read(java.nio.ByteBuffer[])" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.read(java.nio.ByteBuffer[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if the channel is not connected yet.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+        <altmember cref="M:Java.Nio.Channels.IScatteringByteChannel.Read(Java.Nio.ByteBuffer[])" />
+      </Docs>
+    </Member>
+    <Member MemberName="Read">
+      <MemberSignature Language="C#" Value="public abstract long Read (Java.Nio.ByteBuffer[]? dsts, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Read(class Java.Nio.ByteBuffer[] dsts, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Read(Java.Nio.ByteBuffer[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Read : Java.Nio.ByteBuffer[] * int * int -&gt; int64" Usage="datagramChannel.Read (dsts, offset, length)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IScatteringByteChannel.Read(Java.Nio.ByteBuffer[],System.Int32,System.Int32)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;II)J", "GetRead_arrayLjava_nio_ByteBuffer_IIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;II)J", "GetRead_arrayLjava_nio_ByteBuffer_IIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dsts" Type="Java.Nio.ByteBuffer[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="dsts">To be added.</param>
+        <param name="offset">a non-negative offset in the array of buffers, pointing to the
+            starting buffer to store the bytes transferred, must not be
+            bigger than <c>targets.length</c>.</param>
+        <param name="length">a non-negative length to indicate the maximum number of
+            buffers to be filled, must not be bigger than
+            <c>targets.length - offset</c>.</param>
+        <summary>Reads a datagram from this channel.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Reads a datagram from this channel.</para>
+          <para>This method may only be invoked if this channel's socket is
+            connected, and it only accepts datagrams from the socket's peer.  If
+            there are more bytes in the datagram than remain in the given buffers
+            then the remainder of the datagram is silently discarded.  Otherwise
+            this method behaves exactly as specified in the <c>ScatteringByteChannel</c> interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#read(java.nio.ByteBuffer[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.read(java.nio.ByteBuffer[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if the channel is not connected yet.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+        <altmember cref="M:Java.Nio.Channels.IScatteringByteChannel.Read(Java.Nio.ByteBuffer[], System.Int32, System.Int32)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Receive">
+      <MemberSignature Language="C#" Value="public abstract Java.Net.SocketAddress? Receive (Java.Nio.ByteBuffer? dst);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Net.SocketAddress Receive(class Java.Nio.ByteBuffer dst) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Receive(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member Receive : Java.Nio.ByteBuffer -&gt; Java.Net.SocketAddress" Usage="datagramChannel.Receive dst" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("receive", "(Ljava/nio/ByteBuffer;)Ljava/net/SocketAddress;", "GetReceive_Ljava_nio_ByteBuffer_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("receive", "(Ljava/nio/ByteBuffer;)Ljava/net/SocketAddress;", "GetReceive_Ljava_nio_ByteBuffer_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Net.SocketAddress</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dst" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="dst">The buffer into which the datagram is to be transferred</param>
+        <summary>Receives a datagram via this channel.</summary>
+        <returns>The datagram's source address,
+                     or <c>null</c> if this channel is in non-blocking mode
+                     and no datagram was immediately available</returns>
+        <remarks>
+          <para>Receives a datagram via this channel.</para>
+          <para>If a datagram is immediately available, or if this channel is in
+            blocking mode and one eventually becomes available, then the datagram is
+            copied into the given byte buffer and its source address is returned.
+            If this channel is in non-blocking mode and a datagram is not
+            immediately available then this method immediately returns
+            <c>null</c>.</para>
+          <para>The datagram is transferred into the given byte buffer starting at
+            its current position, as if by a regular <c>ReadableByteChannel#read(java.nio.ByteBuffer) read</c> operation.  If there
+            are fewer bytes remaining in the buffer than are required to hold the
+            datagram then the remainder of the datagram is silently discarded.</para>
+          <para>This method performs exactly the same security checks as the <c>java.net.DatagramSocket#receive receive</c> method of the <c>java.net.DatagramSocket</c> class.  That is, if the socket is not connected
+            to a specific remote address and a security manager has been installed
+            then for each datagram received this method verifies that the source's
+            address and port number are permitted by the security manager's <c>java.lang.SecurityManager#checkAccept checkAccept</c> method.  The overhead
+            of this security check can be avoided by first connecting the socket via
+            the <c>#connect connect</c> method.</para>
+          <para>This method may be invoked at any time.  If another thread has
+            already initiated a read operation upon this channel, however, then an
+            invocation of this method will block until the first operation is
+            complete. If this channel's socket is not bound then this method will
+            first cause the socket to be bound to an address that is assigned
+            automatically, as if invoking the <c>#bind bind</c> method with a
+            parameter of <c>null</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#receive(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.receive(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReceiveAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;Java.Net.SocketAddress?&gt; ReceiveAsync (Java.Nio.ByteBuffer? dst);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;class Java.Net.SocketAddress&gt; ReceiveAsync(class Java.Nio.ByteBuffer dst) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.ReceiveAsync(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="member this.ReceiveAsync : Java.Nio.ByteBuffer -&gt; System.Threading.Tasks.Task&lt;Java.Net.SocketAddress&gt;" Usage="datagramChannel.ReceiveAsync dst" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;Java.Net.SocketAddress&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dst" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="dst">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoteAddress">
+      <MemberSignature Language="C#" Value="public abstract Java.Net.SocketAddress? RemoteAddress { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Net.SocketAddress RemoteAddress" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.DatagramChannel.RemoteAddress" />
+      <MemberSignature Language="F#" Value="member this.RemoteAddress : Java.Net.SocketAddress" Usage="Java.Nio.Channels.DatagramChannel.RemoteAddress" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getRemoteAddress", "()Ljava/net/SocketAddress;", "GetGetRemoteAddressHandler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRemoteAddress", "()Ljava/net/SocketAddress;", "GetGetRemoteAddressHandler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Net.SocketAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Send">
+      <MemberSignature Language="C#" Value="public abstract int Send (Java.Nio.ByteBuffer? src, Java.Net.SocketAddress? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Send(class Java.Nio.ByteBuffer src, class Java.Net.SocketAddress target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Send(Java.Nio.ByteBuffer,Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="abstract member Send : Java.Nio.ByteBuffer * Java.Net.SocketAddress -&gt; int" Usage="datagramChannel.Send (src, target)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("send", "(Ljava/nio/ByteBuffer;Ljava/net/SocketAddress;)I", "GetSend_Ljava_nio_ByteBuffer_Ljava_net_SocketAddress_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("send", "(Ljava/nio/ByteBuffer;Ljava/net/SocketAddress;)I", "GetSend_Ljava_nio_ByteBuffer_Ljava_net_SocketAddress_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="src" Type="Java.Nio.ByteBuffer" />
+        <Parameter Name="target" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="src">The buffer containing the datagram to be sent</param>
+        <param name="target">The address to which the datagram is to be sent</param>
+        <summary>Sends a datagram via this channel.</summary>
+        <returns>The number of bytes sent, which will be either the number
+                      of bytes that were remaining in the source buffer when this
+                      method was invoked or, if this channel is non-blocking, may be
+                      zero if there was insufficient room for the datagram in the
+                      underlying output buffer</returns>
+        <remarks>
+          <para>Sends a datagram via this channel.</para>
+          <para>If this channel is in non-blocking mode and there is sufficient room
+            in the underlying output buffer, or if this channel is in blocking mode
+            and sufficient room becomes available, then the remaining bytes in the
+            given buffer are transmitted as a single datagram to the given target
+            address.</para>
+          <para>The datagram is transferred from the byte buffer as if by a regular
+            <c>WritableByteChannel#write(java.nio.ByteBuffer) write</c> operation.</para>
+          <para>This method performs exactly the same security checks as the <c>java.net.DatagramSocket#send send</c> method of the <c>java.net.DatagramSocket</c> class.  That is, if the socket is not connected
+            to a specific remote address and a security manager has been installed
+            then for each datagram sent this method verifies that the target address
+            and port number are permitted by the security manager's <c>java.lang.SecurityManager#checkConnect checkConnect</c> method.  The
+            overhead of this security check can be avoided by first connecting the
+            socket via the <c>#connect connect</c> method.</para>
+          <para>This method may be invoked at any time.  If another thread has
+            already initiated a write operation upon this channel, however, then an
+            invocation of this method will block until the first operation is
+            complete. If this channel's socket is not bound then this method will
+            first cause the socket to be bound to an address that is assigned
+            automatically, as if by invoking the <c>#bind bind</c> method with a
+            parameter of <c>null</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#send(java.nio.ByteBuffer,%20java.net.SocketAddress)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.send(java.nio.ByteBuffer, java.net.SocketAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SendAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; SendAsync (Java.Nio.ByteBuffer? src, Java.Net.SocketAddress? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; SendAsync(class Java.Nio.ByteBuffer src, class Java.Net.SocketAddress target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.SendAsync(Java.Nio.ByteBuffer,Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="member this.SendAsync : Java.Nio.ByteBuffer * Java.Net.SocketAddress -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="datagramChannel.SendAsync (src, target)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Int32&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="src" Type="Java.Nio.ByteBuffer" />
+        <Parameter Name="target" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="src">To be added.</param>
+        <param name="target">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetOption">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.DatagramChannel? SetOption (Java.Net.ISocketOption? name, Java.Lang.Object? value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.DatagramChannel SetOption(class Java.Net.ISocketOption name, class Java.Lang.Object value) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.SetOption(Java.Net.ISocketOption,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member SetOption : Java.Net.ISocketOption * Java.Lang.Object -&gt; Java.Nio.Channels.DatagramChannel" Usage="datagramChannel.SetOption (name, value)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setOption", "(Ljava/net/SocketOption;Ljava/lang/Object;)Ljava/nio/channels/DatagramChannel;", "GetSetOption_Ljava_net_SocketOption_Ljava_lang_Object_Handler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setOption", "(Ljava/net/SocketOption;Ljava/lang/Object;)Ljava/nio/channels/DatagramChannel;", "GetSetOption_Ljava_net_SocketOption_Ljava_lang_Object_Handler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.DatagramChannel</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="name" Type="Java.Net.ISocketOption" />
+        <Parameter Name="value" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="name">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>Added in 1.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Added in 1.7.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#setOption(java.net.SocketOption%3CT%3E,%20T)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.setOption(java.net.SocketOption&lt;T&gt;, T)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Socket">
+      <MemberSignature Language="C#" Value="public abstract Java.Net.DatagramSocket? Socket ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Net.DatagramSocket Socket() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Socket" />
+      <MemberSignature Language="F#" Value="abstract member Socket : unit -&gt; Java.Net.DatagramSocket" Usage="datagramChannel.Socket " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("socket", "()Ljava/net/DatagramSocket;", "GetSocketHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("socket", "()Ljava/net/DatagramSocket;", "GetSocketHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Net.DatagramSocket</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Retrieves a datagram socket associated with this channel.</summary>
+        <returns>A datagram socket associated with this channel</returns>
+        <remarks>
+          <para>Retrieves a datagram socket associated with this channel.</para>
+          <para>The returned object will not declare any public methods that are not
+            declared in the <c>java.net.DatagramSocket</c> class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#socket()" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.socket()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.DatagramChannel.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Nio.Channels.DatagramChannel.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.DatagramChannel.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Nio.Channels.DatagramChannel.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ValidOps">
+      <MemberSignature Language="C#" Value="public override sealed Java.Nio.Channels.Operations ValidOps ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance valuetype Java.Nio.Channels.Operations ValidOps() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.ValidOps" />
+      <MemberSignature Language="F#" Value="override this.ValidOps : unit -&gt; Java.Nio.Channels.Operations" Usage="datagramChannel.ValidOps " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("validOps", "()I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("validOps", "()I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.Operations</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+            <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns an operation set identifying this channel's supported
+            operations.</summary>
+        <returns>The valid-operation set</returns>
+        <remarks>
+          <para>Returns an operation set identifying this channel's supported
+            operations.</para>
+          <para>Datagram channels support reading and writing, so this method
+            returns <c>(</c><c>SelectionKey#OP_READ</c><c>|</c>&amp;nbsp;<c>SelectionKey#OP_WRITE</c><c>)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#validOps()" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.validOps()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Nio.Channels.SelectableChannel.ValidOps" />
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public abstract int Write (Java.Nio.ByteBuffer? src);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Write(class Java.Nio.ByteBuffer src) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Write(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member Write : Java.Nio.ByteBuffer -&gt; int" Usage="datagramChannel.Write src" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IWritableByteChannel.Write(Java.Nio.ByteBuffer)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("write", "(Ljava/nio/ByteBuffer;)I", "GetWrite_Ljava_nio_ByteBuffer_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("write", "(Ljava/nio/ByteBuffer;)I", "GetWrite_Ljava_nio_ByteBuffer_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="src" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="src">To be added.</param>
+        <summary>Writes a datagram to this channel.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Writes a datagram to this channel.</para>
+          <para>This method may only be invoked if this channel's socket is
+            connected, in which case it sends datagrams directly to the socket's
+            peer.  Otherwise it behaves exactly as specified in the <c>WritableByteChannel</c> interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#write(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.write(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if the channel is not connected yet.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+        <altmember cref="M:Java.Nio.Channels.IWritableByteChannel.Write(Java.Nio.ByteBuffer)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public long Write (Java.Nio.ByteBuffer[]? srcs);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Write(class Java.Nio.ByteBuffer[] srcs) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Write(Java.Nio.ByteBuffer[])" />
+      <MemberSignature Language="F#" Value="abstract member Write : Java.Nio.ByteBuffer[] -&gt; int64&#xA;override this.Write : Java.Nio.ByteBuffer[] -&gt; int64" Usage="datagramChannel.Write srcs" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[])</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;)J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;)J", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="srcs" Type="Java.Nio.ByteBuffer[]" />
+      </Parameters>
+      <Docs>
+        <param name="srcs">To be added.</param>
+        <summary>Writes a datagram to this channel.</summary>
+        <returns>The number of bytes sent, which will be either the number
+                      of bytes that were remaining in the source buffer when this
+                      method was invoked or, if this channel is non-blocking, may be
+                      zero if there was insufficient room for the datagram in the
+                      underlying output buffer</returns>
+        <remarks>
+          <para>Writes a datagram to this channel.</para>
+          <para>This method may only be invoked if this channel's socket is
+            connected, in which case it sends datagrams directly to the socket's
+            peer.  Otherwise it behaves exactly as specified in the <c>GatheringByteChannel</c> interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#write(java.nio.ByteBuffer[])" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.write(java.nio.ByteBuffer[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if the channel is not connected yet.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+        <altmember cref="M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[])" />
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public abstract long Write (Java.Nio.ByteBuffer[]? srcs, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Write(class Java.Nio.ByteBuffer[] srcs, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.DatagramChannel.Write(Java.Nio.ByteBuffer[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Write : Java.Nio.ByteBuffer[] * int * int -&gt; int64" Usage="datagramChannel.Write (srcs, offset, length)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[],System.Int32,System.Int32)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;II)J", "GetWrite_arrayLjava_nio_ByteBuffer_IIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;II)J", "GetWrite_arrayLjava_nio_ByteBuffer_IIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="srcs" Type="Java.Nio.ByteBuffer[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="srcs">To be added.</param>
+        <param name="offset">a non-negative offset in the array of buffers, pointing to the
+            starting buffer to be retrieved, must be no larger than
+            <c>sources.length</c>.</param>
+        <param name="length">a non-negative length to indicate the maximum number of
+            buffers to be submitted, must be no bigger than
+            <c>sources.length - offset</c>.</param>
+        <summary>Writes a datagram to this channel.</summary>
+        <returns>The number of bytes sent, which will be either the number
+                      of bytes that were remaining in the source buffer when this
+                      method was invoked or, if this channel is non-blocking, may be
+                      zero if there was insufficient room for the datagram in the
+                      underlying output buffer</returns>
+        <remarks>
+          <para>Writes a datagram to this channel.</para>
+          <para>This method may only be invoked if this channel's socket is
+            connected, in which case it sends datagrams directly to the socket's
+            peer.  Otherwise it behaves exactly as specified in the <c>GatheringByteChannel</c> interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/DatagramChannel#write(java.nio.ByteBuffer[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.nio.channels.DatagramChannel.write(java.nio.ByteBuffer[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if the channel is not connected yet.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel is already closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if the channel is closed by another thread while this method
+             is in operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while the
+             operation is in progress. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.IO.IOException">some other I/O error occurs.
+</exception>
+        <altmember cref="M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[], System.Int32, System.Int32)" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

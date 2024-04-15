@@ -1,0 +1,764 @@
+<Type Name="TextToSpeechService" FullName="Android.Speech.Tts.TextToSpeechService">
+  <TypeSignature Language="C#" Value="public abstract class TextToSpeechService : Android.App.Service" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit TextToSpeechService extends Android.App.Service" />
+  <TypeSignature Language="DocId" Value="T:Android.Speech.Tts.TextToSpeechService" />
+  <TypeSignature Language="F#" Value="type TextToSpeechService = class&#xA;    inherit Service" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Android.App.Service</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/speech/tts/TextToSpeechService", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/speech/tts/TextToSpeechService", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="14">
+    <summary>Abstract base class for TTS engine implementations.</summary>
+    <remarks>
+      <para>Abstract base class for TTS engine implementations. The following methods
+            need to be implemented:
+            &lt;ul&gt;
+            &lt;li&gt;<c>#onIsLanguageAvailable</c>&lt;/li&gt;
+            &lt;li&gt;<c>#onLoadLanguage</c>&lt;/li&gt;
+            &lt;li&gt;<c>#onGetLanguage</c>&lt;/li&gt;
+            &lt;li&gt;<c>#onSynthesizeText</c>&lt;/li&gt;
+            &lt;li&gt;<c>#onStop</c>&lt;/li&gt;
+            &lt;/ul&gt;
+            The first three deal primarily with language management, and are used to
+            query the engine for it's support for a given language and indicate to it
+            that requests in a given language are imminent.
+            
+            <c>#onSynthesizeText</c> is central to the engine implementation. The
+            implementation should synthesize text as per the request parameters and
+            return synthesized data via the supplied callback. This class and its helpers
+            will then consume that data, which might mean queuing it for playback or writing
+            it to a file or similar. All calls to this method will be on a single thread,
+            which will be different from the main thread of the service. Synthesis must be
+            synchronous which means the engine must NOT hold on to the callback or call any
+            methods on it after the method returns.
+            
+            <c>#onStop</c> tells the engine that it should stop
+            all ongoing synthesis, if any. Any pending data from the current synthesis
+            will be discarded.
+            
+            <c>#onGetLanguage</c> is not required as of JELLYBEAN_MR2 (API 18) and later, it is only
+            called on earlier versions of Android.
+            
+            API Level 20 adds support for Voice objects. Voices are an abstraction that allow the TTS
+            service to expose multiple backends for a single locale. Each one of them can have a different
+            features set. In order to fully take advantage of voices, an engine should implement
+            the following methods:
+            &lt;ul&gt;
+            &lt;li&gt;<c>#onGetVoices()</c>&lt;/li&gt;
+            &lt;li&gt;<c>#onIsValidVoiceName(String)</c>&lt;/li&gt;
+            &lt;li&gt;<c>#onLoadVoice(String)</c>&lt;/li&gt;
+            &lt;li&gt;<c>#onGetDefaultVoiceNameFor(String, String, String)</c>&lt;/li&gt;
+            &lt;/ul&gt;
+            The first three methods are siblings of the <c>#onGetLanguage</c>,
+            <c>#onIsLanguageAvailable</c> and <c>#onLoadLanguage</c> methods. The last one,
+            <c>#onGetDefaultVoiceNameFor(String, String, String)</c> is a link between locale and voice
+            based methods. Since API level 21 <c>TextToSpeech#setLanguage</c> is implemented by
+            calling <c>TextToSpeech#setVoice</c> with the voice returned by
+            <c>#onGetDefaultVoiceNameFor(String, String, String)</c>.
+            
+            If the client uses a voice instead of a locale, <c>SynthesisRequest</c> will contain the
+            requested voice name.
+            
+            The default implementations of Voice-related methods implement them using the
+            pre-existing locale-based implementation.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 14" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public TextToSpeechService ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>
+        </summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected TextToSpeechService (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Android.Speech.Tts.TextToSpeechService : nativeint * Android.Runtime.JniHandleOwnership -&gt; Android.Speech.Tts.TextToSpeechService" Usage="new Android.Speech.Tts.TextToSpeechService (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Speech.Tts.TextToSpeechService.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Speech.Tts.TextToSpeechService.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnBind">
+      <MemberSignature Language="C#" Value="public override Android.OS.IBinder? OnBind (Android.Content.Intent? intent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class Android.OS.IBinder OnBind(class Android.Content.Intent intent) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnBind(Android.Content.Intent)" />
+      <MemberSignature Language="F#" Value="override this.OnBind : Android.Content.Intent -&gt; Android.OS.IBinder" Usage="textToSpeechService.OnBind intent" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onBind", "(Landroid/content/Intent;)Landroid/os/IBinder;", "GetOnBind_Landroid_content_Intent_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onBind", "(Landroid/content/Intent;)Landroid/os/IBinder;", "GetOnBind_Landroid_content_Intent_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.IBinder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="intent" Type="Android.Content.Intent" />
+      </Parameters>
+      <Docs>
+        <param name="intent">The Intent that was used to bind to this service,
+ as given to <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='M:Android Content Context BindService(Android Content Intent,Android Content IServiceConnection,Android Content IServiceConnection)';scope=Xamarin" title="M:Android.Content.Context.BindService(Android.Content.Intent,Android.Content.IServiceConnection,Android.Content.IServiceConnection)">M:Android.Content.Context.BindService(Android.Content.Intent,Android.Content.IServiceConnection,Android.Content.IServiceConnection)</a></format>.  Note that any extras that were included with
+ the Intent at that point will <i>not</i> be seen here.</param>
+        <summary>Return the communication channel to the service.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnGetDefaultVoiceNameFor">
+      <MemberSignature Language="C#" Value="public virtual string? OnGetDefaultVoiceNameFor (string? lang, string? country, string? variant);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string OnGetDefaultVoiceNameFor(string lang, string country, string variant) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnGetDefaultVoiceNameFor(System.String,System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member OnGetDefaultVoiceNameFor : string * string * string -&gt; string&#xA;override this.OnGetDefaultVoiceNameFor : string * string * string -&gt; string" Usage="textToSpeechService.OnGetDefaultVoiceNameFor (lang, country, variant)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onGetDefaultVoiceNameFor", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", "GetOnGetDefaultVoiceNameFor_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onGetDefaultVoiceNameFor", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", "GetOnGetDefaultVoiceNameFor_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="lang" Type="System.String" />
+        <Parameter Name="country" Type="System.String" />
+        <Parameter Name="variant" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="lang">ISO-3 language code.</param>
+        <param name="country">ISO-3 country code. May be empty or null.</param>
+        <param name="variant">Language variant. May be empty or null.</param>
+        <summary>Return a name of the default voice for a given locale.</summary>
+        <returns>A name of the default voice for a given locale.</returns>
+        <remarks>
+          <para>Return a name of the default voice for a given locale.
+            
+            This method provides a mapping between locales and available voices. This method is
+            used in <c>TextToSpeech#setLanguage</c>, which calls this method and then calls
+            <c>TextToSpeech#setVoice</c> with the voice returned by this method.
+            
+            Also, it's used by <c>TextToSpeech#getDefaultVoice()</c> to find a default voice for
+            the default locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onGetDefaultVoiceNameFor(java.lang.String,%20java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onGetDefaultVoiceNameFor(java.lang.String, java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnGetFeaturesForLanguage">
+      <MemberSignature Language="C#" Value="protected virtual System.Collections.Generic.ICollection&lt;string&gt;? OnGetFeaturesForLanguage (string? lang, string? country, string? variant);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class System.Collections.Generic.ICollection`1&lt;string&gt; OnGetFeaturesForLanguage(string lang, string country, string variant) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnGetFeaturesForLanguage(System.String,System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member OnGetFeaturesForLanguage : string * string * string -&gt; System.Collections.Generic.ICollection&lt;string&gt;&#xA;override this.OnGetFeaturesForLanguage : string * string * string -&gt; System.Collections.Generic.ICollection&lt;string&gt;" Usage="textToSpeechService.OnGetFeaturesForLanguage (lang, country, variant)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onGetFeaturesForLanguage", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Set;", "GetOnGetFeaturesForLanguage_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onGetFeaturesForLanguage", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Set;", "GetOnGetFeaturesForLanguage_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="lang" Type="System.String" />
+        <Parameter Name="country" Type="System.String" />
+        <Parameter Name="variant" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="lang">ISO-3 language code.</param>
+        <param name="country">ISO-3 country code. May be empty or null.</param>
+        <param name="variant">Language variant. May be empty or null.</param>
+        <summary>Queries the service for a set of features supported for a given language.</summary>
+        <returns>A list of features supported for the given language.</returns>
+        <remarks>
+          <para>Queries the service for a set of features supported for a given language.</para>
+          <para>Can be called on multiple threads.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onGetFeaturesForLanguage(java.lang.String,%20java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onGetFeaturesForLanguage(java.lang.String, java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 15" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnGetLanguage">
+      <MemberSignature Language="C#" Value="protected abstract string[]? OnGetLanguage ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance string[] OnGetLanguage() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnGetLanguage" />
+      <MemberSignature Language="F#" Value="abstract member OnGetLanguage : unit -&gt; string[]" Usage="textToSpeechService.OnGetLanguage " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onGetLanguage", "()[Ljava/lang/String;", "GetOnGetLanguageHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onGetLanguage", "()[Ljava/lang/String;", "GetOnGetLanguageHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the language, country and variant currently being used by the TTS engine.</summary>
+        <returns>A 3-element array, containing language (ISO 3-letter code),
+                    country (ISO 3-letter code) and variant used by the engine.
+                    The country and variant may be <c>""</c>. If country is empty, then variant must
+                    be empty too.</returns>
+        <remarks>
+          <para>Returns the language, country and variant currently being used by the TTS engine.
+            
+            This method will be called only on Android 4.2 and before (API &lt;= 17). In later versions
+            this method is not called by the Android TTS framework.
+            
+            Can be called on multiple threads.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onGetLanguage()" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onGetLanguage()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+        <altmember cref="P:Java.Util.Locale.ISO3Language" />
+        <altmember cref="P:Java.Util.Locale.ISO3Country" />
+        <altmember cref="P:Java.Util.Locale.Variant" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnGetVoices">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;Android.Speech.Tts.Voice&gt;? OnGetVoices ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IList`1&lt;class Android.Speech.Tts.Voice&gt; OnGetVoices() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnGetVoices" />
+      <MemberSignature Language="F#" Value="abstract member OnGetVoices : unit -&gt; System.Collections.Generic.IList&lt;Android.Speech.Tts.Voice&gt;&#xA;override this.OnGetVoices : unit -&gt; System.Collections.Generic.IList&lt;Android.Speech.Tts.Voice&gt;" Usage="textToSpeechService.OnGetVoices " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onGetVoices", "()Ljava/util/List;", "GetOnGetVoicesHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onGetVoices", "()Ljava/util/List;", "GetOnGetVoicesHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Android.Speech.Tts.Voice&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Queries the service for a set of supported voices.</summary>
+        <returns>A list of voices supported.</returns>
+        <remarks>
+          <para>Queries the service for a set of supported voices.
+            
+            Can be called on multiple threads.
+            
+            The default implementation tries to enumerate all available locales, pass them to
+            <c>#onIsLanguageAvailable(String, String, String)</c> and create Voice instances (using
+            the locale's BCP-47 language tag as the voice name) for the ones that are supported.
+            Note, that this implementation is suitable only for engines that don't have multiple voices
+            for a single locale. Also, this implementation won't work with Locales not listed in the
+            set returned by the <c>Locale#getAvailableLocales()</c> method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onGetVoices()" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onGetVoices()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnIsLanguageAvailable">
+      <MemberSignature Language="C#" Value="protected abstract int OnIsLanguageAvailable (string? lang, string? country, string? variant);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance int32 OnIsLanguageAvailable(string lang, string country, string variant) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnIsLanguageAvailable(System.String,System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member OnIsLanguageAvailable : string * string * string -&gt; int" Usage="textToSpeechService.OnIsLanguageAvailable (lang, country, variant)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onIsLanguageAvailable", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", "GetOnIsLanguageAvailable_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onIsLanguageAvailable", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", "GetOnIsLanguageAvailable_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="lang" Type="System.String" />
+        <Parameter Name="country" Type="System.String" />
+        <Parameter Name="variant" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="lang">ISO-3 language code.</param>
+        <param name="country">ISO-3 country code. May be empty or null.</param>
+        <param name="variant">Language variant. May be empty or null.</param>
+        <summary>Checks whether the engine supports a given language.</summary>
+        <returns>Code indicating the support status for the locale.
+                    One of <c>TextToSpeech#LANG_AVAILABLE</c>,
+                    <c>TextToSpeech#LANG_COUNTRY_AVAILABLE</c>,
+                    <c>TextToSpeech#LANG_COUNTRY_VAR_AVAILABLE</c>,
+                    <c>TextToSpeech#LANG_MISSING_DATA</c><c>TextToSpeech#LANG_NOT_SUPPORTED</c>.</returns>
+        <remarks>
+          <para>Checks whether the engine supports a given language.</para>
+          <para>Can be called on multiple threads.</para>
+          <para>Its return values HAVE to be consistent with onLoadLanguage.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onIsLanguageAvailable(java.lang.String,%20java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onIsLanguageAvailable(java.lang.String, java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnIsValidVoiceName">
+      <MemberSignature Language="C#" Value="public virtual Android.Speech.Tts.OperationResult OnIsValidVoiceName (string? voiceName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance valuetype Android.Speech.Tts.OperationResult OnIsValidVoiceName(string voiceName) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnIsValidVoiceName(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member OnIsValidVoiceName : string -&gt; Android.Speech.Tts.OperationResult&#xA;override this.OnIsValidVoiceName : string -&gt; Android.Speech.Tts.OperationResult" Usage="textToSpeechService.OnIsValidVoiceName voiceName" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onIsValidVoiceName", "(Ljava/lang/String;)I", "GetOnIsValidVoiceName_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onIsValidVoiceName", "(Ljava/lang/String;)I", "GetOnIsValidVoiceName_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Speech.Tts.OperationResult</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+            <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="voiceName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="voiceName">Name of the voice.</param>
+        <summary>Checks whether the engine supports a voice with a given name.</summary>
+        <returns>
+          <c>TextToSpeech#ERROR</c> or <c>TextToSpeech#SUCCESS</c>.</returns>
+        <remarks>
+          <para>Checks whether the engine supports a voice with a given name.
+            
+            Can be called on multiple threads.
+            
+            The default implementation treats the voice name as a language tag, creating a Locale from
+            the voice name, and passes it to <c>#onIsLanguageAvailable(String, String, String)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onIsValidVoiceName(java.lang.String)" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onIsValidVoiceName(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnLoadLanguage">
+      <MemberSignature Language="C#" Value="protected abstract int OnLoadLanguage (string? lang, string? country, string? variant);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance int32 OnLoadLanguage(string lang, string country, string variant) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnLoadLanguage(System.String,System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member OnLoadLanguage : string * string * string -&gt; int" Usage="textToSpeechService.OnLoadLanguage (lang, country, variant)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onLoadLanguage", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", "GetOnLoadLanguage_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onLoadLanguage", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I", "GetOnLoadLanguage_Ljava_lang_String_Ljava_lang_String_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="lang" Type="System.String" />
+        <Parameter Name="country" Type="System.String" />
+        <Parameter Name="variant" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="lang">ISO-3 language code.</param>
+        <param name="country">ISO-3 country code. May be empty or null.</param>
+        <param name="variant">Language variant. May be empty or null.</param>
+        <summary>Notifies the engine that it should load a speech synthesis language.</summary>
+        <returns>Code indicating the support status for the locale.
+                    One of <c>TextToSpeech#LANG_AVAILABLE</c>,
+                    <c>TextToSpeech#LANG_COUNTRY_AVAILABLE</c>,
+                    <c>TextToSpeech#LANG_COUNTRY_VAR_AVAILABLE</c>,
+                    <c>TextToSpeech#LANG_MISSING_DATA</c><c>TextToSpeech#LANG_NOT_SUPPORTED</c>.</returns>
+        <remarks>
+          <para>Notifies the engine that it should load a speech synthesis language. There is no guarantee
+            that this method is always called before the language is used for synthesis. It is merely
+            a hint to the engine that it will probably get some synthesis requests for this language
+            at some point in the future.
+            
+            Can be called on multiple threads.
+            In &lt;= Android 4.2 (&lt;= API 17) can be called on main and service binder threads.
+            In &gt; Android 4.2 (&gt; API 17) can be called on main and synthesis threads.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onLoadLanguage(java.lang.String,%20java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onLoadLanguage(java.lang.String, java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnLoadVoice">
+      <MemberSignature Language="C#" Value="public virtual Android.Speech.Tts.OperationResult OnLoadVoice (string? voiceName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance valuetype Android.Speech.Tts.OperationResult OnLoadVoice(string voiceName) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnLoadVoice(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member OnLoadVoice : string -&gt; Android.Speech.Tts.OperationResult&#xA;override this.OnLoadVoice : string -&gt; Android.Speech.Tts.OperationResult" Usage="textToSpeechService.OnLoadVoice voiceName" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onLoadVoice", "(Ljava/lang/String;)I", "GetOnLoadVoice_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onLoadVoice", "(Ljava/lang/String;)I", "GetOnLoadVoice_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Speech.Tts.OperationResult</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+            <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="voiceName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="voiceName">Name of the voice.</param>
+        <summary>Notifies the engine that it should load a speech synthesis voice.</summary>
+        <returns>
+          <c>TextToSpeech#ERROR</c> or <c>TextToSpeech#SUCCESS</c>.</returns>
+        <remarks>
+          <para>Notifies the engine that it should load a speech synthesis voice. There is no guarantee
+            that this method is always called before the voice is used for synthesis. It is merely
+            a hint to the engine that it will probably get some synthesis requests for this voice
+            at some point in the future.
+            
+            Will be called only on synthesis thread.
+            
+            The default implementation creates a Locale from the voice name (by interpreting the name as
+            a BCP-47 tag for the locale), and passes it to
+            <c>#onLoadLanguage(String, String, String)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onLoadVoice(java.lang.String)" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onLoadVoice(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnStop">
+      <MemberSignature Language="C#" Value="protected abstract void OnStop ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnStop() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnStop" />
+      <MemberSignature Language="F#" Value="abstract member OnStop : unit -&gt; unit" Usage="textToSpeechService.OnStop " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onStop", "()V", "GetOnStopHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onStop", "()V", "GetOnStopHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Notifies the service that it should stop any in-progress speech synthesis.</summary>
+        <remarks>
+          <para>Notifies the service that it should stop any in-progress speech synthesis.
+            This method can be called even if no speech synthesis is currently in progress.</para>
+          <para>Can be called on multiple threads, but not on the synthesis thread.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onStop()" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onStop()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnSynthesizeText">
+      <MemberSignature Language="C#" Value="protected abstract void OnSynthesizeText (Android.Speech.Tts.SynthesisRequest? request, Android.Speech.Tts.ISynthesisCallback? callback);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnSynthesizeText(class Android.Speech.Tts.SynthesisRequest request, class Android.Speech.Tts.ISynthesisCallback callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.TextToSpeechService.OnSynthesizeText(Android.Speech.Tts.SynthesisRequest,Android.Speech.Tts.ISynthesisCallback)" />
+      <MemberSignature Language="F#" Value="abstract member OnSynthesizeText : Android.Speech.Tts.SynthesisRequest * Android.Speech.Tts.ISynthesisCallback -&gt; unit" Usage="textToSpeechService.OnSynthesizeText (request, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onSynthesizeText", "(Landroid/speech/tts/SynthesisRequest;Landroid/speech/tts/SynthesisCallback;)V", "GetOnSynthesizeText_Landroid_speech_tts_SynthesisRequest_Landroid_speech_tts_SynthesisCallback_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onSynthesizeText", "(Landroid/speech/tts/SynthesisRequest;Landroid/speech/tts/SynthesisCallback;)V", "GetOnSynthesizeText_Landroid_speech_tts_SynthesisRequest_Landroid_speech_tts_SynthesisCallback_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="request" Type="Android.Speech.Tts.SynthesisRequest" />
+        <Parameter Name="callback" Type="Android.Speech.Tts.ISynthesisCallback" />
+      </Parameters>
+      <Docs>
+        <param name="request">The synthesis request.</param>
+        <param name="callback">The callback that the engine must use to make data available for playback or
+                for writing to a file.</param>
+        <summary>Tells the service to synthesize speech from the given text.</summary>
+        <remarks>
+          <para>Tells the service to synthesize speech from the given text. This method should block until
+            the synthesis is finished. Called on the synthesis thread.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/TextToSpeechService#onSynthesizeText(android.speech.tts.SynthesisRequest,%20android.speech.tts.SynthesisCallback)" title="Reference documentation">Java documentation for <code>android.speech.tts.TextToSpeechService.onSynthesizeText(android.speech.tts.SynthesisRequest, android.speech.tts.SynthesisCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Speech.Tts.TextToSpeechService.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Speech.Tts.TextToSpeechService.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Speech.Tts.TextToSpeechService.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Speech.Tts.TextToSpeechService.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

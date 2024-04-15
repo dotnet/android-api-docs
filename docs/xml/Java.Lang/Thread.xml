@@ -1,0 +1,2819 @@
+<Type Name="Thread" FullName="Java.Lang.Thread">
+  <TypeSignature Language="C#" Value="public class Thread : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.IRunnable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Thread extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Lang.IRunnable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Lang.Thread" />
+  <TypeSignature Language="F#" Value="type Thread = class&#xA;    inherit Object&#xA;    interface IRunnable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Lang.IRunnable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/lang/Thread", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/lang/Thread", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>A <i>thread</i> is a thread of execution in a program.</summary>
+    <remarks>
+      <para>A <i>thread</i> is a thread of execution in a program. The Java
+            Virtual Machine allows an application to have multiple threads of
+            execution running concurrently.</para>
+      <para>Every thread has a priority. Threads with higher priority are
+            executed in preference to threads with lower priority. Each thread
+            may or may not also be marked as a daemon. When code running in
+            some thread creates a new <c>Thread</c> object, the new
+            thread has its priority initially set equal to the priority of the
+            creating thread, and is a daemon thread if and only if the
+            creating thread is a daemon.</para>
+      <para>When a Java Virtual Machine starts up, there is usually a single
+            non-daemon thread (which typically calls the method named
+            <c>main</c> of some designated class). The Java Virtual
+            Machine continues to execute threads until either of the following
+            occurs:
+            &lt;ul&gt;
+            &lt;li&gt;The <c>exit</c> method of class <c>Runtime</c> has been
+                called and the security manager has permitted the exit operation
+                to take place.
+            &lt;li&gt;All threads that are not daemon threads have died, either by
+                returning from the call to the <c>run</c> method or by
+                throwing an exception that propagates beyond the <c>run</c>
+                method.
+            &lt;/ul&gt;</para>
+      <para>There are two ways to create a new thread of execution. One is to
+            declare a class to be a subclass of <c>Thread</c>. This
+            subclass should override the <c>run</c> method of class
+            <c>Thread</c>. An instance of the subclass can then be
+            allocated and started. For example, a thread that computes primes
+            larger than a stated value could be written as follows:
+            &lt;hr&gt;&lt;blockquote&gt;</para>
+      <code lang="text/java">class PrimeThread extends Thread {
+                    long minPrime;
+                    PrimeThread(long minPrime) {
+                        this.minPrime = minPrime;
+                    }
+            
+                    public void run() {
+                        // compute primes larger than minPrime
+                        &amp;nbsp;.&amp;nbsp;.&amp;nbsp;.
+                    }
+                }
+            </code>
+      <para>&lt;/blockquote&gt;&lt;hr&gt;</para>
+      <para>The following code would then create a thread and start it running:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">PrimeThread p = new PrimeThread(143);
+                p.start();
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>The other way to create a thread is to declare a class that
+            implements the <c>Runnable</c> interface. That class then
+            implements the <c>run</c> method. An instance of the class can
+            then be allocated, passed as an argument when creating
+            <c>Thread</c>, and started. The same example in this other
+            style looks like the following:
+            &lt;hr&gt;&lt;blockquote&gt;</para>
+      <code lang="text/java">class PrimeRun implements Runnable {
+                    long minPrime;
+                    PrimeRun(long minPrime) {
+                        this.minPrime = minPrime;
+                    }
+            
+                    public void run() {
+                        // compute primes larger than minPrime
+                        &amp;nbsp;.&amp;nbsp;.&amp;nbsp;.
+                    }
+                }
+            </code>
+      <para>&lt;/blockquote&gt;&lt;hr&gt;</para>
+      <para>The following code would then create a thread and start it running:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">PrimeRun p = new PrimeRun(143);
+                new Thread(p).start();
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>Every thread has a name for identification purposes. More than
+            one thread may have the same name. If a name is not specified when
+            a thread is created, a new name is generated for it.</para>
+      <para>Unless otherwise noted, passing a <c>null</c> argument to a constructor
+            or method in this class will cause a <c>NullPointerException</c> to be
+            thrown.</para>
+      <para>Added in 1.0.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/lang/Thread" title="Reference documentation">Java documentation for <code>java.lang.Thread</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>Allocates a new <c>Thread</c> object.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object. This constructor has the same
+            effect as #Thread(ThreadGroup,Runnable,String) Thread<c>(null, null, gname)</c>, where <c>gname</c> is a newly generated
+            name. Automatically generated names are of the form
+            <c>"Thread-"+</c><i>n</i>, where <i>n</i> is an integer.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread()" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.IRunnable? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.IRunnable target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.IRunnable)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.IRunnable -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread target" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/Runnable;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/Runnable;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="target" Type="Java.Lang.IRunnable" />
+      </Parameters>
+      <Docs>
+        <param name="target">the object whose <c>run</c> method is invoked when this thread
+                    is started. If <c>null</c>, this classes <c>run</c> method does
+                    nothing.</param>
+        <summary>Allocates a new <c>Thread</c> object.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object. This constructor has the same
+            effect as #Thread(ThreadGroup,Runnable,String) Thread<c>(null, target, gname)</c>, where <c>gname</c> is a newly generated
+            name. Automatically generated names are of the form
+            <c>"Thread-"+</c><i>n</i>, where <i>n</i> is an integer.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.Runnable)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.Runnable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Action runHandler);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Action runHandler) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(System.Action)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Action -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread runHandler" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="runHandler" Type="System.Action" />
+      </Parameters>
+      <Docs>
+        <param name="runHandler">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (string name);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : string -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread name" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="name">the name of the new thread</param>
+        <summary>Allocates a new <c>Thread</c> object.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object. This constructor has the same
+            effect as #Thread(ThreadGroup,Runnable,String) Thread<c>(null, null, name)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.String)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.IRunnable? target, string name);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.IRunnable target, string name) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.IRunnable,System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.IRunnable * string -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (target, name)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/Runnable;Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/Runnable;Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="target" Type="Java.Lang.IRunnable" />
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="target">the object whose <c>run</c> method is invoked when this thread
+                    is started. If <c>null</c>, this thread's run method is invoked.</param>
+        <param name="name">the name of the new thread</param>
+        <summary>Allocates a new <c>Thread</c> object.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object. This constructor has the same
+            effect as #Thread(ThreadGroup,Runnable,String) Thread<c>(null, target, name)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.Runnable,%20java.lang.String)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.Runnable, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup? group, Java.Lang.IRunnable? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, class Java.Lang.IRunnable target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,Java.Lang.IRunnable)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * Java.Lang.IRunnable -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, target)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="target" Type="Java.Lang.IRunnable" />
+      </Parameters>
+      <Docs>
+        <param name="group">the thread group. If <c>null</c> and there is a security
+                    manager, the group is determined by SecurityManager#getThreadGroup SecurityManager.getThreadGroup().
+                    If there is not a security manager or <c>SecurityManager.getThreadGroup()</c> returns <c>null</c>, the group
+                    is set to the current thread's thread group.</param>
+        <param name="target">the object whose <c>run</c> method is invoked when this thread
+                    is started. If <c>null</c>, this thread's run method is invoked.</param>
+        <summary>Allocates a new <c>Thread</c> object.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object. This constructor has the same
+            effect as #Thread(ThreadGroup,Runnable,String) Thread<c>(group, target, gname)</c> ,where <c>gname</c> is a newly generated
+            name. Automatically generated names are of the form
+            <c>"Thread-"+</c><i>n</i>, where <i>n</i> is an integer.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.ThreadGroup,%20java.lang.Runnable)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.ThreadGroup, java.lang.Runnable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalThreadStateException">if <c>group.destroy()</c> has already been done</exception>
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup group, Action runHandler);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, class System.Action runHandler) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,System.Action)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * Action -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, runHandler)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="runHandler" Type="System.Action" />
+      </Parameters>
+      <Docs>
+        <param name="group">To be added.</param>
+        <param name="runHandler">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup? group, string name);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, string name) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * string -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, name)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="group">the thread group. If <c>null</c> and there is a security
+                    manager, the group is determined by SecurityManager#getThreadGroup SecurityManager.getThreadGroup().
+                    If there is not a security manager or <c>SecurityManager.getThreadGroup()</c> returns <c>null</c>, the group
+                    is set to the current thread's thread group.</param>
+        <param name="name">the name of the new thread</param>
+        <summary>Allocates a new <c>Thread</c> object.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object. This constructor has the same
+            effect as #Thread(ThreadGroup,Runnable,String) Thread<c>(group, null, name)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.ThreadGroup,%20java.lang.String)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.ThreadGroup, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalThreadStateException">if <c>group.destroy()</c> has already been done</exception>
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Action runHandler, string threadName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class System.Action runHandler, string threadName) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(System.Action,System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Action * string -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (runHandler, threadName)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="runHandler" Type="System.Action" />
+        <Parameter Name="threadName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="runHandler">To be added.</param>
+        <param name="threadName">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected Thread (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup? group, Java.Lang.IRunnable? target, string name);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, class Java.Lang.IRunnable target, string name) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,Java.Lang.IRunnable,System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * Java.Lang.IRunnable * string -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, target, name)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="target" Type="Java.Lang.IRunnable" />
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="group">the thread group. If <c>null</c> and there is a security
+                    manager, the group is determined by SecurityManager#getThreadGroup SecurityManager.getThreadGroup().
+                    If there is not a security manager or <c>SecurityManager.getThreadGroup()</c> returns <c>null</c>, the group
+                    is set to the current thread's thread group.</param>
+        <param name="target">the object whose <c>run</c> method is invoked when this thread
+                    is started. If <c>null</c>, this thread's run method is invoked.</param>
+        <param name="name">the name of the new thread</param>
+        <summary>Allocates a new <c>Thread</c> object so that it has <c>target</c>
+            as its run object, has the specified <c>name</c> as its name,
+            and belongs to the thread group referred to by <c>group</c>.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object so that it has <c>target</c>
+            as its run object, has the specified <c>name</c> as its name,
+            and belongs to the thread group referred to by <c>group</c>.</para>
+          <para>If there is a security manager, its
+            <c>SecurityManager#checkAccess(ThreadGroup) checkAccess</c>
+            method is invoked with the ThreadGroup as its argument.</para>
+          <para>In addition, its <c>checkPermission</c> method is invoked with
+            the <c>RuntimePermission("enableContextClassLoaderOverride")</c>
+            permission when invoked directly or indirectly by the constructor
+            of a subclass which overrides the <c>getContextClassLoader</c>
+            or <c>setContextClassLoader</c> methods.</para>
+          <para>The priority of the newly created thread is set equal to the
+            priority of the thread creating it, that is, the currently running
+            thread. The method #setPriority setPriority may be
+            used to change the priority to a new value.</para>
+          <para>The newly created thread is initially marked as being a daemon
+            thread if and only if the thread creating it is currently marked
+            as a daemon thread. The method #setDaemon setDaemon
+            may be used to change whether or not a thread is a daemon.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.ThreadGroup,%20java.lang.Runnable,%20java.lang.String)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.ThreadGroup, java.lang.Runnable, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalThreadStateException">if <c>group.destroy()</c> has already been done</exception>
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup group, Action runHandler, string threadName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, class System.Action runHandler, string threadName) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,System.Action,System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * Action * string -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, runHandler, threadName)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="runHandler" Type="System.Action" />
+        <Parameter Name="threadName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="group">To be added.</param>
+        <param name="runHandler">To be added.</param>
+        <param name="threadName">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup? group, Java.Lang.IRunnable? target, string name, long stackSize);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, class Java.Lang.IRunnable target, string name, int64 stackSize) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,Java.Lang.IRunnable,System.String,System.Int64)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * Java.Lang.IRunnable * string * int64 -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, target, name, stackSize)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;J)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;J)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="target" Type="Java.Lang.IRunnable" />
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="stackSize" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="group">the thread group. If <c>null</c> and there is a security
+                    manager, the group is determined by SecurityManager#getThreadGroup SecurityManager.getThreadGroup().
+                    If there is not a security manager or <c>SecurityManager.getThreadGroup()</c> returns <c>null</c>, the group
+                    is set to the current thread's thread group.</param>
+        <param name="target">the object whose <c>run</c> method is invoked when this thread
+                    is started. If <c>null</c>, this thread's run method is invoked.</param>
+        <param name="name">the name of the new thread</param>
+        <param name="stackSize">the desired stack size for the new thread, or zero to indicate
+                    that this parameter is to be ignored.</param>
+        <summary>Allocates a new <c>Thread</c> object so that it has <c>target</c>
+            as its run object, has the specified <c>name</c> as its name,
+            and belongs to the thread group referred to by <c>group</c>, and has
+            the specified <i>stack size</i>.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object so that it has <c>target</c>
+            as its run object, has the specified <c>name</c> as its name,
+            and belongs to the thread group referred to by <c>group</c>, and has
+            the specified <i>stack size</i>.</para>
+          <para>This constructor is identical to <c>#Thread(ThreadGroup,Runnable,String)</c> with the exception of the fact
+            that it allows the thread stack size to be specified.  The stack size
+            is the approximate number of bytes of address space that the virtual
+            machine is to allocate for this thread's stack.  &lt;b&gt;The effect of the
+            <c>stackSize</c> parameter, if any, is highly platform dependent.&lt;/b&gt;</para>
+          <para>On some platforms, specifying a higher value for the
+            <c>stackSize</c> parameter may allow a thread to achieve greater
+            recursion depth before throwing a <c>StackOverflowError</c>.
+            Similarly, specifying a lower value may allow a greater number of
+            threads to exist concurrently without throwing an <c>OutOfMemoryError</c> (or other internal error).  The details of
+            the relationship between the value of the <c>stackSize</c> parameter
+            and the maximum recursion depth and concurrency level are
+            platform-dependent.  &lt;b&gt;On some platforms, the value of the
+            <c>stackSize</c> parameter may have no effect whatsoever.&lt;/b&gt;</para>
+          <para>The virtual machine is free to treat the <c>stackSize</c>
+            parameter as a suggestion.  If the specified value is unreasonably low
+            for the platform, the virtual machine may instead use some
+            platform-specific minimum value; if the specified value is unreasonably
+            high, the virtual machine may instead use some platform-specific
+            maximum.  Likewise, the virtual machine is free to round the specified
+            value up or down as it sees fit (or to ignore it completely).</para>
+          <para>Specifying a value of zero for the <c>stackSize</c> parameter will
+            cause this constructor to behave exactly like the
+            <c>Thread(ThreadGroup, Runnable, String)</c> constructor.</para>
+          <para>
+            <i>Due to the platform-dependent nature of the behavior of this
+            constructor, extreme care should be exercised in its use.
+            The thread stack size necessary to perform a given computation will
+            likely vary from one JRE implementation to another.  In light of this
+            variation, careful tuning of the stack size parameter may be required,
+            and the tuning may need to be repeated for each JRE implementation on
+            which an application is to run.</i>
+          </para>
+          <para>Implementation note: Java platform implementers are encouraged to
+            document their implementation's behavior with respect to the
+            <c>stackSize</c> parameter.</para>
+          <para>Added in 1.4.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.ThreadGroup,%20java.lang.Runnable,%20java.lang.String,%20long)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.ThreadGroup, java.lang.Runnable, java.lang.String, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalThreadStateException">if <c>group.destroy()</c> has already been done</exception>
+        <altmember cref="T:Java.Lang.ThreadGroup" />
+        <altmember cref="T:Java.Lang.IRunnable" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup group, Action runHandler, string threadName, long stackSize);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, class System.Action runHandler, string threadName, int64 stackSize) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,System.Action,System.String,System.Int64)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * Action * string * int64 -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, runHandler, threadName, stackSize)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="runHandler" Type="System.Action" />
+        <Parameter Name="threadName" Type="System.String" />
+        <Parameter Name="stackSize" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="group">To be added.</param>
+        <param name="runHandler">To be added.</param>
+        <param name="threadName">To be added.</param>
+        <param name="stackSize">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Thread (Java.Lang.ThreadGroup? group, Java.Lang.IRunnable? target, string name, long stackSize, bool inheritThreadLocals);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Lang.ThreadGroup group, class Java.Lang.IRunnable target, string name, int64 stackSize, bool inheritThreadLocals) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.#ctor(Java.Lang.ThreadGroup,Java.Lang.IRunnable,System.String,System.Int64,System.Boolean)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.Thread : Java.Lang.ThreadGroup * Java.Lang.IRunnable * string * int64 * bool -&gt; Java.Lang.Thread" Usage="new Java.Lang.Thread (group, target, name, stackSize, inheritThreadLocals)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;JZ)V", "", ApiSince=33)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/ThreadGroup;Ljava/lang/Runnable;Ljava/lang/String;JZ)V", "", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="group" Type="Java.Lang.ThreadGroup" />
+        <Parameter Name="target" Type="Java.Lang.IRunnable" />
+        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="stackSize" Type="System.Int64" />
+        <Parameter Name="inheritThreadLocals" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="group">the thread group. If <c>null</c> and there is a security
+                    manager, the group is determined by SecurityManager#getThreadGroup SecurityManager.getThreadGroup().
+                    If there is not a security manager or <c>SecurityManager.getThreadGroup()</c> returns <c>null</c>, the group
+                    is set to the current thread's thread group.</param>
+        <param name="target">the object whose <c>run</c> method is invoked when this thread
+                    is started. If <c>null</c>, this thread's run method is invoked.</param>
+        <param name="name">the name of the new thread</param>
+        <param name="stackSize">the desired stack size for the new thread, or zero to indicate
+                    that this parameter is to be ignored</param>
+        <param name="inheritThreadLocals">if <c>true</c>, inherit initial values for inheritable
+                    thread-locals from the constructing thread, otherwise no initial
+                    values are inherited</param>
+        <summary>Allocates a new <c>Thread</c> object so that it has <c>target</c>
+            as its run object, has the specified <c>name</c> as its name,
+            belongs to the thread group referred to by <c>group</c>, has
+            the specified <c>stackSize</c>, and inherits initial values for
+            InheritableThreadLocal inheritable thread-local variables
+            if <c>inheritThreadLocals</c> is <c>true</c>.</summary>
+        <remarks>
+          <para>Allocates a new <c>Thread</c> object so that it has <c>target</c>
+            as its run object, has the specified <c>name</c> as its name,
+            belongs to the thread group referred to by <c>group</c>, has
+            the specified <c>stackSize</c>, and inherits initial values for
+            InheritableThreadLocal inheritable thread-local variables
+            if <c>inheritThreadLocals</c> is <c>true</c>.</para>
+          <para>This constructor is identical to <c>#Thread(ThreadGroup,Runnable,String,long)</c> with the added ability to
+            suppress, or not, the inheriting of initial values for inheritable
+            thread-local variables from the constructing thread. This allows for
+            finer grain control over inheritable thread-locals. Care must be taken
+            when passing a value of <c>false</c> for <c>inheritThreadLocals</c>,
+            as it may lead to unexpected behavior if the new thread executes code
+            that expects a specific thread-local value to be inherited.</para>
+          <para>Specifying a value of <c>true</c> for the <c>inheritThreadLocals</c>
+            parameter will cause this constructor to behave exactly like the
+            <c>Thread(ThreadGroup, Runnable, String, long)</c> constructor.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#Thread(java.lang.ThreadGroup,%20java.lang.Runnable,%20java.lang.String,%20long,%20boolean)" title="Reference documentation">Java documentation for <code>java.lang.Thread.Thread(java.lang.ThreadGroup, java.lang.Runnable, java.lang.String, long, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActiveCount">
+      <MemberSignature Language="C#" Value="public static int ActiveCount ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 ActiveCount() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.ActiveCount" />
+      <MemberSignature Language="F#" Value="static member ActiveCount : unit -&gt; int" Usage="Java.Lang.Thread.ActiveCount " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("activeCount", "()I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("activeCount", "()I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns an estimate of the number of active threads in the current
+            thread's java.</summary>
+        <returns>an estimate of the number of active threads in the current
+                     thread's thread group and in any other thread group that
+                     has the current thread's thread group as an ancestor</returns>
+        <remarks>
+          <para>Returns an estimate of the number of active threads in the current
+            thread's java.lang.ThreadGroup thread group and its
+            subgroups. Recursively iterates over all subgroups in the current
+            thread's thread group.</para>
+          <para>The value returned is only an estimate because the number of
+            threads may change dynamically while this method traverses internal
+            data structures, and might be affected by the presence of certain
+            system threads. This method is intended primarily for debugging
+            and monitoring purposes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#activeCount()" title="Reference documentation">Java documentation for <code>java.lang.Thread.activeCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="AllStackTraces">
+      <MemberSignature Language="C#" Value="public static System.Collections.Generic.IDictionary&lt;Java.Lang.Thread,Java.Lang.StackTraceElement[]&gt; AllStackTraces { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class System.Collections.Generic.IDictionary`2&lt;class Java.Lang.Thread, class Java.Lang.StackTraceElement[]&gt; AllStackTraces" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.AllStackTraces" />
+      <MemberSignature Language="F#" Value="static member AllStackTraces : System.Collections.Generic.IDictionary&lt;Java.Lang.Thread, Java.Lang.StackTraceElement[]&gt;" Usage="Java.Lang.Thread.AllStackTraces" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAllStackTraces", "()Ljava/util/Map;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAllStackTraces", "()Ljava/util/Map;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IDictionary&lt;Java.Lang.Thread,Java.Lang.StackTraceElement[]&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a map of stack traces for all live threads.</summary>
+        <value>a <c>Map</c> from <c>Thread</c> to an array of
+            <c>StackTraceElement</c> that represents the stack trace of
+            the corresponding thread.</value>
+        <remarks>
+          <para>Returns a map of stack traces for all live threads.
+            The map keys are threads and each map value is an array of
+            <c>StackTraceElement</c> that represents the stack dump
+            of the corresponding <c>Thread</c>.
+            The returned stack traces are in the format specified for
+            the <c>#getStackTrace getStackTrace</c> method.</para>
+          <para>The threads may be executing while this method is called.
+            The stack trace of each thread only represents a snapshot and
+            each stack trace may be obtained at different time.  A zero-length
+            array will be returned in the map value if the virtual machine has
+            no stack trace information about a thread.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getAllStackTraces()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getAllStackTraces()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="CheckAccess">
+      <MemberSignature Language="C#" Value="public void CheckAccess ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void CheckAccess() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.CheckAccess" />
+      <MemberSignature Language="F#" Value="member this.CheckAccess : unit -&gt; unit" Usage="thread.CheckAccess " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("checkAccess", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("checkAccess", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Determines if the currently running thread has permission to
+            modify this thread.</summary>
+        <remarks>
+          <para>Determines if the currently running thread has permission to
+            modify this thread.</para>
+          <para>If there is a security manager, its <c>checkAccess</c> method
+            is called with this thread as its argument. This may result in
+            throwing a <c>SecurityException</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#checkAccess()" title="Reference documentation">Java documentation for <code>java.lang.Thread.checkAccess()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ContextClassLoader">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.ClassLoader? ContextClassLoader { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.ClassLoader ContextClassLoader" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.ContextClassLoader" />
+      <MemberSignature Language="F#" Value="member this.ContextClassLoader : Java.Lang.ClassLoader with get, set" Usage="Java.Lang.Thread.ContextClassLoader" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getContextClassLoader", "()Ljava/lang/ClassLoader;", "GetGetContextClassLoaderHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getContextClassLoader", "()Ljava/lang/ClassLoader;", "GetGetContextClassLoaderHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setContextClassLoader", "(Ljava/lang/ClassLoader;)V", "GetSetContextClassLoader_Ljava_lang_ClassLoader_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setContextClassLoader", "(Ljava/lang/ClassLoader;)V", "GetSetContextClassLoader_Ljava_lang_ClassLoader_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.ClassLoader</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="cl">the context ClassLoader for this Thread, or null  indicating the
+                    system class loader (or, failing that, the bootstrap class loader)</param>
+        <summary>Returns the context <c>ClassLoader</c> for this thread. -or- Sets the context ClassLoader for this Thread.</summary>
+        <value>the context <c>ClassLoader</c> for this thread, or <c>null</c>
+                     indicating the system class loader (or, failing that, the
+                     bootstrap class loader)</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the context <c>ClassLoader</c> for this thread. The context
+            <c>ClassLoader</c> is provided by the creator of the thread for use
+            by code running in this thread when loading classes and resources.
+            If not #setContextClassLoader set, the default is the
+            <c>ClassLoader</c> context of the parent thread. The context
+            <c>ClassLoader</c> of the
+            primordial thread is typically set to the class loader used to load the
+            application.</para>
+          <para>Added in 1.2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getContextClassLoader()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getContextClassLoader()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the context ClassLoader for this Thread. The context
+            ClassLoader can be set when a thread is created, and allows
+            the creator of the thread to provide the appropriate class loader,
+            through <c>getContextClassLoader</c>, to code running in the thread
+            when loading classes and resources.</para>
+          <para>If a security manager is present, its <c>SecurityManager#checkPermission(java.security.Permission) checkPermission</c>
+            method is invoked with a <c>RuntimePermission RuntimePermission</c><c>("setContextClassLoader")</c> permission to see if setting the context
+            ClassLoader is permitted.</para>
+          <para>Added in 1.2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#setContextClassLoader(java.lang.ClassLoader)" title="Reference documentation">Java documentation for <code>java.lang.Thread.setContextClassLoader(java.lang.ClassLoader)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="T:Java.Lang.ClassLoader" />
+        <altmember cref="P:Java.Lang.Thread.ContextClassLoader" />
+      </Docs>
+    </Member>
+    <Member MemberName="CountStackFrames">
+      <MemberSignature Language="C#" Value="public virtual int CountStackFrames ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 CountStackFrames() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.CountStackFrames" />
+      <MemberSignature Language="F#" Value="abstract member CountStackFrames : unit -&gt; int&#xA;override this.CountStackFrames : unit -&gt; int" Usage="thread.CountStackFrames " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("countStackFrames", "()I", "GetCountStackFramesHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("countStackFrames", "()I", "GetCountStackFramesHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Counts the number of stack frames in this thread.</summary>
+        <returns>the number of stack frames in this thread.</returns>
+        <remarks>
+          <para>Counts the number of stack frames in this thread. The thread must
+            be suspended.</para>
+          <para>This member is deprecated. The definition of this call depends on <c>#suspend</c>,
+                        which is deprecated.  Further, the results of this call
+                        were never well-defined.
+                        This method is subject to removal in a future version of Java SE.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#countStackFrames()" title="Reference documentation">Java documentation for <code>java.lang.Thread.countStackFrames()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="CurrentThread">
+      <MemberSignature Language="C#" Value="public static Java.Lang.Thread CurrentThread ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Lang.Thread CurrentThread() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.CurrentThread" />
+      <MemberSignature Language="F#" Value="static member CurrentThread : unit -&gt; Java.Lang.Thread" Usage="Java.Lang.Thread.CurrentThread " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("currentThread", "()Ljava/lang/Thread;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("currentThread", "()Ljava/lang/Thread;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Thread</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a reference to the currently executing thread object.</summary>
+        <returns>the currently executing thread.</returns>
+        <remarks>
+          <para>Returns a reference to the currently executing thread object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#currentThread()" title="Reference documentation">Java documentation for <code>java.lang.Thread.currentThread()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Daemon">
+      <MemberSignature Language="C#" Value="public bool Daemon { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool Daemon" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.Daemon" />
+      <MemberSignature Language="F#" Value="member this.Daemon : bool with get, set" Usage="Java.Lang.Thread.Daemon" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isDaemon", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isDaemon", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setDaemon", "(Z)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setDaemon", "(Z)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="on">if <c>true</c>, marks this thread as a daemon thread</param>
+        <summary>Tests if this thread is a daemon thread. -or- Marks this thread as either a #isDaemon daemon thread
+            or a user thread.</summary>
+        <value>
+          <c>true</c> if this thread is a daemon thread;
+                     <c>false</c> otherwise.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Tests if this thread is a daemon thread.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#isDaemon()" title="Reference documentation">Java documentation for <code>java.lang.Thread.isDaemon()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Marks this thread as either a #isDaemon daemon thread
+            or a user thread. The Java Virtual Machine exits when the only
+            threads running are all daemon threads.</para>
+          <para>This method must be invoked before the thread is started.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#setDaemon(boolean)" title="Reference documentation">Java documentation for <code>java.lang.Thread.setDaemon(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalThreadStateException">- if this thread has already started.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="DefaultUncaughtExceptionHandler">
+      <MemberSignature Language="C#" Value="public static Java.Lang.Thread.IUncaughtExceptionHandler? DefaultUncaughtExceptionHandler { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Java.Lang.Thread/IUncaughtExceptionHandler DefaultUncaughtExceptionHandler" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.DefaultUncaughtExceptionHandler" />
+      <MemberSignature Language="F#" Value="static member DefaultUncaughtExceptionHandler : Java.Lang.Thread.IUncaughtExceptionHandler with get, set" Usage="Java.Lang.Thread.DefaultUncaughtExceptionHandler" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDefaultUncaughtExceptionHandler", "()Ljava/lang/Thread$UncaughtExceptionHandler;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDefaultUncaughtExceptionHandler", "()Ljava/lang/Thread$UncaughtExceptionHandler;", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setDefaultUncaughtExceptionHandler", "(Ljava/lang/Thread$UncaughtExceptionHandler;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setDefaultUncaughtExceptionHandler", "(Ljava/lang/Thread$UncaughtExceptionHandler;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Thread+IUncaughtExceptionHandler</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the default handler invoked when a thread abruptly terminates
+            due to an uncaught exception. -or- Set the default handler invoked when a thread abruptly terminates
+            due to an uncaught exception, and no other handler has been defined
+            for that thread.</summary>
+        <value>the default uncaught exception handler for all threads</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getDefaultUncaughtExceptionHandler()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getDefaultUncaughtExceptionHandler()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#setDefaultUncaughtExceptionHandler(java.lang.UncaughtExceptionHandler)" title="Reference documentation">Java documentation for <code>java.lang.Thread.setDefaultUncaughtExceptionHandler(java.lang.UncaughtExceptionHandler)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Destroy">
+      <MemberSignature Language="C#" Value="public virtual void Destroy ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Destroy() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Destroy" />
+      <MemberSignature Language="F#" Value="abstract member Destroy : unit -&gt; unit&#xA;override this.Destroy : unit -&gt; unit" Usage="thread.Destroy " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("destroy", "()V", "GetDestroyHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("destroy", "()V", "GetDestroyHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Throws <c>UnsupportedOperationException</c>.</summary>
+        <remarks>
+          <para>Throws <c>UnsupportedOperationException</c>.</para>
+          <para>This member is deprecated. This method was originally designed to destroy this
+                thread without any cleanup. Any monitors it held would have
+                remained locked. However, the method was never implemented.
+                If if were to be implemented, it would be deadlock-prone in
+                much the manner of <c>#suspend</c>. If the target thread held
+                a lock protecting a critical system resource when it was
+                destroyed, no thread could ever access this resource again.
+                If another thread ever attempted to lock this resource, deadlock
+                would result. Such deadlocks typically manifest themselves as
+                "frozen" processes. For more information, see
+                <see href="https://developer.android.com//../technotes/guides/concurrency/threadPrimitiveDeprecation.html">
+                Why are Thread.stop, Thread.suspend and Thread.resume Deprecated?</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#destroy()" title="Reference documentation">Java documentation for <code>java.lang.Thread.destroy()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="DumpStack">
+      <MemberSignature Language="C#" Value="public static void DumpStack ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig void DumpStack() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.DumpStack" />
+      <MemberSignature Language="F#" Value="static member DumpStack : unit -&gt; unit" Usage="Java.Lang.Thread.DumpStack " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("dumpStack", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("dumpStack", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Prints a stack trace of the current thread to the standard error stream.</summary>
+        <remarks>
+          <para>Prints a stack trace of the current thread to the standard error stream.
+            This method is used only for debugging.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#dumpStack()" title="Reference documentation">Java documentation for <code>java.lang.Thread.dumpStack()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Lang.Throwable.PrintStackTrace" />
+      </Docs>
+    </Member>
+    <Member MemberName="Enumerate">
+      <MemberSignature Language="C#" Value="public static int Enumerate (Java.Lang.Thread[]? tarray);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 Enumerate(class Java.Lang.Thread[] tarray) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Enumerate(Java.Lang.Thread[])" />
+      <MemberSignature Language="F#" Value="static member Enumerate : Java.Lang.Thread[] -&gt; int" Usage="Java.Lang.Thread.Enumerate tarray" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("enumerate", "([Ljava/lang/Thread;)I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("enumerate", "([Ljava/lang/Thread;)I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="tarray" Type="Java.Lang.Thread[]" />
+      </Parameters>
+      <Docs>
+        <param name="tarray">an array into which to put the list of threads</param>
+        <summary>Copies into the specified array every active thread in the current
+            thread's thread group and its subgroups.</summary>
+        <returns>the number of threads put into the array</returns>
+        <remarks>
+          <para>Copies into the specified array every active thread in the current
+            thread's thread group and its subgroups. This method simply
+            invokes the <c>java.lang.ThreadGroup#enumerate(Thread[])</c>
+            method of the current thread's thread group.</para>
+          <para>An application might use the #activeCount activeCount
+            method to get an estimate of how big the array should be, however
+            <i>if the array is too short to hold all the threads, the extra threads
+            are silently ignored.</i>  If it is critical to obtain every active
+            thread in the current thread's thread group and its subgroups, the
+            invoker should verify that the returned int value is strictly less
+            than the length of <c>tarray</c>.</para>
+          <para>Due to the inherent race condition in this method, it is recommended
+            that the method only be used for debugging and monitoring purposes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#enumerate(java.lang.Thread[])" title="Reference documentation">Java documentation for <code>java.lang.Thread.enumerate(java.lang.Thread[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetStackTrace">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.StackTraceElement[] GetStackTrace ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.StackTraceElement[] GetStackTrace() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.GetStackTrace" />
+      <MemberSignature Language="F#" Value="abstract member GetStackTrace : unit -&gt; Java.Lang.StackTraceElement[]&#xA;override this.GetStackTrace : unit -&gt; Java.Lang.StackTraceElement[]" Usage="thread.GetStackTrace " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getStackTrace", "()[Ljava/lang/StackTraceElement;", "GetGetStackTraceHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getStackTrace", "()[Ljava/lang/StackTraceElement;", "GetGetStackTraceHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.StackTraceElement[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns an array of stack trace elements representing the stack dump
+            of this thread.</summary>
+        <returns>an array of <c>StackTraceElement</c>,
+            each represents one stack frame.</returns>
+        <remarks>
+          <para>Returns an array of stack trace elements representing the stack dump
+            of this thread.  This method will return a zero-length array if
+            this thread has not started, has started but has not yet been
+            scheduled to run by the system, or has terminated.
+            If the returned array is of non-zero length then the first element of
+            the array represents the top of the stack, which is the most recent
+            method invocation in the sequence.  The last element of the array
+            represents the bottom of the stack, which is the least recent method
+            invocation in the sequence.</para>
+          <para>If there is a security manager, and this thread is not
+            the current thread, then the security manager's
+            <c>checkPermission</c> method is called with a
+            <c>RuntimePermission("getStackTrace")</c> permission
+            to see if it's ok to get the stack trace.</para>
+          <para>Some virtual machines may, under some circumstances, omit one
+            or more stack frames from the stack trace.  In the extreme case,
+            a virtual machine that has no stack trace information concerning
+            this thread is permitted to return a zero-length array from this
+            method.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getStackTrace()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getStackTrace()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetState">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Thread.State GetState ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Thread/State GetState() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.GetState" />
+      <MemberSignature Language="F#" Value="abstract member GetState : unit -&gt; Java.Lang.Thread.State&#xA;override this.GetState : unit -&gt; Java.Lang.Thread.State" Usage="thread.GetState " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getState", "()Ljava/lang/Thread$State;", "GetGetStateHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getState", "()Ljava/lang/Thread$State;", "GetGetStateHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Thread+State</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the state of this thread.</summary>
+        <returns>this thread's state.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getState()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getState()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="HoldsLock">
+      <MemberSignature Language="C#" Value="public static bool HoldsLock (Java.Lang.Object obj);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool HoldsLock(class Java.Lang.Object obj) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.HoldsLock(Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="static member HoldsLock : Java.Lang.Object -&gt; bool" Usage="Java.Lang.Thread.HoldsLock obj" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("holdsLock", "(Ljava/lang/Object;)Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("holdsLock", "(Ljava/lang/Object;)Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="obj" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="obj">the object on which to test lock ownership</param>
+        <summary>Returns <c>true</c> if and only if the current thread holds the
+            monitor lock on the specified object.</summary>
+        <returns>
+          <c>true</c> if the current thread holds the monitor lock on
+                    the specified object.</returns>
+        <remarks>
+          <para>Returns <c>true</c> if and only if the current thread holds the
+            monitor lock on the specified object.</para>
+          <para>This method is designed to allow a program to assert that
+            the current thread already holds a specified lock:</para>
+          <code lang="text/java">assert Thread.holdsLock(obj);
+            </code>
+          <para>Added in 1.4.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#holdsLock(java.lang.Object)" title="Reference documentation">Java documentation for <code>java.lang.Thread.holdsLock(java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="public virtual long Id { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 Id" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.Id" />
+      <MemberSignature Language="F#" Value="member this.Id : int64" Usage="Java.Lang.Thread.Id" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getId", "()J", "GetGetIdHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getId", "()J", "GetGetIdHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the identifier of this Thread.</summary>
+        <value>this thread's ID.</value>
+        <remarks>
+          <para>Returns the identifier of this Thread.  The thread ID is a positive
+            <c>long</c> number generated when this thread was created.
+            The thread ID is unique and remains unchanged during its lifetime.
+            When a thread is terminated, this thread ID may be reused.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getId()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getId()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Interrupt">
+      <MemberSignature Language="C#" Value="public virtual void Interrupt ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Interrupt() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Interrupt" />
+      <MemberSignature Language="F#" Value="abstract member Interrupt : unit -&gt; unit&#xA;override this.Interrupt : unit -&gt; unit" Usage="thread.Interrupt " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("interrupt", "()V", "GetInterruptHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("interrupt", "()V", "GetInterruptHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Interrupts this thread.</summary>
+        <remarks>
+          <para>Interrupts this thread.</para>
+          <para>Unless the current thread is interrupting itself, which is
+            always permitted, the <c>#checkAccess() checkAccess</c> method
+            of this thread is invoked, which may cause a <c>SecurityException</c> to be thrown.</para>
+          <para>If this thread is blocked in an invocation of the <c>Object#wait() wait()</c>, <c>Object#wait(long) wait(long)</c>, or <c>Object#wait(long, int) wait(long, int)</c> methods of the <c>Object</c>
+            class, or of the <c>#join()</c>, <c>#join(long)</c>, <c>#join(long, int)</c>, <c>#sleep(long)</c>, or <c>#sleep(long, int)</c>,
+            methods of this class, then its interrupt status will be cleared and it
+            will receive an <c>InterruptedException</c>.</para>
+          <para>If this thread is blocked in an I/O operation upon an <c>java.nio.channels.InterruptibleChannel InterruptibleChannel</c>
+            then the channel will be closed, the thread's interrupt
+            status will be set, and the thread will receive a <c>java.nio.channels.ClosedByInterruptException</c>.</para>
+          <para>If this thread is blocked in a <c>java.nio.channels.Selector</c>
+            then the thread's interrupt status will be set and it will return
+            immediately from the selection operation, possibly with a non-zero
+            value, just as if the selector's <c>java.nio.channels.Selector#wakeup wakeup</c> method were invoked.</para>
+          <para>If none of the previous conditions hold then this thread's interrupt
+            status will be set.</para>
+          <para>Interrupting a thread that is not alive need not have any effect.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#interrupt()" title="Reference documentation">Java documentation for <code>java.lang.Thread.interrupt()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Lang.Thread.Interrupted" />
+        <altmember cref="P:Java.Lang.Thread.IsInterrupted" />
+      </Docs>
+    </Member>
+    <Member MemberName="Interrupted">
+      <MemberSignature Language="C#" Value="public static bool Interrupted ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool Interrupted() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Interrupted" />
+      <MemberSignature Language="F#" Value="static member Interrupted : unit -&gt; bool" Usage="Java.Lang.Thread.Interrupted " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("interrupted", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("interrupted", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Tests whether the current thread has been interrupted.</summary>
+        <returns>
+          <c>true</c> if the current thread has been interrupted;
+                     <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>Tests whether the current thread has been interrupted.  The
+            <i>interrupted status</i> of the thread is cleared by this method.  In
+            other words, if this method were to be called twice in succession, the
+            second call would return false (unless the current thread were
+            interrupted again, after the first call had cleared its interrupted
+            status and before the second call had examined it).</para>
+          <para>A thread interruption ignored because a thread was not alive
+            at the time of the interrupt will be reflected by this method
+            returning false.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#interrupted()" title="Reference documentation">Java documentation for <code>java.lang.Thread.interrupted()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Lang.Thread.CurrentThread" />
+        <altmember cref="M:Java.Lang.Thread.Interrupt" />
+        <altmember cref="P:Java.Lang.Thread.IsInterrupted" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsAlive">
+      <MemberSignature Language="C#" Value="public bool IsAlive { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsAlive" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.IsAlive" />
+      <MemberSignature Language="F#" Value="member this.IsAlive : bool" Usage="Java.Lang.Thread.IsAlive" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isAlive", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isAlive", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Tests if this thread is alive.</summary>
+        <value>
+          <c>true</c> if this thread is alive;
+                     <c>false</c> otherwise.</value>
+        <remarks>
+          <para>Tests if this thread is alive. A thread is alive if it has
+            been started and has not yet died.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#isAlive()" title="Reference documentation">Java documentation for <code>java.lang.Thread.isAlive()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Lang.Thread.Start" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsInterrupted">
+      <MemberSignature Language="C#" Value="public virtual bool IsInterrupted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsInterrupted" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.IsInterrupted" />
+      <MemberSignature Language="F#" Value="member this.IsInterrupted : bool" Usage="Java.Lang.Thread.IsInterrupted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isInterrupted", "()Z", "GetIsInterruptedHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isInterrupted", "()Z", "GetIsInterruptedHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Tests whether this thread has been interrupted.</summary>
+        <value>
+          <c>true</c> if this thread has been interrupted;
+                     <c>false</c> otherwise.</value>
+        <remarks>
+          <para>Tests whether this thread has been interrupted.  The <i>interrupted
+            status</i> of the thread is unaffected by this method.</para>
+          <para>A thread interruption ignored because a thread was not alive
+            at the time of the interrupt will be reflected by this method
+            returning false.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#isInterrupted()" title="Reference documentation">Java documentation for <code>java.lang.Thread.isInterrupted()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Lang.Thread.Interrupt" />
+        <altmember cref="M:Java.Lang.Thread.Interrupted" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Lang.Thread.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Join">
+      <MemberSignature Language="C#" Value="public void Join ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Join() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Join" />
+      <MemberSignature Language="F#" Value="member this.Join : unit -&gt; unit" Usage="thread.Join " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("join", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("join", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Waits for this thread to die.</summary>
+        <remarks>
+          <para>Waits for this thread to die.</para>
+          <para>An invocation of this method behaves in exactly the same
+            way as the invocation
+            
+            &lt;blockquote&gt;
+            #join(long) join<c>(0)</c>&lt;/blockquote&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#join()" title="Reference documentation">Java documentation for <code>java.lang.Thread.join()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.InterruptedException">if the current thread has been interrupted.
+         The interrupted status of the current thread will be cleared before the exception is
+         thrown.</exception>
+        <altmember cref="M:Java.Lang.Object.NotifyAll" />
+        <altmember cref="T:Java.Lang.ThreadDeath" />
+      </Docs>
+    </Member>
+    <Member MemberName="Join">
+      <MemberSignature Language="C#" Value="public void Join (long millis);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Join(int64 millis) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Join(System.Int64)" />
+      <MemberSignature Language="F#" Value="member this.Join : int64 -&gt; unit" Usage="thread.Join millis" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("join", "(J)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("join", "(J)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="millis" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="millis">the time to wait in milliseconds</param>
+        <summary>Waits at most <c>millis</c> milliseconds for this thread to
+            die.</summary>
+        <remarks>
+          <para>Waits at most <c>millis</c> milliseconds for this thread to
+            die. A timeout of <c>0</c> means to wait forever.</para>
+          <para>This implementation uses a loop of <c>this.wait</c> calls
+            conditioned on <c>this.isAlive</c>. As a thread terminates the
+            <c>this.notifyAll</c> method is invoked. It is recommended that
+            applications not use <c>wait</c>, <c>notify</c>, or
+            <c>notifyAll</c> on <c>Thread</c> instances.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#join(long)" title="Reference documentation">Java documentation for <code>java.lang.Thread.join(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.InterruptedException">if the current thread has been interrupted.
+         The interrupted status of the current thread will be cleared before the exception is
+         thrown.</exception>
+        <altmember cref="M:Java.Lang.Object.NotifyAll" />
+        <altmember cref="T:Java.Lang.ThreadDeath" />
+      </Docs>
+    </Member>
+    <Member MemberName="Join">
+      <MemberSignature Language="C#" Value="public void Join (long millis, int nanos);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Join(int64 millis, int32 nanos) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Join(System.Int64,System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.Join : int64 * int -&gt; unit" Usage="thread.Join (millis, nanos)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("join", "(JI)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("join", "(JI)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="millis" Type="System.Int64" />
+        <Parameter Name="nanos" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="millis">the time to wait in milliseconds</param>
+        <param name="nanos">
+          <c>0-999999</c> additional nanoseconds to wait</param>
+        <summary>Waits at most <c>millis</c> milliseconds plus
+            <c>nanos</c> nanoseconds for this thread to die.</summary>
+        <remarks>
+          <para>Waits at most <c>millis</c> milliseconds plus
+            <c>nanos</c> nanoseconds for this thread to die.
+            If both arguments are <c>0</c>, it means to wait forever.</para>
+          <para>This implementation uses a loop of <c>this.wait</c> calls
+            conditioned on <c>this.isAlive</c>. As a thread terminates the
+            <c>this.notifyAll</c> method is invoked. It is recommended that
+            applications not use <c>wait</c>, <c>notify</c>, or
+            <c>notifyAll</c> on <c>Thread</c> instances.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#join(long,%20int)" title="Reference documentation">Java documentation for <code>java.lang.Thread.join(long, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.InterruptedException">if the current thread has been interrupted.
+         The interrupted status of the current thread will be cleared before the exception is
+         thrown.</exception>
+        <altmember cref="M:Java.Lang.Object.NotifyAll" />
+        <altmember cref="T:Java.Lang.ThreadDeath" />
+      </Docs>
+    </Member>
+    <Member MemberName="MaxPriority">
+      <MemberSignature Language="C#" Value="public const int MaxPriority = 10;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 MaxPriority = (10)" />
+      <MemberSignature Language="DocId" Value="F:Java.Lang.Thread.MaxPriority" />
+      <MemberSignature Language="F#" Value="val mutable MaxPriority : int" Usage="Java.Lang.Thread.MaxPriority" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("MAX_PRIORITY")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("MAX_PRIORITY")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>10</MemberValue>
+      <Docs>
+        <summary>The maximum priority that a thread can have.</summary>
+        <remarks>
+          <para>The maximum priority that a thread can have.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#MAX_PRIORITY" title="Reference documentation">Java documentation for <code>java.lang.Thread.MAX_PRIORITY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="MinPriority">
+      <MemberSignature Language="C#" Value="public const int MinPriority = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 MinPriority = (1)" />
+      <MemberSignature Language="DocId" Value="F:Java.Lang.Thread.MinPriority" />
+      <MemberSignature Language="F#" Value="val mutable MinPriority : int" Usage="Java.Lang.Thread.MinPriority" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("MIN_PRIORITY")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("MIN_PRIORITY")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The minimum priority that a thread can have.</summary>
+        <remarks>
+          <para>The minimum priority that a thread can have.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#MIN_PRIORITY" title="Reference documentation">Java documentation for <code>java.lang.Thread.MIN_PRIORITY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="public string Name { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Name" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.Name" />
+      <MemberSignature Language="F#" Value="member this.Name : string with get, set" Usage="Java.Lang.Thread.Name" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getName", "()Ljava/lang/String;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getName", "()Ljava/lang/String;", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setName", "(Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setName", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="name">the new name for this thread.</param>
+        <summary>Returns this thread's name. -or- Changes the name of this thread to be equal to the argument <c>name</c>.</summary>
+        <value>this thread's name.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns this thread's name.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getName()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getName()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Changes the name of this thread to be equal to the argument <c>name</c>.</para>
+          <para>First the <c>checkAccess</c> method of this thread is called
+            with no arguments. This may result in throwing a
+            <c>SecurityException</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#setName(java.lang.String)" title="Reference documentation">Java documentation for <code>java.lang.Thread.setName(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="P:Java.Lang.Thread.Name" />
+      </Docs>
+    </Member>
+    <Member MemberName="NormPriority">
+      <MemberSignature Language="C#" Value="public const int NormPriority = 5;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 NormPriority = (5)" />
+      <MemberSignature Language="DocId" Value="F:Java.Lang.Thread.NormPriority" />
+      <MemberSignature Language="F#" Value="val mutable NormPriority : int" Usage="Java.Lang.Thread.NormPriority" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("NORM_PRIORITY")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("NORM_PRIORITY")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>5</MemberValue>
+      <Docs>
+        <summary>The default priority that is assigned to a thread.</summary>
+        <remarks>
+          <para>The default priority that is assigned to a thread.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#NORM_PRIORITY" title="Reference documentation">Java documentation for <code>java.lang.Thread.NORM_PRIORITY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnSpinWait">
+      <MemberSignature Language="C#" Value="public static void OnSpinWait ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig void OnSpinWait() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.OnSpinWait" />
+      <MemberSignature Language="F#" Value="static member OnSpinWait : unit -&gt; unit" Usage="Java.Lang.Thread.OnSpinWait " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onSpinWait", "()V", "", ApiSince=33)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onSpinWait", "()V", "", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Indicates that the caller is momentarily unable to progress, until the
+            occurrence of one or more actions on the part of other activities.</summary>
+        <remarks>
+          <para>Indicates that the caller is momentarily unable to progress, until the
+            occurrence of one or more actions on the part of other activities. By
+            invoking this method within each iteration of a spin-wait loop construct,
+            the calling thread indicates to the runtime that it is busy-waiting.
+            The runtime may take action to improve the performance of invoking
+            spin-wait loop constructions.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#onSpinWait()" title="Reference documentation">Java documentation for <code>java.lang.Thread.onSpinWait()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Priority">
+      <MemberSignature Language="C#" Value="public int Priority { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Priority" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.Priority" />
+      <MemberSignature Language="F#" Value="member this.Priority : int with get, set" Usage="Java.Lang.Thread.Priority" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPriority", "()I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPriority", "()I", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setPriority", "(I)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setPriority", "(I)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="newPriority">priority to set this thread to</param>
+        <summary>Returns this thread's priority. -or- Changes the priority of this thread.</summary>
+        <value>this thread's priority.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns this thread's priority.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getPriority()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getPriority()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Changes the priority of this thread.</para>
+          <para>First the <c>checkAccess</c> method of this thread is called
+            with no arguments. This may result in throwing a <c>SecurityException</c>.</para>
+          <para>Otherwise, the priority of this thread is set to the smaller of
+            the specified <c>newPriority</c> and the maximum permitted
+            priority of the thread's thread group.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#setPriority(int)" title="Reference documentation">Java documentation for <code>java.lang.Thread.setPriority(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">- if the new priority is greater than <see cref="F:Java.Lang.Thread.MaxPriority" />
+     or less than <see cref="F:Java.Lang.Thread.MinPriority" /></exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Resume">
+      <MemberSignature Language="C#" Value="public void Resume ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Resume() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Resume" />
+      <MemberSignature Language="F#" Value="member this.Resume : unit -&gt; unit" Usage="thread.Resume " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("resume", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("resume", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Throws <c>UnsupportedOperationException</c>.</summary>
+        <remarks>
+          <para>Throws <c>UnsupportedOperationException</c>.</para>
+          <para>This member is deprecated. This method exists solely for use with <c>#suspend</c>,
+                which has been deprecated because it is deadlock-prone.
+                For more information, see
+                <see href="https://developer.android.com//../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+                are Thread.stop, Thread.suspend and Thread.resume Deprecated?</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#resume()" title="Reference documentation">Java documentation for <code>java.lang.Thread.resume()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Run">
+      <MemberSignature Language="C#" Value="public virtual void Run ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Run() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Run" />
+      <MemberSignature Language="F#" Value="abstract member Run : unit -&gt; unit&#xA;override this.Run : unit -&gt; unit" Usage="thread.Run " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Lang.IRunnable.Run</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("run", "()V", "GetRunHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("run", "()V", "GetRunHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>If this thread was constructed using a separate
+            <c>Runnable</c> run object, then that
+            <c>Runnable</c> object's <c>run</c> method is called;
+            otherwise, this method does nothing and returns.</summary>
+        <remarks>
+          <para>If this thread was constructed using a separate
+            <c>Runnable</c> run object, then that
+            <c>Runnable</c> object's <c>run</c> method is called;
+            otherwise, this method does nothing and returns.</para>
+          <para>Subclasses of <c>Thread</c> should override this method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#run()" title="Reference documentation">Java documentation for <code>java.lang.Thread.run()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Lang.Thread.Start" />
+      </Docs>
+    </Member>
+    <Member MemberName="Sleep">
+      <MemberSignature Language="C#" Value="public static void Sleep (long millis);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig void Sleep(int64 millis) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Sleep(System.Int64)" />
+      <MemberSignature Language="F#" Value="static member Sleep : int64 -&gt; unit" Usage="Java.Lang.Thread.Sleep millis" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("sleep", "(J)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("sleep", "(J)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="millis" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="millis">the length of time to sleep in milliseconds</param>
+        <summary>Causes the currently executing thread to sleep (temporarily cease
+            execution) for the specified number of milliseconds, subject to
+            the precision and accuracy of system timers and schedulers.</summary>
+        <remarks>
+          <para>Causes the currently executing thread to sleep (temporarily cease
+            execution) for the specified number of milliseconds, subject to
+            the precision and accuracy of system timers and schedulers. The thread
+            does not lose ownership of any monitors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#sleep(long)" title="Reference documentation">Java documentation for <code>java.lang.Thread.sleep(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.InterruptedException">if the current thread has been interrupted.
+            The interrupted status of the current thread will be cleared before the exception
+            is thrown.</exception>
+        <altmember cref="M:Java.Lang.Thread.Interrupt" />
+      </Docs>
+    </Member>
+    <Member MemberName="Sleep">
+      <MemberSignature Language="C#" Value="public static void Sleep (long millis, int nanos);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig void Sleep(int64 millis, int32 nanos) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Sleep(System.Int64,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member Sleep : int64 * int -&gt; unit" Usage="Java.Lang.Thread.Sleep (millis, nanos)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("sleep", "(JI)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("sleep", "(JI)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="millis" Type="System.Int64" />
+        <Parameter Name="nanos" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="millis">the length of time to sleep in milliseconds</param>
+        <param name="nanos">
+          <c>0-999999</c> additional nanoseconds to sleep</param>
+        <summary>Causes the currently executing thread to sleep (temporarily cease
+            execution) for the specified number of milliseconds plus the specified
+            number of nanoseconds, subject to the precision and accuracy of system
+            timers and schedulers.</summary>
+        <remarks>
+          <para>Causes the currently executing thread to sleep (temporarily cease
+            execution) for the specified number of milliseconds plus the specified
+            number of nanoseconds, subject to the precision and accuracy of system
+            timers and schedulers. The thread does not lose ownership of any
+            monitors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#sleep(long,%20int)" title="Reference documentation">Java documentation for <code>java.lang.Thread.sleep(long, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.InterruptedException">if the current thread has been interrupted.
+            The interrupted status of the current thread will be cleared before the exception
+            is thrown.</exception>
+        <altmember cref="M:Java.Lang.Thread.Interrupt" />
+      </Docs>
+    </Member>
+    <Member MemberName="Start">
+      <MemberSignature Language="C#" Value="public virtual void Start ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Start() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Start" />
+      <MemberSignature Language="F#" Value="abstract member Start : unit -&gt; unit&#xA;override this.Start : unit -&gt; unit" Usage="thread.Start " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("start", "()V", "GetStartHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("start", "()V", "GetStartHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Causes this thread to begin execution; the Java Virtual Machine
+            calls the <c>run</c> method of this thread.</summary>
+        <remarks>
+          <para>Causes this thread to begin execution; the Java Virtual Machine
+            calls the <c>run</c> method of this thread.</para>
+          <para>The result is that two threads are running concurrently: the
+            current thread (which returns from the call to the
+            <c>start</c> method) and the other thread (which executes its
+            <c>run</c> method).</para>
+          <para>It is never legal to start a thread more than once.
+            In particular, a thread may not be restarted once it has completed
+            execution.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#start()" title="Reference documentation">Java documentation for <code>java.lang.Thread.start()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalThreadStateException">- if this thread has already started.</exception>
+        <altmember cref="M:Java.Lang.Thread.Run" />
+      </Docs>
+    </Member>
+    <Member MemberName="Stop">
+      <MemberSignature Language="C#" Value="public void Stop ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Stop() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Stop" />
+      <MemberSignature Language="F#" Value="member this.Stop : unit -&gt; unit" Usage="thread.Stop " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("stop", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("stop", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Throws <c>UnsupportedOperationException</c>.</summary>
+        <remarks>
+          <para>Throws <c>UnsupportedOperationException</c>.</para>
+          <para>This member is deprecated. This method was originally designed to force a thread to stop
+                  and throw a <c>ThreadDeath</c> as an exception. It was inherently unsafe.
+                  Stopping a thread with
+                  Thread.stop causes it to unlock all of the monitors that it
+                  has locked (as a natural consequence of the unchecked
+                  <c>ThreadDeath</c> exception propagating up the stack).  If
+                  any of the objects previously protected by these monitors were in
+                  an inconsistent state, the damaged objects become visible to
+                  other threads, potentially resulting in arbitrary behavior.  Many
+                  uses of <c>stop</c> should be replaced by code that simply
+                  modifies some variable to indicate that the target thread should
+                  stop running.  The target thread should check this variable
+                  regularly, and return from its run method in an orderly fashion
+                  if the variable indicates that it is to stop running.  If the
+                  target thread waits for long periods (on a condition variable,
+                  for example), the <c>interrupt</c> method should be used to
+                  interrupt the wait.
+                  For more information, see
+                  <see href="https://developer.android.com//../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+                  are Thread.stop, Thread.suspend and Thread.resume Deprecated?</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#stop()" title="Reference documentation">Java documentation for <code>java.lang.Thread.stop()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Stop">
+      <MemberSignature Language="C#" Value="public void Stop (Java.Lang.Throwable? obj);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Stop(class Java.Lang.Throwable obj) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Stop(Java.Lang.Throwable)" />
+      <MemberSignature Language="F#" Value="member this.Stop : Java.Lang.Throwable -&gt; unit" Usage="thread.Stop obj" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("stop", "(Ljava/lang/Throwable;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("stop", "(Ljava/lang/Throwable;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="obj" Type="Java.Lang.Throwable" />
+      </Parameters>
+      <Docs>
+        <param name="obj">ignored</param>
+        <summary>Throws <c>UnsupportedOperationException</c>.</summary>
+        <remarks>
+          <para>Throws <c>UnsupportedOperationException</c>.</para>
+          <para>This member is deprecated. This method was originally designed to force a thread to stop
+                   and throw a given <c>Throwable</c> as an exception. It was
+                   inherently unsafe (see <c>#stop()</c> for details), and furthermore
+                   could be used to generate exceptions that the target thread was
+                   not prepared to handle.
+                   For more information, see
+                   <see href="https://developer.android.com//../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+                   are Thread.stop, Thread.suspend and Thread.resume Deprecated?</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#stop(java.lang.Throwable)" title="Reference documentation">Java documentation for <code>java.lang.Thread.stop(java.lang.Throwable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Suspend">
+      <MemberSignature Language="C#" Value="public void Suspend ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Suspend() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Suspend" />
+      <MemberSignature Language="F#" Value="member this.Suspend : unit -&gt; unit" Usage="thread.Suspend " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("suspend", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("suspend", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Throws <c>UnsupportedOperationException</c>.</summary>
+        <remarks>
+          <para>Throws <c>UnsupportedOperationException</c>.</para>
+          <para>This member is deprecated. This method has been deprecated, as it is
+              inherently deadlock-prone.  If the target thread holds a lock on the
+              monitor protecting a critical system resource when it is suspended, no
+              thread can access this resource until the target thread is resumed. If
+              the thread that would resume the target thread attempts to lock this
+              monitor prior to calling <c>resume</c>, deadlock results.  Such
+              deadlocks typically manifest themselves as "frozen" processes.
+              For more information, see
+              <see href="https://developer.android.com//../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
+              are Thread.stop, Thread.suspend and Thread.resume Deprecated?</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#suspend()" title="Reference documentation">Java documentation for <code>java.lang.Thread.suspend()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThreadGroup">
+      <MemberSignature Language="C#" Value="public Java.Lang.ThreadGroup? ThreadGroup { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.ThreadGroup ThreadGroup" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.ThreadGroup" />
+      <MemberSignature Language="F#" Value="member this.ThreadGroup : Java.Lang.ThreadGroup" Usage="Java.Lang.Thread.ThreadGroup" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getThreadGroup", "()Ljava/lang/ThreadGroup;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getThreadGroup", "()Ljava/lang/ThreadGroup;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.ThreadGroup</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the thread group to which this thread belongs.</summary>
+        <value>this thread's thread group.</value>
+        <remarks>
+          <para>Returns the thread group to which this thread belongs.
+            This method returns null if this thread has died
+            (been stopped).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getThreadGroup()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getThreadGroup()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Lang.Thread.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Lang.Thread.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="UncaughtExceptionHandler">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Thread.IUncaughtExceptionHandler? UncaughtExceptionHandler { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.Thread/IUncaughtExceptionHandler UncaughtExceptionHandler" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.Thread.UncaughtExceptionHandler" />
+      <MemberSignature Language="F#" Value="member this.UncaughtExceptionHandler : Java.Lang.Thread.IUncaughtExceptionHandler with get, set" Usage="Java.Lang.Thread.UncaughtExceptionHandler" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getUncaughtExceptionHandler", "()Ljava/lang/Thread$UncaughtExceptionHandler;", "GetGetUncaughtExceptionHandlerHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getUncaughtExceptionHandler", "()Ljava/lang/Thread$UncaughtExceptionHandler;", "GetGetUncaughtExceptionHandlerHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setUncaughtExceptionHandler", "(Ljava/lang/Thread$UncaughtExceptionHandler;)V", "GetSetUncaughtExceptionHandler_Ljava_lang_Thread_UncaughtExceptionHandler_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setUncaughtExceptionHandler", "(Ljava/lang/Thread$UncaughtExceptionHandler;)V", "GetSetUncaughtExceptionHandler_Ljava_lang_Thread_UncaughtExceptionHandler_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Thread+IUncaughtExceptionHandler</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the handler invoked when this thread abruptly terminates
+            due to an uncaught exception. -or- Set the handler invoked when this thread abruptly terminates
+            due to an uncaught exception.</summary>
+        <value>the uncaught exception handler for this thread</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#getUncaughtExceptionHandler()" title="Reference documentation">Java documentation for <code>java.lang.Thread.getUncaughtExceptionHandler()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#setUncaughtExceptionHandler(java.lang.UncaughtExceptionHandler)" title="Reference documentation">Java documentation for <code>java.lang.Thread.setUncaughtExceptionHandler(java.lang.UncaughtExceptionHandler)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Yield">
+      <MemberSignature Language="C#" Value="public static void Yield ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig void Yield() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.Thread.Yield" />
+      <MemberSignature Language="F#" Value="static member Yield : unit -&gt; unit" Usage="Java.Lang.Thread.Yield " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("yield", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("yield", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>A hint to the scheduler that the current thread is willing to yield
+            its current use of a processor.</summary>
+        <remarks>
+          <para>A hint to the scheduler that the current thread is willing to yield
+            its current use of a processor. The scheduler is free to ignore this
+            hint.</para>
+          <para>Yield is a heuristic attempt to improve relative progression
+            between threads that would otherwise over-utilise a CPU. Its use
+            should be combined with detailed profiling and benchmarking to
+            ensure that it actually has the desired effect.</para>
+          <para>It is rarely appropriate to use this method. It may be useful
+            for debugging or testing purposes, where it may help to reproduce
+            bugs due to race conditions. It may also be useful when designing
+            concurrency control constructs such as the ones in the
+            <c>java.util.concurrent.locks</c> package.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/Thread#yield()" title="Reference documentation">Java documentation for <code>java.lang.Thread.yield()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

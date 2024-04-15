@@ -1,0 +1,822 @@
+<Type Name="TextClassification" FullName="Android.Views.TextClassifiers.TextClassification">
+  <TypeSignature Language="C#" Value="public sealed class TextClassification : Java.Lang.Object, Android.OS.IParcelable, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit TextClassification extends Java.Lang.Object implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Android.Views.TextClassifiers.TextClassification" />
+  <TypeSignature Language="F#" Value="type TextClassification = class&#xA;    inherit Object&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.OS.IParcelable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/view/textclassifier/TextClassification", ApiSince=26, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/view/textclassifier/TextClassification", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>Information for generating a widget to handle classified text.</summary>
+    <remarks>
+      <para>Information for generating a widget to handle classified text.</para>
+      <para>A TextClassification object contains icons, labels, onClickListeners and intents that may
+            be used to build a widget that can be used to act on classified text. There is the concept of a
+            <i>primary action</i> and other <i>secondary actions</i>.</para>
+      <para>e.g. building a view that, when clicked, shares the classified text with the preferred app:</para>
+      <code lang="text/java">{@code
+              // Called preferably outside the UiThread.
+              TextClassification classification = textClassifier.classifyText(allText, 10, 25);
+            
+              // Called on the UiThread.
+              Button button = new Button(context);
+              button.setCompoundDrawablesWithIntrinsicBounds(classification.getIcon(), null, null, null);
+              button.setText(classification.getLabel());
+              button.setOnClickListener(v -&gt; classification.getActions().get(0).getActionIntent().send());
+            }</code>
+      <para>e.g. starting an action mode with menu items that can handle the classified text:</para>
+      <code lang="text/java">{@code
+              // Called preferably outside the UiThread.
+              final TextClassification classification = textClassifier.classifyText(allText, 10, 25);
+            
+              // Called on the UiThread.
+              view.startActionMode(new ActionMode.Callback() {
+            
+                  public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                      for (int i = 0; i &lt; classification.getActions().size(); ++i) {
+                         RemoteAction action = classification.getActions().get(i);
+                         menu.add(Menu.NONE, i, 20, action.getTitle())
+                            .setIcon(action.getIcon());
+                      }
+                      return true;
+                  }
+            
+                  public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                      classification.getActions().get(item.getItemId()).getActionIntent().send();
+                      return true;
+                  }
+            
+                  ...
+              });
+            }</code>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Actions">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IList&lt;Android.App.RemoteAction&gt;? Actions { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Android.App.RemoteAction&gt; Actions" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Actions" />
+      <MemberSignature Language="F#" Value="member this.Actions : System.Collections.Generic.IList&lt;Android.App.RemoteAction&gt;" Usage="Android.Views.TextClassifiers.TextClassification.Actions" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getActions", "()Ljava/util/List;", "", ApiSince=28)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getActions", "()Ljava/util/List;", "", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Android.App.RemoteAction&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a list of actions that may be performed on the text.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns a list of actions that may be performed on the text. The list is ordered based on
+            the likelihood that a user will use the action, with the most likely action appearing first.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getActions()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getActions()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Creator">
+      <MemberSignature Language="C#" Value="public static Android.OS.IParcelableCreator? Creator { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Android.OS.IParcelableCreator Creator" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Creator" />
+      <MemberSignature Language="F#" Value="static member Creator : Android.OS.IParcelableCreator" Usage="Android.Views.TextClassifiers.TextClassification.Creator" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("CREATOR", ApiSince=28)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.IParcelableCreator</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DescribeContents">
+      <MemberSignature Language="C#" Value="public int DescribeContents ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 DescribeContents() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.TextClassifiers.TextClassification.DescribeContents" />
+      <MemberSignature Language="F#" Value="abstract member DescribeContents : unit -&gt; int&#xA;override this.DescribeContents : unit -&gt; int" Usage="textClassification.DescribeContents " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Android.OS.IParcelable.DescribeContents</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("describeContents", "()I", "", ApiSince=28)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("describeContents", "()I", "", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EntityCount">
+      <MemberSignature Language="C#" Value="public int EntityCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 EntityCount" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.EntityCount" />
+      <MemberSignature Language="F#" Value="member this.EntityCount : int" Usage="Android.Views.TextClassifiers.TextClassification.EntityCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getEntityCount", "()I", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getEntityCount", "()I", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the number of entities found in the classified text.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns the number of entities found in the classified text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getEntityCount()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getEntityCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Extras">
+      <MemberSignature Language="C#" Value="public Android.OS.Bundle Extras { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.OS.Bundle Extras" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Extras" />
+      <MemberSignature Language="F#" Value="member this.Extras : Android.OS.Bundle" Usage="Android.Views.TextClassifiers.TextClassification.Extras" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getExtras", "()Landroid/os/Bundle;", "", ApiSince=29)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getExtras", "()Landroid/os/Bundle;", "", ApiSince=29)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.Bundle</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the extended data.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns the extended data.</para>
+          <para>&lt;b&gt;NOTE: &lt;/b&gt;Do not modify this bundle.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getExtras()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getExtras()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetConfidenceScore">
+      <MemberSignature Language="C#" Value="public float GetConfidenceScore (string? entity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float32 GetConfidenceScore(string entity) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.TextClassifiers.TextClassification.GetConfidenceScore(System.String)" />
+      <MemberSignature Language="F#" Value="member this.GetConfidenceScore : string -&gt; single" Usage="textClassification.GetConfidenceScore entity" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getConfidenceScore", "(Ljava/lang/String;)F", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getConfidenceScore", "(Ljava/lang/String;)F", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="entity" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "TypeUnknown", "TypeOther", "TypeEmail", "TypePhone", "TypeAddress", "TypeUrl", "TypeDate", "TypeDateTime", "TypeFlightNumber" }, Type="Android.Views.TextClassifiers.ITextClassifier")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "TypeUnknown", "TypeOther", "TypeEmail", "TypePhone", "TypeAddress", "TypeUrl", "TypeDate", "TypeDateTime", "TypeFlightNumber" }, Type="Android.Views.TextClassifiers.ITextClassifier")&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="entity">To be added.</param>
+        <summary>Returns the confidence score for the specified entity.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Returns the confidence score for the specified entity. The value ranges from
+            0 (low confidence) to 1 (high confidence). 0 indicates that the entity was not found for the
+            classified text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getConfidenceScore(java.lang.String)" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getConfidenceScore(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetEntity">
+      <MemberSignature Language="C#" Value="public string GetEntity (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetEntity(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.TextClassifiers.TextClassification.GetEntity(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.GetEntity : int -&gt; string" Usage="textClassification.GetEntity index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getEntity", "(I)Ljava/lang/String;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getEntity", "(I)Ljava/lang/String;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "TypeUnknown", "TypeOther", "TypeEmail", "TypePhone", "TypeAddress", "TypeUrl", "TypeDate", "TypeDateTime", "TypeFlightNumber" }, Type="Android.Views.TextClassifiers.ITextClassifier")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "TypeUnknown", "TypeOther", "TypeEmail", "TypePhone", "TypeAddress", "TypeUrl", "TypeDate", "TypeDateTime", "TypeFlightNumber" }, Type="Android.Views.TextClassifiers.ITextClassifier")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <summary>Returns the entity at the specified index.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Returns the entity at the specified index. Entities are ordered from high confidence
+            to low confidence.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getEntity(int)" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getEntity(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Icon">
+      <MemberSignature Language="C#" Value="public Android.Graphics.Drawables.Drawable? Icon { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Graphics.Drawables.Drawable Icon" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Icon" />
+      <MemberSignature Language="F#" Value="member this.Icon : Android.Graphics.Drawables.Drawable" Usage="Android.Views.TextClassifiers.TextClassification.Icon" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getIcon", "()Landroid/graphics/drawable/Drawable;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getIcon", "()Landroid/graphics/drawable/Drawable;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Drawables.Drawable</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns an icon that may be rendered on a widget used to act on the classified text.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns an icon that may be rendered on a widget used to act on the classified text.</para>
+          <para>&lt;strong&gt;NOTE: &lt;/strong&gt;This field is not parcelable and only represents the icon of the
+            first <c>RemoteAction</c> (if one exists) when this object is read from a parcel.</para>
+          <para>This member is deprecated. Use <c>#getActions()</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getIcon()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getIcon()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="public string? Id { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Id" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Id" />
+      <MemberSignature Language="F#" Value="member this.Id : string" Usage="Android.Views.TextClassifiers.TextClassification.Id" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getId", "()Ljava/lang/String;", "", ApiSince=28)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getId", "()Ljava/lang/String;", "", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the id, if one exists, for this object.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns the id, if one exists, for this object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getId()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getId()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Intent">
+      <MemberSignature Language="C#" Value="public Android.Content.Intent? Intent { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Content.Intent Intent" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Intent" />
+      <MemberSignature Language="F#" Value="member this.Intent : Android.Content.Intent" Usage="Android.Views.TextClassifiers.TextClassification.Intent" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getIntent", "()Landroid/content/Intent;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getIntent", "()Landroid/content/Intent;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Content.Intent</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns an intent that may be fired to act on the classified text.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns an intent that may be fired to act on the classified text.</para>
+          <para>&lt;strong&gt;NOTE: &lt;/strong&gt;This field is not parcelled and will always return null when this
+            object is read from a parcel.</para>
+          <para>This member is deprecated. Use <c>#getActions()</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getIntent()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getIntent()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Views.TextClassifiers.TextClassification.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Label">
+      <MemberSignature Language="C#" Value="public string? Label { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Label" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Label" />
+      <MemberSignature Language="F#" Value="member this.Label : string" Usage="Android.Views.TextClassifiers.TextClassification.Label" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="LabelFormatted">
+      <MemberSignature Language="C#" Value="public Java.Lang.ICharSequence? LabelFormatted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.ICharSequence LabelFormatted" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.LabelFormatted" />
+      <MemberSignature Language="F#" Value="member this.LabelFormatted : Java.Lang.ICharSequence" Usage="Android.Views.TextClassifiers.TextClassification.LabelFormatted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLabel", "()Ljava/lang/CharSequence;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLabel", "()Ljava/lang/CharSequence;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.ICharSequence</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a label that may be rendered on a widget used to act on the classified text.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns a label that may be rendered on a widget used to act on the classified text.</para>
+          <para>&lt;strong&gt;NOTE: &lt;/strong&gt;This field is not parcelable and only represents the label of the
+            first <c>RemoteAction</c> (if one exists) when this object is read from a parcel.</para>
+          <para>This member is deprecated. Use <c>#getActions()</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getLabel()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getLabel()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnClickListener">
+      <MemberSignature Language="C#" Value="public Android.Views.View.IOnClickListener? OnClickListener { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Views.View/IOnClickListener OnClickListener" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.OnClickListener" />
+      <MemberSignature Language="F#" Value="member this.OnClickListener : Android.Views.View.IOnClickListener" Usage="Android.Views.TextClassifiers.TextClassification.OnClickListener" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getOnClickListener", "()Landroid/view/View$OnClickListener;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getOnClickListener", "()Landroid/view/View$OnClickListener;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.View+IOnClickListener</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the OnClickListener that may be triggered to act on the classified text.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getOnClickListener()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getOnClickListener()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Text">
+      <MemberSignature Language="C#" Value="public string? Text { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Text" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.Text" />
+      <MemberSignature Language="F#" Value="member this.Text : string" Usage="Android.Views.TextClassifiers.TextClassification.Text" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getText", "()Ljava/lang/String;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getText", "()Ljava/lang/String;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the classified text.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the classified text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getText()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getText()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Views.TextClassifiers.TextClassification.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.TextClassifiers.TextClassification.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Views.TextClassifiers.TextClassification.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteToParcel">
+      <MemberSignature Language="C#" Value="public void WriteToParcel (Android.OS.Parcel? dest, Android.OS.ParcelableWriteFlags flags);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void WriteToParcel(class Android.OS.Parcel dest, valuetype Android.OS.ParcelableWriteFlags flags) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.TextClassifiers.TextClassification.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />
+      <MemberSignature Language="F#" Value="abstract member WriteToParcel : Android.OS.Parcel * Android.OS.ParcelableWriteFlags -&gt; unit&#xA;override this.WriteToParcel : Android.OS.Parcel * Android.OS.ParcelableWriteFlags -&gt; unit" Usage="textClassification.WriteToParcel (dest, flags)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Android.OS.IParcelable.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "", ApiSince=28)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dest" Type="Android.OS.Parcel" />
+        <Parameter Name="flags" Type="Android.OS.ParcelableWriteFlags">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="dest">To be added.</param>
+        <param name="flags">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

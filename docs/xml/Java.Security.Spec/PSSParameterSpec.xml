@@ -1,0 +1,543 @@
+<Type Name="PSSParameterSpec" FullName="Java.Security.Spec.PSSParameterSpec">
+  <TypeSignature Language="C#" Value="public class PSSParameterSpec : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Security.Spec.IAlgorithmParameterSpec" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit PSSParameterSpec extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Security.Spec.IAlgorithmParameterSpec, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Security.Spec.PSSParameterSpec" />
+  <TypeSignature Language="F#" Value="type PSSParameterSpec = class&#xA;    inherit Object&#xA;    interface IAlgorithmParameterSpec&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Security.Spec.IAlgorithmParameterSpec</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/security/spec/PSSParameterSpec", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/security/spec/PSSParameterSpec", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>This class specifies a parameter spec for RSA-PSS signature scheme,
+            as defined in the
+            <see href="http://www.ietf.org/rfc/rfc3447.txt">PKCS#1 v2.1</see>
+            standard.</summary>
+    <remarks>
+      <para>This class specifies a parameter spec for RSA-PSS signature scheme,
+            as defined in the
+            <see href="http://www.ietf.org/rfc/rfc3447.txt">PKCS#1 v2.1</see>
+            standard.</para>
+      <para>Its ASN.1 definition in PKCS#1 standard is described below:</para>
+      <code lang="text/java">RSASSA-PSS-params ::= SEQUENCE {
+              hashAlgorithm      [0] OAEP-PSSDigestAlgorithms  DEFAULT sha1,
+              maskGenAlgorithm   [1] PKCS1MGFAlgorithms  DEFAULT mgf1SHA1,
+              saltLength         [2] INTEGER  DEFAULT 20,
+              trailerField       [3] INTEGER  DEFAULT 1
+            }
+            </code>
+      <para>where</para>
+      <code lang="text/java">OAEP-PSSDigestAlgorithms    ALGORITHM-IDENTIFIER ::= {
+              { OID id-sha1 PARAMETERS NULL   }|
+              { OID id-sha224 PARAMETERS NULL   }|
+              { OID id-sha256 PARAMETERS NULL }|
+              { OID id-sha384 PARAMETERS NULL }|
+              { OID id-sha512 PARAMETERS NULL },
+              ...  -- Allows for future expansion --
+            }
+            
+            PKCS1MGFAlgorithms    ALGORITHM-IDENTIFIER ::= {
+              { OID id-mgf1 PARAMETERS OAEP-PSSDigestAlgorithms },
+              ...  -- Allows for future expansion --
+            }
+            </code>
+      <para>Note: the PSSParameterSpec.DEFAULT uses the following:
+                message digest  -- "SHA-1"
+                mask generation function (mgf) -- "MGF1"
+                parameters for mgf -- MGF1ParameterSpec.SHA1
+                SaltLength   -- 20
+                TrailerField -- 1</para>
+      <para>Added in 1.4.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public PSSParameterSpec (int saltLen);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 saltLen) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.Spec.PSSParameterSpec.#ctor(System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Security.Spec.PSSParameterSpec : int -&gt; Java.Security.Spec.PSSParameterSpec" Usage="new Java.Security.Spec.PSSParameterSpec saltLen" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(I)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(I)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="saltLen" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="saltLen">the length of salt in bits to be used in PKCS#1
+            PSS encoding.</param>
+        <summary>Creates a new <c>PSSParameterSpec</c>
+            using the specified salt length and other default values as
+            defined in PKCS#1.</summary>
+        <remarks>
+          <para>Creates a new <c>PSSParameterSpec</c>
+            using the specified salt length and other default values as
+            defined in PKCS#1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#PSSParameterSpec(int)" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.PSSParameterSpec(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if <c>saltLen</c> is negative.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected PSSParameterSpec (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.Spec.PSSParameterSpec.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Security.Spec.PSSParameterSpec : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Security.Spec.PSSParameterSpec" Usage="new Java.Security.Spec.PSSParameterSpec (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public PSSParameterSpec (string? mdName, string? mgfName, Java.Security.Spec.IAlgorithmParameterSpec? mgfSpec, int saltLen, int trailerField);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string mdName, string mgfName, class Java.Security.Spec.IAlgorithmParameterSpec mgfSpec, int32 saltLen, int32 trailerField) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.Spec.PSSParameterSpec.#ctor(System.String,System.String,Java.Security.Spec.IAlgorithmParameterSpec,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Security.Spec.PSSParameterSpec : string * string * Java.Security.Spec.IAlgorithmParameterSpec * int * int -&gt; Java.Security.Spec.PSSParameterSpec" Usage="new Java.Security.Spec.PSSParameterSpec (mdName, mgfName, mgfSpec, saltLen, trailerField)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/String;Ljava/security/spec/AlgorithmParameterSpec;II)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/String;Ljava/security/spec/AlgorithmParameterSpec;II)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="mdName" Type="System.String" />
+        <Parameter Name="mgfName" Type="System.String" />
+        <Parameter Name="mgfSpec" Type="Java.Security.Spec.IAlgorithmParameterSpec" />
+        <Parameter Name="saltLen" Type="System.Int32" />
+        <Parameter Name="trailerField" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="mdName">the algorithm name of the hash function.</param>
+        <param name="mgfName">the algorithm name of the mask generation
+            function.</param>
+        <param name="mgfSpec">the parameters for the mask generation
+            function. If null is specified, null will be returned by
+            getMGFParameters().</param>
+        <param name="saltLen">the length of salt.</param>
+        <param name="trailerField">the value of the trailer field.</param>
+        <summary>Creates a new <c>PSSParameterSpec</c> as defined in
+            the PKCS #1 standard using the specified message digest,
+            mask generation function, parameters for mask generation
+            function, salt length, and trailer field values.</summary>
+        <remarks>
+          <para>Creates a new <c>PSSParameterSpec</c> as defined in
+            the PKCS #1 standard using the specified message digest,
+            mask generation function, parameters for mask generation
+            function, salt length, and trailer field values.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#PSSParameterSpec(java.lang.String,%20java.lang.String,%20java.security.spec.AlgorithmParameterSpec,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.PSSParameterSpec(java.lang.String, java.lang.String, java.security.spec.AlgorithmParameterSpec, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if <c>saltLen</c> or <c>trailerField</c> is negative.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Default">
+      <MemberSignature Language="C#" Value="public static Java.Security.Spec.PSSParameterSpec? Default { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Java.Security.Spec.PSSParameterSpec Default" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.Default" />
+      <MemberSignature Language="F#" Value="static member Default : Java.Security.Spec.PSSParameterSpec" Usage="Java.Security.Spec.PSSParameterSpec.Default" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DEFAULT")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DEFAULT")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.Spec.PSSParameterSpec</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The PSS parameter set with all default values.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>The PSS parameter set with all default values.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#DEFAULT" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.DEFAULT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="DigestAlgorithm">
+      <MemberSignature Language="C#" Value="public virtual string? DigestAlgorithm { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string DigestAlgorithm" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.DigestAlgorithm" />
+      <MemberSignature Language="F#" Value="member this.DigestAlgorithm : string" Usage="Java.Security.Spec.PSSParameterSpec.DigestAlgorithm" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDigestAlgorithm", "()Ljava/lang/String;", "GetGetDigestAlgorithmHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDigestAlgorithm", "()Ljava/lang/String;", "GetGetDigestAlgorithmHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the message digest algorithm name.</summary>
+        <value>the message digest algorithm name.</value>
+        <remarks>
+          <para>Returns the message digest algorithm name.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#getDigestAlgorithm()" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.getDigestAlgorithm()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Security.Spec.PSSParameterSpec.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MGFAlgorithm">
+      <MemberSignature Language="C#" Value="public virtual string? MGFAlgorithm { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string MGFAlgorithm" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.MGFAlgorithm" />
+      <MemberSignature Language="F#" Value="member this.MGFAlgorithm : string" Usage="Java.Security.Spec.PSSParameterSpec.MGFAlgorithm" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getMGFAlgorithm", "()Ljava/lang/String;", "GetGetMGFAlgorithmHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMGFAlgorithm", "()Ljava/lang/String;", "GetGetMGFAlgorithmHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the mask generation function algorithm name.</summary>
+        <value>the mask generation function algorithm name.</value>
+        <remarks>
+          <para>Returns the mask generation function algorithm name.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#getMGFAlgorithm()" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.getMGFAlgorithm()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="MGFParameters">
+      <MemberSignature Language="C#" Value="public virtual Java.Security.Spec.IAlgorithmParameterSpec? MGFParameters { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Security.Spec.IAlgorithmParameterSpec MGFParameters" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.MGFParameters" />
+      <MemberSignature Language="F#" Value="member this.MGFParameters : Java.Security.Spec.IAlgorithmParameterSpec" Usage="Java.Security.Spec.PSSParameterSpec.MGFParameters" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getMGFParameters", "()Ljava/security/spec/AlgorithmParameterSpec;", "GetGetMGFParametersHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMGFParameters", "()Ljava/security/spec/AlgorithmParameterSpec;", "GetGetMGFParametersHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.Spec.IAlgorithmParameterSpec</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the parameters for the mask generation function.</summary>
+        <value>the parameters for the mask generation function.</value>
+        <remarks>
+          <para>Returns the parameters for the mask generation function.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#getMGFParameters()" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.getMGFParameters()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SaltLength">
+      <MemberSignature Language="C#" Value="public virtual int SaltLength { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 SaltLength" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.SaltLength" />
+      <MemberSignature Language="F#" Value="member this.SaltLength : int" Usage="Java.Security.Spec.PSSParameterSpec.SaltLength" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSaltLength", "()I", "GetGetSaltLengthHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSaltLength", "()I", "GetGetSaltLengthHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the salt length in bits.</summary>
+        <value>the salt length.</value>
+        <remarks>
+          <para>Returns the salt length in bits.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#getSaltLength()" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.getSaltLength()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Security.Spec.PSSParameterSpec.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Security.Spec.PSSParameterSpec.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TrailerField">
+      <MemberSignature Language="C#" Value="public virtual int TrailerField { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 TrailerField" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.Spec.PSSParameterSpec.TrailerField" />
+      <MemberSignature Language="F#" Value="member this.TrailerField : int" Usage="Java.Security.Spec.PSSParameterSpec.TrailerField" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTrailerField", "()I", "GetGetTrailerFieldHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTrailerField", "()I", "GetGetTrailerFieldHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the value for the trailer field, i.</summary>
+        <value>the value for the trailer field, i.e. bc in PKCS#1 v2.1.</value>
+        <remarks>
+          <para>Returns the value for the trailer field, i.e. bc in PKCS#1 v2.1.</para>
+          <para>Added in 1.5.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#getTrailerField()" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.getTrailerField()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

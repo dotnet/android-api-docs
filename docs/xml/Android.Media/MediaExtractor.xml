@@ -1,0 +1,2104 @@
+<Type Name="MediaExtractor" FullName="Android.Media.MediaExtractor">
+  <TypeSignature Language="C#" Value="public sealed class MediaExtractor : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MediaExtractor extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Android.Media.MediaExtractor" />
+  <TypeSignature Language="F#" Value="type MediaExtractor = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/media/MediaExtractor", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/MediaExtractor", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="16">
+    <summary>MediaExtractor facilitates extraction of demuxed, typically encoded,  media data
+            from a data source.</summary>
+    <remarks>
+      <para>MediaExtractor facilitates extraction of demuxed, typically encoded,  media data
+            from a data source.</para>
+      <para>It is generally used like this:</para>
+      <code lang="text/java">MediaExtractor extractor = new MediaExtractor();
+            extractor.setDataSource(...);
+            int numTracks = extractor.getTrackCount();
+            for (int i = 0; i &amp;lt; numTracks; ++i) {
+              MediaFormat format = extractor.getTrackFormat(i);
+              String mime = format.getString(MediaFormat.KEY_MIME);
+              if (weAreInterestedInThisTrack) {
+                extractor.selectTrack(i);
+              }
+            }
+            ByteBuffer inputBuffer = ByteBuffer.allocate(...)
+            while (extractor.readSampleData(inputBuffer, ...) &amp;gt;= 0) {
+              int trackIndex = extractor.getSampleTrackIndex();
+              long presentationTimeUs = extractor.getSampleTime();
+              ...
+              extractor.advance();
+            }
+            
+            extractor.release();
+            extractor = null;
+            </code>
+      <para>This class requires the <c>android.Manifest.permission#INTERNET</c> permission
+            when used with network-based content.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/media/MediaExtractor" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 16" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MediaExtractor ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>
+        </summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="Advance">
+      <MemberSignature Language="C#" Value="public bool Advance ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Advance() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.Advance" />
+      <MemberSignature Language="F#" Value="member this.Advance : unit -&gt; bool" Usage="mediaExtractor.Advance " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("advance", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("advance", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Advance to the next sample.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Advance to the next sample. Returns false if no more sample data
+            is available (end of stream).
+            
+            When extracting a local file, the behaviors of <c>#advance</c> and
+            <c>#readSampleData</c> are undefined in presence of concurrent
+            writes to the same local file; more specifically, end of stream
+            could be signalled earlier than expected.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#advance()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.advance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="AdvanceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;bool&gt; AdvanceAsync ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;bool&gt; AdvanceAsync() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.AdvanceAsync" />
+      <MemberSignature Language="F#" Value="member this.AdvanceAsync : unit -&gt; System.Threading.Tasks.Task&lt;bool&gt;" Usage="mediaExtractor.AdvanceAsync " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Boolean&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CachedDuration">
+      <MemberSignature Language="C#" Value="public long CachedDuration { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 CachedDuration" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.CachedDuration" />
+      <MemberSignature Language="F#" Value="member this.CachedDuration : int64" Usage="Android.Media.MediaExtractor.CachedDuration" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getCachedDuration", "()J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCachedDuration", "()J", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns an estimate of how much data is presently cached in memory
+            expressed in microseconds.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns an estimate of how much data is presently cached in memory
+            expressed in microseconds. Returns -1 if that information is unavailable
+            or not applicable (no cache).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getCachedDuration()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getCachedDuration()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="DrmInitData">
+      <MemberSignature Language="C#" Value="public Android.Media.DrmInitData? DrmInitData { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Media.DrmInitData DrmInitData" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.DrmInitData" />
+      <MemberSignature Language="F#" Value="member this.DrmInitData : Android.Media.DrmInitData" Usage="Android.Media.MediaExtractor.DrmInitData" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDrmInitData", "()Landroid/media/DrmInitData;", "", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDrmInitData", "()Landroid/media/DrmInitData;", "", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.DrmInitData</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Extract DRM initialization data if it exists</summary>
+        <value>DRM initialization data in the content, or <c>null</c>
+            if no recognizable DRM format is found;</value>
+        <remarks>
+          <para>Extract DRM initialization data if it exists</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getDrmInitData()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getDrmInitData()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetAudioPresentations">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IList&lt;Android.Media.AudioPresentation&gt; GetAudioPresentations (int trackIndex);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.IList`1&lt;class Android.Media.AudioPresentation&gt; GetAudioPresentations(int32 trackIndex) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.GetAudioPresentations(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.GetAudioPresentations : int -&gt; System.Collections.Generic.IList&lt;Android.Media.AudioPresentation&gt;" Usage="mediaExtractor.GetAudioPresentations trackIndex" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getAudioPresentations", "(I)Ljava/util/List;", "", ApiSince=28)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getAudioPresentations", "(I)Ljava/util/List;", "", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Android.Media.AudioPresentation&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="trackIndex" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="trackIndex">index of the track.</param>
+        <summary>Get the list of available audio presentations for the track.</summary>
+        <returns>a list of available audio presentations for a given valid audio track index.
+            The list will be empty if the source does not contain any audio presentations.</returns>
+        <remarks>
+          <para>Get the list of available audio presentations for the track.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getAudioPresentations(int)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getAudioPresentations(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetCasInfo">
+      <MemberSignature Language="C#" Value="public Android.Media.MediaExtractor.CasInfo? GetCasInfo (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Media.MediaExtractor/CasInfo GetCasInfo(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.GetCasInfo(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.GetCasInfo : int -&gt; Android.Media.MediaExtractor.CasInfo" Usage="mediaExtractor.GetCasInfo index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getCasInfo", "(I)Landroid/media/MediaExtractor$CasInfo;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getCasInfo", "(I)Landroid/media/MediaExtractor$CasInfo;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractor+CasInfo</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">of the track.</param>
+        <summary>Retrieves the information about the conditional access system used to scramble
+            a track.</summary>
+        <returns>an <c>CasInfo</c> object describing the conditional access system.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getCasInfo(int)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getCasInfo(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetSampleCryptoInfo">
+      <MemberSignature Language="C#" Value="public bool GetSampleCryptoInfo (Android.Media.MediaCodec.CryptoInfo info);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool GetSampleCryptoInfo(class Android.Media.MediaCodec/CryptoInfo info) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.GetSampleCryptoInfo(Android.Media.MediaCodec.CryptoInfo)" />
+      <MemberSignature Language="F#" Value="member this.GetSampleCryptoInfo : Android.Media.MediaCodec.CryptoInfo -&gt; bool" Usage="mediaExtractor.GetSampleCryptoInfo info" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getSampleCryptoInfo", "(Landroid/media/MediaCodec$CryptoInfo;)Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getSampleCryptoInfo", "(Landroid/media/MediaCodec$CryptoInfo;)Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="info" Type="Android.Media.MediaCodec+CryptoInfo" />
+      </Parameters>
+      <Docs>
+        <param name="info">The android.media.MediaCodec.CryptoInfo structure
+                        to be filled in.</param>
+        <summary>If the sample flags indicate that the current sample is at least
+            partially encrypted, this call returns relevant information about
+            the structure of the sample data required for decryption.</summary>
+        <returns>true iff the sample flags contain <c>#SAMPLE_FLAG_ENCRYPTED</c></returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getSampleCryptoInfo(android.media.CryptoInfo)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getSampleCryptoInfo(android.media.CryptoInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetTrackFormat">
+      <MemberSignature Language="C#" Value="public Android.Media.MediaFormat GetTrackFormat (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Media.MediaFormat GetTrackFormat(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.GetTrackFormat(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.GetTrackFormat : int -&gt; Android.Media.MediaFormat" Usage="mediaExtractor.GetTrackFormat index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getTrackFormat", "(I)Landroid/media/MediaFormat;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getTrackFormat", "(I)Landroid/media/MediaFormat;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaFormat</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <summary>Get the track format at the specified index.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Get the track format at the specified index.
+            
+            More detail on the representation can be found at <c>android.media.MediaCodec</c></para>
+          <para>The following table summarizes support for format keys across android releases:
+            
+            &lt;table style="width: 0%"&gt;
+             &lt;thead&gt;
+              &lt;tr&gt;
+               &lt;th rowspan=2&gt;OS Version(s)&lt;/th&gt;
+               &lt;td colspan=3&gt;<c>MediaFormat</c> keys used for&lt;/th&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;th&gt;All Tracks&lt;/th&gt;
+               &lt;th&gt;Audio Tracks&lt;/th&gt;
+               &lt;th&gt;Video Tracks&lt;/th&gt;
+              &lt;/tr&gt;
+             &lt;/thead&gt;
+             &lt;tbody&gt;
+              &lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#JELLY_BEAN</c>&lt;/td&gt;
+               &lt;td rowspan=8&gt;<c>MediaFormat#KEY_MIME</c>,&lt;br&gt;
+                   <c>MediaFormat#KEY_DURATION</c>,&lt;br&gt;
+                   <c>MediaFormat#KEY_MAX_INPUT_SIZE</c>&lt;/td&gt;
+               &lt;td rowspan=5&gt;<c>MediaFormat#KEY_SAMPLE_RATE</c>,&lt;br&gt;
+                   <c>MediaFormat#KEY_CHANNEL_COUNT</c>,&lt;br&gt;
+                   <c>MediaFormat#KEY_CHANNEL_MASK</c>,&lt;br&gt;
+                   gapless playback information&lt;sup&gt;.mp3, .mp4&lt;/sup&gt;,&lt;br&gt;
+                   <c>MediaFormat#KEY_IS_ADTS</c>&lt;sup&gt;AAC if streaming&lt;/sup&gt;,&lt;br&gt;
+                   codec-specific data&lt;sup&gt;AAC, Vorbis&lt;/sup&gt;&lt;/td&gt;
+               &lt;td rowspan=2&gt;<c>MediaFormat#KEY_WIDTH</c>,&lt;br&gt;
+                   <c>MediaFormat#KEY_HEIGHT</c>,&lt;br&gt;
+                   codec-specific data&lt;sup&gt;AVC, MPEG4&lt;/sup&gt;&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR1</c>&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>&lt;/td&gt;
+               &lt;td rowspan=3&gt;as above, plus&lt;br&gt;
+                   Pixel aspect ratio information&lt;sup&gt;AVC, *&lt;/sup&gt;&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#KITKAT</c>&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#KITKAT_WATCH</c>&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#LOLLIPOP</c>&lt;/td&gt;
+               &lt;td rowspan=2&gt;as above, plus&lt;br&gt;
+                   <c>MediaFormat#KEY_BIT_RATE</c>&lt;sup&gt;AAC&lt;/sup&gt;,&lt;br&gt;
+                   codec-specific data&lt;sup&gt;Opus&lt;/sup&gt;&lt;/td&gt;
+               &lt;td rowspan=2&gt;as above, plus&lt;br&gt;
+                   <c>MediaFormat#KEY_ROTATION</c>&lt;sup&gt;.mp4&lt;/sup&gt;,&lt;br&gt;
+                   <c>MediaFormat#KEY_BIT_RATE</c>&lt;sup&gt;MPEG4&lt;/sup&gt;,&lt;br&gt;
+                   codec-specific data&lt;sup&gt;HEVC&lt;/sup&gt;&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#LOLLIPOP_MR1</c>&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#M</c>&lt;/td&gt;
+               &lt;td&gt;as above, plus&lt;br&gt;
+                   gapless playback information&lt;sup&gt;Opus&lt;/sup&gt;&lt;/td&gt;
+               &lt;td&gt;as above, plus&lt;br&gt;
+                   <c>MediaFormat#KEY_FRAME_RATE</c> (integer)&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>android.os.Build.VERSION_CODES#N</c>&lt;/td&gt;
+               &lt;td&gt;as above, plus&lt;br&gt;
+                   <c>MediaFormat#KEY_TRACK_ID</c>,&lt;br&gt;
+                   &lt;!-- {link MediaFormat#KEY_MAX_BIT_RATE}&lt;sup&gt;#, .mp4&lt;/sup&gt;,&lt;br&gt; --&gt;
+                   <c>MediaFormat#KEY_BIT_RATE</c>&lt;sup&gt;#, .mp4&lt;/sup&gt;&lt;/td&gt;
+               &lt;td&gt;as above, plus&lt;br&gt;
+                   <c>MediaFormat#KEY_PCM_ENCODING</c>,&lt;br&gt;
+                   <c>MediaFormat#KEY_PROFILE</c>&lt;sup&gt;AAC&lt;/sup&gt;&lt;/td&gt;
+               &lt;td&gt;as above, plus&lt;br&gt;
+                   <c>MediaFormat#KEY_HDR_STATIC_INFO</c>&lt;sup&gt;#, .webm&lt;/sup&gt;,&lt;br&gt;
+                   <c>MediaFormat#KEY_COLOR_STANDARD</c>&lt;sup&gt;#&lt;/sup&gt;,&lt;br&gt;
+                   <c>MediaFormat#KEY_COLOR_TRANSFER</c>&lt;sup&gt;#&lt;/sup&gt;,&lt;br&gt;
+                   <c>MediaFormat#KEY_COLOR_RANGE</c>&lt;sup&gt;#&lt;/sup&gt;,&lt;br&gt;
+                   <c>MediaFormat#KEY_PROFILE</c>&lt;sup&gt;MPEG2, H.263, MPEG4, AVC, HEVC, VP9&lt;/sup&gt;,&lt;br&gt;
+                   <c>MediaFormat#KEY_LEVEL</c>&lt;sup&gt;H.263, MPEG4, AVC, HEVC, VP9&lt;/sup&gt;,&lt;br&gt;
+                   codec-specific data&lt;sup&gt;VP9&lt;/sup&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+               &lt;td colspan=4&gt;
+                &lt;p class=note&gt;&lt;strong&gt;Notes:&lt;/strong&gt;&lt;br&gt;
+                 #: container-specified value only.&lt;br&gt;
+                 .mp4, .webm&amp;hellip;: for listed containers&lt;br&gt;
+                 MPEG4, AAC&amp;hellip;: for listed codecs
+               &lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td colspan=4&gt;
+                &lt;p class=note&gt;Note that that level information contained in the container many times
+                does not match the level of the actual bitstream. You may want to clear the level using
+                <c>MediaFormat.setString(KEY_LEVEL, null)</c> before using the track format to find a
+                decoder that can play back a particular track.
+               &lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td colspan=4&gt;
+                &lt;p class=note&gt;&lt;strong&gt;*Pixel (sample) aspect ratio&lt;/strong&gt; is returned in the following
+                keys. The display width can be calculated for example as:
+                &lt;p align=center&gt;
+                display-width = display-height * crop-width / crop-height * sar-width / sar-height
+               &lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;th&gt;Format Key&lt;/th&gt;&lt;th&gt;Value Type&lt;/th&gt;&lt;th colspan=2&gt;Description&lt;/th&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>"sar-width"</c>&lt;/td&gt;&lt;td&gt;Integer&lt;/td&gt;&lt;td colspan=2&gt;Pixel aspect ratio width&lt;/td&gt;
+              &lt;/tr&gt;&lt;tr&gt;
+               &lt;td&gt;<c>"sar-height"</c>&lt;/td&gt;&lt;td&gt;Integer&lt;/td&gt;&lt;td colspan=2&gt;Pixel aspect ratio height&lt;/td&gt;
+              &lt;/tr&gt;
+             &lt;/tbody&gt;
+            &lt;/table&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getTrackFormat(int)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getTrackFormat(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="HasCacheReachedEndOfStream">
+      <MemberSignature Language="C#" Value="public bool HasCacheReachedEndOfStream { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool HasCacheReachedEndOfStream" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.HasCacheReachedEndOfStream" />
+      <MemberSignature Language="F#" Value="member this.HasCacheReachedEndOfStream : bool" Usage="Android.Media.MediaExtractor.HasCacheReachedEndOfStream" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("hasCacheReachedEndOfStream", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("hasCacheReachedEndOfStream", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns true iff we are caching data and the cache has reached the
+            end of the data stream (for now, a future seek may of course restart
+            the fetching of data).</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns true iff we are caching data and the cache has reached the
+            end of the data stream (for now, a future seek may of course restart
+            the fetching of data).
+            This API only returns a meaningful result if <c>#getCachedDuration</c>
+            indicates the presence of a cache, i.e. does NOT return -1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#hasCacheReachedEndOfStream()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.hasCacheReachedEndOfStream()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Media.MediaExtractor.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="LogSessionId">
+      <MemberSignature Language="C#" Value="public Android.Media.Metrics.LogSessionId LogSessionId { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Media.Metrics.LogSessionId LogSessionId" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.LogSessionId" />
+      <MemberSignature Language="F#" Value="member this.LogSessionId : Android.Media.Metrics.LogSessionId with get, set" Usage="Android.Media.MediaExtractor.LogSessionId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLogSessionId", "()Landroid/media/metrics/LogSessionId;", "", ApiSince=31)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLogSessionId", "()Landroid/media/metrics/LogSessionId;", "", ApiSince=31)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setLogSessionId", "(Landroid/media/metrics/LogSessionId;)V", "", ApiSince=31)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setLogSessionId", "(Landroid/media/metrics/LogSessionId;)V", "", ApiSince=31)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.Metrics.LogSessionId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the <c>LogSessionId</c> for MediaExtractor. -or- Sets the <c>LogSessionId</c> for MediaExtractor.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the <c>LogSessionId</c> for MediaExtractor.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getLogSessionId()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getLogSessionId()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the <c>LogSessionId</c> for MediaExtractor.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setLogSessionId(android.media.metrics.LogSessionId)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setLogSessionId(android.media.metrics.LogSessionId)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Metrics">
+      <MemberSignature Language="C#" Value="public Android.OS.PersistableBundle? Metrics { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.OS.PersistableBundle Metrics" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.Metrics" />
+      <MemberSignature Language="F#" Value="member this.Metrics : Android.OS.PersistableBundle" Usage="Android.Media.MediaExtractor.Metrics" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getMetrics", "()Landroid/os/PersistableBundle;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMetrics", "()Landroid/os/PersistableBundle;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.PersistableBundle</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return Metrics data about the current media container.</summary>
+        <value>a <c>PersistableBundle</c> containing the set of attributes and values
+            available for the media container being handled by this instance
+            of MediaExtractor.
+            The attributes are descibed in <c>MetricsConstants</c>.
+            
+             Additional vendor-specific fields may also be present in
+             the return value.</value>
+        <remarks>
+          <para>Return Metrics data about the current media container.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getMetrics()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getMetrics()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PsshInfo">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IDictionary&lt;Java.Util.UUID,byte[]&gt;? PsshInfo { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IDictionary`2&lt;class Java.Util.UUID, unsigned int8[]&gt; PsshInfo" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.PsshInfo" />
+      <MemberSignature Language="F#" Value="member this.PsshInfo : System.Collections.Generic.IDictionary&lt;Java.Util.UUID, byte[]&gt;" Usage="Android.Media.MediaExtractor.PsshInfo" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPsshInfo", "()Ljava/util/Map;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPsshInfo", "()Ljava/util/Map;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IDictionary&lt;Java.Util.UUID,System.Byte[]&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Get the PSSH info if present.</summary>
+        <value>a map of uuid-to-bytes, with the uuid specifying
+            the crypto scheme, and the bytes being the data specific to that scheme.
+            This can be <c>null</c> if the source does not contain PSSH info.</value>
+        <remarks>
+          <para>Get the PSSH info if present.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getPsshInfo()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getPsshInfo()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReadSampleData">
+      <MemberSignature Language="C#" Value="public int ReadSampleData (Java.Nio.ByteBuffer byteBuf, int offset);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 ReadSampleData(class Java.Nio.ByteBuffer byteBuf, int32 offset) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.ReadSampleData(Java.Nio.ByteBuffer,System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.ReadSampleData : Java.Nio.ByteBuffer * int -&gt; int" Usage="mediaExtractor.ReadSampleData (byteBuf, offset)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("readSampleData", "(Ljava/nio/ByteBuffer;I)I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("readSampleData", "(Ljava/nio/ByteBuffer;I)I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="byteBuf" Type="Java.Nio.ByteBuffer" />
+        <Parameter Name="offset" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="offset">To be added.</param>
+        <param name="byteBuf">the destination byte buffer</param>
+        <summary>Retrieve the current encoded sample and store it in the byte buffer
+            starting at the given offset.</summary>
+        <returns>the sample size (or -1 if no more samples are available).</returns>
+        <remarks>
+          <para>Retrieve the current encoded sample and store it in the byte buffer
+            starting at the given offset.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt;As of API 21, on success the position and limit of
+            <c>byteBuf</c> is updated to point to the data just read.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#readSampleData(java.nio.ByteBuffer,%20int)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.readSampleData(java.nio.ByteBuffer, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReadSampleDataAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; ReadSampleDataAsync (Java.Nio.ByteBuffer byteBuf, int offset);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; ReadSampleDataAsync(class Java.Nio.ByteBuffer byteBuf, int32 offset) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.ReadSampleDataAsync(Java.Nio.ByteBuffer,System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.ReadSampleDataAsync : Java.Nio.ByteBuffer * int -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="mediaExtractor.ReadSampleDataAsync (byteBuf, offset)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Int32&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="byteBuf" Type="Java.Nio.ByteBuffer" />
+        <Parameter Name="offset" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="byteBuf">To be added.</param>
+        <param name="offset">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Release">
+      <MemberSignature Language="C#" Value="public void Release ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Release() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.Release" />
+      <MemberSignature Language="F#" Value="member this.Release : unit -&gt; unit" Usage="mediaExtractor.Release " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("release", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("release", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Make sure you call this when you're done to free up any resources
+            instead of relying on the garbage collector to do this for you at
+            some point in the future.</summary>
+        <remarks>
+          <para>Make sure you call this when you're done to free up any resources
+            instead of relying on the garbage collector to do this for you at
+            some point in the future.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#release()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.release()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SampleFlagEncrypted">
+      <MemberSignature Language="C#" Value="public const Android.Media.MediaExtractorSampleFlags SampleFlagEncrypted = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaExtractorSampleFlags SampleFlagEncrypted = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaExtractor.SampleFlagEncrypted" />
+      <MemberSignature Language="F#" Value="val mutable SampleFlagEncrypted : Android.Media.MediaExtractorSampleFlags" Usage="Android.Media.MediaExtractor.SampleFlagEncrypted" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SAMPLE_FLAG_ENCRYPTED")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SAMPLE_FLAG_ENCRYPTED")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSampleFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSampleFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractorSampleFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>The sample is (at least partially) encrypted, see also the documentation
+            for <c>android.media.MediaCodec#queueSecureInputBuffer</c></summary>
+        <remarks>
+          <para>The sample is (at least partially) encrypted, see also the documentation
+            for <c>android.media.MediaCodec#queueSecureInputBuffer</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#SAMPLE_FLAG_ENCRYPTED" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.SAMPLE_FLAG_ENCRYPTED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SampleFlagPartialFrame">
+      <MemberSignature Language="C#" Value="public const Android.Media.MediaExtractorSampleFlags SampleFlagPartialFrame = 4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaExtractorSampleFlags SampleFlagPartialFrame = (4)" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaExtractor.SampleFlagPartialFrame" />
+      <MemberSignature Language="F#" Value="val mutable SampleFlagPartialFrame : Android.Media.MediaExtractorSampleFlags" Usage="Android.Media.MediaExtractor.SampleFlagPartialFrame" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SAMPLE_FLAG_PARTIAL_FRAME", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SAMPLE_FLAG_PARTIAL_FRAME", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSampleFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSampleFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractorSampleFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>4</MemberValue>
+      <Docs>
+        <summary>This indicates that the buffer only contains part of a frame,
+            and the decoder should batch the data until a buffer without
+            this flag appears before decoding the frame.</summary>
+        <remarks>
+          <para>This indicates that the buffer only contains part of a frame,
+            and the decoder should batch the data until a buffer without
+            this flag appears before decoding the frame.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#SAMPLE_FLAG_PARTIAL_FRAME" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.SAMPLE_FLAG_PARTIAL_FRAME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SampleFlags">
+      <MemberSignature Language="C#" Value="public Android.Media.MediaExtractorSampleFlags SampleFlags { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.Media.MediaExtractorSampleFlags SampleFlags" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.SampleFlags" />
+      <MemberSignature Language="F#" Value="member this.SampleFlags : Android.Media.MediaExtractorSampleFlags" Usage="Android.Media.MediaExtractor.SampleFlags" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSampleFlags", "()I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSampleFlags", "()I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractorSampleFlags</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the current sample's flags.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns the current sample's flags.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getSampleFlags()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getSampleFlags()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SampleFlagSync">
+      <MemberSignature Language="C#" Value="public const Android.Media.MediaExtractorSampleFlags SampleFlagSync = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaExtractorSampleFlags SampleFlagSync = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaExtractor.SampleFlagSync" />
+      <MemberSignature Language="F#" Value="val mutable SampleFlagSync : Android.Media.MediaExtractorSampleFlags" Usage="Android.Media.MediaExtractor.SampleFlagSync" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SAMPLE_FLAG_SYNC")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SAMPLE_FLAG_SYNC")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSampleFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSampleFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractorSampleFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The sample is a sync sample (or in <c>MediaCodec</c>'s terminology
+            it is a key frame.</summary>
+        <remarks>
+          <para>The sample is a sync sample (or in <c>MediaCodec</c>'s terminology
+            it is a key frame.)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#SAMPLE_FLAG_SYNC" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.SAMPLE_FLAG_SYNC</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+        <altmember cref="F:Android.Media.MediaCodec.BufferFlagKeyFrame" />
+      </Docs>
+    </Member>
+    <Member MemberName="SampleSize">
+      <MemberSignature Language="C#" Value="public long SampleSize { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 SampleSize" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.SampleSize" />
+      <MemberSignature Language="F#" Value="member this.SampleSize : int64" Usage="Android.Media.MediaExtractor.SampleSize" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSampleSize", "()J", "", ApiSince=28)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSampleSize", "()J", "", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>size of the current sample in bytes or -1 if no more
+            samples are available.</value>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getSampleSize()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getSampleSize()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SampleTime">
+      <MemberSignature Language="C#" Value="public long SampleTime { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 SampleTime" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.SampleTime" />
+      <MemberSignature Language="F#" Value="member this.SampleTime : int64" Usage="Android.Media.MediaExtractor.SampleTime" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSampleTime", "()J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSampleTime", "()J", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the current sample's presentation time in microseconds.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns the current sample's presentation time in microseconds.
+            or -1 if no more samples are available.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getSampleTime()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getSampleTime()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SampleTrackIndex">
+      <MemberSignature Language="C#" Value="public int SampleTrackIndex { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 SampleTrackIndex" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.SampleTrackIndex" />
+      <MemberSignature Language="F#" Value="member this.SampleTrackIndex : int" Usage="Android.Media.MediaExtractor.SampleTrackIndex" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSampleTrackIndex", "()I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSampleTrackIndex", "()I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the track index the current sample originates from (or -1
+            if no more samples are available)</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns the track index the current sample originates from (or -1
+            if no more samples are available)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getSampleTrackIndex()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getSampleTrackIndex()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SeekTo">
+      <MemberSignature Language="C#" Value="public void SeekTo (long timeUs, Android.Media.MediaExtractorSeekTo mode);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SeekTo(int64 timeUs, valuetype Android.Media.MediaExtractorSeekTo mode) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SeekTo(System.Int64,Android.Media.MediaExtractorSeekTo)" />
+      <MemberSignature Language="F#" Value="member this.SeekTo : int64 * Android.Media.MediaExtractorSeekTo -&gt; unit" Usage="mediaExtractor.SeekTo (timeUs, mode)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("seekTo", "(JI)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("seekTo", "(JI)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="timeUs" Type="System.Int64" />
+        <Parameter Name="mode" Type="Android.Media.MediaExtractorSeekTo">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="timeUs">To be added.</param>
+        <param name="mode">To be added.</param>
+        <summary>All selected tracks seek near the requested time according to the
+            specified mode.</summary>
+        <remarks>
+          <para>All selected tracks seek near the requested time according to the
+            specified mode.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#seekTo(long,%20int)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.seekTo(long, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SeekToClosestSync">
+      <MemberSignature Language="C#" Value="public const Android.Media.MediaExtractorSeekTo SeekToClosestSync = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaExtractorSeekTo SeekToClosestSync = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaExtractor.SeekToClosestSync" />
+      <MemberSignature Language="F#" Value="val mutable SeekToClosestSync : Android.Media.MediaExtractorSeekTo" Usage="Android.Media.MediaExtractor.SeekToClosestSync" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SEEK_TO_CLOSEST_SYNC")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SEEK_TO_CLOSEST_SYNC")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSeekTo enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSeekTo enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractorSeekTo</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>If possible, seek to the sync sample closest to the specified time</summary>
+        <remarks>
+          <para>If possible, seek to the sync sample closest to the specified time</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#SEEK_TO_CLOSEST_SYNC" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.SEEK_TO_CLOSEST_SYNC</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SeekToNextSync">
+      <MemberSignature Language="C#" Value="public const Android.Media.MediaExtractorSeekTo SeekToNextSync = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaExtractorSeekTo SeekToNextSync = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaExtractor.SeekToNextSync" />
+      <MemberSignature Language="F#" Value="val mutable SeekToNextSync : Android.Media.MediaExtractorSeekTo" Usage="Android.Media.MediaExtractor.SeekToNextSync" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SEEK_TO_NEXT_SYNC")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SEEK_TO_NEXT_SYNC")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSeekTo enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSeekTo enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractorSeekTo</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>If possible, seek to a sync sample at or after the specified time</summary>
+        <remarks>
+          <para>If possible, seek to a sync sample at or after the specified time</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#SEEK_TO_NEXT_SYNC" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.SEEK_TO_NEXT_SYNC</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SeekToPreviousSync">
+      <MemberSignature Language="C#" Value="public const Android.Media.MediaExtractorSeekTo SeekToPreviousSync = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaExtractorSeekTo SeekToPreviousSync = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaExtractor.SeekToPreviousSync" />
+      <MemberSignature Language="F#" Value="val mutable SeekToPreviousSync : Android.Media.MediaExtractorSeekTo" Usage="Android.Media.MediaExtractor.SeekToPreviousSync" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SEEK_TO_PREVIOUS_SYNC")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SEEK_TO_PREVIOUS_SYNC")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSeekTo enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaExtractorSeekTo enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaExtractorSeekTo</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>If possible, seek to a sync sample at or before the specified time</summary>
+        <remarks>
+          <para>If possible, seek to a sync sample at or before the specified time</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#SEEK_TO_PREVIOUS_SYNC" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.SEEK_TO_PREVIOUS_SYNC</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SelectTrack">
+      <MemberSignature Language="C#" Value="public void SelectTrack (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SelectTrack(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SelectTrack(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.SelectTrack : int -&gt; unit" Usage="mediaExtractor.SelectTrack index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("selectTrack", "(I)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("selectTrack", "(I)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <summary>Subsequent calls to <c>#readSampleData</c>, <c>#getSampleTrackIndex</c> and
+            <c>#getSampleTime</c> only retrieve information for the subset of tracks
+            selected.</summary>
+        <remarks>
+          <para>Subsequent calls to <c>#readSampleData</c>, <c>#getSampleTrackIndex</c> and
+            <c>#getSampleTime</c> only retrieve information for the subset of tracks
+            selected.
+            Selecting the same track multiple times has no effect, the track is
+            only selected once.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#selectTrack(int)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.selectTrack(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSource">
+      <MemberSignature Language="C#" Value="public void SetDataSource (Android.Content.Res.AssetFileDescriptor afd);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetDataSource(class Android.Content.Res.AssetFileDescriptor afd) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSource(Android.Content.Res.AssetFileDescriptor)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSource : Android.Content.Res.AssetFileDescriptor -&gt; unit" Usage="mediaExtractor.SetDataSource afd" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDataSource", "(Landroid/content/res/AssetFileDescriptor;)V", "", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDataSource", "(Landroid/content/res/AssetFileDescriptor;)V", "", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="afd" Type="Android.Content.Res.AssetFileDescriptor" />
+      </Parameters>
+      <Docs>
+        <param name="afd">the AssetFileDescriptor for the file you want to extract from.</param>
+        <summary>Sets the data source (AssetFileDescriptor) to use.</summary>
+        <remarks>
+          <para>Sets the data source (AssetFileDescriptor) to use. It is the caller's
+            responsibility to close the file descriptor. It is safe to do so as soon
+            as this call returns.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setDataSource(android.content.res.AssetFileDescriptor)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setDataSource(android.content.res.AssetFileDescriptor)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSource">
+      <MemberSignature Language="C#" Value="public void SetDataSource (Android.Media.MediaDataSource dataSource);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetDataSource(class Android.Media.MediaDataSource dataSource) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSource(Android.Media.MediaDataSource)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSource : Android.Media.MediaDataSource -&gt; unit" Usage="mediaExtractor.SetDataSource dataSource" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDataSource", "(Landroid/media/MediaDataSource;)V", "", ApiSince=23)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDataSource", "(Landroid/media/MediaDataSource;)V", "", ApiSince=23)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dataSource" Type="Android.Media.MediaDataSource" />
+      </Parameters>
+      <Docs>
+        <param name="dataSource">the MediaDataSource for the media you want to extract from</param>
+        <summary>Sets the data source (MediaDataSource) to use.</summary>
+        <remarks>
+          <para>Sets the data source (MediaDataSource) to use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setDataSource(android.media.MediaDataSource)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setDataSource(android.media.MediaDataSource)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSource">
+      <MemberSignature Language="C#" Value="public void SetDataSource (Java.IO.FileDescriptor fd);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetDataSource(class Java.IO.FileDescriptor fd) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSource(Java.IO.FileDescriptor)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSource : Java.IO.FileDescriptor -&gt; unit" Usage="mediaExtractor.SetDataSource fd" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDataSource", "(Ljava/io/FileDescriptor;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDataSource", "(Ljava/io/FileDescriptor;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
+      </Parameters>
+      <Docs>
+        <param name="fd">the FileDescriptor for the file you want to extract from.</param>
+        <summary>Sets the data source (FileDescriptor) to use.</summary>
+        <remarks>
+          <para>Sets the data source (FileDescriptor) to use. It is the caller's responsibility
+            to close the file descriptor. It is safe to do so as soon as this call returns.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setDataSource(java.io.FileDescriptor)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setDataSource(java.io.FileDescriptor)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+        <exception cref="T:Java.IO.IOException" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSource">
+      <MemberSignature Language="C#" Value="public void SetDataSource (string path);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetDataSource(string path) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSource(System.String)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSource : string -&gt; unit" Usage="mediaExtractor.SetDataSource path" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDataSource", "(Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDataSource", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="path" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="path">the path of the file, or the http URL of the stream
+            
+            &lt;p&gt;When <c>path</c> refers to a local file, the file may actually be opened by a
+            process other than the calling application.  This implies that the pathname
+            should be an absolute path (as any other process runs with unspecified current working
+            directory), and that the pathname should reference a world-readable file.
+            As an alternative, the application could first open the file for reading,
+            and then use the file descriptor form <c>#setDataSource(FileDescriptor)</c>.
+            
+            &lt;p&gt;When <c>path</c> refers to a network file the
+            <c>android.Manifest.permission#INTERNET</c> permission is required.</param>
+        <summary>Sets the data source (file-path or http URL) to use.</summary>
+        <remarks>
+          <para>Sets the data source (file-path or http URL) to use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setDataSource(java.lang.String)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setDataSource(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+        <exception cref="T:Java.IO.IOException" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSource">
+      <MemberSignature Language="C#" Value="public void SetDataSource (string path, System.Collections.Generic.IDictionary&lt;string,string&gt;? headers);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetDataSource(string path, class System.Collections.Generic.IDictionary`2&lt;string, string&gt; headers) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSource(System.String,System.Collections.Generic.IDictionary{System.String,System.String})" />
+      <MemberSignature Language="F#" Value="member this.SetDataSource : string * System.Collections.Generic.IDictionary&lt;string, string&gt; -&gt; unit" Usage="mediaExtractor.SetDataSource (path, headers)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDataSource", "(Ljava/lang/String;Ljava/util/Map;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDataSource", "(Ljava/lang/String;Ljava/util/Map;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="headers" Type="System.Collections.Generic.IDictionary&lt;System.String,System.String&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="path">the path of the file, or the http URL
+            
+            &lt;p&gt;When <c>path</c> refers to a network file the
+            <c>android.Manifest.permission#INTERNET</c> permission is required.</param>
+        <param name="headers">the headers associated with the http request for the stream you want to play.
+                   This can be <c>null</c> if no specific headers are to be sent with the
+                   request.</param>
+        <summary>Sets the data source (file-path or http URL) to use.</summary>
+        <remarks>
+          <para>Sets the data source (file-path or http URL) to use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setDataSource(java.lang.String,%20java.util.Map%3Cjava.lang.String,%20java.lang.String%3E)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setDataSource(java.lang.String, java.util.Map&lt;java.lang.String, java.lang.String&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSource">
+      <MemberSignature Language="C#" Value="public void SetDataSource (Android.Content.Context context, Android.Net.Uri uri, System.Collections.Generic.IDictionary&lt;string,string&gt;? headers);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetDataSource(class Android.Content.Context context, class Android.Net.Uri uri, class System.Collections.Generic.IDictionary`2&lt;string, string&gt; headers) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSource(Android.Content.Context,Android.Net.Uri,System.Collections.Generic.IDictionary{System.String,System.String})" />
+      <MemberSignature Language="F#" Value="member this.SetDataSource : Android.Content.Context * Android.Net.Uri * System.Collections.Generic.IDictionary&lt;string, string&gt; -&gt; unit" Usage="mediaExtractor.SetDataSource (context, uri, headers)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDataSource", "(Landroid/content/Context;Landroid/net/Uri;Ljava/util/Map;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDataSource", "(Landroid/content/Context;Landroid/net/Uri;Ljava/util/Map;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="context" Type="Android.Content.Context" />
+        <Parameter Name="uri" Type="Android.Net.Uri" />
+        <Parameter Name="headers" Type="System.Collections.Generic.IDictionary&lt;System.String,System.String&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="context">the Context to use when resolving the Uri</param>
+        <param name="uri">the Content URI of the data you want to extract from.
+            
+            &lt;p&gt;When <c>uri</c> refers to a network file the
+            <c>android.Manifest.permission#INTERNET</c> permission is required.</param>
+        <param name="headers">the headers to be sent together with the request for the data.
+                   This can be <c>null</c> if no specific headers are to be sent with the
+                   request.</param>
+        <summary>Sets the data source as a content Uri.</summary>
+        <remarks>
+          <para>Sets the data source as a content Uri.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setDataSource(android.content.Context,%20android.net.Uri,%20java.util.Map%3Cjava.lang.String,%20java.lang.String%3E)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setDataSource(android.content.Context, android.net.Uri, java.util.Map&lt;java.lang.String, java.lang.String&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSource">
+      <MemberSignature Language="C#" Value="public void SetDataSource (Java.IO.FileDescriptor fd, long offset, long length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetDataSource(class Java.IO.FileDescriptor fd, int64 offset, int64 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSource(Java.IO.FileDescriptor,System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSource : Java.IO.FileDescriptor * int64 * int64 -&gt; unit" Usage="mediaExtractor.SetDataSource (fd, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDataSource", "(Ljava/io/FileDescriptor;JJ)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDataSource", "(Ljava/io/FileDescriptor;JJ)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
+        <Parameter Name="offset" Type="System.Int64" />
+        <Parameter Name="length" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="fd">the FileDescriptor for the file you want to extract from.</param>
+        <param name="offset">the offset into the file where the data to be extracted starts, in bytes</param>
+        <param name="length">the length in bytes of the data to be extracted</param>
+        <summary>Sets the data source (FileDescriptor) to use.</summary>
+        <remarks>
+          <para>Sets the data source (FileDescriptor) to use.  The FileDescriptor must be
+            seekable (N.B. a LocalSocket is not seekable). It is the caller's responsibility
+            to close the file descriptor. It is safe to do so as soon as this call returns.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setDataSource(java.io.FileDescriptor,%20long,%20long)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setDataSource(java.io.FileDescriptor, long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+        <exception cref="T:Java.IO.IOException" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSourceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task SetDataSourceAsync (Android.Content.Res.AssetFileDescriptor afd);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task SetDataSourceAsync(class Android.Content.Res.AssetFileDescriptor afd) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSourceAsync(Android.Content.Res.AssetFileDescriptor)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSourceAsync : Android.Content.Res.AssetFileDescriptor -&gt; System.Threading.Tasks.Task" Usage="mediaExtractor.SetDataSourceAsync afd" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="afd" Type="Android.Content.Res.AssetFileDescriptor" />
+      </Parameters>
+      <Docs>
+        <param name="afd">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSourceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task SetDataSourceAsync (Android.Media.MediaDataSource dataSource);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task SetDataSourceAsync(class Android.Media.MediaDataSource dataSource) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSourceAsync(Android.Media.MediaDataSource)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSourceAsync : Android.Media.MediaDataSource -&gt; System.Threading.Tasks.Task" Usage="mediaExtractor.SetDataSourceAsync dataSource" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dataSource" Type="Android.Media.MediaDataSource" />
+      </Parameters>
+      <Docs>
+        <param name="dataSource">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSourceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task SetDataSourceAsync (Java.IO.FileDescriptor fd);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task SetDataSourceAsync(class Java.IO.FileDescriptor fd) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSourceAsync(Java.IO.FileDescriptor)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSourceAsync : Java.IO.FileDescriptor -&gt; System.Threading.Tasks.Task" Usage="mediaExtractor.SetDataSourceAsync fd" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
+      </Parameters>
+      <Docs>
+        <param name="fd">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSourceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task SetDataSourceAsync (string path);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task SetDataSourceAsync(string path) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSourceAsync(System.String)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSourceAsync : string -&gt; System.Threading.Tasks.Task" Usage="mediaExtractor.SetDataSourceAsync path" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="path" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="path">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSourceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task SetDataSourceAsync (string path, System.Collections.Generic.IDictionary&lt;string,string&gt;? headers);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task SetDataSourceAsync(string path, class System.Collections.Generic.IDictionary`2&lt;string, string&gt; headers) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSourceAsync(System.String,System.Collections.Generic.IDictionary{System.String,System.String})" />
+      <MemberSignature Language="F#" Value="member this.SetDataSourceAsync : string * System.Collections.Generic.IDictionary&lt;string, string&gt; -&gt; System.Threading.Tasks.Task" Usage="mediaExtractor.SetDataSourceAsync (path, headers)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="headers" Type="System.Collections.Generic.IDictionary&lt;System.String,System.String&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="path">To be added.</param>
+        <param name="headers">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSourceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task SetDataSourceAsync (Android.Content.Context context, Android.Net.Uri uri, System.Collections.Generic.IDictionary&lt;string,string&gt;? headers);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task SetDataSourceAsync(class Android.Content.Context context, class Android.Net.Uri uri, class System.Collections.Generic.IDictionary`2&lt;string, string&gt; headers) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSourceAsync(Android.Content.Context,Android.Net.Uri,System.Collections.Generic.IDictionary{System.String,System.String})" />
+      <MemberSignature Language="F#" Value="member this.SetDataSourceAsync : Android.Content.Context * Android.Net.Uri * System.Collections.Generic.IDictionary&lt;string, string&gt; -&gt; System.Threading.Tasks.Task" Usage="mediaExtractor.SetDataSourceAsync (context, uri, headers)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="context" Type="Android.Content.Context" />
+        <Parameter Name="uri" Type="Android.Net.Uri" />
+        <Parameter Name="headers" Type="System.Collections.Generic.IDictionary&lt;System.String,System.String&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="context">To be added.</param>
+        <param name="uri">To be added.</param>
+        <param name="headers">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDataSourceAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task SetDataSourceAsync (Java.IO.FileDescriptor fd, long offset, long length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task SetDataSourceAsync(class Java.IO.FileDescriptor fd, int64 offset, int64 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetDataSourceAsync(Java.IO.FileDescriptor,System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="member this.SetDataSourceAsync : Java.IO.FileDescriptor * int64 * int64 -&gt; System.Threading.Tasks.Task" Usage="mediaExtractor.SetDataSourceAsync (fd, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
+        <Parameter Name="offset" Type="System.Int64" />
+        <Parameter Name="length" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="fd">To be added.</param>
+        <param name="offset">To be added.</param>
+        <param name="length">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetMediaCas">
+      <MemberSignature Language="C#" Value="public void SetMediaCas (Android.Media.MediaCas mediaCas);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetMediaCas(class Android.Media.MediaCas mediaCas) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.SetMediaCas(Android.Media.MediaCas)" />
+      <MemberSignature Language="F#" Value="member this.SetMediaCas : Android.Media.MediaCas -&gt; unit" Usage="mediaExtractor.SetMediaCas mediaCas" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setMediaCas", "(Landroid/media/MediaCas;)V", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setMediaCas", "(Landroid/media/MediaCas;)V", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android33.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android33.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mediaCas" Type="Android.Media.MediaCas" />
+      </Parameters>
+      <Docs>
+        <param name="mediaCas">the MediaCas object to use.</param>
+        <summary>Sets the MediaCas instance to use.</summary>
+        <remarks>
+          <para>Sets the MediaCas instance to use. This should be called after a successful setDataSource()
+            if at least one track reports mime type of
+            <c>android.media.MediaFormat#MIMETYPE_AUDIO_SCRAMBLED</c> or
+            <c>android.media.MediaFormat#MIMETYPE_VIDEO_SCRAMBLED</c>. Stream parsing will not proceed
+            until a valid MediaCas object is provided.</para>
+          <para>This member is deprecated. Use the <c>Descrambler</c> system API instead, or DRM public APIs like
+                        <c>MediaDrm</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#setMediaCas(android.media.MediaCas)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.setMediaCas(android.media.MediaCas)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Media.MediaExtractor.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Media.MediaExtractor.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TrackCount">
+      <MemberSignature Language="C#" Value="public int TrackCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 TrackCount" />
+      <MemberSignature Language="DocId" Value="P:Android.Media.MediaExtractor.TrackCount" />
+      <MemberSignature Language="F#" Value="member this.TrackCount : int" Usage="Android.Media.MediaExtractor.TrackCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTrackCount", "()I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTrackCount", "()I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Count the number of tracks found in the data source.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Count the number of tracks found in the data source.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#getTrackCount()" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.getTrackCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="UnselectTrack">
+      <MemberSignature Language="C#" Value="public void UnselectTrack (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void UnselectTrack(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaExtractor.UnselectTrack(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.UnselectTrack : int -&gt; unit" Usage="mediaExtractor.UnselectTrack index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("unselectTrack", "(I)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("unselectTrack", "(I)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <summary>Subsequent calls to <c>#readSampleData</c>, <c>#getSampleTrackIndex</c> and
+            <c>#getSampleTime</c> only retrieve information for the subset of tracks
+            selected.</summary>
+        <remarks>
+          <para>Subsequent calls to <c>#readSampleData</c>, <c>#getSampleTrackIndex</c> and
+            <c>#getSampleTime</c> only retrieve information for the subset of tracks
+            selected.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaExtractor#unselectTrack(int)" title="Reference documentation">Java documentation for <code>android.media.MediaExtractor.unselectTrack(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

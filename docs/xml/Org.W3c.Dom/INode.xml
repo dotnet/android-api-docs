@@ -1,0 +1,2314 @@
+<Type Name="INode" FullName="Org.W3c.Dom.INode">
+  <TypeSignature Language="C#" Value="public interface INode : Android.Runtime.IJavaObject, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit INode implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Org.W3c.Dom.INode" />
+  <TypeSignature Language="F#" Value="type INode = interface&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("org/w3c/dom/Node", "", "Org.W3c.Dom.INodeInvoker")]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("org/w3c/dom/Node", "", "Org.W3c.Dom.INodeInvoker")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>The <c>Node</c> interface is the primary datatype for the entire
+            Document Object Model.</summary>
+    <remarks>
+      <para>The <c>Node</c> interface is the primary datatype for the entire
+            Document Object Model. It represents a single node in the document tree.
+            While all objects implementing the <c>Node</c> interface expose
+            methods for dealing with children, not all objects implementing the
+            <c>Node</c> interface may have children. For example,
+            <c>Text</c> nodes may not have children, and adding children to
+            such nodes results in a <c>DOMException</c> being raised.</para>
+      <para>The attributes <c>nodeName</c>, <c>nodeValue</c> and
+            <c>attributes</c> are included as a mechanism to get at node
+            information without casting down to the specific derived interface. In
+            cases where there is no obvious mapping of these attributes for a
+            specific <c>nodeType</c> (e.g., <c>nodeValue</c> for an
+            <c>Element</c> or <c>attributes</c> for a <c>Comment</c>
+            ), this returns <c>null</c>. Note that the specialized interfaces
+            may contain additional and more convenient mechanisms to get and set the
+            relevant information.</para>
+      <para>The values of <c>nodeName</c>,
+            <c>nodeValue</c>, and <c>attributes</c> vary according to the
+            node type as follows:
+            &lt;table border='1' cellpadding='3'&gt;
+            &lt;tr&gt;
+            &lt;th&gt;Interface&lt;/th&gt;
+            &lt;th&gt;nodeName&lt;/th&gt;
+            &lt;th&gt;nodeValue&lt;/th&gt;
+            &lt;th&gt;attributes&lt;/th&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>Attr</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as <c>Attr.name</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as
+            <c>Attr.value</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>CDATASection</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>"#cdata-section"</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as <c>CharacterData.data</c>, the
+            content of the CDATA Section&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>Comment</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>"#comment"</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as <c>CharacterData.data</c>, the
+            content of the comment&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>Document</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>"#document"</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>DocumentFragment</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>"#document-fragment"</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>null</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>DocumentType</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as
+            <c>DocumentType.name</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>Element</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as <c>Element.tagName</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>NamedNodeMap</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>Entity</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;entity name&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>EntityReference</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;name of entity referenced&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>null</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>Notation</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;notation name&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>null</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>ProcessingInstruction</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same
+            as <c>ProcessingInstruction.target</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as
+            <c>ProcessingInstruction.data</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>Text</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;
+            <c>"#text"</c>&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;same as <c>CharacterData.data</c>, the content
+            of the text node&lt;/td&gt;
+            &lt;td valign='top' rowspan='1' colspan='1'&gt;<c>null</c>&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;/table&gt;</para>
+      <para>See also the <see href="http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407">Document Object Model (DOM) Level 3 Core Specification</see>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/org/w3c/dom/Node" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName="AppendChild">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? AppendChild (Org.W3c.Dom.INode? newChild);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.INode AppendChild(class Org.W3c.Dom.INode newChild) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.AppendChild(Org.W3c.Dom.INode)" />
+      <MemberSignature Language="F#" Value="abstract member AppendChild : Org.W3c.Dom.INode -&gt; Org.W3c.Dom.INode" Usage="iNode.AppendChild newChild" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("appendChild", "(Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetAppendChild_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("appendChild", "(Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetAppendChild_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newChild" Type="Org.W3c.Dom.INode" />
+      </Parameters>
+      <Docs>
+        <param name="newChild">The node to add.If it is a
+              <c>DocumentFragment</c> object, the entire contents of the
+              document fragment are moved into the child list of this node</param>
+        <summary>Adds the node <c>newChild</c> to the end of the list of children
+            of this node.</summary>
+        <returns>The node added.</returns>
+        <remarks>
+          <para>Adds the node <c>newChild</c> to the end of the list of children
+            of this node. If the <c>newChild</c> is already in the tree, it
+            is first removed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#appendChild(org.w3c.dom.Node)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.appendChild(org.w3c.dom.Node)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Org.W3c.Dom.DOMException">HIERARCHY_REQUEST_ERR: Raised if this node is of a type that does not
+   allow children of the type of the <c>newChild</c> node, or if
+   the node to append is one of this node's ancestors or this node
+   itself, or if this node is of type <c>Document</c> and the
+   DOM application attempts to append a second
+   <c>DocumentType</c> or <c>Element</c> node.
+   <format type="text/html"><br /></format>WRONG_DOCUMENT_ERR: Raised if <c>newChild</c> was created
+   from a different document than the one that created this node.
+   <format type="text/html"><br /></format>NO_MODIFICATION_ALLOWED_ERR: Raised if this node is readonly or
+   if the previous parent of the node being inserted is readonly.
+   <format type="text/html"><br /></format>NOT_SUPPORTED_ERR: if the <c>newChild</c> node is a child
+   of the <c>Document</c> node, this exception might be raised
+   if the DOM implementation doesn't support the removal of the
+   <c>DocumentType</c> child or <c>Element</c> child.</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="AttributeNode">
+      <MemberSignature Language="C#" Value="public const short AttributeNode = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 AttributeNode = (2)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.AttributeNode" />
+      <MemberSignature Language="F#" Value="val mutable AttributeNode : int16" Usage="Org.W3c.Dom.INode.AttributeNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ATTRIBUTE_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ATTRIBUTE_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>The node is an <c>Attr</c>.</summary>
+        <remarks>
+          <para>The node is an <c>Attr</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#ATTRIBUTE_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.ATTRIBUTE_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Attributes">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INamedNodeMap? Attributes { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.INamedNodeMap Attributes" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.Attributes" />
+      <MemberSignature Language="F#" Value="member this.Attributes : Org.W3c.Dom.INamedNodeMap" Usage="Org.W3c.Dom.INode.Attributes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAttributes", "()Lorg/w3c/dom/NamedNodeMap;", "GetGetAttributesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAttributes", "()Lorg/w3c/dom/NamedNodeMap;", "GetGetAttributesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INamedNodeMap</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>A <c>NamedNodeMap</c> containing the attributes of this node (if
+ it is an <c>Element</c>) or <c>null</c> otherwise.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="BaseURI">
+      <MemberSignature Language="C#" Value="public string? BaseURI { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string BaseURI" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.BaseURI" />
+      <MemberSignature Language="F#" Value="member this.BaseURI : string" Usage="Org.W3c.Dom.INode.BaseURI" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getBaseURI", "()Ljava/lang/String;", "GetGetBaseURIHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getBaseURI", "()Ljava/lang/String;", "GetGetBaseURIHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The absolute base URI of this node or <c>null</c> if the
+ implementation wasn't able to obtain an absolute URI.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="CdataSectionNode">
+      <MemberSignature Language="C#" Value="public const short CdataSectionNode = 4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 CdataSectionNode = (4)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.CdataSectionNode" />
+      <MemberSignature Language="F#" Value="val mutable CdataSectionNode : int16" Usage="Org.W3c.Dom.INode.CdataSectionNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("CDATA_SECTION_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CDATA_SECTION_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>4</MemberValue>
+      <Docs>
+        <summary>The node is a <c>CDATASection</c>.</summary>
+        <remarks>
+          <para>The node is a <c>CDATASection</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#CDATA_SECTION_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.CDATA_SECTION_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ChildNodes">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INodeList? ChildNodes { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.INodeList ChildNodes" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.ChildNodes" />
+      <MemberSignature Language="F#" Value="member this.ChildNodes : Org.W3c.Dom.INodeList" Usage="Org.W3c.Dom.INode.ChildNodes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getChildNodes", "()Lorg/w3c/dom/NodeList;", "GetGetChildNodesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getChildNodes", "()Lorg/w3c/dom/NodeList;", "GetGetChildNodesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INodeList</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>A <c>NodeList</c> that contains all children of this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="CloneNode">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? CloneNode (bool deep);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.INode CloneNode(bool deep) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.CloneNode(System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member CloneNode : bool -&gt; Org.W3c.Dom.INode" Usage="iNode.CloneNode deep" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("cloneNode", "(Z)Lorg/w3c/dom/Node;", "GetCloneNode_ZHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("cloneNode", "(Z)Lorg/w3c/dom/Node;", "GetCloneNode_ZHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="deep" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="deep">If <c>true</c>, recursively clone the subtree under
+              the specified node; if <c>false</c>, clone only the node
+              itself (and its attributes, if it is an <c>Element</c>).</param>
+        <summary>Returns a duplicate of this node, i.</summary>
+        <returns>The duplicate node.</returns>
+        <remarks>
+          <para>Returns a duplicate of this node, i.e., serves as a generic copy
+            constructor for nodes. The duplicate node has no parent (
+            <c>parentNode</c> is <c>null</c>) and no user data. User
+            data associated to the imported node is not carried over. However, if
+            any <c>UserDataHandlers</c> has been specified along with the
+            associated data these handlers will be called with the appropriate
+            parameters before this method returns.
+            &lt;br&gt;Cloning an <c>Element</c> copies all attributes and their
+            values, including those generated by the XML processor to represent
+            defaulted attributes, but this method does not copy any children it
+            contains unless it is a deep clone. This includes text contained in
+            an the <c>Element</c> since the text is contained in a child
+            <c>Text</c> node. Cloning an <c>Attr</c> directly, as
+            opposed to be cloned as part of an <c>Element</c> cloning
+            operation, returns a specified attribute (<c>specified</c> is
+            <c>true</c>). Cloning an <c>Attr</c> always clones its
+            children, since they represent its value, no matter whether this is a
+            deep clone or not. Cloning an <c>EntityReference</c>
+            automatically constructs its subtree if a corresponding
+            <c>Entity</c> is available, no matter whether this is a deep
+            clone or not. Cloning any other type of node simply returns a copy of
+            this node.
+            &lt;br&gt;Note that cloning an immutable subtree results in a mutable copy,
+            but the children of an <c>EntityReference</c> clone are readonly
+            . In addition, clones of unspecified <c>Attr</c> nodes are
+            specified. And, cloning <c>Document</c>,
+            <c>DocumentType</c>, <c>Entity</c>, and
+            <c>Notation</c> nodes is implementation dependent.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#cloneNode(boolean)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.cloneNode(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="CommentNode">
+      <MemberSignature Language="C#" Value="public const short CommentNode = 8;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 CommentNode = (8)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.CommentNode" />
+      <MemberSignature Language="F#" Value="val mutable CommentNode : int16" Usage="Org.W3c.Dom.INode.CommentNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("COMMENT_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("COMMENT_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>8</MemberValue>
+      <Docs>
+        <summary>The node is a <c>Comment</c>.</summary>
+        <remarks>
+          <para>The node is a <c>Comment</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#COMMENT_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.COMMENT_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CompareDocumentPosition">
+      <MemberSignature Language="C#" Value="public short CompareDocumentPosition (Org.W3c.Dom.INode? other);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int16 CompareDocumentPosition(class Org.W3c.Dom.INode other) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.CompareDocumentPosition(Org.W3c.Dom.INode)" />
+      <MemberSignature Language="F#" Value="abstract member CompareDocumentPosition : Org.W3c.Dom.INode -&gt; int16" Usage="iNode.CompareDocumentPosition other" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("compareDocumentPosition", "(Lorg/w3c/dom/Node;)S", "GetCompareDocumentPosition_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("compareDocumentPosition", "(Lorg/w3c/dom/Node;)S", "GetCompareDocumentPosition_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="other" Type="Org.W3c.Dom.INode" />
+      </Parameters>
+      <Docs>
+        <param name="other">The node to compare against the reference node.</param>
+        <summary>Compares the reference node, i.</summary>
+        <returns>Returns how the node is positioned relatively to the reference
+              node.</returns>
+        <remarks>
+          <para>Compares the reference node, i.e. the node on which this method is
+            being called, with a node, i.e. the one passed as a parameter, with
+            regard to their position in the document and according to the
+            document order.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#compareDocumentPosition(org.w3c.dom.Node)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.compareDocumentPosition(org.w3c.dom.Node)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+        <exception cref="T:Org.W3c.Dom.DOMException">NOT_SUPPORTED_ERR: when the compared nodes are from different DOM
+   implementations that do not coordinate to return consistent
+   implementation-specific results.</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentFragmentNode">
+      <MemberSignature Language="C#" Value="public const short DocumentFragmentNode = 11;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentFragmentNode = (11)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentFragmentNode" />
+      <MemberSignature Language="F#" Value="val mutable DocumentFragmentNode : int16" Usage="Org.W3c.Dom.INode.DocumentFragmentNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_FRAGMENT_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_FRAGMENT_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>11</MemberValue>
+      <Docs>
+        <summary>The node is a <c>DocumentFragment</c>.</summary>
+        <remarks>
+          <para>The node is a <c>DocumentFragment</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_FRAGMENT_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_FRAGMENT_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentNode">
+      <MemberSignature Language="C#" Value="public const short DocumentNode = 9;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentNode = (9)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentNode" />
+      <MemberSignature Language="F#" Value="val mutable DocumentNode : int16" Usage="Org.W3c.Dom.INode.DocumentNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>9</MemberValue>
+      <Docs>
+        <summary>The node is a <c>Document</c>.</summary>
+        <remarks>
+          <para>The node is a <c>Document</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentPositionContainedBy">
+      <MemberSignature Language="C#" Value="public const short DocumentPositionContainedBy = 16;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentPositionContainedBy = (16)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentPositionContainedBy" />
+      <MemberSignature Language="F#" Value="val mutable DocumentPositionContainedBy : int16" Usage="Org.W3c.Dom.INode.DocumentPositionContainedBy" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_POSITION_CONTAINED_BY")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_POSITION_CONTAINED_BY")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>16</MemberValue>
+      <Docs>
+        <summary>The node is contained by the reference node.</summary>
+        <remarks>
+          <para>The node is contained by the reference node. A node which is contained
+            is always following, too.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_POSITION_CONTAINED_BY" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_POSITION_CONTAINED_BY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentPositionContains">
+      <MemberSignature Language="C#" Value="public const short DocumentPositionContains = 8;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentPositionContains = (8)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentPositionContains" />
+      <MemberSignature Language="F#" Value="val mutable DocumentPositionContains : int16" Usage="Org.W3c.Dom.INode.DocumentPositionContains" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_POSITION_CONTAINS")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_POSITION_CONTAINS")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>8</MemberValue>
+      <Docs>
+        <summary>The node contains the reference node.</summary>
+        <remarks>
+          <para>The node contains the reference node. A node which contains is always
+            preceding, too.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_POSITION_CONTAINS" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_POSITION_CONTAINS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentPositionDisconnected">
+      <MemberSignature Language="C#" Value="public const short DocumentPositionDisconnected = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentPositionDisconnected = (1)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentPositionDisconnected" />
+      <MemberSignature Language="F#" Value="val mutable DocumentPositionDisconnected : int16" Usage="Org.W3c.Dom.INode.DocumentPositionDisconnected" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_POSITION_DISCONNECTED")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_POSITION_DISCONNECTED")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The two nodes are disconnected.</summary>
+        <remarks>
+          <para>The two nodes are disconnected. Order between disconnected nodes is
+            always implementation-specific.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_POSITION_DISCONNECTED" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_POSITION_DISCONNECTED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentPositionFollowing">
+      <MemberSignature Language="C#" Value="public const short DocumentPositionFollowing = 4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentPositionFollowing = (4)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentPositionFollowing" />
+      <MemberSignature Language="F#" Value="val mutable DocumentPositionFollowing : int16" Usage="Org.W3c.Dom.INode.DocumentPositionFollowing" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_POSITION_FOLLOWING")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_POSITION_FOLLOWING")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>4</MemberValue>
+      <Docs>
+        <summary>The node follows the reference node.</summary>
+        <remarks>
+          <para>The node follows the reference node.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_POSITION_FOLLOWING" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_POSITION_FOLLOWING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentPositionImplementationSpecific">
+      <MemberSignature Language="C#" Value="public const short DocumentPositionImplementationSpecific = 32;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentPositionImplementationSpecific = (32)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentPositionImplementationSpecific" />
+      <MemberSignature Language="F#" Value="val mutable DocumentPositionImplementationSpecific : int16" Usage="Org.W3c.Dom.INode.DocumentPositionImplementationSpecific" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>32</MemberValue>
+      <Docs>
+        <summary>The determination of preceding versus following is
+            implementation-specific.</summary>
+        <remarks>
+          <para>The determination of preceding versus following is
+            implementation-specific.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentPositionPreceding">
+      <MemberSignature Language="C#" Value="public const short DocumentPositionPreceding = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentPositionPreceding = (2)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentPositionPreceding" />
+      <MemberSignature Language="F#" Value="val mutable DocumentPositionPreceding : int16" Usage="Org.W3c.Dom.INode.DocumentPositionPreceding" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_POSITION_PRECEDING")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_POSITION_PRECEDING")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>The second node precedes the reference node.</summary>
+        <remarks>
+          <para>The second node precedes the reference node.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_POSITION_PRECEDING" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_POSITION_PRECEDING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentTypeNode">
+      <MemberSignature Language="C#" Value="public const short DocumentTypeNode = 10;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 DocumentTypeNode = (10)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.DocumentTypeNode" />
+      <MemberSignature Language="F#" Value="val mutable DocumentTypeNode : int16" Usage="Org.W3c.Dom.INode.DocumentTypeNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_TYPE_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_TYPE_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>10</MemberValue>
+      <Docs>
+        <summary>The node is a <c>DocumentType</c>.</summary>
+        <remarks>
+          <para>The node is a <c>DocumentType</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#DOCUMENT_TYPE_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.DOCUMENT_TYPE_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ElementNode">
+      <MemberSignature Language="C#" Value="public const short ElementNode = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 ElementNode = (1)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.ElementNode" />
+      <MemberSignature Language="F#" Value="val mutable ElementNode : int16" Usage="Org.W3c.Dom.INode.ElementNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ELEMENT_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ELEMENT_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The node is an <c>Element</c>.</summary>
+        <remarks>
+          <para>The node is an <c>Element</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#ELEMENT_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.ELEMENT_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EntityNode">
+      <MemberSignature Language="C#" Value="public const short EntityNode = 6;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 EntityNode = (6)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.EntityNode" />
+      <MemberSignature Language="F#" Value="val mutable EntityNode : int16" Usage="Org.W3c.Dom.INode.EntityNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ENTITY_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ENTITY_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>6</MemberValue>
+      <Docs>
+        <summary>The node is an <c>Entity</c>.</summary>
+        <remarks>
+          <para>The node is an <c>Entity</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#ENTITY_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.ENTITY_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EntityReferenceNode">
+      <MemberSignature Language="C#" Value="public const short EntityReferenceNode = 5;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 EntityReferenceNode = (5)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.EntityReferenceNode" />
+      <MemberSignature Language="F#" Value="val mutable EntityReferenceNode : int16" Usage="Org.W3c.Dom.INode.EntityReferenceNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ENTITY_REFERENCE_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ENTITY_REFERENCE_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>5</MemberValue>
+      <Docs>
+        <summary>The node is an <c>EntityReference</c>.</summary>
+        <remarks>
+          <para>The node is an <c>EntityReference</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#ENTITY_REFERENCE_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.ENTITY_REFERENCE_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FirstChild">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? FirstChild { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.INode FirstChild" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.FirstChild" />
+      <MemberSignature Language="F#" Value="member this.FirstChild : Org.W3c.Dom.INode" Usage="Org.W3c.Dom.INode.FirstChild" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getFirstChild", "()Lorg/w3c/dom/Node;", "GetGetFirstChildHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getFirstChild", "()Lorg/w3c/dom/Node;", "GetGetFirstChildHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The first child of this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetFeature">
+      <MemberSignature Language="C#" Value="public Java.Lang.Object? GetFeature (string? feature, string? version);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object GetFeature(string feature, string version) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.GetFeature(System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member GetFeature : string * string -&gt; Java.Lang.Object" Usage="iNode.GetFeature (feature, version)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getFeature", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;", "GetGetFeature_Ljava_lang_String_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getFeature", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;", "GetGetFeature_Ljava_lang_String_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="feature" Type="System.String" />
+        <Parameter Name="version" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="feature">The name of the feature requested. Note that any plus
+              sign "+" prepended to the name of the feature will be ignored since
+              it is not significant in the context of this method.</param>
+        <param name="version">This is the version number of the feature to test.</param>
+        <summary>This method returns a specialized object which implements the
+            specialized APIs of the specified feature and version, as specified
+            in .</summary>
+        <returns>Returns an object which implements the specialized APIs of
+              the specified feature and version, if any, or <c>null</c> if
+              there is no object which implements interfaces associated with that
+              feature. If the <c>DOMObject</c> returned by this method
+              implements the <c>Node</c> interface, it must delegate to the
+              primary core <c>Node</c> and not return results inconsistent
+              with the primary core <c>Node</c> such as attributes,
+              childNodes, etc.</returns>
+        <remarks>
+          <para>This method returns a specialized object which implements the
+            specialized APIs of the specified feature and version, as specified
+            in . The specialized object may also be obtained by using
+            binding-specific casting methods but is not necessarily expected to,
+            as discussed in . This method also allow the implementation to
+            provide specialized objects which do not support the <c>Node</c>
+             interface.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#getFeature(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.getFeature(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetUserData">
+      <MemberSignature Language="C#" Value="public Java.Lang.Object? GetUserData (string? key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object GetUserData(string key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.GetUserData(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member GetUserData : string -&gt; Java.Lang.Object" Usage="iNode.GetUserData key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getUserData", "(Ljava/lang/String;)Ljava/lang/Object;", "GetGetUserData_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getUserData", "(Ljava/lang/String;)Ljava/lang/Object;", "GetGetUserData_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="key">The key the object is associated to.</param>
+        <summary>Retrieves the object associated to a key on a this node.</summary>
+        <returns>Returns the <c>DOMUserData</c> associated to the given
+              key on this node, or <c>null</c> if there was none.</returns>
+        <remarks>
+          <para>Retrieves the object associated to a key on a this node. The object
+            must first have been set to this node by calling
+            <c>setUserData</c> with the same key.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#getUserData(java.lang.String)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.getUserData(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="HasAttributes">
+      <MemberSignature Language="C#" Value="public bool HasAttributes { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool HasAttributes" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.HasAttributes" />
+      <MemberSignature Language="F#" Value="member this.HasAttributes : bool" Usage="Org.W3c.Dom.INode.HasAttributes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("hasAttributes", "()Z", "GetHasAttributesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("hasAttributes", "()Z", "GetHasAttributesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns whether this node (if it is an element) has any attributes.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="HasChildNodes">
+      <MemberSignature Language="C#" Value="public bool HasChildNodes { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool HasChildNodes" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.HasChildNodes" />
+      <MemberSignature Language="F#" Value="member this.HasChildNodes : bool" Usage="Org.W3c.Dom.INode.HasChildNodes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("hasChildNodes", "()Z", "GetHasChildNodesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("hasChildNodes", "()Z", "GetHasChildNodesHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns whether this node has any children.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="InsertBefore">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? InsertBefore (Org.W3c.Dom.INode? newChild, Org.W3c.Dom.INode? refChild);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.INode InsertBefore(class Org.W3c.Dom.INode newChild, class Org.W3c.Dom.INode refChild) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.InsertBefore(Org.W3c.Dom.INode,Org.W3c.Dom.INode)" />
+      <MemberSignature Language="F#" Value="abstract member InsertBefore : Org.W3c.Dom.INode * Org.W3c.Dom.INode -&gt; Org.W3c.Dom.INode" Usage="iNode.InsertBefore (newChild, refChild)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("insertBefore", "(Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetInsertBefore_Lorg_w3c_dom_Node_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("insertBefore", "(Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetInsertBefore_Lorg_w3c_dom_Node_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newChild" Type="Org.W3c.Dom.INode" />
+        <Parameter Name="refChild" Type="Org.W3c.Dom.INode" />
+      </Parameters>
+      <Docs>
+        <param name="newChild">The node to insert.</param>
+        <param name="refChild">The reference node, i.e., the node before which the
+              new node must be inserted.</param>
+        <summary>Inserts the node <c>newChild</c> before the existing child node
+            <c>refChild</c>.</summary>
+        <returns>The node being inserted.</returns>
+        <remarks>
+          <para>Inserts the node <c>newChild</c> before the existing child node
+            <c>refChild</c>. If <c>refChild</c> is <c>null</c>,
+            insert <c>newChild</c> at the end of the list of children.
+            &lt;br&gt;If <c>newChild</c> is a <c>DocumentFragment</c> object,
+            all of its children are inserted, in the same order, before
+            <c>refChild</c>. If the <c>newChild</c> is already in the
+            tree, it is first removed.
+            &lt;p &gt;&lt;b&gt;Note:&lt;/b&gt;  Inserting a node before itself is implementation
+            dependent.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#insertBefore(org.w3c.dom.Node,%20org.w3c.dom.Node)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.insertBefore(org.w3c.dom.Node, org.w3c.dom.Node)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Org.W3c.Dom.DOMException">HIERARCHY_REQUEST_ERR: Raised if this node is of a type that does not
+   allow children of the type of the <c>newChild</c> node, or if
+   the node to insert is one of this node's ancestors or this node
+   itself, or if this node is of type <c>Document</c> and the
+   DOM application attempts to insert a second
+   <c>DocumentType</c> or <c>Element</c> node.
+   <format type="text/html"><br /></format>WRONG_DOCUMENT_ERR: Raised if <c>newChild</c> was created
+   from a different document than the one that created this node.
+   <format type="text/html"><br /></format>NO_MODIFICATION_ALLOWED_ERR: Raised if this node is readonly or
+   if the parent of the node being inserted is readonly.
+   <format type="text/html"><br /></format>NOT_FOUND_ERR: Raised if <c>refChild</c> is not a child of
+   this node.
+   <format type="text/html"><br /></format>NOT_SUPPORTED_ERR: if this node is of type <c>Document</c>,
+   this exception might be raised if the DOM implementation doesn't
+   support the insertion of a <c>DocumentType</c> or
+   <c>Element</c> node.</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="IsDefaultNamespace">
+      <MemberSignature Language="C#" Value="public bool IsDefaultNamespace (string? namespaceURI);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool IsDefaultNamespace(string namespaceURI) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.IsDefaultNamespace(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member IsDefaultNamespace : string -&gt; bool" Usage="iNode.IsDefaultNamespace namespaceURI" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isDefaultNamespace", "(Ljava/lang/String;)Z", "GetIsDefaultNamespace_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isDefaultNamespace", "(Ljava/lang/String;)Z", "GetIsDefaultNamespace_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="namespaceURI" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="namespaceURI">The namespace URI to look for.</param>
+        <summary>This method checks if the specified <c>namespaceURI</c> is the
+            default namespace or not.</summary>
+        <returns>Returns <c>true</c> if the specified
+              <c>namespaceURI</c> is the default namespace,
+              <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>This method checks if the specified <c>namespaceURI</c> is the
+            default namespace or not.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#isDefaultNamespace(java.lang.String)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.isDefaultNamespace(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsEqualNode">
+      <MemberSignature Language="C#" Value="public bool IsEqualNode (Org.W3c.Dom.INode? arg);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool IsEqualNode(class Org.W3c.Dom.INode arg) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.IsEqualNode(Org.W3c.Dom.INode)" />
+      <MemberSignature Language="F#" Value="abstract member IsEqualNode : Org.W3c.Dom.INode -&gt; bool" Usage="iNode.IsEqualNode arg" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isEqualNode", "(Lorg/w3c/dom/Node;)Z", "GetIsEqualNode_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isEqualNode", "(Lorg/w3c/dom/Node;)Z", "GetIsEqualNode_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="arg" Type="Org.W3c.Dom.INode" />
+      </Parameters>
+      <Docs>
+        <param name="arg">The node to compare equality with.</param>
+        <summary>Tests whether two nodes are equal.</summary>
+        <returns>Returns <c>true</c> if the nodes are equal,
+              <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>Tests whether two nodes are equal.
+            &lt;br&gt;This method tests for equality of nodes, not sameness (i.e.,
+            whether the two nodes are references to the same object) which can be
+            tested with <c>Node.isSameNode()</c>. All nodes that are the
+            same will also be equal, though the reverse may not be true.
+            &lt;br&gt;Two nodes are equal if and only if the following conditions are
+            satisfied:
+            &lt;ul&gt;
+            &lt;li&gt;The two nodes are of the same type.
+            &lt;/li&gt;
+            &lt;li&gt;The following string
+            attributes are equal: <c>nodeName</c>, <c>localName</c>,
+            <c>namespaceURI</c>, <c>prefix</c>, <c>nodeValue</c>
+            . This is: they are both <c>null</c>, or they have the same
+            length and are character for character identical.
+            &lt;/li&gt;
+            &lt;li&gt;The
+            <c>attributes</c><c>NamedNodeMaps</c> are equal. This
+            is: they are both <c>null</c>, or they have the same length and
+            for each node that exists in one map there is a node that exists in
+            the other map and is equal, although not necessarily at the same
+            index.
+            &lt;/li&gt;
+            &lt;li&gt;The <c>childNodes</c><c>NodeLists</c> are equal.
+            This is: they are both <c>null</c>, or they have the same
+            length and contain equal nodes at the same index. Note that
+            normalization can affect equality; to avoid this, nodes should be
+            normalized before being compared.
+            &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;br&gt;For two <c>DocumentType</c> nodes to be equal, the following
+            conditions must also be satisfied:
+            &lt;ul&gt;
+            &lt;li&gt;The following string attributes
+            are equal: <c>publicId</c>, <c>systemId</c>,
+            <c>internalSubset</c>.
+            &lt;/li&gt;
+            &lt;li&gt;The <c>entities</c><c>NamedNodeMaps</c> are equal.
+            &lt;/li&gt;
+            &lt;li&gt;The <c>notations</c><c>NamedNodeMaps</c> are equal.
+            &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;br&gt;On the other hand, the following do not affect equality: the
+            <c>ownerDocument</c>, <c>baseURI</c>, and
+            <c>parentNode</c> attributes, the <c>specified</c>
+            attribute for <c>Attr</c> nodes, the <c>schemaTypeInfo</c>
+             attribute for <c>Attr</c> and <c>Element</c> nodes, the
+            <c>Text.isElementContentWhitespace</c> attribute for
+            <c>Text</c> nodes, as well as any user data or event listeners
+            registered on the nodes.
+            &lt;p &gt;&lt;b&gt;Note:&lt;/b&gt;  As a general rule, anything not mentioned in the
+            description above is not significant in consideration of equality
+            checking. Note that future versions of this specification may take
+            into account more attributes and implementations conform to this
+            specification are expected to be updated accordingly.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#isEqualNode(org.w3c.dom.Node)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.isEqualNode(org.w3c.dom.Node)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsSameNode">
+      <MemberSignature Language="C#" Value="public bool IsSameNode (Org.W3c.Dom.INode? other);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool IsSameNode(class Org.W3c.Dom.INode other) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.IsSameNode(Org.W3c.Dom.INode)" />
+      <MemberSignature Language="F#" Value="abstract member IsSameNode : Org.W3c.Dom.INode -&gt; bool" Usage="iNode.IsSameNode other" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isSameNode", "(Lorg/w3c/dom/Node;)Z", "GetIsSameNode_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isSameNode", "(Lorg/w3c/dom/Node;)Z", "GetIsSameNode_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="other" Type="Org.W3c.Dom.INode" />
+      </Parameters>
+      <Docs>
+        <param name="other">The node to test against.</param>
+        <summary>Returns whether this node is the same node as the given one.</summary>
+        <returns>Returns <c>true</c> if the nodes are the same,
+              <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>Returns whether this node is the same node as the given one.
+            &lt;br&gt;This method provides a way to determine whether two
+            <c>Node</c> references returned by the implementation reference
+            the same object. When two <c>Node</c> references are references
+            to the same object, even if through a proxy, the references may be
+            used completely interchangeably, such that all attributes have the
+            same values and calling the same DOM method on either reference
+            always has exactly the same effect.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#isSameNode(org.w3c.dom.Node)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.isSameNode(org.w3c.dom.Node)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsSupported">
+      <MemberSignature Language="C#" Value="public bool IsSupported (string? feature, string? version);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool IsSupported(string feature, string version) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.IsSupported(System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member IsSupported : string * string -&gt; bool" Usage="iNode.IsSupported (feature, version)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isSupported", "(Ljava/lang/String;Ljava/lang/String;)Z", "GetIsSupported_Ljava_lang_String_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isSupported", "(Ljava/lang/String;Ljava/lang/String;)Z", "GetIsSupported_Ljava_lang_String_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="feature" Type="System.String" />
+        <Parameter Name="version" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="feature">The name of the feature to test.</param>
+        <param name="version">This is the version number of the feature to test.</param>
+        <summary>Tests whether the DOM implementation implements a specific feature and
+            that feature is supported by this node, as specified in .</summary>
+        <returns>Returns <c>true</c> if the specified feature is
+              supported on this node, <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>Tests whether the DOM implementation implements a specific feature and
+            that feature is supported by this node, as specified in .</para>
+          <para>Added in DOM Level 2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#isSupported(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.isSupported(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="LastChild">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? LastChild { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.INode LastChild" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.LastChild" />
+      <MemberSignature Language="F#" Value="member this.LastChild : Org.W3c.Dom.INode" Usage="Org.W3c.Dom.INode.LastChild" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLastChild", "()Lorg/w3c/dom/Node;", "GetGetLastChildHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLastChild", "()Lorg/w3c/dom/Node;", "GetGetLastChildHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The last child of this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="LocalName">
+      <MemberSignature Language="C#" Value="public string? LocalName { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string LocalName" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.LocalName" />
+      <MemberSignature Language="F#" Value="member this.LocalName : string" Usage="Org.W3c.Dom.INode.LocalName" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLocalName", "()Ljava/lang/String;", "GetGetLocalNameHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLocalName", "()Ljava/lang/String;", "GetGetLocalNameHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the local part of the qualified name of this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="LookupNamespaceURI">
+      <MemberSignature Language="C#" Value="public string? LookupNamespaceURI (string? prefix);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string LookupNamespaceURI(string prefix) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.LookupNamespaceURI(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member LookupNamespaceURI : string -&gt; string" Usage="iNode.LookupNamespaceURI prefix" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("lookupNamespaceURI", "(Ljava/lang/String;)Ljava/lang/String;", "GetLookupNamespaceURI_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("lookupNamespaceURI", "(Ljava/lang/String;)Ljava/lang/String;", "GetLookupNamespaceURI_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="prefix" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="prefix">The prefix to look for. If this parameter is
+              <c>null</c>, the method will return the default namespace URI
+              if any.</param>
+        <summary>Look up the namespace URI associated to the given prefix, starting from
+            this node.</summary>
+        <returns>Returns the associated namespace URI or <c>null</c> if
+              none is found.</returns>
+        <remarks>
+          <para>Look up the namespace URI associated to the given prefix, starting from
+            this node.
+            &lt;br&gt;See  for details on the algorithm used by this method.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#lookupNamespaceURI(java.lang.String)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.lookupNamespaceURI(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="LookupPrefix">
+      <MemberSignature Language="C#" Value="public string? LookupPrefix (string? namespaceURI);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string LookupPrefix(string namespaceURI) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.LookupPrefix(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member LookupPrefix : string -&gt; string" Usage="iNode.LookupPrefix namespaceURI" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("lookupPrefix", "(Ljava/lang/String;)Ljava/lang/String;", "GetLookupPrefix_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("lookupPrefix", "(Ljava/lang/String;)Ljava/lang/String;", "GetLookupPrefix_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="namespaceURI" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="namespaceURI">The namespace URI to look for.</param>
+        <summary>Look up the prefix associated to the given namespace URI, starting from
+            this node.</summary>
+        <returns>Returns an associated namespace prefix if found or
+              <c>null</c> if none is found. If more than one prefix are
+              associated to the namespace prefix, the returned namespace prefix
+              is implementation dependent.</returns>
+        <remarks>
+          <para>Look up the prefix associated to the given namespace URI, starting from
+            this node. The default namespace declarations are ignored by this
+            method.
+            &lt;br&gt;See  for details on the algorithm used by this method.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#lookupPrefix(java.lang.String)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.lookupPrefix(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="NamespaceURI">
+      <MemberSignature Language="C#" Value="public string? NamespaceURI { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string NamespaceURI" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.NamespaceURI" />
+      <MemberSignature Language="F#" Value="member this.NamespaceURI : string" Usage="Org.W3c.Dom.INode.NamespaceURI" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getNamespaceURI", "()Ljava/lang/String;", "GetGetNamespaceURIHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getNamespaceURI", "()Ljava/lang/String;", "GetGetNamespaceURIHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The namespace URI of this node, or <c>null</c> if it is
+ unspecified (see ).</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="NextSibling">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? NextSibling { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.INode NextSibling" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.NextSibling" />
+      <MemberSignature Language="F#" Value="member this.NextSibling : Org.W3c.Dom.INode" Usage="Org.W3c.Dom.INode.NextSibling" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getNextSibling", "()Lorg/w3c/dom/Node;", "GetGetNextSiblingHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getNextSibling", "()Lorg/w3c/dom/Node;", "GetGetNextSiblingHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The node immediately following this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="NodeName">
+      <MemberSignature Language="C#" Value="public string? NodeName { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string NodeName" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.NodeName" />
+      <MemberSignature Language="F#" Value="member this.NodeName : string" Usage="Org.W3c.Dom.INode.NodeName" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getNodeName", "()Ljava/lang/String;", "GetGetNodeNameHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getNodeName", "()Ljava/lang/String;", "GetGetNodeNameHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The name of this node, depending on its type; see the table above.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="NodeType">
+      <MemberSignature Language="C#" Value="public short NodeType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int16 NodeType" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.NodeType" />
+      <MemberSignature Language="F#" Value="member this.NodeType : int16" Usage="Org.W3c.Dom.INode.NodeType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getNodeType", "()S", "GetGetNodeTypeHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getNodeType", "()S", "GetGetNodeTypeHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>A code representing the type of the underlying object, as defined above.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="NodeValue">
+      <MemberSignature Language="C#" Value="public string? NodeValue { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string NodeValue" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.NodeValue" />
+      <MemberSignature Language="F#" Value="member this.NodeValue : string with get, set" Usage="Org.W3c.Dom.INode.NodeValue" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getNodeValue", "()Ljava/lang/String;", "GetGetNodeValueHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getNodeValue", "()Ljava/lang/String;", "GetGetNodeValueHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setNodeValue", "(Ljava/lang/String;)V", "GetSetNodeValue_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setNodeValue", "(Ljava/lang/String;)V", "GetSetNodeValue_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The value of this node, depending on its type; see the table above.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Org.W3c.Dom.DOMException">DOMSTRING_SIZE_ERR: Raised when it would return more characters than
+   fit in a <c>DOMString</c> variable on the implementation
+   platform.
+</exception>
+        <exception cref="T:Org.W3c.Dom.DOMException">NO_MODIFICATION_ALLOWED_ERR: Raised when the node is readonly and if
+   it is not defined to be <c>null</c>.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Normalize">
+      <MemberSignature Language="C#" Value="public void Normalize ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Normalize() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.Normalize" />
+      <MemberSignature Language="F#" Value="abstract member Normalize : unit -&gt; unit" Usage="iNode.Normalize " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("normalize", "()V", "GetNormalizeHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("normalize", "()V", "GetNormalizeHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Puts all <c>Text</c> nodes in the full depth of the sub-tree
+            underneath this <c>Node</c>, including attribute nodes, into a
+            "normal" form where only structure (e.</summary>
+        <remarks>
+          <para>Puts all <c>Text</c> nodes in the full depth of the sub-tree
+            underneath this <c>Node</c>, including attribute nodes, into a
+            "normal" form where only structure (e.g., elements, comments,
+            processing instructions, CDATA sections, and entity references)
+            separates <c>Text</c> nodes, i.e., there are neither adjacent
+            <c>Text</c> nodes nor empty <c>Text</c> nodes. This can
+            be used to ensure that the DOM view of a document is the same as if
+            it were saved and re-loaded, and is useful when operations (such as
+            XPointer [<see href="http://www.w3.org/TR/2003/REC-xptr-framework-20030325/">XPointer</see>]
+             lookups) that depend on a particular document tree structure are to
+            be used. If the parameter "normalize-characters" of the
+            <c>DOMConfiguration</c> object attached to the
+            <c>Node.ownerDocument</c> is <c>true</c>, this method
+            will also fully normalize the characters of the <c>Text</c>
+            nodes.
+            &lt;p &gt;&lt;b&gt;Note:&lt;/b&gt; In cases where the document contains
+            <c>CDATASections</c>, the normalize operation alone may not be
+            sufficient, since XPointers do not differentiate between
+            <c>Text</c> nodes and <c>CDATASection</c> nodes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#normalize()" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.normalize()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="NotationNode">
+      <MemberSignature Language="C#" Value="public const short NotationNode = 12;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 NotationNode = (12)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.NotationNode" />
+      <MemberSignature Language="F#" Value="val mutable NotationNode : int16" Usage="Org.W3c.Dom.INode.NotationNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("NOTATION_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("NOTATION_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>12</MemberValue>
+      <Docs>
+        <summary>The node is a <c>Notation</c>.</summary>
+        <remarks>
+          <para>The node is a <c>Notation</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#NOTATION_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.NOTATION_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OwnerDocument">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.IDocument? OwnerDocument { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.IDocument OwnerDocument" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.OwnerDocument" />
+      <MemberSignature Language="F#" Value="member this.OwnerDocument : Org.W3c.Dom.IDocument" Usage="Org.W3c.Dom.INode.OwnerDocument" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getOwnerDocument", "()Lorg/w3c/dom/Document;", "GetGetOwnerDocumentHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getOwnerDocument", "()Lorg/w3c/dom/Document;", "GetGetOwnerDocumentHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.IDocument</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The <c>Document</c> object associated with this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ParentNode">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? ParentNode { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.INode ParentNode" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.ParentNode" />
+      <MemberSignature Language="F#" Value="member this.ParentNode : Org.W3c.Dom.INode" Usage="Org.W3c.Dom.INode.ParentNode" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getParentNode", "()Lorg/w3c/dom/Node;", "GetGetParentNodeHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getParentNode", "()Lorg/w3c/dom/Node;", "GetGetParentNodeHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The parent of this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Prefix">
+      <MemberSignature Language="C#" Value="public string? Prefix { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Prefix" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.Prefix" />
+      <MemberSignature Language="F#" Value="member this.Prefix : string with get, set" Usage="Org.W3c.Dom.INode.Prefix" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPrefix", "()Ljava/lang/String;", "GetGetPrefixHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPrefix", "()Ljava/lang/String;", "GetGetPrefixHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setPrefix", "(Ljava/lang/String;)V", "GetSetPrefix_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setPrefix", "(Ljava/lang/String;)V", "GetSetPrefix_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The namespace prefix of this node, or <c>null</c> if it is
+ unspecified.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Org.W3c.Dom.DOMException">INVALID_CHARACTER_ERR: Raised if the specified prefix contains an
+   illegal character according to the XML version in use specified in
+   the <c>Document.xmlVersion</c> attribute.
+   <format type="text/html"><br /></format>NO_MODIFICATION_ALLOWED_ERR: Raised if this node is readonly.
+   <format type="text/html"><br /></format>NAMESPACE_ERR: Raised if the specified <c>prefix</c> is
+   malformed per the Namespaces in XML specification, if the
+   <c>namespaceURI</c> of this node is <c>null</c>, if the
+   specified prefix is "xml" and the <c>namespaceURI</c> of this
+   node is different from "", if this node is an attribute and the specified prefix is "xmlns" and
+   the <c>namespaceURI</c> of this node is different from "", or if this node is an attribute and the <c>qualifiedName</c> of
+   this node is "xmlns" []
+   .</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="PreviousSibling">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? PreviousSibling { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Org.W3c.Dom.INode PreviousSibling" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.PreviousSibling" />
+      <MemberSignature Language="F#" Value="member this.PreviousSibling : Org.W3c.Dom.INode" Usage="Org.W3c.Dom.INode.PreviousSibling" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPreviousSibling", "()Lorg/w3c/dom/Node;", "GetGetPreviousSiblingHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPreviousSibling", "()Lorg/w3c/dom/Node;", "GetGetPreviousSiblingHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The node immediately preceding this node.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ProcessingInstructionNode">
+      <MemberSignature Language="C#" Value="public const short ProcessingInstructionNode = 7;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 ProcessingInstructionNode = (7)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.ProcessingInstructionNode" />
+      <MemberSignature Language="F#" Value="val mutable ProcessingInstructionNode : int16" Usage="Org.W3c.Dom.INode.ProcessingInstructionNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("PROCESSING_INSTRUCTION_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROCESSING_INSTRUCTION_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>7</MemberValue>
+      <Docs>
+        <summary>The node is a <c>ProcessingInstruction</c>.</summary>
+        <remarks>
+          <para>The node is a <c>ProcessingInstruction</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#PROCESSING_INSTRUCTION_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.PROCESSING_INSTRUCTION_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveChild">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? RemoveChild (Org.W3c.Dom.INode? oldChild);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.INode RemoveChild(class Org.W3c.Dom.INode oldChild) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.RemoveChild(Org.W3c.Dom.INode)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveChild : Org.W3c.Dom.INode -&gt; Org.W3c.Dom.INode" Usage="iNode.RemoveChild oldChild" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("removeChild", "(Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetRemoveChild_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeChild", "(Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetRemoveChild_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="oldChild" Type="Org.W3c.Dom.INode" />
+      </Parameters>
+      <Docs>
+        <param name="oldChild">The node being removed.</param>
+        <summary>Removes the child node indicated by <c>oldChild</c> from the list
+            of children, and returns it.</summary>
+        <returns>The node removed.</returns>
+        <remarks>
+          <para>Removes the child node indicated by <c>oldChild</c> from the list
+            of children, and returns it.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#removeChild(org.w3c.dom.Node)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.removeChild(org.w3c.dom.Node)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Org.W3c.Dom.DOMException">NO_MODIFICATION_ALLOWED_ERR: Raised if this node is readonly.
+   <format type="text/html"><br /></format>NOT_FOUND_ERR: Raised if <c>oldChild</c> is not a child of
+   this node.
+   <format type="text/html"><br /></format>NOT_SUPPORTED_ERR: if this node is of type <c>Document</c>,
+   this exception might be raised if the DOM implementation doesn't
+   support the removal of the <c>DocumentType</c> child or the
+   <c>Element</c> child.</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ReplaceChild">
+      <MemberSignature Language="C#" Value="public Org.W3c.Dom.INode? ReplaceChild (Org.W3c.Dom.INode? newChild, Org.W3c.Dom.INode? oldChild);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Org.W3c.Dom.INode ReplaceChild(class Org.W3c.Dom.INode newChild, class Org.W3c.Dom.INode oldChild) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.ReplaceChild(Org.W3c.Dom.INode,Org.W3c.Dom.INode)" />
+      <MemberSignature Language="F#" Value="abstract member ReplaceChild : Org.W3c.Dom.INode * Org.W3c.Dom.INode -&gt; Org.W3c.Dom.INode" Usage="iNode.ReplaceChild (newChild, oldChild)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("replaceChild", "(Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetReplaceChild_Lorg_w3c_dom_Node_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("replaceChild", "(Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;", "GetReplaceChild_Lorg_w3c_dom_Node_Lorg_w3c_dom_Node_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Org.W3c.Dom.INode</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newChild" Type="Org.W3c.Dom.INode" />
+        <Parameter Name="oldChild" Type="Org.W3c.Dom.INode" />
+      </Parameters>
+      <Docs>
+        <param name="newChild">The new node to put in the child list.</param>
+        <param name="oldChild">The node being replaced in the list.</param>
+        <summary>Replaces the child node <c>oldChild</c> with <c>newChild</c>
+             in the list of children, and returns the <c>oldChild</c> node.</summary>
+        <returns>The node replaced.</returns>
+        <remarks>
+          <para>Replaces the child node <c>oldChild</c> with <c>newChild</c>
+             in the list of children, and returns the <c>oldChild</c> node.
+            &lt;br&gt;If <c>newChild</c> is a <c>DocumentFragment</c> object,
+            <c>oldChild</c> is replaced by all of the
+            <c>DocumentFragment</c> children, which are inserted in the
+            same order. If the <c>newChild</c> is already in the tree, it
+            is first removed.
+            &lt;p &gt;&lt;b&gt;Note:&lt;/b&gt;  Replacing a node with itself is implementation
+            dependent.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#replaceChild(org.w3c.dom.Node,%20org.w3c.dom.Node)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.replaceChild(org.w3c.dom.Node, org.w3c.dom.Node)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Org.W3c.Dom.DOMException">HIERARCHY_REQUEST_ERR: Raised if this node is of a type that does not
+   allow children of the type of the <c>newChild</c> node, or if
+   the node to put in is one of this node's ancestors or this node
+   itself, or if this node is of type <c>Document</c> and the
+   result of the replacement operation would add a second
+   <c>DocumentType</c> or <c>Element</c> on the
+   <c>Document</c> node.
+   <format type="text/html"><br /></format>WRONG_DOCUMENT_ERR: Raised if <c>newChild</c> was created
+   from a different document than the one that created this node.
+   <format type="text/html"><br /></format>NO_MODIFICATION_ALLOWED_ERR: Raised if this node or the parent of
+   the new node is readonly.
+   <format type="text/html"><br /></format>NOT_FOUND_ERR: Raised if <c>oldChild</c> is not a child of
+   this node.
+   <format type="text/html"><br /></format>NOT_SUPPORTED_ERR: if this node is of type <c>Document</c>,
+   this exception might be raised if the DOM implementation doesn't
+   support the replacement of the <c>DocumentType</c> child or
+   <c>Element</c> child.</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="SetUserData">
+      <MemberSignature Language="C#" Value="public Java.Lang.Object? SetUserData (string? key, Java.Lang.Object? data, Org.W3c.Dom.IUserDataHandler? handler);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object SetUserData(string key, class Java.Lang.Object data, class Org.W3c.Dom.IUserDataHandler handler) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Org.W3c.Dom.INode.SetUserData(System.String,Java.Lang.Object,Org.W3c.Dom.IUserDataHandler)" />
+      <MemberSignature Language="F#" Value="abstract member SetUserData : string * Java.Lang.Object * Org.W3c.Dom.IUserDataHandler -&gt; Java.Lang.Object" Usage="iNode.SetUserData (key, data, handler)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setUserData", "(Ljava/lang/String;Ljava/lang/Object;Lorg/w3c/dom/UserDataHandler;)Ljava/lang/Object;", "GetSetUserData_Ljava_lang_String_Ljava_lang_Object_Lorg_w3c_dom_UserDataHandler_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setUserData", "(Ljava/lang/String;Ljava/lang/Object;Lorg/w3c/dom/UserDataHandler;)Ljava/lang/Object;", "GetSetUserData_Ljava_lang_String_Ljava_lang_Object_Lorg_w3c_dom_UserDataHandler_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.String" />
+        <Parameter Name="data" Type="Java.Lang.Object" />
+        <Parameter Name="handler" Type="Org.W3c.Dom.IUserDataHandler" />
+      </Parameters>
+      <Docs>
+        <param name="key">The key to associate the object to.</param>
+        <param name="data">The object to associate to the given key, or
+              <c>null</c> to remove any existing association to that key.</param>
+        <param name="handler">The handler to associate to that key, or
+              <c>null</c>.</param>
+        <summary>Associate an object to a key on this node.</summary>
+        <returns>Returns the <c>DOMUserData</c> previously associated to
+              the given key on this node, or <c>null</c> if there was none.</returns>
+        <remarks>
+          <para>Associate an object to a key on this node. The object can later be
+            retrieved from this node by calling <c>getUserData</c> with the
+            same key.</para>
+          <para>Added in DOM Level 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#setUserData(java.lang.String,%20java.lang.Object,%20org.w3c.dom.UserDataHandler)" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.setUserData(java.lang.String, java.lang.Object, org.w3c.dom.UserDataHandler)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="TextContent">
+      <MemberSignature Language="C#" Value="public string? TextContent { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string TextContent" />
+      <MemberSignature Language="DocId" Value="P:Org.W3c.Dom.INode.TextContent" />
+      <MemberSignature Language="F#" Value="member this.TextContent : string with get, set" Usage="Org.W3c.Dom.INode.TextContent" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTextContent", "()Ljava/lang/String;", "GetGetTextContentHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTextContent", "()Ljava/lang/String;", "GetGetTextContentHandler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setTextContent", "(Ljava/lang/String;)V", "GetSetTextContent_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setTextContent", "(Ljava/lang/String;)V", "GetSetTextContent_Ljava_lang_String_Handler:Org.W3c.Dom.INodeInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This attribute returns the text content of this node and its
+ descendants.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 8" />
+        <exception cref="T:Org.W3c.Dom.DOMException">DOMSTRING_SIZE_ERR: Raised when it would return more characters than
+   fit in a <c>DOMString</c> variable on the implementation
+   platform.</exception>
+        <exception cref="T:Org.W3c.Dom.DOMException">NO_MODIFICATION_ALLOWED_ERR: Raised when the node is readonly.</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="TextNode">
+      <MemberSignature Language="C#" Value="public const short TextNode = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int16 TextNode = (3)" />
+      <MemberSignature Language="DocId" Value="F:Org.W3c.Dom.INode.TextNode" />
+      <MemberSignature Language="F#" Value="val mutable TextNode : int16" Usage="Org.W3c.Dom.INode.TextNode" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("TEXT_NODE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TEXT_NODE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int16</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>The node is a <c>Text</c> node.</summary>
+        <remarks>
+          <para>The node is a <c>Text</c> node.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/org/w3c/dom/Node#TEXT_NODE" title="Reference documentation">Java documentation for <code>org.w3c.dom.Node.TEXT_NODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
