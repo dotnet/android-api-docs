@@ -1,0 +1,942 @@
+<Type Name="LongSparseArray" FullName="Android.Util.LongSparseArray">
+  <TypeSignature Language="C#" Value="public class LongSparseArray : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.ICloneable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit LongSparseArray extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Lang.ICloneable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Android.Util.LongSparseArray" />
+  <TypeSignature Language="F#" Value="type LongSparseArray = class&#xA;    inherit Object&#xA;    interface ICloneable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Lang.ICloneable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/util/LongSparseArray", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/util/LongSparseArray", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "E" })]</AttributeName>
+      <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "E" })&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="16">
+    <summary>SparseArray mapping longs to Objects.</summary>
+    <remarks>
+      <para>SparseArray mapping longs to Objects.  Unlike a normal array of Objects,
+            there can be gaps in the indices.  It is intended to be more memory efficient
+            than using a HashMap to map Longs to Objects, both because it avoids
+            auto-boxing keys and its data structure doesn't rely on an extra entry object
+            for each mapping.</para>
+      <para>Note that this container keeps its mappings in an array data structure,
+            using a binary search to find keys.  The implementation is not intended to be appropriate for
+            data structures
+            that may contain large numbers of items.  It is generally slower than a traditional
+            HashMap, since lookups require a binary search and adds and removes require inserting
+            and deleting entries in the array.  For containers holding up to hundreds of items,
+            the performance difference is not significant, less than 50%.</para>
+      <para>To help with performance, the container includes an optimization when removing
+            keys: instead of compacting its array immediately, it leaves the removed entry marked
+            as deleted.  The entry can then be re-used for the same key, or compacted later in
+            a single garbage collection step of all removed entries.  This garbage collection will
+            need to be performed at any time the array needs to be grown or the the map size or
+            entry values are retrieved.</para>
+      <para>It is possible to iterate over the items in this container using
+            <c>#keyAt(int)</c> and <c>#valueAt(int)</c>. Iterating over the keys using
+            <c>keyAt(int)</c> with ascending values of the index will return the
+            keys in ascending order, or the values corresponding to the keys in ascending
+            order in the case of <c>valueAt(int)</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/util/LongSparseArray" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 16" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public LongSparseArray ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>Creates a new LongSparseArray containing no mappings.</summary>
+        <remarks>
+          <para>Creates a new LongSparseArray containing no mappings.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#LongSparseArray()" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.LongSparseArray()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public LongSparseArray (int initialCapacity);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 initialCapacity) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.#ctor(System.Int32)" />
+      <MemberSignature Language="F#" Value="new Android.Util.LongSparseArray : int -&gt; Android.Util.LongSparseArray" Usage="new Android.Util.LongSparseArray initialCapacity" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(I)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(I)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="initialCapacity" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="initialCapacity">To be added.</param>
+        <summary>Creates a new LongSparseArray containing no mappings that will not
+            require any additional memory allocation to store the specified
+            number of mappings.</summary>
+        <remarks>
+          <para>Creates a new LongSparseArray containing no mappings that will not
+            require any additional memory allocation to store the specified
+            number of mappings.  If you supply an initial capacity of 0, the
+            sparse array will be initialized with a light-weight representation
+            not requiring any additional array allocations.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#LongSparseArray(int)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.LongSparseArray(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected LongSparseArray (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Android.Util.LongSparseArray : nativeint * Android.Runtime.JniHandleOwnership -&gt; Android.Util.LongSparseArray" Usage="new Android.Util.LongSparseArray (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Append">
+      <MemberSignature Language="C#" Value="public virtual void Append (long key, Java.Lang.Object? value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Append(int64 key, class Java.Lang.Object value) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Append(System.Int64,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Append : int64 * Java.Lang.Object -&gt; unit&#xA;override this.Append : int64 * Java.Lang.Object -&gt; unit" Usage="longSparseArray.Append (key, value)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("append", "(JLjava/lang/Object;)V", "GetAppend_JLjava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("append", "(JLjava/lang/Object;)V", "GetAppend_JLjava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.Int64" />
+        <Parameter Name="value" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>Puts a key/value pair into the array, optimizing for the case where
+            the key is greater than all existing keys in the array.</summary>
+        <remarks>
+          <para>Puts a key/value pair into the array, optimizing for the case where
+            the key is greater than all existing keys in the array.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#append(long,%20E)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.append(long, E)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clear">
+      <MemberSignature Language="C#" Value="public virtual void Clear ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Clear() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Clear" />
+      <MemberSignature Language="F#" Value="abstract member Clear : unit -&gt; unit&#xA;override this.Clear : unit -&gt; unit" Usage="longSparseArray.Clear " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("clear", "()V", "GetClearHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clear", "()V", "GetClearHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Removes all key-value mappings from this LongSparseArray.</summary>
+        <remarks>
+          <para>Removes all key-value mappings from this LongSparseArray.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#clear()" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.clear()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="Clone">
+      <MemberSignature Language="C#" Value="public virtual Android.Util.LongSparseArray? Clone ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Util.LongSparseArray Clone() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Clone" />
+      <MemberSignature Language="F#" Value="override this.Clone : unit -&gt; Android.Util.LongSparseArray" Usage="longSparseArray.Clone " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("clone", "()Landroid/util/LongSparseArray;", "GetCloneHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clone", "()Landroid/util/LongSparseArray;", "GetCloneHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Util.LongSparseArray</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Creates and returns a copy of this <c>Object</c>.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="Delete">
+      <MemberSignature Language="C#" Value="public virtual void Delete (long key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Delete(int64 key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Delete(System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member Delete : int64 -&gt; unit&#xA;override this.Delete : int64 -&gt; unit" Usage="longSparseArray.Delete key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("delete", "(J)V", "GetDelete_JHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("delete", "(J)V", "GetDelete_JHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <summary>Removes the mapping from the specified key, if there was any.</summary>
+        <remarks>
+          <para>Removes the mapping from the specified key, if there was any.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#delete(long)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.delete(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="Get">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? Get (long key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object Get(int64 key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Get(System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member Get : int64 -&gt; Java.Lang.Object&#xA;override this.Get : int64 -&gt; Java.Lang.Object" Usage="longSparseArray.Get key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("get", "(J)Ljava/lang/Object;", "GetGet_JHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("get", "(J)Ljava/lang/Object;", "GetGet_JHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <summary>Gets the Object mapped from the specified key, or <c>null</c>
+            if no such mapping has been made.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Gets the Object mapped from the specified key, or <c>null</c>
+            if no such mapping has been made.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#get(long)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.get(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="Get">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? Get (long key, Java.Lang.Object? valueIfKeyNotFound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object Get(int64 key, class Java.Lang.Object valueIfKeyNotFound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Get(System.Int64,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Get : int64 * Java.Lang.Object -&gt; Java.Lang.Object&#xA;override this.Get : int64 * Java.Lang.Object -&gt; Java.Lang.Object" Usage="longSparseArray.Get (key, valueIfKeyNotFound)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("get", "(JLjava/lang/Object;)Ljava/lang/Object;", "GetGet_JLjava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("get", "(JLjava/lang/Object;)Ljava/lang/Object;", "GetGet_JLjava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.Int64" />
+        <Parameter Name="valueIfKeyNotFound" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <param name="valueIfKeyNotFound">To be added.</param>
+        <summary>Gets the Object mapped from the specified key, or the specified Object
+            if no such mapping has been made.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Gets the Object mapped from the specified key, or the specified Object
+            if no such mapping has been made.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#get(long,%20E)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.get(long, E)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IndexOfKey">
+      <MemberSignature Language="C#" Value="public virtual int IndexOfKey (long key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOfKey(int64 key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.IndexOfKey(System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member IndexOfKey : int64 -&gt; int&#xA;override this.IndexOfKey : int64 -&gt; int" Usage="longSparseArray.IndexOfKey key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("indexOfKey", "(J)I", "GetIndexOfKey_JHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("indexOfKey", "(J)I", "GetIndexOfKey_JHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <summary>Returns the index for which <c>#keyAt</c> would return the
+            specified key, or a negative number if the specified
+            key is not mapped.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Returns the index for which <c>#keyAt</c> would return the
+            specified key, or a negative number if the specified
+            key is not mapped.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#indexOfKey(long)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.indexOfKey(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="IndexOfValue">
+      <MemberSignature Language="C#" Value="public virtual int IndexOfValue (Java.Lang.Object? value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 IndexOfValue(class Java.Lang.Object value) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.IndexOfValue(Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member IndexOfValue : Java.Lang.Object -&gt; int&#xA;override this.IndexOfValue : Java.Lang.Object -&gt; int" Usage="longSparseArray.IndexOfValue value" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("indexOfValue", "(Ljava/lang/Object;)I", "GetIndexOfValue_Ljava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("indexOfValue", "(Ljava/lang/Object;)I", "GetIndexOfValue_Ljava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="value" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="value">To be added.</param>
+        <summary>Returns an index for which <c>#valueAt</c> would return the
+            specified key, or a negative number if no keys map to the
+            specified value.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Returns an index for which <c>#valueAt</c> would return the
+            specified key, or a negative number if no keys map to the
+            specified value.
+            Beware that this is a linear search, unlike lookups by key,
+            and that multiple keys can map to the same value and this will
+            find only one of them.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#indexOfValue(E)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.indexOfValue(E)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Util.LongSparseArray.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Util.LongSparseArray.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="KeyAt">
+      <MemberSignature Language="C#" Value="public virtual long KeyAt (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 KeyAt(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.KeyAt(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member KeyAt : int -&gt; int64&#xA;override this.KeyAt : int -&gt; int64" Usage="longSparseArray.KeyAt index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("keyAt", "(I)J", "GetKeyAt_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("keyAt", "(I)J", "GetKeyAt_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <summary>Given an index in the range <c>0...size()-1</c>, returns
+            the key from the <c>index</c>th key-value mapping that this
+            LongSparseArray stores.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Given an index in the range <c>0...size()-1</c>, returns
+            the key from the <c>index</c>th key-value mapping that this
+            LongSparseArray stores.</para>
+          <para>The keys corresponding to indices in ascending order are guaranteed to
+            be in ascending order, e.g., <c>keyAt(0)</c> will return the
+            smallest key and <c>keyAt(size()-1)</c> will return the largest
+            key.</para>
+          <para>For indices outside of the range <c>0...size()-1</c>, the behavior is undefined for
+            apps targeting <c>android.os.Build.VERSION_CODES#P</c> and earlier, and an
+            <c>ArrayIndexOutOfBoundsException</c> is thrown for apps targeting
+            <c>android.os.Build.VERSION_CODES#Q</c> and later.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#keyAt(int)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.keyAt(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="Put">
+      <MemberSignature Language="C#" Value="public virtual void Put (long key, Java.Lang.Object? value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Put(int64 key, class Java.Lang.Object value) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Put(System.Int64,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Put : int64 * Java.Lang.Object -&gt; unit&#xA;override this.Put : int64 * Java.Lang.Object -&gt; unit" Usage="longSparseArray.Put (key, value)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("put", "(JLjava/lang/Object;)V", "GetPut_JLjava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("put", "(JLjava/lang/Object;)V", "GetPut_JLjava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.Int64" />
+        <Parameter Name="value" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>Adds a mapping from the specified key to the specified value,
+            replacing the previous mapping from the specified key if there
+            was one.</summary>
+        <remarks>
+          <para>Adds a mapping from the specified key to the specified value,
+            replacing the previous mapping from the specified key if there
+            was one.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#put(long,%20E)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.put(long, E)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Remove">
+      <MemberSignature Language="C#" Value="public virtual void Remove (long key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Remove(int64 key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Remove(System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member Remove : int64 -&gt; unit&#xA;override this.Remove : int64 -&gt; unit" Usage="longSparseArray.Remove key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("remove", "(J)V", "GetRemove_JHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("remove", "(J)V", "GetRemove_JHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="key">To be added.</param>
+        <summary>Alias for <c>#delete(long)</c>.</summary>
+        <remarks>
+          <para>Alias for <c>#delete(long)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#remove(long)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.remove(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveAt">
+      <MemberSignature Language="C#" Value="public virtual void RemoveAt (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveAt(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.RemoveAt(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveAt : int -&gt; unit&#xA;override this.RemoveAt : int -&gt; unit" Usage="longSparseArray.RemoveAt index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("removeAt", "(I)V", "GetRemoveAt_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeAt", "(I)V", "GetRemoveAt_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <summary>Removes the mapping at the specified index.</summary>
+        <remarks>
+          <para>Removes the mapping at the specified index.</para>
+          <para>For indices outside of the range <c>0...size()-1</c>, the behavior is undefined for
+            apps targeting <c>android.os.Build.VERSION_CODES#P</c> and earlier, and an
+            <c>ArrayIndexOutOfBoundsException</c> is thrown for apps targeting
+            <c>android.os.Build.VERSION_CODES#Q</c> and later.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#removeAt(int)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.removeAt(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetValueAt">
+      <MemberSignature Language="C#" Value="public virtual void SetValueAt (int index, Java.Lang.Object? value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetValueAt(int32 index, class Java.Lang.Object value) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.SetValueAt(System.Int32,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member SetValueAt : int * Java.Lang.Object -&gt; unit&#xA;override this.SetValueAt : int * Java.Lang.Object -&gt; unit" Usage="longSparseArray.SetValueAt (index, value)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setValueAt", "(ILjava/lang/Object;)V", "GetSetValueAt_ILjava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setValueAt", "(ILjava/lang/Object;)V", "GetSetValueAt_ILjava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+        <Parameter Name="value" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>Given an index in the range <c>0...size()-1</c>, sets a new
+            value for the <c>index</c>th key-value mapping that this
+            LongSparseArray stores.</summary>
+        <remarks>
+          <para>Given an index in the range <c>0...size()-1</c>, sets a new
+            value for the <c>index</c>th key-value mapping that this
+            LongSparseArray stores.</para>
+          <para>For indices outside of the range <c>0...size()-1</c>, the behavior is undefined for
+            apps targeting <c>android.os.Build.VERSION_CODES#P</c> and earlier, and an
+            <c>ArrayIndexOutOfBoundsException</c> is thrown for apps targeting
+            <c>android.os.Build.VERSION_CODES#Q</c> and later.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#setValueAt(int,%20E)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.setValueAt(int, E)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Size">
+      <MemberSignature Language="C#" Value="public virtual int Size ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Size() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.Size" />
+      <MemberSignature Language="F#" Value="abstract member Size : unit -&gt; int&#xA;override this.Size : unit -&gt; int" Usage="longSparseArray.Size " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("size", "()I", "GetSizeHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("size", "()I", "GetSizeHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the number of key-value mappings that this LongSparseArray
+            currently stores.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Returns the number of key-value mappings that this LongSparseArray
+            currently stores.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#size()" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.size()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Util.LongSparseArray.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Util.LongSparseArray.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Util.LongSparseArray.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Util.LongSparseArray.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ValueAt">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? ValueAt (int index);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object ValueAt(int32 index) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Util.LongSparseArray.ValueAt(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member ValueAt : int -&gt; Java.Lang.Object&#xA;override this.ValueAt : int -&gt; Java.Lang.Object" Usage="longSparseArray.ValueAt index" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("valueAt", "(I)Ljava/lang/Object;", "GetValueAt_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("valueAt", "(I)Ljava/lang/Object;", "GetValueAt_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <summary>Given an index in the range <c>0...size()-1</c>, returns
+            the value from the <c>index</c>th key-value mapping that this
+            LongSparseArray stores.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Given an index in the range <c>0...size()-1</c>, returns
+            the value from the <c>index</c>th key-value mapping that this
+            LongSparseArray stores.</para>
+          <para>The values corresponding to indices in ascending order are guaranteed
+            to be associated with keys in ascending order, e.g.,
+            <c>valueAt(0)</c> will return the value associated with the
+            smallest key and <c>valueAt(size()-1)</c> will return the value
+            associated with the largest key.</para>
+          <para>For indices outside of the range <c>0...size()-1</c>, the behavior is undefined for
+            apps targeting <c>android.os.Build.VERSION_CODES#P</c> and earlier, and an
+            <c>ArrayIndexOutOfBoundsException</c> is thrown for apps targeting
+            <c>android.os.Build.VERSION_CODES#Q</c> and later.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/LongSparseArray#valueAt(int)" title="Reference documentation">Java documentation for <code>android.util.LongSparseArray.valueAt(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 16" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

@@ -1,0 +1,455 @@
+<Type Name="ISynthesisCallback" FullName="Android.Speech.Tts.ISynthesisCallback">
+  <TypeSignature Language="C#" Value="public interface ISynthesisCallback : Android.Runtime.IJavaObject, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit ISynthesisCallback implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Android.Speech.Tts.ISynthesisCallback" />
+  <TypeSignature Language="F#" Value="type ISynthesisCallback = interface&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/speech/tts/SynthesisCallback", "", "Android.Speech.Tts.ISynthesisCallbackInvoker")]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/speech/tts/SynthesisCallback", "", "Android.Speech.Tts.ISynthesisCallbackInvoker")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="14">
+    <summary>A callback to return speech data synthesized by a text to speech engine.</summary>
+    <remarks>
+      <para>A callback to return speech data synthesized by a text to speech engine.
+            
+            The engine can provide streaming audio by calling
+            <c>#start</c>, then <c>#audioAvailable</c> until all audio has been provided, then finally
+            <c>#done</c>.
+            
+            <c>#error</c> can be called at any stage in the synthesis process to
+            indicate that an error has occurred, but if the call is made after a call
+            to <c>#done</c>, it might be discarded.
+            
+            <c>#done</c> must be called at the end of synthesis, regardless of errors.
+            
+            All methods can be only called on the synthesis thread.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/speech/tts/SynthesisCallback" title="Reference documentation">Java documentation for <code>android.speech.tts.SynthesisCallback</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 14" />
+  </Docs>
+  <Members>
+    <Member MemberName="AudioAvailable">
+      <MemberSignature Language="C#" Value="public Android.Speech.Tts.OperationResult AudioAvailable (byte[]? buffer, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance valuetype Android.Speech.Tts.OperationResult AudioAvailable(unsigned int8[] buffer, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.ISynthesisCallback.AudioAvailable(System.Byte[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member AudioAvailable : byte[] * int * int -&gt; Android.Speech.Tts.OperationResult" Usage="iSynthesisCallback.AudioAvailable (buffer, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("audioAvailable", "([BII)I", "GetAudioAvailable_arrayBIIHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("audioAvailable", "([BII)I", "GetAudioAvailable_arrayBIIHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Speech.Tts.OperationResult</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+            <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="buffer" Type="System.Byte[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="buffer">The generated audio data. This method will not hold on to <c>buffer</c>, so the
+                caller is free to modify it after this method returns.</param>
+        <param name="offset">The offset into <c>buffer</c> where the audio data starts.</param>
+        <param name="length">The number of bytes of audio data in <c>buffer</c>. This must be less than or
+                equal to the return value of <c>#getMaxBufferSize</c>.</param>
+        <summary>The service should call this method when synthesized audio is ready for consumption.</summary>
+        <returns>
+          <c>android.speech.tts.TextToSpeech#SUCCESS</c>, <c>android.speech.tts.TextToSpeech#ERROR</c> or <c>android.speech.tts.TextToSpeech#STOPPED</c>.</returns>
+        <remarks>
+          <para>The service should call this method when synthesized audio is ready for consumption.</para>
+          <para>This method should only be called on the synthesis thread, while in <c>TextToSpeechService#onSynthesizeText</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/SynthesisCallback#audioAvailable(byte[],%20int,%20int)" title="Reference documentation">Java documentation for <code>android.speech.tts.SynthesisCallback.audioAvailable(byte[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="Done">
+      <MemberSignature Language="C#" Value="public Android.Speech.Tts.OperationResult Done ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance valuetype Android.Speech.Tts.OperationResult Done() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.ISynthesisCallback.Done" />
+      <MemberSignature Language="F#" Value="abstract member Done : unit -&gt; Android.Speech.Tts.OperationResult" Usage="iSynthesisCallback.Done " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("done", "()I", "GetDoneHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("done", "()I", "GetDoneHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Speech.Tts.OperationResult</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+            <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>The service should call this method when all the synthesized audio for a request has been
+            passed to <c>#audioAvailable</c>.</summary>
+        <returns>
+          <c>android.speech.tts.TextToSpeech#SUCCESS</c>, <c>android.speech.tts.TextToSpeech#ERROR</c> or <c>android.speech.tts.TextToSpeech#STOPPED</c>.</returns>
+        <remarks>
+          <para>The service should call this method when all the synthesized audio for a request has been
+            passed to <c>#audioAvailable</c>.</para>
+          <para>This method should only be called on the synthesis thread, while in <c>TextToSpeechService#onSynthesizeText</c>.</para>
+          <para>This method has to be called if <c>#start</c> and/or <c>#error</c> was called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/SynthesisCallback#done()" title="Reference documentation">Java documentation for <code>android.speech.tts.SynthesisCallback.done()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="Error">
+      <MemberSignature Language="C#" Value="public void Error ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Error() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.ISynthesisCallback.Error" />
+      <MemberSignature Language="F#" Value="abstract member Error : unit -&gt; unit" Usage="iSynthesisCallback.Error " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("error", "()V", "GetErrorHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("error", "()V", "GetErrorHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>The service should call this method if the speech synthesis fails.</summary>
+        <remarks>
+          <para>The service should call this method if the speech synthesis fails.</para>
+          <para>This method should only be called on the synthesis thread, while in <c>TextToSpeechService#onSynthesizeText</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/SynthesisCallback#error()" title="Reference documentation">Java documentation for <code>android.speech.tts.SynthesisCallback.error()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="Error">
+      <MemberSignature Language="C#" Value="public void Error (Android.Speech.Tts.TextToSpeechError errorCode);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Error(valuetype Android.Speech.Tts.TextToSpeechError errorCode) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.ISynthesisCallback.Error(Android.Speech.Tts.TextToSpeechError)" />
+      <MemberSignature Language="F#" Value="abstract member Error : Android.Speech.Tts.TextToSpeechError -&gt; unit" Usage="iSynthesisCallback.Error errorCode" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("error", "(I)V", "GetError_IHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("error", "(I)V", "GetError_IHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="errorCode" Type="Android.Speech.Tts.TextToSpeechError">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="errorCode">Error code to pass to the client. One of the ERROR_ values from <c>android.speech.tts.TextToSpeech</c></param>
+        <summary>The service should call this method if the speech synthesis fails.</summary>
+        <remarks>
+          <para>The service should call this method if the speech synthesis fails.</para>
+          <para>This method should only be called on the synthesis thread, while in <c>TextToSpeechService#onSynthesizeText</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/SynthesisCallback#error(int)" title="Reference documentation">Java documentation for <code>android.speech.tts.SynthesisCallback.error(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="HasFinished">
+      <MemberSignature Language="C#" Value="public bool HasFinished { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool HasFinished" />
+      <MemberSignature Language="DocId" Value="P:Android.Speech.Tts.ISynthesisCallback.HasFinished" />
+      <MemberSignature Language="F#" Value="member this.HasFinished : bool" Usage="Android.Speech.Tts.ISynthesisCallback.HasFinished" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("hasFinished", "()Z", "GetHasFinishedHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("hasFinished", "()Z", "GetHasFinishedHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Check if <see cref="M:Android.Speech.Tts.ISynthesisCallback.Done" /> was called or not.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="HasStarted">
+      <MemberSignature Language="C#" Value="public bool HasStarted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool HasStarted" />
+      <MemberSignature Language="DocId" Value="P:Android.Speech.Tts.ISynthesisCallback.HasStarted" />
+      <MemberSignature Language="F#" Value="member this.HasStarted : bool" Usage="Android.Speech.Tts.ISynthesisCallback.HasStarted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("hasStarted", "()Z", "GetHasStartedHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("hasStarted", "()Z", "GetHasStartedHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Check if <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='M:Android Speech Tts ISynthesisCallback Start(System Int32,Android Media Encoding,Android Media Encoding)';scope=Xamarin" title="M:Android.Speech.Tts.ISynthesisCallback.Start(System.Int32,Android.Media.Encoding,Android.Media.Encoding)">M:Android.Speech.Tts.ISynthesisCallback.Start(System.Int32,Android.Media.Encoding,Android.Media.Encoding)</a></format> was called or not.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MaxBufferSize">
+      <MemberSignature Language="C#" Value="public int MaxBufferSize { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 MaxBufferSize" />
+      <MemberSignature Language="DocId" Value="P:Android.Speech.Tts.ISynthesisCallback.MaxBufferSize" />
+      <MemberSignature Language="F#" Value="member this.MaxBufferSize : int" Usage="Android.Speech.Tts.ISynthesisCallback.MaxBufferSize" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getMaxBufferSize", "()I", "GetGetMaxBufferSizeHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMaxBufferSize", "()I", "GetGetMaxBufferSizeHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+        </summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="RangeStart">
+      <MemberSignature Language="C#" Value="public virtual void RangeStart (int markerInFrames, int start, int end);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RangeStart(int32 markerInFrames, int32 start, int32 end) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.ISynthesisCallback.RangeStart(System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member RangeStart : int * int * int -&gt; unit&#xA;override this.RangeStart : int * int * int -&gt; unit" Usage="iSynthesisCallback.RangeStart (markerInFrames, start, end)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("rangeStart", "(III)V", "GetRangeStart_IIIHandler:Android.Speech.Tts.ISynthesisCallback, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("rangeStart", "(III)V", "GetRangeStart_IIIHandler:Android.Speech.Tts.ISynthesisCallback, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="markerInFrames" Type="System.Int32" />
+        <Parameter Name="start" Type="System.Int32" />
+        <Parameter Name="end" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="markerInFrames">The position in frames in the audio where this range is spoken.</param>
+        <param name="start">The start index of the range in the input text.</param>
+        <param name="end">The end index (exclusive) of the range in the input text.</param>
+        <summary>The service may call this method to provide timing information about the spoken text.</summary>
+        <remarks>
+          <para>The service may call this method to provide timing information about the spoken text.</para>
+          <para>Calling this method means that at the given audio frame, the given range of the input is
+            about to be spoken. If this method is called the client will receive a callback on the
+            listener (<c>UtteranceProgressListener#onRangeStart</c>) at the moment that frame has been
+            reached by the playback head.</para>
+          <para>This information can be used by the client, for example, to highlight ranges of the text
+            while it is spoken.</para>
+          <para>The markerInFrames is a frame index into the audio for this synthesis request, i.e. into
+            the concatenation of the audio bytes sent to audioAvailable for this synthesis request. The
+            definition of a frame depends on the format given by <c>#start</c>. See <c>AudioFormat</c>
+            for more information.</para>
+          <para>This method should only be called on the synthesis thread, while in <c>TextToSpeechService#onSynthesizeText</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/SynthesisCallback#rangeStart(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.speech.tts.SynthesisCallback.rangeStart(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Start">
+      <MemberSignature Language="C#" Value="public Android.Speech.Tts.OperationResult Start (int sampleRateInHz, Android.Media.Encoding audioFormat, int channelCount);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance valuetype Android.Speech.Tts.OperationResult Start(int32 sampleRateInHz, valuetype Android.Media.Encoding audioFormat, int32 channelCount) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Speech.Tts.ISynthesisCallback.Start(System.Int32,Android.Media.Encoding,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Start : int * Android.Media.Encoding * int -&gt; Android.Speech.Tts.OperationResult" Usage="iSynthesisCallback.Start (sampleRateInHz, audioFormat, channelCount)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("start", "(III)I", "GetStart_IIIHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("start", "(III)I", "GetStart_IIIHandler:Android.Speech.Tts.ISynthesisCallbackInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Speech.Tts.OperationResult</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+            <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="sampleRateInHz" Type="System.Int32" />
+        <Parameter Name="audioFormat" Type="Android.Media.Encoding">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="channelCount" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="sampleRateInHz">Sample rate in HZ of the generated audio.</param>
+        <param name="audioFormat">Audio format of the generated audio. Must be one of <c>AudioFormat#ENCODING_PCM_8BIT</c> or <c>AudioFormat#ENCODING_PCM_16BIT</c>. Can also be
+                <c>AudioFormat#ENCODING_PCM_FLOAT</c> when targetting Android N and above.</param>
+        <param name="channelCount">The number of channels. Must be <c>1</c> or <c>2</c>.</param>
+        <summary>The service should call this when it starts to synthesize audio for this request.</summary>
+        <returns>
+          <c>android.speech.tts.TextToSpeech#SUCCESS</c>, <c>android.speech.tts.TextToSpeech#ERROR</c> or <c>android.speech.tts.TextToSpeech#STOPPED</c>.</returns>
+        <remarks>
+          <para>The service should call this when it starts to synthesize audio for this request.</para>
+          <para>This method should only be called on the synthesis thread, while in <c>TextToSpeechService#onSynthesizeText</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/speech/tts/SynthesisCallback#start(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.speech.tts.SynthesisCallback.start(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

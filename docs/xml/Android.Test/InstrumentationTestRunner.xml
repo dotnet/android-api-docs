@@ -1,0 +1,606 @@
+<Type Name="InstrumentationTestRunner" FullName="Android.Test.InstrumentationTestRunner">
+  <TypeSignature Language="C#" Value="public class InstrumentationTestRunner : Android.App.Instrumentation" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit InstrumentationTestRunner extends Android.App.Instrumentation" />
+  <TypeSignature Language="DocId" Value="T:Android.Test.InstrumentationTestRunner" />
+  <TypeSignature Language="F#" Value="type InstrumentationTestRunner = class&#xA;    inherit Instrumentation" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Android.App.Instrumentation</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/test/InstrumentationTestRunner", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/test/InstrumentationTestRunner", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android24.0", "This class is obsoleted in this android platform")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android24.0", "This class is obsoleted in this android platform")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>An <c>Instrumentation</c> that runs various types of <c>junit.framework.TestCase</c>s against
+            an Android package (application).</summary>
+    <remarks>
+      <para>An <c>Instrumentation</c> that runs various types of <c>junit.framework.TestCase</c>s against
+            an Android package (application).
+            
+            &lt;div class="special reference"&gt;
+            &lt;h3&gt;Developer Guides&lt;/h3&gt;</para>
+      <para>For more information about application testing, read the
+            <see href="https://developer.android.com/guide/topics/testing/index.html">Testing</see> developer guide.</para>
+      <para>&lt;/div&gt;
+            
+            &lt;h3&gt;Typical Usage&lt;/h3&gt;
+            &lt;ol&gt;
+            &lt;li&gt;Write <c>junit.framework.TestCase</c>s that perform unit, functional, or performance tests
+            against the classes in your package.  Typically these are subclassed from:
+              &lt;ul&gt;&lt;li&gt;<c>android.test.ActivityInstrumentationTestCase2</c>&lt;/li&gt;
+              &lt;li&gt;<c>android.test.ActivityUnitTestCase</c>&lt;/li&gt;
+              &lt;li&gt;<c>android.test.AndroidTestCase</c>&lt;/li&gt;
+              &lt;li&gt;<c>android.test.ApplicationTestCase</c>&lt;/li&gt;
+              &lt;li&gt;<c>android.test.InstrumentationTestCase</c>&lt;/li&gt;
+              &lt;li&gt;<c>android.test.ProviderTestCase</c>&lt;/li&gt;
+              &lt;li&gt;<c>android.test.ServiceTestCase</c>&lt;/li&gt;
+              &lt;li&gt;<c>android.test.SingleLaunchActivityTestCase</c>&lt;/li&gt;&lt;/ul&gt;
+            &lt;li&gt;Set the <c>android:targetPackage</c> attribute of the <c>&amp;lt;instrumentation&amp;gt;</c>
+            element in the test package's manifest. You should set the attribute value
+            to the package name of the target application under test.
+            &lt;li&gt;Run the instrumentation using "adb shell am instrument -w",
+            with no optional arguments, to run all tests (except performance tests).
+            &lt;li&gt;Run the instrumentation using "adb shell am instrument -w",
+            with the argument '-e func true' to run all functional tests. These are tests that derive from
+            <c>android.test.InstrumentationTestCase</c>.
+            &lt;li&gt;Run the instrumentation using "adb shell am instrument -w",
+            with the argument '-e unit true' to run all unit tests. These are tests that <i>do not</i>derive
+            from <c>android.test.InstrumentationTestCase</c> (and are not performance tests).
+            &lt;li&gt;Run the instrumentation using "adb shell am instrument -w",
+            with the argument '-e class' set to run an individual <c>junit.framework.TestCase</c>.
+            &lt;/ol&gt;
+            &lt;p/&gt;
+            &lt;b&gt;Running all tests:&lt;/b&gt; adb shell am instrument -w
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Running all small tests:&lt;/b&gt; adb shell am instrument -w
+            -e size small
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Running all medium tests:&lt;/b&gt; adb shell am instrument -w
+            -e size medium
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Running all large tests:&lt;/b&gt; adb shell am instrument -w
+            -e size large
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Filter test run to tests with given annotation:&lt;/b&gt; adb shell am instrument -w
+            -e annotation com.android.foo.MyAnnotation
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            If used with other options, the resulting test run will contain the union of the two options.
+            e.g. "-e size large -e annotation com.android.foo.MyAnnotation" will run only tests with both
+            the <c>LargeTest</c> and "com.android.foo.MyAnnotation" annotations.
+            &lt;p/&gt;
+            &lt;b&gt;Filter test run to tests <i>without</i> given annotation:&lt;/b&gt; adb shell am instrument -w
+            -e notAnnotation com.android.foo.MyAnnotation
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Running a single testcase:&lt;/b&gt; adb shell am instrument -w
+            -e class com.android.foo.FooTest
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Running a single test:&lt;/b&gt; adb shell am instrument -w
+            -e class com.android.foo.FooTest#testFoo
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Running multiple tests:&lt;/b&gt; adb shell am instrument -w
+            -e class com.android.foo.FooTest,com.android.foo.TooTest
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Running all tests in a java package:&lt;/b&gt; adb shell am instrument -w
+            -e package com.android.foo.subpkg
+             com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;Including performance tests:&lt;/b&gt; adb shell am instrument -w
+            -e perf true
+            com.android.foo/android.test.InstrumentationTestRunner
+            &lt;p/&gt;
+            &lt;b&gt;To debug your tests, set a break point in your code and pass:&lt;/b&gt;
+            -e debug true
+            &lt;p/&gt;
+            &lt;b&gt;To run in 'log only' mode&lt;/b&gt;
+            -e log true
+            This option will load and iterate through all test classes and methods, but will bypass actual
+            test execution. Useful for quickly obtaining info on the tests to be executed by an
+            instrumentation command.
+            &lt;p/&gt;
+            &lt;b&gt;To generate EMMA code coverage:&lt;/b&gt;
+            -e coverage true
+            Note: this requires an emma instrumented build. By default, the code coverage results file
+            will be saved in a /data/&lt;app&gt;/coverage.ec file, unless overridden by coverageFile flag (see
+            below)
+            &lt;p/&gt;
+            &lt;b&gt; To specify EMMA code coverage results file path:&lt;/b&gt;
+            -e coverageFile /sdcard/myFile.ec
+            &lt;br/&gt;
+            in addition to the other arguments.</para>
+      <para>This member is deprecated. Use
+            <see href="https://developer.android.com/reference/android/support/test/runner/AndroidJUnitRunner.html">
+            AndroidJUnitRunner</see> instead. New tests should be written using the
+            <see href="https://developer.android.com/tools/testing-support-library/index.html">Android Testing Support Library</see>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public InstrumentationTestRunner ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Test.InstrumentationTestRunner.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>
+        </summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected InstrumentationTestRunner (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Test.InstrumentationTestRunner.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Android.Test.InstrumentationTestRunner : nativeint * Android.Runtime.JniHandleOwnership -&gt; Android.Test.InstrumentationTestRunner" Usage="new Android.Test.InstrumentationTestRunner (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Arguments">
+      <MemberSignature Language="C#" Value="public virtual Android.OS.Bundle? Arguments { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.OS.Bundle Arguments" />
+      <MemberSignature Language="DocId" Value="P:Android.Test.InstrumentationTestRunner.Arguments" />
+      <MemberSignature Language="F#" Value="member this.Arguments : Android.OS.Bundle" Usage="Android.Test.InstrumentationTestRunner.Arguments" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getArguments", "()Landroid/os/Bundle;", "GetGetArgumentsHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getArguments", "()Landroid/os/Bundle;", "GetGetArgumentsHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.Bundle</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Get the arguments passed to this instrumentation.</summary>
+        <value>the Bundle object</value>
+        <remarks>
+          <para>Get the arguments passed to this instrumentation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#getArguments()" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.getArguments()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 18" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Test.InstrumentationTestRunner.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Test.InstrumentationTestRunner.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Loader">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.ClassLoader? Loader { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.ClassLoader Loader" />
+      <MemberSignature Language="DocId" Value="P:Android.Test.InstrumentationTestRunner.Loader" />
+      <MemberSignature Language="F#" Value="member this.Loader : Java.Lang.ClassLoader" Usage="Android.Test.InstrumentationTestRunner.Loader" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLoader", "()Ljava/lang/ClassLoader;", "GetGetLoaderHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLoader", "()Ljava/lang/ClassLoader;", "GetGetLoaderHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.ClassLoader</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Override this to provide access to the class loader of your package.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Override this to provide access to the class loader of your package.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#getLoader()" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.getLoader()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReportKeyNameClass">
+      <MemberSignature Language="C#" Value="public const string ReportKeyNameClass;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ReportKeyNameClass" />
+      <MemberSignature Language="DocId" Value="F:Android.Test.InstrumentationTestRunner.ReportKeyNameClass" />
+      <MemberSignature Language="F#" Value="val mutable ReportKeyNameClass : string" Usage="Android.Test.InstrumentationTestRunner.ReportKeyNameClass" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("REPORT_KEY_NAME_CLASS")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REPORT_KEY_NAME_CLASS")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the name of the current test class.</summary>
+        <remarks>
+          <para>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the name of the current test class.  This is sent with any status message
+            describing a specific test being started or completed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#REPORT_KEY_NAME_CLASS" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.REPORT_KEY_NAME_CLASS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReportKeyNameTest">
+      <MemberSignature Language="C#" Value="public const string ReportKeyNameTest;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ReportKeyNameTest" />
+      <MemberSignature Language="DocId" Value="F:Android.Test.InstrumentationTestRunner.ReportKeyNameTest" />
+      <MemberSignature Language="F#" Value="val mutable ReportKeyNameTest : string" Usage="Android.Test.InstrumentationTestRunner.ReportKeyNameTest" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("REPORT_KEY_NAME_TEST")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REPORT_KEY_NAME_TEST")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the name of the current test.</summary>
+        <remarks>
+          <para>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the name of the current test.  This is sent with any status message
+            describing a specific test being started or completed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#REPORT_KEY_NAME_TEST" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.REPORT_KEY_NAME_TEST</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReportKeyNumCurrent">
+      <MemberSignature Language="C#" Value="public const string ReportKeyNumCurrent;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ReportKeyNumCurrent" />
+      <MemberSignature Language="DocId" Value="F:Android.Test.InstrumentationTestRunner.ReportKeyNumCurrent" />
+      <MemberSignature Language="F#" Value="val mutable ReportKeyNumCurrent : string" Usage="Android.Test.InstrumentationTestRunner.ReportKeyNumCurrent" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("REPORT_KEY_NUM_CURRENT")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REPORT_KEY_NUM_CURRENT")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the sequence number of the current test.</summary>
+        <remarks>
+          <para>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the sequence number of the current test.  This is sent with any status message
+            describing a specific test being started or completed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#REPORT_KEY_NUM_CURRENT" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.REPORT_KEY_NUM_CURRENT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReportKeyNumTotal">
+      <MemberSignature Language="C#" Value="public const string ReportKeyNumTotal;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ReportKeyNumTotal" />
+      <MemberSignature Language="DocId" Value="F:Android.Test.InstrumentationTestRunner.ReportKeyNumTotal" />
+      <MemberSignature Language="F#" Value="val mutable ReportKeyNumTotal : string" Usage="Android.Test.InstrumentationTestRunner.ReportKeyNumTotal" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("REPORT_KEY_NUM_TOTAL")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REPORT_KEY_NUM_TOTAL")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the total number of tests that are being run.</summary>
+        <remarks>
+          <para>If included in the status or final bundle sent to an IInstrumentationWatcher, this key
+            identifies the total number of tests that are being run.  This is sent with all status
+            messages.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#REPORT_KEY_NUM_TOTAL" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.REPORT_KEY_NUM_TOTAL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReportKeyStack">
+      <MemberSignature Language="C#" Value="public const string ReportKeyStack;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ReportKeyStack" />
+      <MemberSignature Language="DocId" Value="F:Android.Test.InstrumentationTestRunner.ReportKeyStack" />
+      <MemberSignature Language="F#" Value="val mutable ReportKeyStack : string" Usage="Android.Test.InstrumentationTestRunner.ReportKeyStack" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("REPORT_KEY_STACK")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REPORT_KEY_STACK")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>If included in the status bundle sent to an IInstrumentationWatcher, this key
+            identifies a stack trace describing an error or failure.</summary>
+        <remarks>
+          <para>If included in the status bundle sent to an IInstrumentationWatcher, this key
+            identifies a stack trace describing an error or failure.  This is sent with any status
+            message describing a specific test being completed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#REPORT_KEY_STACK" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.REPORT_KEY_STACK</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReportValueId">
+      <MemberSignature Language="C#" Value="public const string ReportValueId;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ReportValueId" />
+      <MemberSignature Language="DocId" Value="F:Android.Test.InstrumentationTestRunner.ReportValueId" />
+      <MemberSignature Language="F#" Value="val mutable ReportValueId : string" Usage="Android.Test.InstrumentationTestRunner.ReportValueId" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("REPORT_VALUE_ID")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REPORT_VALUE_ID")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This value, if stored with key <c>android.app.Instrumentation#REPORT_KEY_IDENTIFIER</c>,
+            identifies InstrumentationTestRunner as the source of the report.</summary>
+        <remarks>
+          <para>This value, if stored with key <c>android.app.Instrumentation#REPORT_KEY_IDENTIFIER</c>,
+            identifies InstrumentationTestRunner as the source of the report.  This is sent with all
+            status messages.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/test/InstrumentationTestRunner#REPORT_VALUE_ID" title="Reference documentation">Java documentation for <code>android.test.InstrumentationTestRunner.REPORT_VALUE_ID</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Test.InstrumentationTestRunner.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Test.InstrumentationTestRunner.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Test.InstrumentationTestRunner.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Test.InstrumentationTestRunner.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

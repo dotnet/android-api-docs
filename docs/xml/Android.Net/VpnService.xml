@@ -1,0 +1,772 @@
+<Type Name="VpnService" FullName="Android.Net.VpnService">
+  <TypeSignature Language="C#" Value="public class VpnService : Android.App.Service" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit VpnService extends Android.App.Service" />
+  <TypeSignature Language="DocId" Value="T:Android.Net.VpnService" />
+  <TypeSignature Language="F#" Value="type VpnService = class&#xA;    inherit Service" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Android.App.Service</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/net/VpnService", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/VpnService", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="14">
+    <summary>VpnService is a base class for applications to extend and build their
+            own VPN solutions.</summary>
+    <remarks>
+      <para>VpnService is a base class for applications to extend and build their
+            own VPN solutions. In general, it creates a virtual network interface,
+            configures addresses and routing rules, and returns a file descriptor
+            to the application. Each read from the descriptor retrieves an outgoing
+            packet which was routed to the interface. Each write to the descriptor
+            injects an incoming packet just like it was received from the interface.
+            The interface is running on Internet Protocol (IP), so packets are
+            always started with IP headers. The application then completes a VPN
+            connection by processing and exchanging packets with the remote server
+            over a tunnel.</para>
+      <para>Letting applications intercept packets raises huge security concerns.
+            A VPN application can easily break the network. Besides, two of them may
+            conflict with each other. The system takes several actions to address
+            these issues. Here are some key points:
+            &lt;ul&gt;
+              &lt;li&gt;User action is required the first time an application creates a VPN
+                  connection.&lt;/li&gt;
+              &lt;li&gt;There can be only one VPN connection running at the same time. The
+                  existing interface is deactivated when a new one is created.&lt;/li&gt;
+              &lt;li&gt;A system-managed notification is shown during the lifetime of a
+                  VPN connection.&lt;/li&gt;
+              &lt;li&gt;A system-managed dialog gives the information of the current VPN
+                  connection. It also provides a button to disconnect.&lt;/li&gt;
+              &lt;li&gt;The network is restored automatically when the file descriptor is
+                  closed. It also covers the cases when a VPN application is crashed
+                  or killed by the system.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>There are two primary methods in this class: <c>#prepare</c> and
+            <c>Builder#establish</c>. The former deals with user action and stops
+            the VPN connection created by another application. The latter creates
+            a VPN interface using the parameters supplied to the <c>Builder</c>.
+            An application must call <c>#prepare</c> to grant the right to use
+            other methods in this class, and the right can be revoked at any time.
+            Here are the general steps to create a VPN connection:
+            &lt;ol&gt;
+              &lt;li&gt;When the user presses the button to connect, call <c>#prepare</c>
+                  and launch the returned intent, if non-null.&lt;/li&gt;
+              &lt;li&gt;When the application becomes prepared, start the service.&lt;/li&gt;
+              &lt;li&gt;Create a tunnel to the remote server and negotiate the network
+                  parameters for the VPN connection.&lt;/li&gt;
+              &lt;li&gt;Supply those parameters to a <c>Builder</c> and create a VPN
+                  interface by calling <c>Builder#establish</c>.&lt;/li&gt;
+              &lt;li&gt;Process and exchange packets between the tunnel and the returned
+                  file descriptor.&lt;/li&gt;
+              &lt;li&gt;When <c>#onRevoke</c> is invoked, close the file descriptor and
+                  shut down the tunnel gracefully.&lt;/li&gt;
+            &lt;/ol&gt;</para>
+      <para>Services extending this class need to be declared with an appropriate
+            permission and intent filter. Their access must be secured by
+            <c>android.Manifest.permission#BIND_VPN_SERVICE</c> permission, and
+            their intent filter must match <c>#SERVICE_INTERFACE</c> action. Here
+            is an example of declaring a VPN service in <c>AndroidManifest.xml</c>:</para>
+      <code lang="text/java">&amp;lt;service android:name=".ExampleVpnService"
+                    android:permission="android.permission.BIND_VPN_SERVICE"&amp;gt;
+                &amp;lt;intent-filter&amp;gt;
+                    &amp;lt;action android:name="android.net.VpnService"/&amp;gt;
+                &amp;lt;/intent-filter&amp;gt;
+            &amp;lt;/service&amp;gt;</code>
+      <para>The Android system starts a VPN in the background by calling
+            <c>android.content.Context#startService startService()</c>. In Android 8.0
+            (API level 26) and higher, the system places VPN apps on the temporary
+            allowlist for a short period so the app can start in the background. The VPN
+            app must promote itself to the foreground after it's launched or the system
+            will shut down the app.
+            
+            &lt;h3&gt;Developer's guide&lt;/h3&gt;</para>
+      <para>To learn more about developing VPN apps, read the
+            <see href="https://developer.android.com/guide/topics/connectivity/vpn">VPN developer's guide</see>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/VpnService" title="Reference documentation">Java documentation for <code>android.net.VpnService</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 14" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public VpnService ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>
+        </summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected VpnService (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Android.Net.VpnService : nativeint * Android.Runtime.JniHandleOwnership -&gt; Android.Net.VpnService" Usage="new Android.Net.VpnService (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsAlwaysOn">
+      <MemberSignature Language="C#" Value="public bool IsAlwaysOn { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsAlwaysOn" />
+      <MemberSignature Language="DocId" Value="P:Android.Net.VpnService.IsAlwaysOn" />
+      <MemberSignature Language="F#" Value="member this.IsAlwaysOn : bool" Usage="Android.Net.VpnService.IsAlwaysOn" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isAlwaysOn", "()Z", "", ApiSince=29)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isAlwaysOn", "()Z", "", ApiSince=29)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns whether the service is running in always-on VPN mode.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns whether the service is running in always-on VPN mode. In this mode the system ensures
+            that the service is always running by restarting it when necessary, e.g. after reboot.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#isAlwaysOn()" title="Reference documentation">Java documentation for <code>android.net.VpnService.isAlwaysOn()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsLockdownEnabled">
+      <MemberSignature Language="C#" Value="public bool IsLockdownEnabled { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsLockdownEnabled" />
+      <MemberSignature Language="DocId" Value="P:Android.Net.VpnService.IsLockdownEnabled" />
+      <MemberSignature Language="F#" Value="member this.IsLockdownEnabled : bool" Usage="Android.Net.VpnService.IsLockdownEnabled" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isLockdownEnabled", "()Z", "", ApiSince=29)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isLockdownEnabled", "()Z", "", ApiSince=29)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns whether the service is running in always-on VPN lockdown mode.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns whether the service is running in always-on VPN lockdown mode. In this mode the
+            system ensures that the service is always running and that the apps aren't allowed to bypass
+            the VPN.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#isLockdownEnabled()" title="Reference documentation">Java documentation for <code>android.net.VpnService.isLockdownEnabled()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Net.VpnService.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Net.VpnService.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnBind">
+      <MemberSignature Language="C#" Value="public override Android.OS.IBinder? OnBind (Android.Content.Intent? intent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance class Android.OS.IBinder OnBind(class Android.Content.Intent intent) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.OnBind(Android.Content.Intent)" />
+      <MemberSignature Language="F#" Value="override this.OnBind : Android.Content.Intent -&gt; Android.OS.IBinder" Usage="vpnService.OnBind intent" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onBind", "(Landroid/content/Intent;)Landroid/os/IBinder;", "GetOnBind_Landroid_content_Intent_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onBind", "(Landroid/content/Intent;)Landroid/os/IBinder;", "GetOnBind_Landroid_content_Intent_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.IBinder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="intent" Type="Android.Content.Intent" />
+      </Parameters>
+      <Docs>
+        <param name="intent">The Intent that was used to bind to this service,
+ as given to <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='M:Android Content Context BindService(Android Content Intent,Android Content IServiceConnection,Android Content IServiceConnection)';scope=Xamarin" title="M:Android.Content.Context.BindService(Android.Content.Intent,Android.Content.IServiceConnection,Android.Content.IServiceConnection)">M:Android.Content.Context.BindService(Android.Content.Intent,Android.Content.IServiceConnection,Android.Content.IServiceConnection)</a></format>.  Note that any extras that were included with
+ the Intent at that point will <i>not</i> be seen here.</param>
+        <summary>Return the communication interface to the service.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Return the communication interface to the service. This method returns
+            <c>null</c> on <c>Intent</c>s other than <c>#SERVICE_INTERFACE</c>
+            action. Applications overriding this method must identify the intent
+            and return the corresponding interface accordingly.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#onBind(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.net.VpnService.onBind(android.content.Intent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+        <altmember cref="M:Android.App.Service.OnBind(Android.Content.Intent)" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnRevoke">
+      <MemberSignature Language="C#" Value="public virtual void OnRevoke ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnRevoke() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.OnRevoke" />
+      <MemberSignature Language="F#" Value="abstract member OnRevoke : unit -&gt; unit&#xA;override this.OnRevoke : unit -&gt; unit" Usage="vpnService.OnRevoke " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onRevoke", "()V", "GetOnRevokeHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onRevoke", "()V", "GetOnRevokeHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Invoked when the application is revoked.</summary>
+        <remarks>
+          <para>Invoked when the application is revoked. At this moment, the VPN
+            interface is already deactivated by the system. The application should
+            close the file descriptor and shut down gracefully. The default
+            implementation of this method is calling <c>Service#stopSelf()</c>.
+            
+            &lt;p class="note"&gt;Calls to this method may not happen on the main thread
+            of the process.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#onRevoke()" title="Reference documentation">Java documentation for <code>android.net.VpnService.onRevoke()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+        <altmember cref="M:Android.Net.VpnService.Prepare(Android.Content.Context)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Prepare">
+      <MemberSignature Language="C#" Value="public static Android.Content.Intent? Prepare (Android.Content.Context? context);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Android.Content.Intent Prepare(class Android.Content.Context context) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.Prepare(Android.Content.Context)" />
+      <MemberSignature Language="F#" Value="static member Prepare : Android.Content.Context -&gt; Android.Content.Intent" Usage="Android.Net.VpnService.Prepare context" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("prepare", "(Landroid/content/Context;)Landroid/content/Intent;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("prepare", "(Landroid/content/Context;)Landroid/content/Intent;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Content.Intent</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="context" Type="Android.Content.Context" />
+      </Parameters>
+      <Docs>
+        <param name="context">To be added.</param>
+        <summary>Prepare to establish a VPN connection.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Prepare to establish a VPN connection. This method returns <c>null</c>
+            if the VPN application is already prepared or if the user has previously
+            consented to the VPN application. Otherwise, it returns an
+            <c>Intent</c> to a system activity. The application should launch the
+            activity using <c>Activity#startActivityForResult</c> to get itself
+            prepared. The activity may pop up a dialog to require user action, and
+            the result will come back via its <c>Activity#onActivityResult</c>.
+            If the result is <c>Activity#RESULT_OK</c>, the application becomes
+            prepared and is granted to use other methods in this class.</para>
+          <para>Only one application can be granted at the same time. The right
+            is revoked when another application is granted. The application
+            losing the right will be notified via its <c>#onRevoke</c>. Unless
+            it becomes prepared again, subsequent calls to other methods in this
+            class will fail.</para>
+          <para>The user may disable the VPN at any time while it is activated, in
+            which case this method will return an intent the next time it is
+            executed to obtain the user's consent again.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#prepare(android.content.Context)" title="Reference documentation">Java documentation for <code>android.net.VpnService.prepare(android.content.Context)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+        <altmember cref="M:Android.Net.VpnService.OnRevoke" />
+      </Docs>
+    </Member>
+    <Member MemberName="Protect">
+      <MemberSignature Language="C#" Value="public virtual bool Protect (Java.Net.DatagramSocket? socket);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Protect(class Java.Net.DatagramSocket socket) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.Protect(Java.Net.DatagramSocket)" />
+      <MemberSignature Language="F#" Value="abstract member Protect : Java.Net.DatagramSocket -&gt; bool&#xA;override this.Protect : Java.Net.DatagramSocket -&gt; bool" Usage="vpnService.Protect socket" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("protect", "(Ljava/net/DatagramSocket;)Z", "GetProtect_Ljava_net_DatagramSocket_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("protect", "(Ljava/net/DatagramSocket;)Z", "GetProtect_Ljava_net_DatagramSocket_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="socket" Type="Java.Net.DatagramSocket" />
+      </Parameters>
+      <Docs>
+        <param name="socket">To be added.</param>
+        <summary>Convenience method to protect a <c>DatagramSocket</c> from VPN
+            connections.</summary>
+        <returns>
+          <c>true</c> on success.</returns>
+        <remarks>
+          <para>Convenience method to protect a <c>DatagramSocket</c> from VPN
+            connections.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#protect(java.net.DatagramSocket)" title="Reference documentation">Java documentation for <code>android.net.VpnService.protect(java.net.DatagramSocket)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+        <altmember cref="M:Android.Net.VpnService.Protect(System.Int32)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Protect">
+      <MemberSignature Language="C#" Value="public virtual bool Protect (Java.Net.Socket? socket);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Protect(class Java.Net.Socket socket) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.Protect(Java.Net.Socket)" />
+      <MemberSignature Language="F#" Value="abstract member Protect : Java.Net.Socket -&gt; bool&#xA;override this.Protect : Java.Net.Socket -&gt; bool" Usage="vpnService.Protect socket" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("protect", "(Ljava/net/Socket;)Z", "GetProtect_Ljava_net_Socket_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("protect", "(Ljava/net/Socket;)Z", "GetProtect_Ljava_net_Socket_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="socket" Type="Java.Net.Socket" />
+      </Parameters>
+      <Docs>
+        <param name="socket">To be added.</param>
+        <summary>Convenience method to protect a <c>Socket</c> from VPN connections.</summary>
+        <returns>
+          <c>true</c> on success.</returns>
+        <remarks>
+          <para>Convenience method to protect a <c>Socket</c> from VPN connections.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#protect(java.net.Socket)" title="Reference documentation">Java documentation for <code>android.net.VpnService.protect(java.net.Socket)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+        <altmember cref="M:Android.Net.VpnService.Protect(System.Int32)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Protect">
+      <MemberSignature Language="C#" Value="public virtual bool Protect (int socket);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Protect(int32 socket) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.Protect(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Protect : int -&gt; bool&#xA;override this.Protect : int -&gt; bool" Usage="vpnService.Protect socket" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("protect", "(I)Z", "GetProtect_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("protect", "(I)Z", "GetProtect_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="socket" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="socket">To be added.</param>
+        <summary>Protect a socket from VPN connections.</summary>
+        <returns>
+          <c>true</c> on success.</returns>
+        <remarks>
+          <para>Protect a socket from VPN connections. After protecting, data sent
+            through this socket will go directly to the underlying network,
+            so its traffic will not be forwarded through the VPN.
+            This method is useful if some connections need to be kept
+            outside of VPN. For example, a VPN tunnel should protect itself if its
+            destination is covered by VPN routes. Otherwise its outgoing packets
+            will be sent back to the VPN interface and cause an infinite loop. This
+            method will fail if the application is not prepared or is revoked.
+            
+            &lt;p class="note"&gt;The socket is NOT closed by this method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#protect(int)" title="Reference documentation">Java documentation for <code>android.net.VpnService.protect(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="ServiceInterface">
+      <MemberSignature Language="C#" Value="public const string ServiceInterface;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ServiceInterface" />
+      <MemberSignature Language="DocId" Value="F:Android.Net.VpnService.ServiceInterface" />
+      <MemberSignature Language="F#" Value="val mutable ServiceInterface : string" Usage="Android.Net.VpnService.ServiceInterface" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SERVICE_INTERFACE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SERVICE_INTERFACE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The action must be matched by the intent filter of this service.</summary>
+        <remarks>
+          <para>The action must be matched by the intent filter of this service. It also
+            needs to require <c>android.Manifest.permission#BIND_VPN_SERVICE</c>
+            permission so that other applications cannot abuse it.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#SERVICE_INTERFACE" title="Reference documentation">Java documentation for <code>android.net.VpnService.SERVICE_INTERFACE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 14" />
+      </Docs>
+    </Member>
+    <Member MemberName="ServiceMetaDataSupportsAlwaysOn">
+      <MemberSignature Language="C#" Value="public const string ServiceMetaDataSupportsAlwaysOn;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ServiceMetaDataSupportsAlwaysOn" />
+      <MemberSignature Language="DocId" Value="F:Android.Net.VpnService.ServiceMetaDataSupportsAlwaysOn" />
+      <MemberSignature Language="F#" Value="val mutable ServiceMetaDataSupportsAlwaysOn : string" Usage="Android.Net.VpnService.ServiceMetaDataSupportsAlwaysOn" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SERVICE_META_DATA_SUPPORTS_ALWAYS_ON", ApiSince=27)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SERVICE_META_DATA_SUPPORTS_ALWAYS_ON", ApiSince=27)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android27.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android27.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Key for boolean meta-data field indicating whether this VpnService supports always-on mode.</summary>
+        <remarks>
+          <para>Key for boolean meta-data field indicating whether this VpnService supports always-on mode.</para>
+          <para>For a VPN app targeting <c>android.os.Build.VERSION_CODES#N API 24</c> or above, Android
+            provides users with the ability to set it as always-on, so that VPN connection is
+            persisted after device reboot and app upgrade. Always-on VPN can also be enabled by device
+            owner and profile owner apps through
+            <c>DevicePolicyManager#setAlwaysOnVpnPackage</c>.</para>
+          <para>VPN apps not supporting this feature should opt out by adding this meta-data field to the
+            <c>VpnService</c> component of <c>AndroidManifest.xml</c>. In case there is more than one
+            <c>VpnService</c> component defined in <c>AndroidManifest.xml</c>, opting out any one of
+            them will opt out the entire app. For example,</para>
+          <code lang="text/java">{@code
+            &lt;service android:name=".ExampleVpnService"
+                    android:permission="android.permission.BIND_VPN_SERVICE"&gt;
+                &lt;intent-filter&gt;
+                    &lt;action android:name="android.net.VpnService"/&gt;
+                &lt;/intent-filter&gt;
+                &lt;meta-data android:name="android.net.VpnService.SUPPORTS_ALWAYS_ON"
+                        android:value=false/&gt;
+            &lt;/service&gt;
+            } </code>
+          <para>This meta-data field defaults to <c>true</c> if absent. It will only have effect on
+            <c>android.os.Build.VERSION_CODES#O_MR1</c> or higher.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#SERVICE_META_DATA_SUPPORTS_ALWAYS_ON" title="Reference documentation">Java documentation for <code>android.net.VpnService.SERVICE_META_DATA_SUPPORTS_ALWAYS_ON</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetUnderlyingNetworks">
+      <MemberSignature Language="C#" Value="public virtual bool SetUnderlyingNetworks (Android.Net.Network[]? networks);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool SetUnderlyingNetworks(class Android.Net.Network[] networks) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.VpnService.SetUnderlyingNetworks(Android.Net.Network[])" />
+      <MemberSignature Language="F#" Value="abstract member SetUnderlyingNetworks : Android.Net.Network[] -&gt; bool&#xA;override this.SetUnderlyingNetworks : Android.Net.Network[] -&gt; bool" Usage="vpnService.SetUnderlyingNetworks networks" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setUnderlyingNetworks", "([Landroid/net/Network;)Z", "GetSetUnderlyingNetworks_arrayLandroid_net_Network_Handler", ApiSince=22)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setUnderlyingNetworks", "([Landroid/net/Network;)Z", "GetSetUnderlyingNetworks_arrayLandroid_net_Network_Handler", ApiSince=22)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android22.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android22.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="networks" Type="Android.Net.Network[]" />
+      </Parameters>
+      <Docs>
+        <param name="networks">An array of networks the VPN uses to tunnel traffic to/from its servers.</param>
+        <summary>Sets the underlying networks used by the VPN for its upstream connections.</summary>
+        <returns>
+          <c>true</c> on success.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/VpnService#setUnderlyingNetworks(.*Network[])" title="Reference documentation">Java documentation for <code>android.net.VpnService.setUnderlyingNetworks(.*Network[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Net.VpnService.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Net.VpnService.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Net.VpnService.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Net.VpnService.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

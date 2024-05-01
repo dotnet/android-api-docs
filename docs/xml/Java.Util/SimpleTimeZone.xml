@@ -1,0 +1,1220 @@
+<Type Name="SimpleTimeZone" FullName="Java.Util.SimpleTimeZone">
+  <TypeSignature Language="C#" Value="public class SimpleTimeZone : Java.Util.TimeZone" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit SimpleTimeZone extends Java.Util.TimeZone" />
+  <TypeSignature Language="DocId" Value="T:Java.Util.SimpleTimeZone" />
+  <TypeSignature Language="F#" Value="type SimpleTimeZone = class&#xA;    inherit TimeZone" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Util.TimeZone</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/util/SimpleTimeZone", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/SimpleTimeZone", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>
+      <c>SimpleTimeZone</c> is a concrete subclass of <c>TimeZone</c>
+            that represents a time zone for use with a Gregorian calendar.</summary>
+    <remarks>
+      <para>
+        <c>SimpleTimeZone</c> is a concrete subclass of <c>TimeZone</c>
+            that represents a time zone for use with a Gregorian calendar.
+            The class holds an offset from GMT, called &lt;em&gt;raw offset&lt;/em&gt;, and start
+            and end rules for a daylight saving time schedule.  Since it only holds
+            single values for each, it cannot handle historical changes in the offset
+            from GMT and the daylight saving schedule, except that the <c>#setStartYear setStartYear</c> method can specify the year when the daylight
+            saving time schedule starts in effect.</para>
+      <para>To construct a <c>SimpleTimeZone</c> with a daylight saving time
+            schedule, the schedule can be described with a set of rules,
+            &lt;em&gt;start-rule&lt;/em&gt; and &lt;em&gt;end-rule&lt;/em&gt;. A day when daylight saving time
+            starts or ends is specified by a combination of &lt;em&gt;month&lt;/em&gt;,
+            &lt;em&gt;day-of-month&lt;/em&gt;, and &lt;em&gt;day-of-week&lt;/em&gt; values. The &lt;em&gt;month&lt;/em&gt;
+            value is represented by a Calendar <c>Calendar#MONTH MONTH</c> field
+            value, such as <c>Calendar#MARCH</c>. The &lt;em&gt;day-of-week&lt;/em&gt; value is
+            represented by a Calendar <c>Calendar#DAY_OF_WEEK DAY_OF_WEEK</c> value,
+            such as <c>Calendar#SUNDAY SUNDAY</c>. The meanings of value combinations
+            are as follows.
+            
+            &lt;ul&gt;
+            &lt;li&gt;&lt;b&gt;Exact day of month&lt;/b&gt;&lt;br&gt;
+            To specify an exact day of month, set the &lt;em&gt;month&lt;/em&gt; and
+            &lt;em&gt;day-of-month&lt;/em&gt; to an exact value, and &lt;em&gt;day-of-week&lt;/em&gt; to zero. For
+            example, to specify March 1, set the &lt;em&gt;month&lt;/em&gt; to <c>Calendar#MARCH
+            MARCH</c>, &lt;em&gt;day-of-month&lt;/em&gt; to 1, and &lt;em&gt;day-of-week&lt;/em&gt; to 0.&lt;/li&gt;
+            
+            &lt;li&gt;&lt;b&gt;Day of week on or after day of month&lt;/b&gt;&lt;br&gt;
+            To specify a day of week on or after an exact day of month, set the
+            &lt;em&gt;month&lt;/em&gt; to an exact month value, &lt;em&gt;day-of-month&lt;/em&gt; to the day on
+            or after which the rule is applied, and &lt;em&gt;day-of-week&lt;/em&gt; to a negative <c>Calendar#DAY_OF_WEEK DAY_OF_WEEK</c> field value. For example, to specify the
+            second Sunday of April, set &lt;em&gt;month&lt;/em&gt; to <c>Calendar#APRIL APRIL</c>,
+            &lt;em&gt;day-of-month&lt;/em&gt; to 8, and &lt;em&gt;day-of-week&lt;/em&gt; to <c>-</c><c>Calendar#SUNDAY SUNDAY</c>.&lt;/li&gt;
+            
+            &lt;li&gt;&lt;b&gt;Day of week on or before day of month&lt;/b&gt;&lt;br&gt;
+            To specify a day of the week on or before an exact day of the month, set
+            &lt;em&gt;day-of-month&lt;/em&gt; and &lt;em&gt;day-of-week&lt;/em&gt; to a negative value. For
+            example, to specify the last Wednesday on or before the 21st of March, set
+            &lt;em&gt;month&lt;/em&gt; to <c>Calendar#MARCH MARCH</c>, &lt;em&gt;day-of-month&lt;/em&gt; is -21
+            and &lt;em&gt;day-of-week&lt;/em&gt; is <c>-</c><c>Calendar#WEDNESDAY WEDNESDAY</c>. &lt;/li&gt;
+            
+            &lt;li&gt;&lt;b&gt;Last day-of-week of month&lt;/b&gt;&lt;br&gt;
+            To specify, the last day-of-week of the month, set &lt;em&gt;day-of-week&lt;/em&gt; to a
+            <c>Calendar#DAY_OF_WEEK DAY_OF_WEEK</c> value and &lt;em&gt;day-of-month&lt;/em&gt; to
+            -1. For example, to specify the last Sunday of October, set &lt;em&gt;month&lt;/em&gt;
+            to <c>Calendar#OCTOBER OCTOBER</c>, &lt;em&gt;day-of-week&lt;/em&gt; to <c>Calendar#SUNDAY SUNDAY</c> and &lt;em&gt;day-of-month&lt;/em&gt; to -1.  &lt;/li&gt;
+            
+            &lt;/ul&gt;
+            The time of the day at which daylight saving time starts or ends is
+            specified by a millisecond value within the day. There are three kinds of
+            &lt;em&gt;mode&lt;/em&gt;s to specify the time: <c>#WALL_TIME</c>, <c>#STANDARD_TIME</c> and <c>#UTC_TIME</c>. For example, if daylight
+            saving time ends
+            at 2:00 am in the wall clock time, it can be specified by 7200000
+            milliseconds in the <c>#WALL_TIME</c> mode. In this case, the wall clock time
+            for an &lt;em&gt;end-rule&lt;/em&gt; means the same thing as the daylight time.</para>
+      <para>The following are examples of parameters for constructing time zone objects.</para>
+      <code lang="text/java">&lt;code&gt;
+                 // Base GMT offset: -8:00
+                 // DST starts:      at 2:00am in standard time
+                 //                  on the first Sunday in April
+                 // DST ends:        at 2:00am in daylight time
+                 //                  on the last Sunday in October
+                 // Save:            1 hour
+                 SimpleTimeZone(-28800000,
+                                "America/Los_Angeles",
+                                Calendar.APRIL, 1, -Calendar.SUNDAY,
+                                7200000,
+                                Calendar.OCTOBER, -1, Calendar.SUNDAY,
+                                7200000,
+                                3600000)
+            
+                 // Base GMT offset: +1:00
+                 // DST starts:      at 1:00am in UTC time
+                 //                  on the last Sunday in March
+                 // DST ends:        at 1:00am in UTC time
+                 //                  on the last Sunday in October
+                 // Save:            1 hour
+                 SimpleTimeZone(3600000,
+                                "Europe/Paris",
+                                Calendar.MARCH, -1, Calendar.SUNDAY,
+                                3600000, SimpleTimeZone.UTC_TIME,
+                                Calendar.OCTOBER, -1, Calendar.SUNDAY,
+                                3600000, SimpleTimeZone.UTC_TIME,
+                                3600000)
+            &lt;/code&gt;</code>
+      <para>These parameter rules are also applicable to the set rule methods, such as
+            <c>setStartRule</c>.</para>
+      <para>Added in 1.1.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/util/SimpleTimeZone" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public SimpleTimeZone (int rawOffset, string? ID);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 rawOffset, string ID) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.#ctor(System.Int32,System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Util.SimpleTimeZone : int * string -&gt; Java.Util.SimpleTimeZone" Usage="new Java.Util.SimpleTimeZone (rawOffset, ID)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(ILjava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(ILjava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="rawOffset" Type="System.Int32" />
+        <Parameter Name="ID" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="rawOffset">The base time zone offset in milliseconds to GMT.</param>
+        <param name="ID">The time zone name that is given to this instance.</param>
+        <summary>Constructs a SimpleTimeZone with the given base time zone offset from GMT
+            and time zone ID with no daylight saving time schedule.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#SimpleTimeZone(int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.SimpleTimeZone(int, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected SimpleTimeZone (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Util.SimpleTimeZone : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Util.SimpleTimeZone" Usage="new Java.Util.SimpleTimeZone (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public SimpleTimeZone (int rawOffset, string? ID, int startMonth, int startDay, int startDayOfWeek, int startTime, int endMonth, int endDay, int endDayOfWeek, int endTime);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 rawOffset, string ID, int32 startMonth, int32 startDay, int32 startDayOfWeek, int32 startTime, int32 endMonth, int32 endDay, int32 endDayOfWeek, int32 endTime) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.#ctor(System.Int32,System.String,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Util.SimpleTimeZone : int * string * int * int * int * int * int * int * int * int -&gt; Java.Util.SimpleTimeZone" Usage="new Java.Util.SimpleTimeZone (rawOffset, ID, startMonth, startDay, startDayOfWeek, startTime, endMonth, endDay, endDayOfWeek, endTime)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(ILjava/lang/String;IIIIIIII)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(ILjava/lang/String;IIIIIIII)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="rawOffset" Type="System.Int32" />
+        <Parameter Name="ID" Type="System.String" />
+        <Parameter Name="startMonth" Type="System.Int32" />
+        <Parameter Name="startDay" Type="System.Int32" />
+        <Parameter Name="startDayOfWeek" Type="System.Int32" />
+        <Parameter Name="startTime" Type="System.Int32" />
+        <Parameter Name="endMonth" Type="System.Int32" />
+        <Parameter Name="endDay" Type="System.Int32" />
+        <Parameter Name="endDayOfWeek" Type="System.Int32" />
+        <Parameter Name="endTime" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="rawOffset">The given base time zone offset from GMT.</param>
+        <param name="ID">The time zone ID which is given to this object.</param>
+        <param name="startMonth">The daylight saving time starting month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field value (0-based. e.g., 0
+                                   for January).</param>
+        <param name="startDay">The day of the month on which the daylight saving time starts.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startDayOfWeek">The daylight saving time starting day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startTime">The daylight saving time starting time in local wall clock
+                                   time (in milliseconds within the day), which is local
+                                   standard time in this case.</param>
+        <param name="endMonth">The daylight saving time ending month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 9 for October).</param>
+        <param name="endDay">The day of the month on which the daylight saving time ends.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endDayOfWeek">The daylight saving time ending day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endTime">The daylight saving ending time in local wall clock time,
+                                   (in milliseconds within the day) which is local daylight
+                                   time in this case.</param>
+        <summary>Constructs a SimpleTimeZone with the given base time zone offset from
+            GMT, time zone ID, and rules for starting and ending the daylight
+            time.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#SimpleTimeZone(int,%20java.lang.String,%20int,%20int,%20int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.SimpleTimeZone(int, java.lang.String, int, int, int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the month, day, dayOfWeek, or time parameters are out of
+             range for the start or end rule.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public SimpleTimeZone (int rawOffset, string? ID, int startMonth, int startDay, int startDayOfWeek, int startTime, int endMonth, int endDay, int endDayOfWeek, int endTime, int dstSavings);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 rawOffset, string ID, int32 startMonth, int32 startDay, int32 startDayOfWeek, int32 startTime, int32 endMonth, int32 endDay, int32 endDayOfWeek, int32 endTime, int32 dstSavings) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.#ctor(System.Int32,System.String,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Util.SimpleTimeZone : int * string * int * int * int * int * int * int * int * int * int -&gt; Java.Util.SimpleTimeZone" Usage="new Java.Util.SimpleTimeZone (rawOffset, ID, startMonth, startDay, startDayOfWeek, startTime, endMonth, endDay, endDayOfWeek, endTime, dstSavings)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(ILjava/lang/String;IIIIIIIII)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(ILjava/lang/String;IIIIIIIII)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="rawOffset" Type="System.Int32" />
+        <Parameter Name="ID" Type="System.String" />
+        <Parameter Name="startMonth" Type="System.Int32" />
+        <Parameter Name="startDay" Type="System.Int32" />
+        <Parameter Name="startDayOfWeek" Type="System.Int32" />
+        <Parameter Name="startTime" Type="System.Int32" />
+        <Parameter Name="endMonth" Type="System.Int32" />
+        <Parameter Name="endDay" Type="System.Int32" />
+        <Parameter Name="endDayOfWeek" Type="System.Int32" />
+        <Parameter Name="endTime" Type="System.Int32" />
+        <Parameter Name="dstSavings" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="rawOffset">The given base time zone offset from GMT.</param>
+        <param name="ID">The time zone ID which is given to this object.</param>
+        <param name="startMonth">The daylight saving time starting month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 0 for January).</param>
+        <param name="startDay">The day of the month on which the daylight saving time starts.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startDayOfWeek">The daylight saving time starting day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startTime">The daylight saving time starting time in local wall clock
+                                   time, which is local standard time in this case.</param>
+        <param name="endMonth">The daylight saving time ending month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 9 for October).</param>
+        <param name="endDay">The day of the month on which the daylight saving time ends.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endDayOfWeek">The daylight saving time ending day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endTime">The daylight saving ending time in local wall clock time,
+                                   which is local daylight time in this case.</param>
+        <param name="dstSavings">The amount of time in milliseconds saved during
+                                   daylight saving time.</param>
+        <summary>Constructs a SimpleTimeZone with the given base time zone offset from
+            GMT, time zone ID, and rules for starting and ending the daylight
+            time.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#SimpleTimeZone(int,%20java.lang.String,%20int,%20int,%20int,%20int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.SimpleTimeZone(int, java.lang.String, int, int, int, int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the month, day, dayOfWeek, or time parameters are out of
+                range for the start or end rule.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public SimpleTimeZone (int rawOffset, string? ID, int startMonth, int startDay, int startDayOfWeek, int startTime, int startTimeMode, int endMonth, int endDay, int endDayOfWeek, int endTime, int endTimeMode, int dstSavings);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 rawOffset, string ID, int32 startMonth, int32 startDay, int32 startDayOfWeek, int32 startTime, int32 startTimeMode, int32 endMonth, int32 endDay, int32 endDayOfWeek, int32 endTime, int32 endTimeMode, int32 dstSavings) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.#ctor(System.Int32,System.String,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Util.SimpleTimeZone : int * string * int * int * int * int * int * int * int * int * int * int * int -&gt; Java.Util.SimpleTimeZone" Usage="new Java.Util.SimpleTimeZone (rawOffset, ID, startMonth, startDay, startDayOfWeek, startTime, startTimeMode, endMonth, endDay, endDayOfWeek, endTime, endTimeMode, dstSavings)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(ILjava/lang/String;IIIIIIIIIII)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(ILjava/lang/String;IIIIIIIIIII)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="rawOffset" Type="System.Int32" />
+        <Parameter Name="ID" Type="System.String" />
+        <Parameter Name="startMonth" Type="System.Int32" />
+        <Parameter Name="startDay" Type="System.Int32" />
+        <Parameter Name="startDayOfWeek" Type="System.Int32" />
+        <Parameter Name="startTime" Type="System.Int32" />
+        <Parameter Name="startTimeMode" Type="System.Int32" />
+        <Parameter Name="endMonth" Type="System.Int32" />
+        <Parameter Name="endDay" Type="System.Int32" />
+        <Parameter Name="endDayOfWeek" Type="System.Int32" />
+        <Parameter Name="endTime" Type="System.Int32" />
+        <Parameter Name="endTimeMode" Type="System.Int32" />
+        <Parameter Name="dstSavings" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="rawOffset">The given base time zone offset from GMT.</param>
+        <param name="ID">The time zone ID which is given to this object.</param>
+        <param name="startMonth">The daylight saving time starting month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 0 for January).</param>
+        <param name="startDay">The day of the month on which the daylight saving time starts.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startDayOfWeek">The daylight saving time starting day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startTime">The daylight saving time starting time in the time mode
+                                   specified by <c>startTimeMode</c>.</param>
+        <param name="startTimeMode">The mode of the start time specified by startTime.</param>
+        <param name="endMonth">The daylight saving time ending month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 9 for October).</param>
+        <param name="endDay">The day of the month on which the daylight saving time ends.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endDayOfWeek">The daylight saving time ending day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endTime">The daylight saving ending time in time time mode
+                                   specified by <c>endTimeMode</c>.</param>
+        <param name="endTimeMode">The mode of the end time specified by endTime</param>
+        <param name="dstSavings">The amount of time in milliseconds saved during
+                                   daylight saving time.</param>
+        <summary>Constructs a SimpleTimeZone with the given base time zone offset from
+            GMT, time zone ID, and rules for starting and ending the daylight
+            time.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#SimpleTimeZone(int,%20java.lang.String,%20int,%20int,%20int,%20int,%20int,%20int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.SimpleTimeZone(int, java.lang.String, int, int, int, int, int, int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the month, day, dayOfWeek, or time parameters are out of
+             range for the start or end rule.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetOffset">
+      <MemberSignature Language="C#" Value="public override int GetOffset (int era, int year, int month, int day, int dayOfWeek, int millis);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance int32 GetOffset(int32 era, int32 year, int32 month, int32 day, int32 dayOfWeek, int32 millis) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.GetOffset(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="override this.GetOffset : int * int * int * int * int * int -&gt; int" Usage="simpleTimeZone.GetOffset (era, year, month, day, dayOfWeek, millis)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getOffset", "(IIIIII)I", "GetGetOffset_IIIIIIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getOffset", "(IIIIII)I", "GetGetOffset_IIIIIIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="era" Type="System.Int32" />
+        <Parameter Name="year" Type="System.Int32" />
+        <Parameter Name="month" Type="System.Int32" />
+        <Parameter Name="day" Type="System.Int32" />
+        <Parameter Name="dayOfWeek" Type="System.Int32" />
+        <Parameter Name="millis" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="era">The era of the given date.</param>
+        <param name="year">The year in the given date.</param>
+        <param name="month">The month in the given date. Month is 0-based. e.g.,
+                             0 for January.</param>
+        <param name="day">The day-in-month of the given date.</param>
+        <param name="dayOfWeek">The day-of-week of the given date.</param>
+        <param name="millis">The milliseconds in day in &lt;em&gt;standard&lt;/em&gt; local time.</param>
+        <summary>Returns the difference in milliseconds between local time and
+            UTC, taking into account both the raw offset and the effect of
+            daylight saving, for the specified date and time.</summary>
+        <returns>The milliseconds to add to UTC to get local time.</returns>
+        <remarks>
+          <para>Returns the difference in milliseconds between local time and
+            UTC, taking into account both the raw offset and the effect of
+            daylight saving, for the specified date and time.  This method
+            assumes that the start and end month are distinct.  It also
+            uses a default <c>GregorianCalendar</c> object as its
+            underlying calendar, such as for determining leap years.  Do
+            not use the result of this method with a calendar other than a
+            default <c>GregorianCalendar</c>.</para>
+          <para>&lt;em&gt;Note:  In general, clients should use
+            <c>Calendar.get(ZONE_OFFSET) + Calendar.get(DST_OFFSET)</c>
+            instead of calling this method.&lt;/em&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#getOffset(.*int,%20.*int,%20.*int,%20.*int,%20.*int,%20.*int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.getOffset(.*int, .*int, .*int, .*int, .*int, .*int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="InDaylightTime">
+      <MemberSignature Language="C#" Value="public override bool InDaylightTime (Java.Util.Date? date);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance bool InDaylightTime(class Java.Util.Date date) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.InDaylightTime(Java.Util.Date)" />
+      <MemberSignature Language="F#" Value="override this.InDaylightTime : Java.Util.Date -&gt; bool" Usage="simpleTimeZone.InDaylightTime date" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("inDaylightTime", "(Ljava/util/Date;)Z", "GetInDaylightTime_Ljava_util_Date_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("inDaylightTime", "(Ljava/util/Date;)Z", "GetInDaylightTime_Ljava_util_Date_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="date" Type="Java.Util.Date" />
+      </Parameters>
+      <Docs>
+        <param name="date">To be added.</param>
+        <summary>Queries if the given date is in daylight saving time.</summary>
+        <returns>true if daylight saving time is in effective at the
+            given date; false otherwise.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#inDaylightTime(java.util.Date)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.inDaylightTime(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.SimpleTimeZone.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Util.SimpleTimeZone.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RawOffset">
+      <MemberSignature Language="C#" Value="public override int RawOffset { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 RawOffset" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.SimpleTimeZone.RawOffset" />
+      <MemberSignature Language="F#" Value="member this.RawOffset : int with get, set" Usage="Java.Util.SimpleTimeZone.RawOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getRawOffset", "()I", "GetGetRawOffsetHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRawOffset", "()I", "GetGetRawOffsetHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setRawOffset", "(I)V", "GetSetRawOffset_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setRawOffset", "(I)V", "GetSetRawOffset_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the GMT offset for this time zone.</summary>
+        <value>the GMT offset value in milliseconds</value>
+        <remarks>
+          <para>Gets the GMT offset for this time zone.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#getRawOffset()" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.getRawOffset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetDSTSavings">
+      <MemberSignature Language="C#" Value="public virtual void SetDSTSavings (int millisSavedDuringDST);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDSTSavings(int32 millisSavedDuringDST) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetDSTSavings(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetDSTSavings : int -&gt; unit&#xA;override this.SetDSTSavings : int -&gt; unit" Usage="simpleTimeZone.SetDSTSavings millisSavedDuringDST" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDSTSavings", "(I)V", "GetSetDSTSavings_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDSTSavings", "(I)V", "GetSetDSTSavings_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="millisSavedDuringDST" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="millisSavedDuringDST">the number of milliseconds the time is
+            advanced with respect to standard time when the daylight saving time rules
+            are in effect. A positive number, typically one hour (3600000).</param>
+        <summary>Sets the amount of time in milliseconds that the clock is advanced
+            during daylight saving time.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setDSTSavings(int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setDSTSavings(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetEndRule">
+      <MemberSignature Language="C#" Value="public virtual void SetEndRule (int endMonth, int endDay, int endTime);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetEndRule(int32 endMonth, int32 endDay, int32 endTime) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetEndRule(System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetEndRule : int * int * int -&gt; unit&#xA;override this.SetEndRule : int * int * int -&gt; unit" Usage="simpleTimeZone.SetEndRule (endMonth, endDay, endTime)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setEndRule", "(III)V", "GetSetEndRule_IIIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setEndRule", "(III)V", "GetSetEndRule_IIIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="endMonth" Type="System.Int32" />
+        <Parameter Name="endDay" Type="System.Int32" />
+        <Parameter Name="endTime" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="endMonth">The daylight saving time ending month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 9 for October).</param>
+        <param name="endDay">The day of the month on which the daylight saving time ends.</param>
+        <param name="endTime">The daylight saving ending time in local wall clock time,
+                                   (in milliseconds within the day) which is local daylight
+                                   time in this case.</param>
+        <summary>Sets the daylight saving time end rule to a fixed date within a month.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setEndRule(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setEndRule(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetEndRule">
+      <MemberSignature Language="C#" Value="public virtual void SetEndRule (int endMonth, int endDay, int endDayOfWeek, int endTime);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetEndRule(int32 endMonth, int32 endDay, int32 endDayOfWeek, int32 endTime) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetEndRule(System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetEndRule : int * int * int * int -&gt; unit&#xA;override this.SetEndRule : int * int * int * int -&gt; unit" Usage="simpleTimeZone.SetEndRule (endMonth, endDay, endDayOfWeek, endTime)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setEndRule", "(IIII)V", "GetSetEndRule_IIIIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setEndRule", "(IIII)V", "GetSetEndRule_IIIIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="endMonth" Type="System.Int32" />
+        <Parameter Name="endDay" Type="System.Int32" />
+        <Parameter Name="endDayOfWeek" Type="System.Int32" />
+        <Parameter Name="endTime" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="endMonth">The daylight saving time ending month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 9 for October).</param>
+        <param name="endDay">The day of the month on which the daylight saving time ends.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endDayOfWeek">The daylight saving time ending day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="endTime">The daylight saving ending time in local wall clock time,
+                                   (in milliseconds within the day) which is local daylight
+                                   time in this case.</param>
+        <summary>Sets the daylight saving time end rule.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setEndRule(int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setEndRule(int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetEndRule">
+      <MemberSignature Language="C#" Value="public virtual void SetEndRule (int endMonth, int endDay, int endDayOfWeek, int endTime, bool after);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetEndRule(int32 endMonth, int32 endDay, int32 endDayOfWeek, int32 endTime, bool after) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetEndRule(System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member SetEndRule : int * int * int * int * bool -&gt; unit&#xA;override this.SetEndRule : int * int * int * int * bool -&gt; unit" Usage="simpleTimeZone.SetEndRule (endMonth, endDay, endDayOfWeek, endTime, after)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setEndRule", "(IIIIZ)V", "GetSetEndRule_IIIIZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setEndRule", "(IIIIZ)V", "GetSetEndRule_IIIIZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="endMonth" Type="System.Int32" />
+        <Parameter Name="endDay" Type="System.Int32" />
+        <Parameter Name="endDayOfWeek" Type="System.Int32" />
+        <Parameter Name="endTime" Type="System.Int32" />
+        <Parameter Name="after" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="endMonth">The daylight saving time ending month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 9 for October).</param>
+        <param name="endDay">The day of the month on which the daylight saving time ends.</param>
+        <param name="endDayOfWeek">The daylight saving time ending day-of-week.</param>
+        <param name="endTime">The daylight saving ending time in local wall clock time,
+                                   (in milliseconds within the day) which is local daylight
+                                   time in this case.</param>
+        <param name="after">If true, this rule selects the first <c>endDayOfWeek</c> on
+                                   or &lt;em&gt;after&lt;/em&gt; <c>endDay</c>.  If false, this rule
+                                   selects the last <c>endDayOfWeek</c> on or before
+                                   <c>endDay</c> of the month.</param>
+        <summary>Sets the daylight saving time end rule to a weekday before or after the given date within
+            a month, e.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setEndRule(int,%20int,%20int,%20int,%20boolean)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setEndRule(int, int, int, int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetStartRule">
+      <MemberSignature Language="C#" Value="public virtual void SetStartRule (int startMonth, int startDay, int startTime);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetStartRule(int32 startMonth, int32 startDay, int32 startTime) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetStartRule(System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetStartRule : int * int * int -&gt; unit&#xA;override this.SetStartRule : int * int * int -&gt; unit" Usage="simpleTimeZone.SetStartRule (startMonth, startDay, startTime)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setStartRule", "(III)V", "GetSetStartRule_IIIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setStartRule", "(III)V", "GetSetStartRule_IIIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="startMonth" Type="System.Int32" />
+        <Parameter Name="startDay" Type="System.Int32" />
+        <Parameter Name="startTime" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="startMonth">The daylight saving time starting month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 0 for January).</param>
+        <param name="startDay">The day of the month on which the daylight saving time starts.</param>
+        <param name="startTime">The daylight saving time starting time in local wall clock
+                                   time, which is local standard time in this case.
+                                   See the class description for the special cases of this parameter.</param>
+        <summary>Sets the daylight saving time start rule to a fixed date within a month.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setStartRule(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setStartRule(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetStartRule">
+      <MemberSignature Language="C#" Value="public virtual void SetStartRule (int startMonth, int startDay, int startDayOfWeek, int startTime);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetStartRule(int32 startMonth, int32 startDay, int32 startDayOfWeek, int32 startTime) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetStartRule(System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetStartRule : int * int * int * int -&gt; unit&#xA;override this.SetStartRule : int * int * int * int -&gt; unit" Usage="simpleTimeZone.SetStartRule (startMonth, startDay, startDayOfWeek, startTime)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setStartRule", "(IIII)V", "GetSetStartRule_IIIIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setStartRule", "(IIII)V", "GetSetStartRule_IIIIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="startMonth" Type="System.Int32" />
+        <Parameter Name="startDay" Type="System.Int32" />
+        <Parameter Name="startDayOfWeek" Type="System.Int32" />
+        <Parameter Name="startTime" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="startMonth">The daylight saving time starting month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 0 for January).</param>
+        <param name="startDay">The day of the month on which the daylight saving time starts.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startDayOfWeek">The daylight saving time starting day-of-week.
+                                   See the class description for the special cases of this parameter.</param>
+        <param name="startTime">The daylight saving time starting time in local wall clock
+                                   time, which is local standard time in this case.</param>
+        <summary>Sets the daylight saving time start rule.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setStartRule(int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setStartRule(int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetStartRule">
+      <MemberSignature Language="C#" Value="public virtual void SetStartRule (int startMonth, int startDay, int startDayOfWeek, int startTime, bool after);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetStartRule(int32 startMonth, int32 startDay, int32 startDayOfWeek, int32 startTime, bool after) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetStartRule(System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member SetStartRule : int * int * int * int * bool -&gt; unit&#xA;override this.SetStartRule : int * int * int * int * bool -&gt; unit" Usage="simpleTimeZone.SetStartRule (startMonth, startDay, startDayOfWeek, startTime, after)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setStartRule", "(IIIIZ)V", "GetSetStartRule_IIIIZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setStartRule", "(IIIIZ)V", "GetSetStartRule_IIIIZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="startMonth" Type="System.Int32" />
+        <Parameter Name="startDay" Type="System.Int32" />
+        <Parameter Name="startDayOfWeek" Type="System.Int32" />
+        <Parameter Name="startTime" Type="System.Int32" />
+        <Parameter Name="after" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="startMonth">The daylight saving time starting month. Month is
+                                   a <c>Calendar#MONTH MONTH</c> field
+                                   value (0-based. e.g., 0 for January).</param>
+        <param name="startDay">The day of the month on which the daylight saving time starts.</param>
+        <param name="startDayOfWeek">The daylight saving time starting day-of-week.</param>
+        <param name="startTime">The daylight saving time starting time in local wall clock
+                                   time, which is local standard time in this case.</param>
+        <param name="after">If true, this rule selects the first <c>dayOfWeek</c> on or
+                                   &lt;em&gt;after&lt;/em&gt; <c>dayOfMonth</c>.  If false, this rule
+                                   selects the last <c>dayOfWeek</c> on or &lt;em&gt;before&lt;/em&gt;
+                                   <c>dayOfMonth</c>.</param>
+        <summary>Sets the daylight saving time start rule to a weekday before or after the given date within
+            a month, e.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setStartRule(int,%20int,%20int,%20int,%20boolean)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setStartRule(int, int, int, int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetStartYear">
+      <MemberSignature Language="C#" Value="public virtual void SetStartYear (int year);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetStartYear(int32 year) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.SetStartYear(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetStartYear : int -&gt; unit&#xA;override this.SetStartYear : int -&gt; unit" Usage="simpleTimeZone.SetStartYear year" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setStartYear", "(I)V", "GetSetStartYear_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setStartYear", "(I)V", "GetSetStartYear_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="year" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="year">The daylight saving starting year.</param>
+        <summary>Sets the daylight saving time starting year.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#setStartYear(int)" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.setStartYear(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="StandardTime">
+      <MemberSignature Language="C#" Value="public const Java.Util.TimeZoneKind StandardTime = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Java.Util.TimeZoneKind StandardTime = (1)" />
+      <MemberSignature Language="DocId" Value="F:Java.Util.SimpleTimeZone.StandardTime" />
+      <MemberSignature Language="F#" Value="val mutable StandardTime : Java.Util.TimeZoneKind" Usage="Java.Util.SimpleTimeZone.StandardTime" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("STANDARD_TIME")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("STANDARD_TIME")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Java.Util.TimeZoneKind enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Java.Util.TimeZoneKind enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.TimeZoneKind</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Constant for a mode of start or end time specified as standard time.</summary>
+        <remarks>
+          <para>Constant for a mode of start or end time specified as standard time.</para>
+          <para>Added in 1.4.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#STANDARD_TIME" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.STANDARD_TIME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.SimpleTimeZone.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Util.SimpleTimeZone.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.SimpleTimeZone.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Util.SimpleTimeZone.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="UseDaylightTime">
+      <MemberSignature Language="C#" Value="public override bool UseDaylightTime ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance bool UseDaylightTime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.SimpleTimeZone.UseDaylightTime" />
+      <MemberSignature Language="F#" Value="override this.UseDaylightTime : unit -&gt; bool" Usage="simpleTimeZone.UseDaylightTime " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("useDaylightTime", "()Z", "GetUseDaylightTimeHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("useDaylightTime", "()Z", "GetUseDaylightTimeHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Queries if this time zone uses daylight saving time.</summary>
+        <returns>true if this time zone uses daylight saving time;
+            false otherwise.</returns>
+        <remarks>
+          <para>Queries if this time zone uses daylight saving time.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#useDaylightTime()" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.useDaylightTime()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="UtcTime">
+      <MemberSignature Language="C#" Value="public const Java.Util.TimeZoneKind UtcTime = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Java.Util.TimeZoneKind UtcTime = (2)" />
+      <MemberSignature Language="DocId" Value="F:Java.Util.SimpleTimeZone.UtcTime" />
+      <MemberSignature Language="F#" Value="val mutable UtcTime : Java.Util.TimeZoneKind" Usage="Java.Util.SimpleTimeZone.UtcTime" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("UTC_TIME")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("UTC_TIME")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Java.Util.TimeZoneKind enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Java.Util.TimeZoneKind enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.TimeZoneKind</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Constant for a mode of start or end time specified as UTC.</summary>
+        <remarks>
+          <para>Constant for a mode of start or end time specified as UTC. European
+            Union rules are specified as UTC time, for example.</para>
+          <para>Added in 1.4.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#UTC_TIME" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.UTC_TIME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="WallTime">
+      <MemberSignature Language="C#" Value="public const Java.Util.TimeZoneKind WallTime = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Java.Util.TimeZoneKind WallTime = (0)" />
+      <MemberSignature Language="DocId" Value="F:Java.Util.SimpleTimeZone.WallTime" />
+      <MemberSignature Language="F#" Value="val mutable WallTime : Java.Util.TimeZoneKind" Usage="Java.Util.SimpleTimeZone.WallTime" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("WALL_TIME")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("WALL_TIME")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Java.Util.TimeZoneKind enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Java.Util.TimeZoneKind enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.TimeZoneKind</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Constant for a mode of start or end time specified as wall clock
+            time.</summary>
+        <remarks>
+          <para>Constant for a mode of start or end time specified as wall clock
+            time.  Wall clock time is standard time for the onset rule, and
+            daylight time for the end rule.</para>
+          <para>Added in 1.4.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/SimpleTimeZone#WALL_TIME" title="Reference documentation">Java documentation for <code>java.util.SimpleTimeZone.WALL_TIME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

@@ -1,0 +1,1317 @@
+<Type Name="SocketChannel" FullName="Java.Nio.Channels.SocketChannel">
+  <TypeSignature Language="C#" Value="public abstract class SocketChannel : Java.Nio.Channels.Spi.AbstractSelectableChannel, IDisposable, Java.Interop.IJavaPeerable, Java.Nio.Channels.IByteChannel, Java.Nio.Channels.IGatheringByteChannel, Java.Nio.Channels.IScatteringByteChannel" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit SocketChannel extends Java.Nio.Channels.Spi.AbstractSelectableChannel implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ICloseable, class Java.Nio.Channels.IByteChannel, class Java.Nio.Channels.IChannel, class Java.Nio.Channels.IGatheringByteChannel, class Java.Nio.Channels.IReadableByteChannel, class Java.Nio.Channels.IScatteringByteChannel, class Java.Nio.Channels.IWritableByteChannel, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Nio.Channels.SocketChannel" />
+  <TypeSignature Language="F#" Value="type SocketChannel = class&#xA;    inherit AbstractSelectableChannel&#xA;    interface IByteChannel&#xA;    interface IReadableByteChannel&#xA;    interface IChannel&#xA;    interface ICloseable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface IWritableByteChannel&#xA;    interface IGatheringByteChannel&#xA;    interface IScatteringByteChannel" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Nio.Channels.Spi.AbstractSelectableChannel</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.IO.ICloseable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IGatheringByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IReadableByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IScatteringByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Nio.Channels.IWritableByteChannel</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/nio/channels/SocketChannel", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/nio/channels/SocketChannel", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>A selectable channel for stream-oriented connecting sockets.</summary>
+    <remarks>
+      <para>A selectable channel for stream-oriented connecting sockets.</para>
+      <para>A socket channel is created by invoking one of the <c>#open open</c>
+            methods of this class.  It is not possible to create a channel for an arbitrary,
+            pre-existing socket. A newly-created socket channel is open but not yet
+            connected.  An attempt to invoke an I/O operation upon an unconnected
+            channel will cause a <c>NotYetConnectedException</c> to be thrown.  A
+            socket channel can be connected by invoking its <c>#connect connect</c>
+            method; once connected, a socket channel remains connected until it is
+            closed.  Whether or not a socket channel is connected may be determined by
+            invoking its <c>#isConnected isConnected</c> method.</para>
+      <para>Socket channels support <i>non-blocking connection:</i>&amp;nbsp;A socket
+            channel may be created and the process of establishing the link to the
+            remote socket may be initiated via the <c>#connect connect</c> method for
+            later completion by the <c>#finishConnect finishConnect</c> method.
+            Whether or not a connection operation is in progress may be determined by
+            invoking the <c>#isConnectionPending isConnectionPending</c> method.</para>
+      <para>Socket channels support <i>asynchronous shutdown,</i> which is similar
+            to the asynchronous close operation specified in the <c>Channel</c> class.
+            If the input side of a socket is shut down by one thread while another
+            thread is blocked in a read operation on the socket's channel, then the read
+            operation in the blocked thread will complete without reading any bytes and
+            will return <c>-1</c>.  If the output side of a socket is shut down by one
+            thread while another thread is blocked in a write operation on the socket's
+            channel, then the blocked thread will receive an <c>AsynchronousCloseException</c>.</para>
+      <para>Socket options are configured using the <c>#setOption(SocketOption,Object)
+            setOption</c> method. Socket channels support the following options:
+            &lt;blockquote&gt;
+            &lt;table class="striped"&gt;
+            &lt;caption style="display:none"&gt;Socket options&lt;/caption&gt;
+            &lt;thead&gt;
+              &lt;tr&gt;
+                &lt;th scope="col"&gt;Option Name&lt;/th&gt;
+                &lt;th scope="col"&gt;Description&lt;/th&gt;
+              &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_SNDBUF SO_SNDBUF</c>&lt;/th&gt;
+                &lt;td&gt; The size of the socket send buffer &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_RCVBUF SO_RCVBUF</c>&lt;/th&gt;
+                &lt;td&gt; The size of the socket receive buffer &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_KEEPALIVE SO_KEEPALIVE</c>&lt;/th&gt;
+                &lt;td&gt; Keep connection alive &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_REUSEADDR SO_REUSEADDR</c>&lt;/th&gt;
+                &lt;td&gt; Re-use address &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#SO_LINGER SO_LINGER</c>&lt;/th&gt;
+                &lt;td&gt; Linger on close if data is present (when configured in blocking mode
+                     only) &lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;th scope="row"&gt; <c>java.net.StandardSocketOptions#TCP_NODELAY TCP_NODELAY</c>&lt;/th&gt;
+                &lt;td&gt; Disable the Nagle algorithm &lt;/td&gt;
+              &lt;/tr&gt;
+            &lt;/tbody&gt;
+            &lt;/table&gt;
+            &lt;/blockquote&gt;
+            Additional (implementation specific) options may also be supported.</para>
+      <para>Socket channels are safe for use by multiple concurrent threads.  They
+            support concurrent reading and writing, though at most one thread may be
+            reading and at most one thread may be writing at any given time.  The <c>#connect connect</c> and <c>#finishConnect finishConnect</c> methods are
+            mutually synchronized against each other, and an attempt to initiate a read
+            or write operation while an invocation of one of these methods is in
+            progress will block until that invocation is complete.</para>
+      <para>Added in 1.4.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected SocketChannel (Java.Nio.Channels.Spi.SelectorProvider? provider);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class Java.Nio.Channels.Spi.SelectorProvider provider) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.#ctor(Java.Nio.Channels.Spi.SelectorProvider)" />
+      <MemberSignature Language="F#" Value="new Java.Nio.Channels.SocketChannel : Java.Nio.Channels.Spi.SelectorProvider -&gt; Java.Nio.Channels.SocketChannel" Usage="new Java.Nio.Channels.SocketChannel provider" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/nio/channels/spi/SelectorProvider;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/nio/channels/spi/SelectorProvider;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="provider" Type="Java.Nio.Channels.Spi.SelectorProvider" />
+      </Parameters>
+      <Docs>
+        <param name="provider">The provider that created this channel</param>
+        <summary>Initializes a new instance of this class.</summary>
+        <remarks>
+          <para>Initializes a new instance of this class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#SocketChannel(java.nio.channels.spi.SelectorProvider)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.SocketChannel(java.nio.channels.spi.SelectorProvider)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected SocketChannel (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Nio.Channels.SocketChannel : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Nio.Channels.SocketChannel" Usage="new Java.Nio.Channels.SocketChannel (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Bind">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.SocketChannel? Bind (Java.Net.SocketAddress? local);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.SocketChannel Bind(class Java.Net.SocketAddress local) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Bind(Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="abstract member Bind : Java.Net.SocketAddress -&gt; Java.Nio.Channels.SocketChannel" Usage="socketChannel.Bind local" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("bind", "(Ljava/net/SocketAddress;)Ljava/nio/channels/SocketChannel;", "GetBind_Ljava_net_SocketAddress_Handler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("bind", "(Ljava/net/SocketAddress;)Ljava/nio/channels/SocketChannel;", "GetBind_Ljava_net_SocketAddress_Handler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.SocketChannel</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="local" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="local">To be added.</param>
+        <summary>Added in 1.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Added in 1.7.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#bind(java.net.SocketAddress)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.bind(java.net.SocketAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Connect">
+      <MemberSignature Language="C#" Value="public abstract bool Connect (Java.Net.SocketAddress? remote);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Connect(class Java.Net.SocketAddress remote) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Connect(Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="abstract member Connect : Java.Net.SocketAddress -&gt; bool" Usage="socketChannel.Connect remote" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("connect", "(Ljava/net/SocketAddress;)Z", "GetConnect_Ljava_net_SocketAddress_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("connect", "(Ljava/net/SocketAddress;)Z", "GetConnect_Ljava_net_SocketAddress_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="remote" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="remote">The remote address to which this channel is to be connected</param>
+        <summary>Connects this channel's socket.</summary>
+        <returns>
+          <c>true</c> if a connection was established,
+                     <c>false</c> if this channel is in non-blocking mode
+                     and the connection operation is in progress</returns>
+        <remarks>
+          <para>Connects this channel's socket.</para>
+          <para>If this channel is in non-blocking mode then an invocation of this
+            method initiates a non-blocking connection operation.  If the connection
+            is established immediately, as can happen with a local connection, then
+            this method returns <c>true</c>.  Otherwise this method returns
+            <c>false</c> and the connection operation must later be completed by
+            invoking the <c>#finishConnect finishConnect</c> method.</para>
+          <para>If this channel is in blocking mode then an invocation of this
+            method will block until the connection is established or an I/O error
+            occurs.</para>
+          <para>This method performs exactly the same security checks as the <c>java.net.Socket</c> class.  That is, if a security manager has been
+            installed then this method verifies that its <c>java.lang.SecurityManager#checkConnect checkConnect</c> method permits
+            connecting to the address and port number of the given remote endpoint.</para>
+          <para>This method may be invoked at any time.  If a read or write
+            operation upon this channel is invoked while an invocation of this
+            method is in progress then that operation will first block until this
+            invocation is complete.  If a connection attempt is initiated but fails,
+            that is, if an invocation of this method throws a checked exception,
+            then the channel will be closed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#connect(java.net.SocketAddress)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.connect(java.net.SocketAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AlreadyConnectedException">if the channel is already connected.</exception>
+        <exception cref="T:Java.Nio.Channels.ConnectionPendingException">a non-blocking connecting operation is already executing on
+             this channel.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if this channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if this channel is closed by another thread while this method
+             is executing.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The calling thread will have the
+             interrupt state set and this channel will be closed.</exception>
+        <exception cref="T:Java.Nio.Channels.UnresolvedAddressException">if the address is not resolved.</exception>
+        <exception cref="T:Java.Nio.Channels.UnsupportedAddressTypeException">if the address type is not supported.</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ConnectAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;bool&gt; ConnectAsync (Java.Net.SocketAddress? remote);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;bool&gt; ConnectAsync(class Java.Net.SocketAddress remote) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.ConnectAsync(Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="member this.ConnectAsync : Java.Net.SocketAddress -&gt; System.Threading.Tasks.Task&lt;bool&gt;" Usage="socketChannel.ConnectAsync remote" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Boolean&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="remote" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="remote">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FinishConnect">
+      <MemberSignature Language="C#" Value="public abstract bool FinishConnect ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool FinishConnect() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.FinishConnect" />
+      <MemberSignature Language="F#" Value="abstract member FinishConnect : unit -&gt; bool" Usage="socketChannel.FinishConnect " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("finishConnect", "()Z", "GetFinishConnectHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("finishConnect", "()Z", "GetFinishConnectHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Finishes the process of connecting a socket channel.</summary>
+        <returns>
+          <c>true</c> if, and only if, this channel's socket is now
+                     connected</returns>
+        <remarks>
+          <para>Finishes the process of connecting a socket channel.</para>
+          <para>A non-blocking connection operation is initiated by placing a socket
+            channel in non-blocking mode and then invoking its <c>#connect
+            connect</c> method.  Once the connection is established, or the attempt has
+            failed, the socket channel will become connectable and this method may
+            be invoked to complete the connection sequence.  If the connection
+            operation failed then invoking this method will cause an appropriate
+            <c>java.io.IOException</c> to be thrown.</para>
+          <para>If this channel is already connected then this method will not block
+            and will immediately return <c>true</c>.  If this channel is in
+            non-blocking mode then this method will return <c>false</c> if the
+            connection process is not yet complete.  If this channel is in blocking
+            mode then this method will block until the connection either completes
+            or fails, and will always either return <c>true</c> or throw a checked
+            exception describing the failure.</para>
+          <para>This method may be invoked at any time.  If a read or write
+            operation upon this channel is invoked while an invocation of this
+            method is in progress then that operation will first block until this
+            invocation is complete.  If a connection attempt fails, that is, if an
+            invocation of this method throws a checked exception, then the channel
+            will be closed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#finishConnect()" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.finishConnect()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.NoConnectionPendingException">if the channel is not connected and the connection process
+             has not been initiated.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if this channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if this channel is closed by another thread while this method
+             is executing.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The calling thread has the
+             interrupt state set, and this channel is closed.</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="FinishConnectAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;bool&gt; FinishConnectAsync ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;bool&gt; FinishConnectAsync() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.FinishConnectAsync" />
+      <MemberSignature Language="F#" Value="member this.FinishConnectAsync : unit -&gt; System.Threading.Tasks.Task&lt;bool&gt;" Usage="socketChannel.FinishConnectAsync " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Boolean&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsConnected">
+      <MemberSignature Language="C#" Value="public abstract bool IsConnected { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsConnected" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.SocketChannel.IsConnected" />
+      <MemberSignature Language="F#" Value="member this.IsConnected : bool" Usage="Java.Nio.Channels.SocketChannel.IsConnected" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isConnected", "()Z", "GetIsConnectedHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isConnected", "()Z", "GetIsConnectedHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Indicates whether this channel's socket is connected.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsConnectionPending">
+      <MemberSignature Language="C#" Value="public abstract bool IsConnectionPending { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsConnectionPending" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.SocketChannel.IsConnectionPending" />
+      <MemberSignature Language="F#" Value="member this.IsConnectionPending : bool" Usage="Java.Nio.Channels.SocketChannel.IsConnectionPending" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isConnectionPending", "()Z", "GetIsConnectionPendingHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isConnectionPending", "()Z", "GetIsConnectionPendingHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Indicates whether this channel's socket is still trying to connect.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.SocketChannel.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Nio.Channels.SocketChannel.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="LocalAddress">
+      <MemberSignature Language="C#" Value="public abstract Java.Net.SocketAddress? LocalAddress { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Net.SocketAddress LocalAddress" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.SocketChannel.LocalAddress" />
+      <MemberSignature Language="F#" Value="member this.LocalAddress : Java.Net.SocketAddress" Usage="Java.Nio.Channels.SocketChannel.LocalAddress" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLocalAddress", "()Ljava/net/SocketAddress;", "GetGetLocalAddressHandler", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLocalAddress", "()Ljava/net/SocketAddress;", "GetGetLocalAddressHandler", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Net.SocketAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Open">
+      <MemberSignature Language="C#" Value="public static Java.Nio.Channels.SocketChannel? Open ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Nio.Channels.SocketChannel Open() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Open" />
+      <MemberSignature Language="F#" Value="static member Open : unit -&gt; Java.Nio.Channels.SocketChannel" Usage="Java.Nio.Channels.SocketChannel.Open " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("open", "()Ljava/nio/channels/SocketChannel;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("open", "()Ljava/nio/channels/SocketChannel;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.SocketChannel</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Opens a socket channel.</summary>
+        <returns>A new socket channel</returns>
+        <remarks>
+          <para>Opens a socket channel.</para>
+          <para>The new channel is created by invoking the <c>java.nio.channels.spi.SelectorProvider#openSocketChannel
+            openSocketChannel</c> method of the system-wide default <c>java.nio.channels.spi.SelectorProvider</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#open()" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.open()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Open">
+      <MemberSignature Language="C#" Value="public static Java.Nio.Channels.SocketChannel? Open (Java.Net.SocketAddress? remote);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Nio.Channels.SocketChannel Open(class Java.Net.SocketAddress remote) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Open(Java.Net.SocketAddress)" />
+      <MemberSignature Language="F#" Value="static member Open : Java.Net.SocketAddress -&gt; Java.Nio.Channels.SocketChannel" Usage="Java.Nio.Channels.SocketChannel.Open remote" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("open", "(Ljava/net/SocketAddress;)Ljava/nio/channels/SocketChannel;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("open", "(Ljava/net/SocketAddress;)Ljava/nio/channels/SocketChannel;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.SocketChannel</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="remote" Type="Java.Net.SocketAddress" />
+      </Parameters>
+      <Docs>
+        <param name="remote">The remote address to which the new channel is to be connected</param>
+        <summary>Opens a socket channel and connects it to a remote address.</summary>
+        <returns>A new, and connected, socket channel</returns>
+        <remarks>
+          <para>Opens a socket channel and connects it to a remote address.</para>
+          <para>This convenience method works as if by invoking the <c>#open()</c>
+            method, invoking the <c>#connect(SocketAddress) connect</c> method upon
+            the resulting socket channel, passing it <c>remote</c>, and then
+            returning that channel.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#open(java.net.SocketAddress)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.open(java.net.SocketAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if this channel is closed by another thread while this method
+             is executing.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is executing. The calling thread will have the
+             interrupt state set and the channel will be closed.</exception>
+        <exception cref="T:Java.Nio.Channels.UnresolvedAddressException">if the address is not resolved.</exception>
+        <exception cref="T:Java.Nio.Channels.UnsupportedAddressTypeException">if the address type is not supported.</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Read">
+      <MemberSignature Language="C#" Value="public abstract int Read (Java.Nio.ByteBuffer? dst);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Read(class Java.Nio.ByteBuffer dst) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Read(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member Read : Java.Nio.ByteBuffer -&gt; int" Usage="socketChannel.Read dst" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IReadableByteChannel.Read(Java.Nio.ByteBuffer)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("read", "(Ljava/nio/ByteBuffer;)I", "GetRead_Ljava_nio_ByteBuffer_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("read", "(Ljava/nio/ByteBuffer;)I", "GetRead_Ljava_nio_ByteBuffer_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dst" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="dst">To be added.</param>
+        <summary>Reads bytes from this socket channel into the given buffer.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#read(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.read(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if another thread closes the channel during the read.</exception>
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if this channel is not yet connected.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The interrupt state of the calling
+             thread is set and the channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if this channel is closed.</exception>
+        <exception cref="T:Java.IO.IOException">if another I/O error occurs.</exception>
+        <altmember cref="M:Java.Nio.Channels.IReadableByteChannel.Read(Java.Nio.ByteBuffer)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Read">
+      <MemberSignature Language="C#" Value="public long Read (Java.Nio.ByteBuffer[]? dsts);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Read(class Java.Nio.ByteBuffer[] dsts) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Read(Java.Nio.ByteBuffer[])" />
+      <MemberSignature Language="F#" Value="abstract member Read : Java.Nio.ByteBuffer[] -&gt; int64&#xA;override this.Read : Java.Nio.ByteBuffer[] -&gt; int64" Usage="socketChannel.Read dsts" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IScatteringByteChannel.Read(Java.Nio.ByteBuffer[])</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;)J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;)J", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dsts" Type="Java.Nio.ByteBuffer[]" />
+      </Parameters>
+      <Docs>
+        <param name="dsts">To be added.</param>
+        <summary>Reads bytes from this socket channel and stores them in the specified
+ array of buffers.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#read(java.nio.ByteBuffer[])" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.read(java.nio.ByteBuffer[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if this channel is closed by another thread during this read
+             operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The interrupt state of the calling
+             thread is set and the channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if this channel is closed.</exception>
+        <exception cref="T:Java.IO.IOException">if another I/O error occurs.</exception>
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if this channel is not yet connected.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Read">
+      <MemberSignature Language="C#" Value="public abstract long Read (Java.Nio.ByteBuffer[]? dsts, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Read(class Java.Nio.ByteBuffer[] dsts, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Read(Java.Nio.ByteBuffer[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Read : Java.Nio.ByteBuffer[] * int * int -&gt; int64" Usage="socketChannel.Read (dsts, offset, length)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IScatteringByteChannel.Read(Java.Nio.ByteBuffer[],System.Int32,System.Int32)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;II)J", "GetRead_arrayLjava_nio_ByteBuffer_IIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("read", "([Ljava/nio/ByteBuffer;II)J", "GetRead_arrayLjava_nio_ByteBuffer_IIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dsts" Type="Java.Nio.ByteBuffer[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="dsts">To be added.</param>
+        <param name="offset">the index of the first buffer to store bytes in.</param>
+        <param name="length">the maximum number of buffers to store bytes in.</param>
+        <summary>Reads bytes from this socket channel into a subset of the given buffers.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#read(java.nio.ByteBuffer[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.read(java.nio.ByteBuffer[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if this channel is closed by another thread during this read
+             operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The interrupt state of the calling
+             thread is set and the channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if this channel is closed.</exception>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">if <c>offset </c> or <c>length </c>, or if <c>offset + length</c> is greater than the size of <c>targets</c>.</exception>
+        <exception cref="T:Java.IO.IOException">if another I/O error occurs.</exception>
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if this channel is not yet connected.</exception>
+        <altmember cref="M:Java.Nio.Channels.IScatteringByteChannel.Read(Java.Nio.ByteBuffer[], System.Int32, System.Int32)" />
+      </Docs>
+    </Member>
+    <Member MemberName="RemoteAddress">
+      <MemberSignature Language="C#" Value="public abstract Java.Net.SocketAddress? RemoteAddress { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Net.SocketAddress RemoteAddress" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.SocketChannel.RemoteAddress" />
+      <MemberSignature Language="F#" Value="member this.RemoteAddress : Java.Net.SocketAddress" Usage="Java.Nio.Channels.SocketChannel.RemoteAddress" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getRemoteAddress", "()Ljava/net/SocketAddress;", "GetGetRemoteAddressHandler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRemoteAddress", "()Ljava/net/SocketAddress;", "GetGetRemoteAddressHandler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Net.SocketAddress</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetOption">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.SocketChannel? SetOption (Java.Net.ISocketOption? name, Java.Lang.Object? value);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.SocketChannel SetOption(class Java.Net.ISocketOption name, class Java.Lang.Object value) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.SetOption(Java.Net.ISocketOption,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member SetOption : Java.Net.ISocketOption * Java.Lang.Object -&gt; Java.Nio.Channels.SocketChannel" Usage="socketChannel.SetOption (name, value)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setOption", "(Ljava/net/SocketOption;Ljava/lang/Object;)Ljava/nio/channels/SocketChannel;", "GetSetOption_Ljava_net_SocketOption_Ljava_lang_Object_Handler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setOption", "(Ljava/net/SocketOption;Ljava/lang/Object;)Ljava/nio/channels/SocketChannel;", "GetSetOption_Ljava_net_SocketOption_Ljava_lang_Object_Handler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.SocketChannel</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="name" Type="Java.Net.ISocketOption" />
+        <Parameter Name="value" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="name">To be added.</param>
+        <param name="value">To be added.</param>
+        <summary>Added in 1.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Added in 1.7.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#setOption(java.net.SocketOption%3CT%3E,%20T)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.setOption(java.net.SocketOption&lt;T&gt;, T)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ShutdownInput">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.SocketChannel? ShutdownInput ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.SocketChannel ShutdownInput() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.ShutdownInput" />
+      <MemberSignature Language="F#" Value="abstract member ShutdownInput : unit -&gt; Java.Nio.Channels.SocketChannel" Usage="socketChannel.ShutdownInput " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("shutdownInput", "()Ljava/nio/channels/SocketChannel;", "GetShutdownInputHandler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("shutdownInput", "()Ljava/nio/channels/SocketChannel;", "GetShutdownInputHandler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.SocketChannel</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Shutdown the connection for reading without closing the channel.</summary>
+        <returns>The channel</returns>
+        <remarks>
+          <para>Shutdown the connection for reading without closing the channel.</para>
+          <para>Once shutdown for reading then further reads on the channel will
+            return <c>-1</c>, the end-of-stream indication. If the input side of the
+            connection is already shutdown then invoking this method has no effect.</para>
+          <para>Added in 1.7.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#shutdownInput()" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.shutdownInput()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ShutdownOutput">
+      <MemberSignature Language="C#" Value="public abstract Java.Nio.Channels.SocketChannel? ShutdownOutput ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Channels.SocketChannel ShutdownOutput() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.ShutdownOutput" />
+      <MemberSignature Language="F#" Value="abstract member ShutdownOutput : unit -&gt; Java.Nio.Channels.SocketChannel" Usage="socketChannel.ShutdownOutput " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("shutdownOutput", "()Ljava/nio/channels/SocketChannel;", "GetShutdownOutputHandler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("shutdownOutput", "()Ljava/nio/channels/SocketChannel;", "GetShutdownOutputHandler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.SocketChannel</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Shutdown the connection for writing without closing the channel.</summary>
+        <returns>The channel</returns>
+        <remarks>
+          <para>Shutdown the connection for writing without closing the channel.</para>
+          <para>Once shutdown for writing then further attempts to write to the
+            channel will throw <c>ClosedChannelException</c>. If the output side of
+            the connection is already shutdown then invoking this method has no
+            effect.</para>
+          <para>Added in 1.7.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#shutdownOutput()" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.shutdownOutput()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Socket">
+      <MemberSignature Language="C#" Value="public abstract Java.Net.Socket? Socket ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Net.Socket Socket() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Socket" />
+      <MemberSignature Language="F#" Value="abstract member Socket : unit -&gt; Java.Net.Socket" Usage="socketChannel.Socket " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("socket", "()Ljava/net/Socket;", "GetSocketHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("socket", "()Ljava/net/Socket;", "GetSocketHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Net.Socket</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Retrieves a socket associated with this channel.</summary>
+        <returns>A socket associated with this channel</returns>
+        <remarks>
+          <para>Retrieves a socket associated with this channel.</para>
+          <para>The returned object will not declare any public methods that are not
+            declared in the <c>java.net.Socket</c> class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#socket()" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.socket()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.SocketChannel.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Nio.Channels.SocketChannel.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Channels.SocketChannel.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Nio.Channels.SocketChannel.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ValidOps">
+      <MemberSignature Language="C#" Value="public override sealed Java.Nio.Channels.Operations ValidOps ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance valuetype Java.Nio.Channels.Operations ValidOps() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.ValidOps" />
+      <MemberSignature Language="F#" Value="override this.ValidOps : unit -&gt; Java.Nio.Channels.Operations" Usage="socketChannel.ValidOps " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("validOps", "()I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("validOps", "()I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Channels.Operations</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+            <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns an operation set identifying this channel's supported
+            operations.</summary>
+        <returns>The valid-operation set</returns>
+        <remarks>
+          <para>Returns an operation set identifying this channel's supported
+            operations.</para>
+          <para>Socket channels support connecting, reading, and writing, so this
+            method returns <c>(</c><c>SelectionKey#OP_CONNECT</c><c>|</c>&amp;nbsp;<c>SelectionKey#OP_READ</c><c>|</c>&amp;nbsp;<c>SelectionKey#OP_WRITE</c><c>)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#validOps()" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.validOps()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="M:Java.Nio.Channels.SelectableChannel.ValidOps" />
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public abstract int Write (Java.Nio.ByteBuffer? src);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Write(class Java.Nio.ByteBuffer src) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Write(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member Write : Java.Nio.ByteBuffer -&gt; int" Usage="socketChannel.Write src" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IWritableByteChannel.Write(Java.Nio.ByteBuffer)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("write", "(Ljava/nio/ByteBuffer;)I", "GetWrite_Ljava_nio_ByteBuffer_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("write", "(Ljava/nio/ByteBuffer;)I", "GetWrite_Ljava_nio_ByteBuffer_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="src" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="src">To be added.</param>
+        <summary>Writes bytes from the given byte buffer to this socket channel.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#write(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.write(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if another thread closes the channel during the write.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The interrupt state of the calling
+             thread is set and the channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if the channel was already closed.</exception>
+        <exception cref="T:Java.IO.IOException">if another I/O error occurs.</exception>
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if this channel is not connected yet.</exception>
+        <altmember cref="M:Java.Nio.Channels.IWritableByteChannel.Write(Java.Nio.ByteBuffer)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public long Write (Java.Nio.ByteBuffer[]? srcs);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Write(class Java.Nio.ByteBuffer[] srcs) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Write(Java.Nio.ByteBuffer[])" />
+      <MemberSignature Language="F#" Value="abstract member Write : Java.Nio.ByteBuffer[] -&gt; int64&#xA;override this.Write : Java.Nio.ByteBuffer[] -&gt; int64" Usage="socketChannel.Write srcs" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[])</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;)J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;)J", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="srcs" Type="Java.Nio.ByteBuffer[]" />
+      </Parameters>
+      <Docs>
+        <param name="srcs">To be added.</param>
+        <summary>Writes bytes from all the given byte buffers to this socket channel.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#write(java.nio.ByteBuffer[])" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.write(java.nio.ByteBuffer[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if this channel is closed by another thread during this write
+             operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The interrupt state of the calling
+             thread is set and the channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if this channel is closed.</exception>
+        <exception cref="T:Java.IO.IOException">if another I/O error occurs.</exception>
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if this channel is not yet connected.</exception>
+        <altmember cref="M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[])" />
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public abstract long Write (Java.Nio.ByteBuffer[]? srcs, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Write(class Java.Nio.ByteBuffer[] srcs, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Channels.SocketChannel.Write(Java.Nio.ByteBuffer[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Write : Java.Nio.ByteBuffer[] * int * int -&gt; int64" Usage="socketChannel.Write (srcs, offset, length)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[],System.Int32,System.Int32)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;II)J", "GetWrite_arrayLjava_nio_ByteBuffer_IIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("write", "([Ljava/nio/ByteBuffer;II)J", "GetWrite_arrayLjava_nio_ByteBuffer_IIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="srcs" Type="Java.Nio.ByteBuffer[]" />
+        <Parameter Name="offset" Type="System.Int32" />
+        <Parameter Name="length" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="srcs">To be added.</param>
+        <param name="offset">the index of the first buffer in <c>buffers </c>to get bytes
+            from.</param>
+        <param name="length">the number of buffers to get bytes from.</param>
+        <summary>Attempts to write a subset of the given bytes from the buffers to this
+ socket channel.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/channels/SocketChannel#write(java.nio.ByteBuffer[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.nio.channels.SocketChannel.write(java.nio.ByteBuffer[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Nio.Channels.AsynchronousCloseException">if this channel is closed by another thread during this write
+             operation.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedByInterruptException">if another thread interrupts the calling thread while this
+             operation is in progress. The interrupt state of the calling
+             thread is set and the channel is closed.</exception>
+        <exception cref="T:Java.Nio.Channels.ClosedChannelException">if this channel is closed.</exception>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">if <c>offset </c> or <c>length </c>, or if <c>offset + length</c> is greater than the size of <c>sources</c>.</exception>
+        <exception cref="T:Java.IO.IOException">if another I/O error occurs.</exception>
+        <exception cref="T:Java.Nio.Channels.NotYetConnectedException">if this channel is not yet connected.</exception>
+        <altmember cref="M:Java.Nio.Channels.IGatheringByteChannel.Write(Java.Nio.ByteBuffer[], System.Int32, System.Int32)" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

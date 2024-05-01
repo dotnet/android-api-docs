@@ -1,0 +1,412 @@
+<Type Name="CollationKey" FullName="Java.Text.CollationKey">
+  <TypeSignature Language="C#" Value="public abstract class CollationKey : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.IComparable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit CollationKey extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Lang.IComparable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Text.CollationKey" />
+  <TypeSignature Language="F#" Value="type CollationKey = class&#xA;    inherit Object&#xA;    interface IComparable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Lang.IComparable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/text/CollationKey", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/text/CollationKey", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>A <c>CollationKey</c> represents a <c>String</c> under the
+            rules of a specific <c>Collator</c> object.</summary>
+    <remarks>
+      <para>A <c>CollationKey</c> represents a <c>String</c> under the
+            rules of a specific <c>Collator</c> object. Comparing two
+            <c>CollationKey</c>s returns the relative order of the
+            <c>String</c>s they represent. Using <c>CollationKey</c>s
+            to compare <c>String</c>s is generally faster than using
+            <c>Collator.compare</c>. Thus, when the <c>String</c>s
+            must be compared multiple times, for example when sorting a list
+            of <c>String</c>s. It's more efficient to use <c>CollationKey</c>s.</para>
+      <para>You can not create <c>CollationKey</c>s directly. Rather,
+            generate them by calling <c>Collator.getCollationKey</c>.
+            You can only compare <c>CollationKey</c>s generated from
+            the same <c>Collator</c> object.</para>
+      <para>Generating a <c>CollationKey</c> for a <c>String</c>
+            involves examining the entire <c>String</c>
+            and converting it to series of bits that can be compared bitwise. This
+            allows fast comparisons once the keys are generated. The cost of generating
+            keys is recouped in faster comparisons when <c>String</c>s need
+            to be compared many times. On the other hand, the result of a comparison
+            is often determined by the first couple of characters of each <c>String</c>.
+            <c>Collator.compare</c> examines only as many characters as it needs which
+            allows it to be faster when doing single comparisons.</para>
+      <para>The following example shows how <c>CollationKey</c>s might be used
+            to sort a list of <c>String</c>s.
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">{@code
+            // Create an array of CollationKeys for the Strings to be sorted.
+            Collator myCollator = Collator.getInstance();
+            CollationKey[] keys = new CollationKey[3];
+            keys[0] = myCollator.getCollationKey("Tom");
+            keys[1] = myCollator.getCollationKey("Dick");
+            keys[2] = myCollator.getCollationKey("Harry");
+            sort(keys);
+            
+            //...
+            
+            // Inside body of sort routine, compare keys this way
+            if (keys[i].compareTo(keys[j]) &gt; 0)
+               // swap keys[i] and keys[j]
+            
+            //...
+            
+            // Finally, when we've returned from sort.
+            System.out.println(keys[0].getSourceString());
+            System.out.println(keys[1].getSourceString());
+            System.out.println(keys[2].getSourceString());
+            }</code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>Added in 1.1.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/text/CollationKey" title="Reference documentation">Java documentation for <code>java.text.CollationKey</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected CollationKey (string? source);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string source) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.CollationKey.#ctor(System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Text.CollationKey : string -&gt; Java.Text.CollationKey" Usage="new Java.Text.CollationKey source" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="source" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="source">the source string</param>
+        <summary>CollationKey constructor.</summary>
+        <remarks>
+          <para>CollationKey constructor.</para>
+          <para>Added in 1.6.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/CollationKey#CollationKey(java.lang.String)" title="Reference documentation">Java documentation for <code>java.text.CollationKey.CollationKey(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 9" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected CollationKey (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.CollationKey.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Text.CollationKey : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Text.CollationKey" Usage="new Java.Text.CollationKey (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CompareTo">
+      <MemberSignature Language="C#" Value="public abstract int CompareTo (Java.Text.CollationKey? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 CompareTo(class Java.Text.CollationKey target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.CollationKey.CompareTo(Java.Text.CollationKey)" />
+      <MemberSignature Language="F#" Value="abstract member CompareTo : Java.Text.CollationKey -&gt; int" Usage="collationKey.CompareTo target" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("compareTo", "(Ljava/text/CollationKey;)I", "GetCompareTo_Ljava_text_CollationKey_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("compareTo", "(Ljava/text/CollationKey;)I", "GetCompareTo_Ljava_text_CollationKey_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="target" Type="Java.Text.CollationKey" />
+      </Parameters>
+      <Docs>
+        <param name="target">target CollationKey</param>
+        <summary>Compare this CollationKey to the target CollationKey.</summary>
+        <returns>Returns an integer value. Value is less than zero if this is less
+            than target, value is zero if this and target are equal and value is greater than
+            zero if this is greater than target.</returns>
+        <remarks>
+          <para>Compare this CollationKey to the target CollationKey. The collation rules of the
+            Collator object which created these keys are applied. &lt;strong&gt;Note:&lt;/strong&gt;
+            CollationKeys created by different Collators can not be compared.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/CollationKey#compareTo(java.text.CollationKey)" title="Reference documentation">Java documentation for <code>java.text.CollationKey.compareTo(java.text.CollationKey)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Lang.IComparable.CompareTo">
+      <MemberSignature Language="C#" Value="int IComparable.CompareTo (Java.Lang.Object o);" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance int32 Java.Lang.IComparable.CompareTo(class Java.Lang.Object o) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.CollationKey.Java#Lang#IComparable#CompareTo(Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Java.Lang.IComparable.CompareTo : Java.Lang.Object -&gt; int&#xA;override this.Java.Lang.IComparable.CompareTo : Java.Lang.Object -&gt; int" Usage="collationKey.Java.Lang.IComparable.CompareTo o" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Lang.IComparable.CompareTo(Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="o" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="o">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.CollationKey.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Text.CollationKey.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SourceString">
+      <MemberSignature Language="C#" Value="public virtual string? SourceString { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string SourceString" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.CollationKey.SourceString" />
+      <MemberSignature Language="F#" Value="member this.SourceString : string" Usage="Java.Text.CollationKey.SourceString" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSourceString", "()Ljava/lang/String;", "GetGetSourceStringHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSourceString", "()Ljava/lang/String;", "GetGetSourceStringHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the String that this CollationKey represents.</summary>
+        <value>the source string of this CollationKey</value>
+        <remarks>
+          <para>Returns the String that this CollationKey represents.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/CollationKey#getSourceString()" title="Reference documentation">Java documentation for <code>java.text.CollationKey.getSourceString()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.CollationKey.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Text.CollationKey.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.CollationKey.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Text.CollationKey.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ToByteArray">
+      <MemberSignature Language="C#" Value="public abstract byte[]? ToByteArray ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance unsigned int8[] ToByteArray() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.CollationKey.ToByteArray" />
+      <MemberSignature Language="F#" Value="abstract member ToByteArray : unit -&gt; byte[]" Usage="collationKey.ToByteArray " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("toByteArray", "()[B", "GetToByteArrayHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("toByteArray", "()[B", "GetToByteArrayHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Converts the CollationKey to a sequence of bits.</summary>
+        <returns>a byte array representation of the CollationKey</returns>
+        <remarks>
+          <para>Converts the CollationKey to a sequence of bits. If two CollationKeys
+            could be legitimately compared, then one could compare the byte arrays
+            for each of those keys to obtain the same result.  Byte arrays are
+            organized most significant byte first.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/CollationKey#toByteArray()" title="Reference documentation">Java documentation for <code>java.text.CollationKey.toByteArray()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>
