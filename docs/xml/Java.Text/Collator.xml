@@ -1,0 +1,1206 @@
+<Type Name="Collator" FullName="Java.Text.Collator">
+  <TypeSignature Language="C#" Value="public abstract class Collator : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.ICloneable, Java.Util.IComparator" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit Collator extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Lang.ICloneable, class Java.Util.IComparator, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Text.Collator" />
+  <TypeSignature Language="F#" Value="type Collator = class&#xA;    inherit Object&#xA;    interface ICloneable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface IComparator" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Lang.ICloneable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Util.IComparator</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/text/Collator", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/text/Collator", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>The <c>Collator</c> class performs locale-sensitive
+            <c>String</c> comparison.</summary>
+    <remarks>
+      <para>The <c>Collator</c> class performs locale-sensitive
+            <c>String</c> comparison. You use this class to build
+            searching and sorting routines for natural language text.</para>
+      <para>
+        <c>Collator</c> is an abstract base class. Subclasses
+            implement specific collation strategies. One subclass,
+            <c>RuleBasedCollator</c>, is currently provided with
+            the Java Platform and is applicable to a wide set of languages. Other
+            subclasses may be created to handle more specialized needs.</para>
+      <para>Like other locale-sensitive classes, you can use the static
+            factory method, <c>getInstance</c>, to obtain the appropriate
+            <c>Collator</c> object for a given locale. You will only need
+            to look at the subclasses of <c>Collator</c> if you need
+            to understand the details of a particular collation strategy or
+            if you need to modify that strategy.</para>
+      <para>The following example shows how to compare two strings using
+            the <c>Collator</c> for the default locale.
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">{@code
+            // Compare two strings in the default locale
+            Collator myCollator = Collator.getInstance();
+            if( myCollator.compare("abc", "ABC") &lt; 0 )
+                System.out.println("abc is less than ABC");
+            else
+                System.out.println("abc is greater than or equal to ABC");
+            }</code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>You can set a <c>Collator</c>'s &lt;em&gt;strength&lt;/em&gt; property
+            to determine the level of difference considered significant in
+            comparisons. Four strengths are provided: <c>PRIMARY</c>,
+            <c>SECONDARY</c>, <c>TERTIARY</c>, and <c>IDENTICAL</c>.
+            The exact assignment of strengths to language features is
+            locale dependent.  For example, in Czech, "e" and "f" are considered
+            primary differences, while "e" and "&amp;#283;" are secondary differences,
+            "e" and "E" are tertiary differences and "e" and "e" are identical.
+            The following shows how both case and accents could be ignored for
+            US English.
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">//Get the Collator for US English and set its strength to PRIMARY
+            Collator usCollator = Collator.getInstance(Locale.US);
+            usCollator.setStrength(Collator.PRIMARY);
+            if( usCollator.compare("abc", "ABC") == 0 ) {
+                System.out.println("Strings are equivalent");
+            }
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>For comparing <c>String</c>s exactly once, the <c>compare</c>
+            method provides the best performance. When sorting a list of
+            <c>String</c>s however, it is generally necessary to compare each
+            <c>String</c> multiple times. In this case, <c>CollationKey</c>s
+            provide better performance. The <c>CollationKey</c> class converts
+            a <c>String</c> to a series of bits that can be compared bitwise
+            against other <c>CollationKey</c>s. A <c>CollationKey</c> is
+            created by a <c>Collator</c> object for a given <c>String</c>.
+            &lt;br&gt;
+            &lt;strong&gt;Note:&lt;/strong&gt; <c>CollationKey</c>s from different
+            <c>Collator</c>s can not be compared. See the class description
+            for <c>CollationKey</c>
+            for an example using <c>CollationKey</c>s.</para>
+      <para>Added in 1.1.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/text/Collator" title="Reference documentation">Java documentation for <code>java.text.Collator</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected Collator ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>Default constructor.</summary>
+        <remarks>
+          <para>Default constructor.  This constructor is
+            protected so subclasses can get access to it. Users typically create
+            a Collator sub-class by calling the factory method getInstance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#Collator()" title="Reference documentation">Java documentation for <code>java.text.Collator.Collator()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected Collator (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Text.Collator : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Text.Collator" Usage="new Java.Text.Collator (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CanonicalDecomposition">
+      <MemberSignature Language="C#" Value="public const int CanonicalDecomposition = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 CanonicalDecomposition = (1)" />
+      <MemberSignature Language="DocId" Value="F:Java.Text.Collator.CanonicalDecomposition" />
+      <MemberSignature Language="F#" Value="val mutable CanonicalDecomposition : int" Usage="Java.Text.Collator.CanonicalDecomposition" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("CANONICAL_DECOMPOSITION")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CANONICAL_DECOMPOSITION")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Decomposition mode value.</summary>
+        <remarks>
+          <para>Decomposition mode value. With CANONICAL_DECOMPOSITION
+            set, characters that are canonical variants according to Unicode
+            standard will be decomposed for collation. This should be used to get
+            correct collation of accented characters.</para>
+          <para>CANONICAL_DECOMPOSITION corresponds to Normalization Form D as
+            described in
+            <see href="http://www.unicode.org/reports/tr15/">Unicode
+            Standard Annex #15: Unicode Normalization Forms</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#CANONICAL_DECOMPOSITION" title="Reference documentation">Java documentation for <code>java.text.Collator.CANONICAL_DECOMPOSITION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Clone">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? Clone ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object Clone() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.Clone" />
+      <MemberSignature Language="F#" Value="override this.Clone : unit -&gt; Java.Lang.Object" Usage="collator.Clone " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("clone", "()Ljava/lang/Object;", "GetCloneHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clone", "()Ljava/lang/Object;", "GetCloneHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a new collator with the same decomposition mode and
+            strength value as this collator.</summary>
+        <returns>a shallow copy of this collator.</returns>
+        <remarks>
+          <para>Returns a new collator with the same decomposition mode and
+            strength value as this collator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#clone()" title="Reference documentation">Java documentation for <code>java.text.Collator.clone()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="T:Java.Lang.ICloneable" />
+      </Docs>
+    </Member>
+    <Member MemberName="Compare">
+      <MemberSignature Language="C#" Value="public virtual int Compare (Java.Lang.Object? o1, Java.Lang.Object? o2);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Compare(class Java.Lang.Object o1, class Java.Lang.Object o2) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.Compare(Java.Lang.Object,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Compare : Java.Lang.Object * Java.Lang.Object -&gt; int&#xA;override this.Compare : Java.Lang.Object * Java.Lang.Object -&gt; int" Usage="collator.Compare (o1, o2)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("compare", "(Ljava/lang/Object;Ljava/lang/Object;)I", "GetCompare_Ljava_lang_Object_Ljava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("compare", "(Ljava/lang/Object;Ljava/lang/Object;)I", "GetCompare_Ljava_lang_Object_Ljava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="o1" Type="Java.Lang.Object" />
+        <Parameter Name="o2" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="o1">To be added.</param>
+        <param name="o2">To be added.</param>
+        <summary>Compares its two arguments for order.</summary>
+        <returns>a negative integer, zero, or a positive integer as the
+                    first argument is less than, equal to, or greater than the
+                    second.</returns>
+        <remarks>
+          <para>Compares its two arguments for order.  Returns a negative integer,
+            zero, or a positive integer as the first argument is less than, equal
+            to, or greater than the second.</para>
+          <para>This implementation merely returns
+             <c>compare((String)o1, (String)o2)</c>.</para>
+          <para>Added in 1.2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#compare(java.lang.Object,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>java.text.Collator.compare(java.lang.Object, java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.ClassCastException">if <c>object1</c> or <c>object2</c> is not a <c>String</c>.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Compare">
+      <MemberSignature Language="C#" Value="public abstract int Compare (string? source, string? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Compare(string source, string target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.Compare(System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member Compare : string * string -&gt; int" Usage="collator.Compare (source, target)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("compare", "(Ljava/lang/String;Ljava/lang/String;)I", "GetCompare_Ljava_lang_String_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("compare", "(Ljava/lang/String;Ljava/lang/String;)I", "GetCompare_Ljava_lang_String_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="source" Type="System.String" />
+        <Parameter Name="target" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="source">the source string.</param>
+        <param name="target">the target string.</param>
+        <summary>Compares the source string to the target string according to the
+            collation rules for this Collator.</summary>
+        <returns>Returns an integer value. Value is less than zero if source is less than
+            target, value is zero if source and target are equal, value is greater than zero
+            if source is greater than target.</returns>
+        <remarks>
+          <para>Compares the source string to the target string according to the
+            collation rules for this Collator.  Returns an integer less than,
+            equal to or greater than zero depending on whether the source String is
+            less than, equal to or greater than the target string.  See the Collator
+            class description for an example of use.</para>
+          <para>For a one time comparison, this method has the best performance. If a
+            given String will be involved in multiple comparisons, CollationKey.compareTo
+            has the best performance. See the Collator class description for an example
+            using CollationKeys.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#compare(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>java.text.Collator.compare(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Decomposition">
+      <MemberSignature Language="C#" Value="public virtual int Decomposition { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Decomposition" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.Collator.Decomposition" />
+      <MemberSignature Language="F#" Value="member this.Decomposition : int with get, set" Usage="Java.Text.Collator.Decomposition" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDecomposition", "()I", "GetGetDecompositionHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDecomposition", "()I", "GetGetDecompositionHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setDecomposition", "(I)V", "GetSetDecomposition_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setDecomposition", "(I)V", "GetSetDecomposition_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="decompositionMode">the new decomposition mode.</param>
+        <summary>Get the decomposition mode of this Collator. -or- Set the decomposition mode of this Collator.</summary>
+        <value>the decomposition mode</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Get the decomposition mode of this Collator. Decomposition mode
+            determines how Unicode composed characters are handled. Adjusting
+            decomposition mode allows the user to select between faster and more
+            complete collation behavior.</para>
+          <para>The three values for decomposition mode are:
+            &lt;UL&gt;
+            &lt;LI&gt;NO_DECOMPOSITION,
+            &lt;LI&gt;CANONICAL_DECOMPOSITION
+            &lt;LI&gt;FULL_DECOMPOSITION.
+            &lt;/UL&gt;
+            See the documentation for these three constants for a description
+            of their meaning.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#getDecomposition()" title="Reference documentation">Java documentation for <code>java.text.Collator.getDecomposition()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the decomposition mode of this Collator. See getDecomposition
+            for a description of decomposition mode.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#setDecomposition(int)" title="Reference documentation">Java documentation for <code>java.text.Collator.setDecomposition(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the provided decomposition rule is not valid. This includes
+            <c>FULL_DECOMPOSITION</c>.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Equals">
+      <MemberSignature Language="C#" Value="public virtual bool Equals (string? source, string? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Equals(string source, string target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.Equals(System.String,System.String)" />
+      <MemberSignature Language="F#" Value="override this.Equals : string * string -&gt; bool" Usage="collator.Equals (source, target)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("equals", "(Ljava/lang/String;Ljava/lang/String;)Z", "GetEquals_Ljava_lang_String_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("equals", "(Ljava/lang/String;Ljava/lang/String;)Z", "GetEquals_Ljava_lang_String_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="source" Type="System.String" />
+        <Parameter Name="target" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="source">the source string to be compared with.</param>
+        <param name="target">the target string to be compared with.</param>
+        <summary>Convenience method for comparing the equality of two strings based on
+            this Collator's collation rules.</summary>
+        <returns>true if the strings are equal according to the collation
+            rules.  false, otherwise.</returns>
+        <remarks>
+          <para>Convenience method for comparing the equality of two strings based on
+            this Collator's collation rules.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#equals(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>java.text.Collator.equals(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="FullDecomposition">
+      <MemberSignature Language="C#" Value="public const int FullDecomposition = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 FullDecomposition = (2)" />
+      <MemberSignature Language="DocId" Value="F:Java.Text.Collator.FullDecomposition" />
+      <MemberSignature Language="F#" Value="val mutable FullDecomposition : int" Usage="Java.Text.Collator.FullDecomposition" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("FULL_DECOMPOSITION")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("FULL_DECOMPOSITION")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Decomposition mode value.</summary>
+        <remarks>
+          <para>Decomposition mode value. With FULL_DECOMPOSITION
+            set, both Unicode canonical variants and Unicode compatibility variants
+            will be decomposed for collation.  This causes not only accented
+            characters to be collated, but also characters that have special formats
+            to be collated with their norminal form. For example, the half-width and
+            full-width ASCII and Katakana characters are then collated together.
+            FULL_DECOMPOSITION is the most complete and therefore the slowest
+            decomposition mode.</para>
+          <para>FULL_DECOMPOSITION corresponds to Normalization Form KD as
+            described in
+            <see href="http://www.unicode.org/reports/tr15/">Unicode
+            Standard Annex #15: Unicode Normalization Forms</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#FULL_DECOMPOSITION" title="Reference documentation">Java documentation for <code>java.text.Collator.FULL_DECOMPOSITION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetAvailableLocales">
+      <MemberSignature Language="C#" Value="public static Java.Util.Locale[]? GetAvailableLocales ();" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.Locale[] GetAvailableLocales() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.GetAvailableLocales" />
+      <MemberSignature Language="F#" Value="static member GetAvailableLocales : unit -&gt; Java.Util.Locale[]" Usage="Java.Text.Collator.GetAvailableLocales " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getAvailableLocales", "()[Ljava/util/Locale;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getAvailableLocales", "()[Ljava/util/Locale;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Locale[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns an array of all locales for which the
+            <c>getInstance</c> methods of this class can return
+            localized instances.</summary>
+        <returns>An array of locales for which localized
+                    <c>Collator</c> instances are available.</returns>
+        <remarks>
+          <para>Returns an array of all locales for which the
+            <c>getInstance</c> methods of this class can return
+            localized instances.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#getAvailableLocales()" title="Reference documentation">Java documentation for <code>java.text.Collator.getAvailableLocales()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetCollationKey">
+      <MemberSignature Language="C#" Value="public abstract Java.Text.CollationKey? GetCollationKey (string? source);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Text.CollationKey GetCollationKey(string source) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.GetCollationKey(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member GetCollationKey : string -&gt; Java.Text.CollationKey" Usage="collator.GetCollationKey source" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getCollationKey", "(Ljava/lang/String;)Ljava/text/CollationKey;", "GetGetCollationKey_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getCollationKey", "(Ljava/lang/String;)Ljava/text/CollationKey;", "GetGetCollationKey_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Text.CollationKey</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="source" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="source">the string to be transformed into a collation key.</param>
+        <summary>Transforms the String into a series of bits that can be compared bitwise
+            to other CollationKeys.</summary>
+        <returns>the CollationKey for the given String based on this Collator's collation
+            rules. If the source String is null, a null CollationKey is returned.</returns>
+        <remarks>
+          <para>Transforms the String into a series of bits that can be compared bitwise
+            to other CollationKeys. CollationKeys provide better performance than
+            Collator.compare when Strings are involved in multiple comparisons.
+            See the Collator class description for an example using CollationKeys.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#getCollationKey(java.lang.String)" title="Reference documentation">Java documentation for <code>java.text.Collator.getCollationKey(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetHashCode">
+      <MemberSignature Language="C#" Value="public abstract int GetHashCode ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 GetHashCode() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.GetHashCode" />
+      <MemberSignature Language="F#" Value="override this.GetHashCode : unit -&gt; int" Usage="collator.GetHashCode " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("hashCode", "()I", "GetGetHashCodeHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("hashCode", "()I", "GetGetHashCodeHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Generates the hash code for this Collator.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Generates the hash code for this Collator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#hashCode()" title="Reference documentation">Java documentation for <code>java.text.Collator.hashCode()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetInstance">
+      <MemberSignature Language="C#" Value="public static Java.Text.Collator? GetInstance (Java.Util.Locale? desiredLocale);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Text.Collator GetInstance(class Java.Util.Locale desiredLocale) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.GetInstance(Java.Util.Locale)" />
+      <MemberSignature Language="F#" Value="static member GetInstance : Java.Util.Locale -&gt; Java.Text.Collator" Usage="Java.Text.Collator.GetInstance desiredLocale" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstance", "(Ljava/util/Locale;)Ljava/text/Collator;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstance", "(Ljava/util/Locale;)Ljava/text/Collator;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Text.Collator</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="desiredLocale" Type="Java.Util.Locale" />
+      </Parameters>
+      <Docs>
+        <param name="desiredLocale">the desired locale.</param>
+        <summary>Gets the Collator for the desired locale.</summary>
+        <returns>the Collator for the desired locale.</returns>
+        <remarks>
+          <para>Gets the Collator for the desired locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#getInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>java.text.Collator.getInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Identical">
+      <MemberSignature Language="C#" Value="public const int Identical = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 Identical = (3)" />
+      <MemberSignature Language="DocId" Value="F:Java.Text.Collator.Identical" />
+      <MemberSignature Language="F#" Value="val mutable Identical : int" Usage="Java.Text.Collator.Identical" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("IDENTICAL")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("IDENTICAL")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>Collator strength value.</summary>
+        <remarks>
+          <para>Collator strength value.  When set, all differences are
+            considered significant during comparison. The assignment of strengths
+            to language features is locale dependent. A common example is for control
+            characters ("&amp;#092;u0001" vs "&amp;#092;u0002") to be considered equal at the
+            PRIMARY, SECONDARY, and TERTIARY levels but different at the IDENTICAL
+            level.  Additionally, differences between pre-composed accents such as
+            "&amp;#092;u00C0" (A-grave) and combining accents such as "A&amp;#092;u0300"
+            (A, combining-grave) will be considered significant at the IDENTICAL
+            level if decomposition is set to NO_DECOMPOSITION.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#IDENTICAL" title="Reference documentation">Java documentation for <code>java.text.Collator.IDENTICAL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Instance">
+      <MemberSignature Language="C#" Value="public static Java.Text.Collator? Instance { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Java.Text.Collator Instance" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.Collator.Instance" />
+      <MemberSignature Language="F#" Value="static member Instance : Java.Text.Collator" Usage="Java.Text.Collator.Instance" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getInstance", "()Ljava/text/Collator;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInstance", "()Ljava/text/Collator;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Text.Collator</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the Collator for the current default locale.</summary>
+        <value>the Collator for the default locale.(for example, en_US)</value>
+        <remarks>
+          <para>Gets the Collator for the current default locale.
+            The default locale is determined by java.util.Locale.getDefault.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#getInstance()" title="Reference documentation">Java documentation for <code>java.text.Collator.getInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Util.IComparator.Compare">
+      <MemberSignature Language="C#" Value="int IComparator.Compare (Java.Lang.Object? o1, Java.Lang.Object? o2);" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance int32 Java.Util.IComparator.Compare(class Java.Lang.Object o1, class Java.Lang.Object o2) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Text.Collator.Java#Util#IComparator#Compare(Java.Lang.Object,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Java.Util.IComparator.Compare : Java.Lang.Object * Java.Lang.Object -&gt; int&#xA;override this.Java.Util.IComparator.Compare : Java.Lang.Object * Java.Lang.Object -&gt; int" Usage="collator.Java.Util.IComparator.Compare (o1, o2)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.IComparator.Compare(Java.Lang.Object,Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="o1" Type="Java.Lang.Object" />
+        <Parameter Name="o2" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="o1">To be added.</param>
+        <param name="o2">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.Collator.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Text.Collator.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NoDecomposition">
+      <MemberSignature Language="C#" Value="public const int NoDecomposition = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 NoDecomposition = (0)" />
+      <MemberSignature Language="DocId" Value="F:Java.Text.Collator.NoDecomposition" />
+      <MemberSignature Language="F#" Value="val mutable NoDecomposition : int" Usage="Java.Text.Collator.NoDecomposition" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("NO_DECOMPOSITION")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("NO_DECOMPOSITION")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Decomposition mode value.</summary>
+        <remarks>
+          <para>Decomposition mode value. With NO_DECOMPOSITION
+            set, accented characters will not be decomposed for collation. This
+            is the default setting and provides the fastest collation but
+            will only produce correct results for languages that do not use accents.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#NO_DECOMPOSITION" title="Reference documentation">Java documentation for <code>java.text.Collator.NO_DECOMPOSITION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Primary">
+      <MemberSignature Language="C#" Value="public const int Primary = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 Primary = (0)" />
+      <MemberSignature Language="DocId" Value="F:Java.Text.Collator.Primary" />
+      <MemberSignature Language="F#" Value="val mutable Primary : int" Usage="Java.Text.Collator.Primary" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("PRIMARY")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PRIMARY")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Collator strength value.</summary>
+        <remarks>
+          <para>Collator strength value.  When set, only PRIMARY differences are
+            considered significant during comparison. The assignment of strengths
+            to language features is locale dependent. A common example is for
+            different base letters ("a" vs "b") to be considered a PRIMARY difference.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#PRIMARY" title="Reference documentation">Java documentation for <code>java.text.Collator.PRIMARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Secondary">
+      <MemberSignature Language="C#" Value="public const int Secondary = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 Secondary = (1)" />
+      <MemberSignature Language="DocId" Value="F:Java.Text.Collator.Secondary" />
+      <MemberSignature Language="F#" Value="val mutable Secondary : int" Usage="Java.Text.Collator.Secondary" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("SECONDARY")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SECONDARY")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Collator strength value.</summary>
+        <remarks>
+          <para>Collator strength value.  When set, only SECONDARY and above differences are
+            considered significant during comparison. The assignment of strengths
+            to language features is locale dependent. A common example is for
+            different accented forms of the same base letter ("a" vs "\u00E4") to be
+            considered a SECONDARY difference.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#SECONDARY" title="Reference documentation">Java documentation for <code>java.text.Collator.SECONDARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Strength">
+      <MemberSignature Language="C#" Value="public virtual int Strength { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Strength" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.Collator.Strength" />
+      <MemberSignature Language="F#" Value="member this.Strength : int with get, set" Usage="Java.Text.Collator.Strength" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getStrength", "()I", "GetGetStrengthHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getStrength", "()I", "GetGetStrengthHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setStrength", "(I)V", "GetSetStrength_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setStrength", "(I)V", "GetSetStrength_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="newStrength">the new strength value.</param>
+        <summary>Returns this Collator's strength property. -or- Sets this Collator's strength property.</summary>
+        <value>this Collator's current strength property.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns this Collator's strength property.  The strength property determines
+            the minimum level of difference considered significant during comparison.
+            See the Collator class description for an example of use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#getStrength()" title="Reference documentation">Java documentation for <code>java.text.Collator.getStrength()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets this Collator's strength property.  The strength property determines
+            the minimum level of difference considered significant during comparison.
+            See the Collator class description for an example of use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#setStrength(int)" title="Reference documentation">Java documentation for <code>java.text.Collator.setStrength(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the provided strength value is not valid.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Tertiary">
+      <MemberSignature Language="C#" Value="public const int Tertiary = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 Tertiary = (2)" />
+      <MemberSignature Language="DocId" Value="F:Java.Text.Collator.Tertiary" />
+      <MemberSignature Language="F#" Value="val mutable Tertiary : int" Usage="Java.Text.Collator.Tertiary" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("TERTIARY")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TERTIARY")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Collator strength value.</summary>
+        <remarks>
+          <para>Collator strength value.  When set, only TERTIARY and above differences are
+            considered significant during comparison. The assignment of strengths
+            to language features is locale dependent. A common example is for
+            case differences ("a" vs "A") to be considered a TERTIARY difference.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/text/Collator#TERTIARY" title="Reference documentation">Java documentation for <code>java.text.Collator.TERTIARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.Collator.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Text.Collator.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Text.Collator.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Text.Collator.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

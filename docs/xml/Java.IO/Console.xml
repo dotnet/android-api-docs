@@ -1,0 +1,827 @@
+<Type Name="Console" FullName="Java.IO.Console">
+  <TypeSignature Language="C#" Value="public sealed class Console : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.IO.IFlushable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit Console extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.IFlushable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.IO.Console" />
+  <TypeSignature Language="F#" Value="type Console = class&#xA;    inherit Object&#xA;    interface IFlushable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.IO.IFlushable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/io/Console", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/io/Console", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="9">
+    <summary>Methods to access the character-based console device, if any, associated
+            with the current Java virtual machine.</summary>
+    <remarks>
+      <para>Methods to access the character-based console device, if any, associated
+            with the current Java virtual machine.</para>
+      <para>Whether a virtual machine has a console is dependent upon the
+            underlying platform and also upon the manner in which the virtual
+            machine is invoked.  If the virtual machine is started from an
+            interactive command line without redirecting the standard input and
+            output streams then its console will exist and will typically be
+            connected to the keyboard and display from which the virtual machine
+            was launched.  If the virtual machine is started automatically, for
+            example by a background job scheduler, then it will typically not
+            have a console.</para>
+      <para>If this virtual machine has a console then it is represented by a
+            unique instance of this class which can be obtained by invoking the
+            <c>java.lang.System#console()</c> method.  If no console device is
+            available then an invocation of that method will return <c>null</c>.</para>
+      <para>Read and write operations are synchronized to guarantee the atomic
+            completion of critical operations; therefore invoking methods
+            <c>#readLine()</c>, <c>#readPassword()</c>, <c>#format format()</c>,
+            <c>#printf printf()</c> as well as the read, format and write operations
+            on the objects returned by <c>#reader()</c> and <c>#writer()</c> may
+            block in multithreaded scenarios.</para>
+      <para>Invoking <c>close()</c> on the objects returned by the <c>#reader()</c>
+            and the <c>#writer()</c> will not close the underlying stream of those
+            objects.</para>
+      <para>The console-read methods return <c>null</c> when the end of the
+            console input stream is reached, for example by typing control-D on
+            Unix or control-Z on Windows.  Subsequent read operations will succeed
+            if additional characters are later entered on the console's input
+            device.</para>
+      <para>Unless otherwise specified, passing a <c>null</c> argument to any method
+            in this class will cause a <c>NullPointerException</c> to be thrown.</para>
+      <para>&lt;b&gt;Security note:&lt;/b&gt;
+            If an application needs to read a password or other secure data, it should
+            use <c>#readPassword()</c> or <c>#readPassword(String, Object...)</c> and
+            manually zero the returned character array after processing to minimize the
+            lifetime of sensitive data in memory.
+            
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">{@code
+            Console cons;
+            char[] passwd;
+            if ((cons = System.console()) != null &amp;&amp;
+                (passwd = cons.readPassword("[%s]", "Password:")) != null) {
+                ...
+                java.util.Arrays.fill(passwd, ' ');
+            }
+            }</code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>Added in 1.6.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/io/Console" title="Reference documentation">Java documentation for <code>java.io.Console</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 9" />
+  </Docs>
+  <Members>
+    <Member MemberName="Flush">
+      <MemberSignature Language="C#" Value="public void Flush ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Flush() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.Flush" />
+      <MemberSignature Language="F#" Value="abstract member Flush : unit -&gt; unit&#xA;override this.Flush : unit -&gt; unit" Usage="console.Flush " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.IO.IFlushable.Flush</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("flush", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("flush", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Flushes the console and forces any buffered output to be written
+            immediately .</summary>
+        <remarks>
+          <para>Flushes the console and forces any buffered output to be written
+            immediately .</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#flush()" title="Reference documentation">Java documentation for <code>java.io.Console.flush()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 9" />
+      </Docs>
+    </Member>
+    <Member MemberName="Format">
+      <MemberSignature Language="C#" Value="public Java.IO.Console? Format (string? fmt, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.IO.Console Format(string fmt, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.Format(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.Format : string * Java.Lang.Object[] -&gt; Java.IO.Console" Usage="console.Format (fmt, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("format", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/Console;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("format", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/Console;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.IO.Console</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fmt" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="fmt">A format string as described in &lt;a
+                    href="../util/Formatter.html#syntax"&gt;Format string syntax&lt;/a&gt;</param>
+        <param name="args">Arguments referenced by the format specifiers in the format
+                    string.  If there are more arguments than format specifiers, the
+                    extra arguments are ignored.  The number of arguments is
+                    variable and may be zero.  The maximum number of arguments is
+                    limited by the maximum dimension of a Java array as defined by
+                    &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.
+                    The behaviour on a
+                    <c>null</c> argument depends on the &lt;a
+                    href="../util/Formatter.html#syntax"&gt;conversion&lt;/a&gt;.</param>
+        <summary>Writes a formatted string to this console's output stream using
+            the specified format string and arguments.</summary>
+        <returns>This console</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#format(java.lang.String,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>java.io.Console.format(java.lang.String, java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FormatAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;Java.IO.Console?&gt; FormatAsync (string? fmt, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;class Java.IO.Console&gt; FormatAsync(string fmt, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.FormatAsync(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.FormatAsync : string * Java.Lang.Object[] -&gt; System.Threading.Tasks.Task&lt;Java.IO.Console&gt;" Usage="console.FormatAsync (fmt, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;Java.IO.Console&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fmt" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="fmt">To be added.</param>
+        <param name="args">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.IO.Console.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.IO.Console.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Printf">
+      <MemberSignature Language="C#" Value="public Java.IO.Console? Printf (string? format, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.IO.Console Printf(string format, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.Printf(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.Printf : string * Java.Lang.Object[] -&gt; Java.IO.Console" Usage="console.Printf (format, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("printf", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/Console;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("printf", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/Console;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.IO.Console</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="format" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="format">A format string as described in &lt;a
+                    href="../util/Formatter.html#syntax"&gt;Format string syntax&lt;/a&gt;.</param>
+        <param name="args">Arguments referenced by the format specifiers in the format
+                    string.  If there are more arguments than format specifiers, the
+                    extra arguments are ignored.  The number of arguments is
+                    variable and may be zero.  The maximum number of arguments is
+                    limited by the maximum dimension of a Java array as defined by
+                    &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.
+                    The behaviour on a
+                    <c>null</c> argument depends on the &lt;a
+                    href="../util/Formatter.html#syntax"&gt;conversion&lt;/a&gt;.</param>
+        <summary>A convenience method to write a formatted string to this console's
+            output stream using the specified format string and arguments.</summary>
+        <returns>This console</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#printf(java.lang.String,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>java.io.Console.printf(java.lang.String, java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PrintfAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;Java.IO.Console?&gt; PrintfAsync (string? format, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;class Java.IO.Console&gt; PrintfAsync(string format, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.PrintfAsync(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.PrintfAsync : string * Java.Lang.Object[] -&gt; System.Threading.Tasks.Task&lt;Java.IO.Console&gt;" Usage="console.PrintfAsync (format, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;Java.IO.Console&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="format" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="format">To be added.</param>
+        <param name="args">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Reader">
+      <MemberSignature Language="C#" Value="public Java.IO.Reader? Reader ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.IO.Reader Reader() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.Reader" />
+      <MemberSignature Language="F#" Value="member this.Reader : unit -&gt; Java.IO.Reader" Usage="console.Reader " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("reader", "()Ljava/io/Reader;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reader", "()Ljava/io/Reader;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.IO.Reader</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Retrieves the unique <c>java.io.Reader Reader</c> object associated
+            with this console.</summary>
+        <returns>The reader associated with this console</returns>
+        <remarks>
+          <para>Retrieves the unique <c>java.io.Reader Reader</c> object associated
+            with this console.</para>
+          <para>This method is intended to be used by sophisticated applications, for
+            example, a <c>java.util.Scanner</c> object which utilizes the rich
+            parsing/scanning functionality provided by the <c>Scanner</c>:
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">Console con = System.console();
+            if (con != null) {
+                Scanner sc = new Scanner(con.reader());
+                ...
+            }
+            </code>
+          <para>&lt;/blockquote&gt;</para>
+          <para>For simple applications requiring only line-oriented reading, use
+            <c><c>#readLine</c></c>.</para>
+          <para>The bulk read operations <c>java.io.Reader#read(char[]) read(char[]) </c>,
+            <c>java.io.Reader#read(char[], int, int) read(char[], int, int) </c> and
+            <c>java.io.Reader#read(java.nio.CharBuffer) read(java.nio.CharBuffer)</c>
+            on the returned object will not read in characters beyond the line
+            bound for each invocation, even if the destination buffer has space for
+            more characters. The <c>Reader</c>'s <c>read</c> methods may block if a
+            line bound has not been entered or reached on the console's input device.
+            A line bound is considered to be any one of a line feed (<c>'\n'</c>),
+            a carriage return (<c>'\r'</c>), a carriage return followed immediately
+            by a linefeed, or an end of stream.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#reader()" title="Reference documentation">Java documentation for <code>java.io.Console.reader()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 9" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReadLine">
+      <MemberSignature Language="C#" Value="public string? ReadLine ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ReadLine() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadLine" />
+      <MemberSignature Language="F#" Value="member this.ReadLine : unit -&gt; string" Usage="console.ReadLine " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("readLine", "()Ljava/lang/String;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("readLine", "()Ljava/lang/String;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Reads a single line of text from the console.</summary>
+        <returns>A string containing the line read from the console, not
+                     including any line-termination characters, or <c>null</c>
+                     if an end of stream has been reached.</returns>
+        <remarks>
+          <para>Reads a single line of text from the console.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#readLine()" title="Reference documentation">Java documentation for <code>java.io.Console.readLine()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 9" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReadLine">
+      <MemberSignature Language="C#" Value="public string? ReadLine (string? fmt, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string ReadLine(string fmt, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadLine(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.ReadLine : string * Java.Lang.Object[] -&gt; string" Usage="console.ReadLine (fmt, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("readLine", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("readLine", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fmt" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="fmt">To be added.</param>
+        <param name="args">To be added.</param>
+        <summary>Reads a single line of text from the console.</summary>
+        <returns>A string containing the line read from the console, not
+                     including any line-termination characters, or <c>null</c>
+                     if an end of stream has been reached.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#readLine()" title="Reference documentation">Java documentation for <code>java.io.Console.readLine()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadLineAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;string?&gt; ReadLineAsync ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;string&gt; ReadLineAsync() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadLineAsync" />
+      <MemberSignature Language="F#" Value="member this.ReadLineAsync : unit -&gt; System.Threading.Tasks.Task&lt;string&gt;" Usage="console.ReadLineAsync " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadLineAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;string?&gt; ReadLineAsync (string? fmt, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;string&gt; ReadLineAsync(string fmt, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadLineAsync(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.ReadLineAsync : string * Java.Lang.Object[] -&gt; System.Threading.Tasks.Task&lt;string&gt;" Usage="console.ReadLineAsync (fmt, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fmt" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="fmt">To be added.</param>
+        <param name="args">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadPassword">
+      <MemberSignature Language="C#" Value="public char[]? ReadPassword ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance char[] ReadPassword() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadPassword" />
+      <MemberSignature Language="F#" Value="member this.ReadPassword : unit -&gt; char[]" Usage="console.ReadPassword " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("readPassword", "()[C", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("readPassword", "()[C", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Char[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Reads a password or passphrase from the console with echoing disabled</summary>
+        <returns>A character array containing the password or passphrase read
+                     from the console, not including any line-termination characters,
+                     or <c>null</c> if an end of stream has been reached.</returns>
+        <remarks>
+          <para>Reads a password or passphrase from the console with echoing disabled</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#readPassword()" title="Reference documentation">Java documentation for <code>java.io.Console.readPassword()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 9" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReadPassword">
+      <MemberSignature Language="C#" Value="public char[]? ReadPassword (string? fmt, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance char[] ReadPassword(string fmt, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadPassword(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.ReadPassword : string * Java.Lang.Object[] -&gt; char[]" Usage="console.ReadPassword (fmt, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("readPassword", "(Ljava/lang/String;[Ljava/lang/Object;)[C", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("readPassword", "(Ljava/lang/String;[Ljava/lang/Object;)[C", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Char[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fmt" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="fmt">To be added.</param>
+        <param name="args">To be added.</param>
+        <summary>Reads a password or passphrase from the console with echoing disabled</summary>
+        <returns>A character array containing the password or passphrase read
+                     from the console, not including any line-termination characters,
+                     or <c>null</c> if an end of stream has been reached.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#readPassword()" title="Reference documentation">Java documentation for <code>java.io.Console.readPassword()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadPasswordAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;char[]?&gt; ReadPasswordAsync ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;char[]&gt; ReadPasswordAsync() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadPasswordAsync" />
+      <MemberSignature Language="F#" Value="member this.ReadPasswordAsync : unit -&gt; System.Threading.Tasks.Task&lt;char[]&gt;" Usage="console.ReadPasswordAsync " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Char[]&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReadPasswordAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;char[]?&gt; ReadPasswordAsync (string? fmt, params Java.Lang.Object[]? args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;char[]&gt; ReadPasswordAsync(string fmt, class Java.Lang.Object[] args) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.ReadPasswordAsync(System.String,Java.Lang.Object[])" />
+      <MemberSignature Language="F#" Value="member this.ReadPasswordAsync : string * Java.Lang.Object[] -&gt; System.Threading.Tasks.Task&lt;char[]&gt;" Usage="console.ReadPasswordAsync (fmt, args)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Char[]&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="fmt" Type="System.String" />
+        <Parameter Name="args" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="fmt">To be added.</param>
+        <param name="args">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.IO.Console.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.IO.Console.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.IO.Console.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.IO.Console.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Writer">
+      <MemberSignature Language="C#" Value="public Java.IO.PrintWriter? Writer ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.IO.PrintWriter Writer() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.Console.Writer" />
+      <MemberSignature Language="F#" Value="member this.Writer : unit -&gt; Java.IO.PrintWriter" Usage="console.Writer " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("writer", "()Ljava/io/PrintWriter;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("writer", "()Ljava/io/PrintWriter;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.IO.PrintWriter</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Retrieves the unique <c>java.io.PrintWriter PrintWriter</c> object
+            associated with this console.</summary>
+        <returns>The printwriter associated with this console</returns>
+        <remarks>
+          <para>Retrieves the unique <c>java.io.PrintWriter PrintWriter</c> object
+            associated with this console.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/io/Console#writer()" title="Reference documentation">Java documentation for <code>java.io.Console.writer()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 9" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

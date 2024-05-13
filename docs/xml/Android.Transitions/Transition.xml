@@ -1,0 +1,2546 @@
+<Type Name="Transition" FullName="Android.Transitions.Transition">
+  <TypeSignature Language="C#" Value="public abstract class Transition : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.ICloneable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit Transition extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Lang.ICloneable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Android.Transitions.Transition" />
+  <TypeSignature Language="F#" Value="type Transition = class&#xA;    inherit Object&#xA;    interface ICloneable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Lang.ICloneable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/transition/Transition", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/transition/Transition", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="19">
+    <summary>A Transition holds information about animations that will be run on its
+            targets during a scene change.</summary>
+    <remarks>
+      <para>A Transition holds information about animations that will be run on its
+            targets during a scene change. Subclasses of this abstract class may
+            choreograph several child transitions (<c>TransitionSet</c> or they may
+            perform custom animations themselves. Any Transition has two main jobs:
+            (1) capture property values, and (2) play animations based on changes to
+            captured property values. A custom transition knows what property values
+            on View objects are of interest to it, and also knows how to animate
+            changes to those values. For example, the <c>Fade</c> transition tracks
+            changes to visibility-related properties and is able to construct and run
+            animations that fade items in or out based on changes to those properties.</para>
+      <para>Note: Transitions may not work correctly with either <c>SurfaceView</c>
+            or <c>TextureView</c>, due to the way that these views are displayed
+            on the screen. For SurfaceView, the problem is that the view is updated from
+            a non-UI thread, so changes to the view due to transitions (such as moving
+            and resizing the view) may be out of sync with the display inside those bounds.
+            TextureView is more compatible with transitions in general, but some
+            specific transitions (such as <c>Fade</c>) may not be compatible
+            with TextureView because they rely on <c>ViewOverlay</c> functionality,
+            which does not currently work with TextureView.</para>
+      <para>Transitions can be declared in XML resource files inside the <c>res/transition</c>
+            directory. Transition resources consist of a tag name for one of the Transition
+            subclasses along with attributes to define some of the attributes of that transition.
+            For example, here is a minimal resource file that declares a <c>ChangeBounds</c> transition:
+            
+            {</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/transition/Transition" title="Reference documentation">Java documentation for <code>android.transition.Transition</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Transition ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>Constructs a Transition object with no target objects.</summary>
+        <remarks>
+          <para>Constructs a Transition object with no target objects. A transition with
+            no targets defaults to running on all target objects in the scene hierarchy
+            (if the transition is not contained in a TransitionSet), or all target
+            objects passed down from its parent (if it is in a TransitionSet).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#Transition()" title="Reference documentation">Java documentation for <code>android.transition.Transition.Transition()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Transition (Android.Content.Context? context, Android.Util.IAttributeSet? attrs);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.Content.Context context, class Android.Util.IAttributeSet attrs) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.#ctor(Android.Content.Context,Android.Util.IAttributeSet)" />
+      <MemberSignature Language="F#" Value="new Android.Transitions.Transition : Android.Content.Context * Android.Util.IAttributeSet -&gt; Android.Transitions.Transition" Usage="new Android.Transitions.Transition (context, attrs)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Landroid/content/Context;Landroid/util/AttributeSet;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Landroid/content/Context;Landroid/util/AttributeSet;)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="context" Type="Android.Content.Context" />
+        <Parameter Name="attrs" Type="Android.Util.IAttributeSet" />
+      </Parameters>
+      <Docs>
+        <param name="context">The Context the transition is running in, through which it can
+                   access the current theme, resources, etc.</param>
+        <param name="attrs">The attributes of the XML tag that is inflating the transition.</param>
+        <summary>Perform inflation from XML and apply a class-specific base style from a
+            theme attribute or style resource.</summary>
+        <remarks>
+          <para>Perform inflation from XML and apply a class-specific base style from a
+            theme attribute or style resource. This constructor of Transition allows
+            subclasses to use their own base style when they are inflating.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#Transition(android.content.Context,%20android.util.AttributeSet)" title="Reference documentation">Java documentation for <code>android.transition.Transition.Transition(android.content.Context, android.util.AttributeSet)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected Transition (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Android.Transitions.Transition : nativeint * Android.Runtime.JniHandleOwnership -&gt; Android.Transitions.Transition" Usage="new Android.Transitions.Transition (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AddListener">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? AddListener (Android.Transitions.Transition.ITransitionListener? listener);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition AddListener(class Android.Transitions.Transition/ITransitionListener listener) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.AddListener(Android.Transitions.Transition.ITransitionListener)" />
+      <MemberSignature Language="F#" Value="abstract member AddListener : Android.Transitions.Transition.ITransitionListener -&gt; Android.Transitions.Transition&#xA;override this.AddListener : Android.Transitions.Transition.ITransitionListener -&gt; Android.Transitions.Transition" Usage="transition.AddListener listener" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("addListener", "(Landroid/transition/Transition$TransitionListener;)Landroid/transition/Transition;", "GetAddListener_Landroid_transition_Transition_TransitionListener_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addListener", "(Landroid/transition/Transition$TransitionListener;)Landroid/transition/Transition;", "GetAddListener_Landroid_transition_Transition_TransitionListener_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="listener" Type="Android.Transitions.Transition+ITransitionListener" />
+      </Parameters>
+      <Docs>
+        <param name="listener">the listener to be added to the current set of listeners
+            for this animation.</param>
+        <summary>Adds a listener to the set of listeners that are sent events through the
+            life of an animation, such as start, repeat, and end.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#addListener(android.transition.TransitionListener)" title="Reference documentation">Java documentation for <code>android.transition.Transition.addListener(android.transition.TransitionListener)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AddTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? AddTarget (Android.Views.View? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition AddTarget(class Android.Views.View target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.AddTarget(Android.Views.View)" />
+      <MemberSignature Language="F#" Value="abstract member AddTarget : Android.Views.View -&gt; Android.Transitions.Transition&#xA;override this.AddTarget : Android.Views.View -&gt; Android.Transitions.Transition" Usage="transition.AddTarget target" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("addTarget", "(Landroid/view/View;)Landroid/transition/Transition;", "GetAddTarget_Landroid_view_View_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addTarget", "(Landroid/view/View;)Landroid/transition/Transition;", "GetAddTarget_Landroid_view_View_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="target" Type="Android.Views.View" />
+      </Parameters>
+      <Docs>
+        <param name="target">A View on which the Transition will act, must be non-null.</param>
+        <summary>Sets the target view instances that this Transition is interested in
+            animating.</summary>
+        <returns>The Transition to which the target is added.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).addTarget(someView);</c></returns>
+        <remarks>
+          <para>Sets the target view instances that this Transition is interested in
+            animating. By default, there are no targets, and a Transition will
+            listen for changes on every view in the hierarchy below the sceneRoot
+            of the Scene being transitioned into. Setting targets constrains
+            the Transition to only listen for, and act on, these views.
+            All other views will be ignored.</para>
+          <para>The target list is like the <c>#addTarget(int) targetId</c>
+            list except this list specifies the actual View instances, not the ids
+            of the views. This is an important distinction when scene changes involve
+            view hierarchies which have been inflated separately; different views may
+            share the same id but not actually be the same instance. If the transition
+            should treat those views as the same, then <c>#addTarget(int)</c> should be used
+            instead of <c>#addTarget(View)</c>. If, on the other hand, scene changes involve
+            changes all within the same view hierarchy, among views which do not
+            necessarily have ids set on them, then the target list of views may be more
+            convenient.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#addTarget(android.view.View)" title="Reference documentation">Java documentation for <code>android.transition.Transition.addTarget(android.view.View)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.AddTarget(System.Int32)" />
+      </Docs>
+    </Member>
+    <Member MemberName="AddTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? AddTarget (Java.Lang.Class? targetType);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition AddTarget(class Java.Lang.Class targetType) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.AddTarget(Java.Lang.Class)" />
+      <MemberSignature Language="F#" Value="abstract member AddTarget : Java.Lang.Class -&gt; Android.Transitions.Transition&#xA;override this.AddTarget : Java.Lang.Class -&gt; Android.Transitions.Transition" Usage="transition.AddTarget targetType" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("addTarget", "(Ljava/lang/Class;)Landroid/transition/Transition;", "GetAddTarget_Ljava_lang_Class_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addTarget", "(Ljava/lang/Class;)Landroid/transition/Transition;", "GetAddTarget_Ljava_lang_Class_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetType" Type="Java.Lang.Class" />
+      </Parameters>
+      <Docs>
+        <param name="targetType">The type to include when running this transition.</param>
+        <summary>Adds the Class of a target view that this Transition is interested in
+            animating.</summary>
+        <returns>The Transition to which the target class was added.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).addTarget(ImageView.class);</c></returns>
+        <remarks>
+          <para>Adds the Class of a target view that this Transition is interested in
+            animating. By default, there are no targetTypes, and a Transition will
+            listen for changes on every view in the hierarchy below the sceneRoot
+            of the Scene being transitioned into. Setting targetTypes constrains
+            the Transition to only listen for, and act on, views with these classes.
+            Views with different classes will be ignored.</para>
+          <para>Note that any View that can be cast to targetType will be included, so
+            if targetType is <c>View.class</c>, all Views will be included.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#addTarget(java.lang.Class)" title="Reference documentation">Java documentation for <code>android.transition.Transition.addTarget(java.lang.Class)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.AddTarget(System.Int32)" />
+        <altmember cref="M:Android.Transitions.Transition.AddTarget(Android.Views.View)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Java.Lang.Class, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(Java.Lang.Class, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="AddTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? AddTarget (int targetId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition AddTarget(int32 targetId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.AddTarget(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member AddTarget : int -&gt; Android.Transitions.Transition&#xA;override this.AddTarget : int -&gt; Android.Transitions.Transition" Usage="transition.AddTarget targetId" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("addTarget", "(I)Landroid/transition/Transition;", "GetAddTarget_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addTarget", "(I)Landroid/transition/Transition;", "GetAddTarget_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetId" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="targetId">The id of a target view, must be a positive number.</param>
+        <summary>Adds the id of a target view that this Transition is interested in
+            animating.</summary>
+        <returns>The Transition to which the targetId is added.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).addTarget(someId);</c></returns>
+        <remarks>
+          <para>Adds the id of a target view that this Transition is interested in
+            animating. By default, there are no targetIds, and a Transition will
+            listen for changes on every view in the hierarchy below the sceneRoot
+            of the Scene being transitioned into. Setting targetIds constrains
+            the Transition to only listen for, and act on, views with these IDs.
+            Views with different IDs, or no IDs whatsoever, will be ignored.</para>
+          <para>Note that using ids to specify targets implies that ids should be unique
+            within the view hierarchy underneath the scene root.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#addTarget(int)" title="Reference documentation">Java documentation for <code>android.transition.Transition.addTarget(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="P:Android.Views.View.Id" />
+      </Docs>
+    </Member>
+    <Member MemberName="AddTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? AddTarget (string? targetName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition AddTarget(string targetName) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.AddTarget(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member AddTarget : string -&gt; Android.Transitions.Transition&#xA;override this.AddTarget : string -&gt; Android.Transitions.Transition" Usage="transition.AddTarget targetName" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("addTarget", "(Ljava/lang/String;)Landroid/transition/Transition;", "GetAddTarget_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addTarget", "(Ljava/lang/String;)Landroid/transition/Transition;", "GetAddTarget_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="targetName">The transitionName of a target view, must be non-null.</param>
+        <summary>Adds the transitionName of a target view that this Transition is interested in
+            animating.</summary>
+        <returns>The Transition to which the target transitionName is added.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).addTarget(someName);</c></returns>
+        <remarks>
+          <para>Adds the transitionName of a target view that this Transition is interested in
+            animating. By default, there are no targetNames, and a Transition will
+            listen for changes on every view in the hierarchy below the sceneRoot
+            of the Scene being transitioned into. Setting targetNames constrains
+            the Transition to only listen for, and act on, views with these transitionNames.
+            Views with different transitionNames, or no transitionName whatsoever, will be ignored.</para>
+          <para>Note that transitionNames should be unique within the view hierarchy.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#addTarget(java.lang.String)" title="Reference documentation">Java documentation for <code>android.transition.Transition.addTarget(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="P:Android.Views.View.TransitionName" />
+      </Docs>
+    </Member>
+    <Member MemberName="CanRemoveViews">
+      <MemberSignature Language="C#" Value="public virtual bool CanRemoveViews ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool CanRemoveViews() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.CanRemoveViews" />
+      <MemberSignature Language="F#" Value="abstract member CanRemoveViews : unit -&gt; bool&#xA;override this.CanRemoveViews : unit -&gt; bool" Usage="transition.CanRemoveViews " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("canRemoveViews", "()Z", "GetCanRemoveViewsHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("canRemoveViews", "()Z", "GetCanRemoveViewsHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary></summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CaptureEndValues">
+      <MemberSignature Language="C#" Value="public abstract void CaptureEndValues (Android.Transitions.TransitionValues? transitionValues);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CaptureEndValues(class Android.Transitions.TransitionValues transitionValues) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.CaptureEndValues(Android.Transitions.TransitionValues)" />
+      <MemberSignature Language="F#" Value="abstract member CaptureEndValues : Android.Transitions.TransitionValues -&gt; unit" Usage="transition.CaptureEndValues transitionValues" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("captureEndValues", "(Landroid/transition/TransitionValues;)V", "GetCaptureEndValues_Landroid_transition_TransitionValues_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("captureEndValues", "(Landroid/transition/TransitionValues;)V", "GetCaptureEndValues_Landroid_transition_TransitionValues_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="transitionValues" Type="Android.Transitions.TransitionValues" />
+      </Parameters>
+      <Docs>
+        <param name="transitionValues">The holder for any values that the Transition
+            wishes to store. Values are stored in the <c>values</c> field
+            of this TransitionValues object and are keyed from
+            a String value. For example, to store a view's rotation value,
+            a transition might call
+            <c>transitionValues.values.put("appname:transitionname:rotation",
+            view.getRotation())</c>. The target view will already be stored in
+            the transitionValues structure when this method is called.</param>
+        <summary>Captures the values in the end scene for the properties that this
+            transition monitors.</summary>
+        <remarks>
+          <para>Captures the values in the end scene for the properties that this
+            transition monitors. These values are then passed as the endValues
+            structure in a later call to
+            <c>#createAnimator(ViewGroup, TransitionValues, TransitionValues)</c>.
+            The main concern for an implementation is what the
+            properties are that the transition cares about and what the values are
+            for all of those properties. The start and end values will be compared
+            later during the
+            <c>#createAnimator(android.view.ViewGroup, TransitionValues, TransitionValues)</c>
+            method to determine what, if any, animations, should be run.</para>
+          <para>Subclasses must implement this method. The method should only be called by the
+            transition system; it is not intended to be called from external classes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#captureEndValues(android.transition.TransitionValues)" title="Reference documentation">Java documentation for <code>android.transition.Transition.captureEndValues(android.transition.TransitionValues)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.CaptureStartValues(Android.Transitions.TransitionValues)" />
+        <altmember cref="M:Android.Transitions.Transition.CreateAnimator(Android.Views.ViewGroup, Android.Transitions.TransitionValues, Android.Transitions.TransitionValues)" />
+      </Docs>
+    </Member>
+    <Member MemberName="CaptureStartValues">
+      <MemberSignature Language="C#" Value="public abstract void CaptureStartValues (Android.Transitions.TransitionValues? transitionValues);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CaptureStartValues(class Android.Transitions.TransitionValues transitionValues) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.CaptureStartValues(Android.Transitions.TransitionValues)" />
+      <MemberSignature Language="F#" Value="abstract member CaptureStartValues : Android.Transitions.TransitionValues -&gt; unit" Usage="transition.CaptureStartValues transitionValues" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("captureStartValues", "(Landroid/transition/TransitionValues;)V", "GetCaptureStartValues_Landroid_transition_TransitionValues_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("captureStartValues", "(Landroid/transition/TransitionValues;)V", "GetCaptureStartValues_Landroid_transition_TransitionValues_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="transitionValues" Type="Android.Transitions.TransitionValues" />
+      </Parameters>
+      <Docs>
+        <param name="transitionValues">The holder for any values that the Transition
+            wishes to store. Values are stored in the <c>values</c> field
+            of this TransitionValues object and are keyed from
+            a String value. For example, to store a view's rotation value,
+            a transition might call
+            <c>transitionValues.values.put("appname:transitionname:rotation",
+            view.getRotation())</c>. The target view will already be stored in
+            the transitionValues structure when this method is called.</param>
+        <summary>Captures the values in the start scene for the properties that this
+            transition monitors.</summary>
+        <remarks>
+          <para>Captures the values in the start scene for the properties that this
+            transition monitors. These values are then passed as the startValues
+            structure in a later call to
+            <c>#createAnimator(ViewGroup, TransitionValues, TransitionValues)</c>.
+            The main concern for an implementation is what the
+            properties are that the transition cares about and what the values are
+            for all of those properties. The start and end values will be compared
+            later during the
+            <c>#createAnimator(android.view.ViewGroup, TransitionValues, TransitionValues)</c>
+            method to determine what, if any, animations, should be run.</para>
+          <para>Subclasses must implement this method. The method should only be called by the
+            transition system; it is not intended to be called from external classes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#captureStartValues(android.transition.TransitionValues)" title="Reference documentation">Java documentation for <code>android.transition.Transition.captureStartValues(android.transition.TransitionValues)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.CaptureEndValues(Android.Transitions.TransitionValues)" />
+        <altmember cref="M:Android.Transitions.Transition.CreateAnimator(Android.Views.ViewGroup, Android.Transitions.TransitionValues, Android.Transitions.TransitionValues)" />
+      </Docs>
+    </Member>
+    <Member MemberName="Clone">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? Clone ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition Clone() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.Clone" />
+      <MemberSignature Language="F#" Value="override this.Clone : unit -&gt; Android.Transitions.Transition" Usage="transition.Clone " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("clone", "()Landroid/transition/Transition;", "GetCloneHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clone", "()Landroid/transition/Transition;", "GetCloneHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Creates and returns a copy of this <c>Object</c>.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CreateAnimator">
+      <MemberSignature Language="C#" Value="public virtual Android.Animation.Animator? CreateAnimator (Android.Views.ViewGroup? sceneRoot, Android.Transitions.TransitionValues? startValues, Android.Transitions.TransitionValues? endValues);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Animation.Animator CreateAnimator(class Android.Views.ViewGroup sceneRoot, class Android.Transitions.TransitionValues startValues, class Android.Transitions.TransitionValues endValues) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.CreateAnimator(Android.Views.ViewGroup,Android.Transitions.TransitionValues,Android.Transitions.TransitionValues)" />
+      <MemberSignature Language="F#" Value="abstract member CreateAnimator : Android.Views.ViewGroup * Android.Transitions.TransitionValues * Android.Transitions.TransitionValues -&gt; Android.Animation.Animator&#xA;override this.CreateAnimator : Android.Views.ViewGroup * Android.Transitions.TransitionValues * Android.Transitions.TransitionValues -&gt; Android.Animation.Animator" Usage="transition.CreateAnimator (sceneRoot, startValues, endValues)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("createAnimator", "(Landroid/view/ViewGroup;Landroid/transition/TransitionValues;Landroid/transition/TransitionValues;)Landroid/animation/Animator;", "GetCreateAnimator_Landroid_view_ViewGroup_Landroid_transition_TransitionValues_Landroid_transition_TransitionValues_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("createAnimator", "(Landroid/view/ViewGroup;Landroid/transition/TransitionValues;Landroid/transition/TransitionValues;)Landroid/animation/Animator;", "GetCreateAnimator_Landroid_view_ViewGroup_Landroid_transition_TransitionValues_Landroid_transition_TransitionValues_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Animation.Animator</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="sceneRoot" Type="Android.Views.ViewGroup" />
+        <Parameter Name="startValues" Type="Android.Transitions.TransitionValues" />
+        <Parameter Name="endValues" Type="Android.Transitions.TransitionValues" />
+      </Parameters>
+      <Docs>
+        <param name="sceneRoot">The root of the transition hierarchy.</param>
+        <param name="startValues">The values for a specific target in the start scene.</param>
+        <param name="endValues">The values for the target in the end scene.</param>
+        <summary>This method creates an animation that will be run for this transition
+            given the information in the startValues and endValues structures captured
+            earlier for the start and end scenes.</summary>
+        <returns>A Animator to be started at the appropriate time in the
+            overall transition for this scene change. A null value means no animation
+            should be run.</returns>
+        <remarks>
+          <para>This method creates an animation that will be run for this transition
+            given the information in the startValues and endValues structures captured
+            earlier for the start and end scenes. Subclasses of Transition should override
+            this method. The method should only be called by the transition system; it is
+            not intended to be called from external classes.</para>
+          <para>This method is called by the transition's parent (all the way up to the
+            topmost Transition in the hierarchy) with the sceneRoot and start/end
+            values that the transition may need to set up initial target values
+            and construct an appropriate animation. For example, if an overall
+            Transition is a <c>TransitionSet</c> consisting of several
+            child transitions in sequence, then some of the child transitions may
+            want to set initial values on target views prior to the overall
+            Transition commencing, to put them in an appropriate state for the
+            delay between that start and the child Transition start time. For
+            example, a transition that fades an item in may wish to set the starting
+            alpha value to 0, to avoid it blinking in prior to the transition
+            actually starting the animation. This is necessary because the scene
+            change that triggers the Transition will automatically set the end-scene
+            on all target views, so a Transition that wants to animate from a
+            different value should set that value prior to returning from this method.</para>
+          <para>Additionally, a Transition can perform logic to determine whether
+            the transition needs to run on the given target and start/end values.
+            For example, a transition that resizes objects on the screen may wish
+            to avoid running for views which are not present in either the start
+            or end scenes.</para>
+          <para>If there is an animator created and returned from this method, the
+            transition mechanism will apply any applicable duration, startDelay,
+            and interpolator to that animation and start it. A return value of
+            <c>null</c> indicates that no animation should run. The default
+            implementation returns null.</para>
+          <para>The method is called for every applicable target object, which is
+            stored in the <c>TransitionValues#view</c> field.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#createAnimator(android.view.ViewGroup,%20android.transition.TransitionValues,%20android.transition.TransitionValues)" title="Reference documentation">Java documentation for <code>android.transition.Transition.createAnimator(android.view.ViewGroup, android.transition.TransitionValues, android.transition.TransitionValues)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Duration">
+      <MemberSignature Language="C#" Value="public virtual long Duration { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 Duration" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.Duration" />
+      <MemberSignature Language="F#" Value="member this.Duration : int64" Usage="Android.Transitions.Transition.Duration" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDuration", "()J", "GetGetDurationHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDuration", "()J", "GetGetDurationHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the duration set on this transition.</summary>
+        <value>The duration set on this transition, in milliseconds, if one has been
+            set, otherwise returns a negative number.</value>
+        <remarks>
+          <para>Returns the duration set on this transition. If no duration has been set,
+            the returned value will be negative, indicating that resulting animators will
+            retain their own durations.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getDuration()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getDuration()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Epicenter">
+      <MemberSignature Language="C#" Value="public virtual Android.Graphics.Rect? Epicenter { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Graphics.Rect Epicenter" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.Epicenter" />
+      <MemberSignature Language="F#" Value="member this.Epicenter : Android.Graphics.Rect" Usage="Android.Transitions.Transition.Epicenter" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getEpicenter", "()Landroid/graphics/Rect;", "GetGetEpicenterHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getEpicenter", "()Landroid/graphics/Rect;", "GetGetEpicenterHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Rect</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the epicenter as specified by the
+            <c>android.transition.Transition.EpicenterCallback</c> or null if no callback exists.</summary>
+        <value>the epicenter as specified by the
+            <c>android.transition.Transition.EpicenterCallback</c> or null if no callback exists.</value>
+        <remarks>
+          <para>Returns the epicenter as specified by the
+            <c>android.transition.Transition.EpicenterCallback</c> or null if no callback exists.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getEpicenter()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getEpicenter()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.SetEpicenterCallback(.EpicenterCallback)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExcludeChildren">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? ExcludeChildren (Android.Views.View? target, bool exclude);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition ExcludeChildren(class Android.Views.View target, bool exclude) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.ExcludeChildren(Android.Views.View,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member ExcludeChildren : Android.Views.View * bool -&gt; Android.Transitions.Transition&#xA;override this.ExcludeChildren : Android.Views.View * bool -&gt; Android.Transitions.Transition" Usage="transition.ExcludeChildren (target, exclude)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("excludeChildren", "(Landroid/view/View;Z)Landroid/transition/Transition;", "GetExcludeChildren_Landroid_view_View_ZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("excludeChildren", "(Landroid/view/View;Z)Landroid/transition/Transition;", "GetExcludeChildren_Landroid_view_View_ZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="target" Type="Android.Views.View" />
+        <Parameter Name="exclude" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="target">The target to ignore when running this transition.</param>
+        <param name="exclude">Whether to add the target to or remove the target from the
+            current list of excluded targets.</param>
+        <summary>Whether to add the children of given target to the list of target children
+            to exclude from this transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Whether to add the children of given target to the list of target children
+            to exclude from this transition. The <c>exclude</c> parameter specifies
+            whether the target should be added to or removed from the excluded list.</para>
+          <para>Excluding targets is a general mechanism for allowing transitions to run on
+            a view hierarchy while skipping target views that should not be part of
+            the transition. For example, you may want to avoid animating children
+            of a specific ListView or Spinner. Views can be excluded either by their
+            id, or by their instance reference, or by the Class of that view
+            (eg, <c>Spinner</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#excludeChildren(android.view.View,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.excludeChildren(android.view.View, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Android.Views.View, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(System.Int32, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(Java.Lang.Class, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExcludeChildren">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? ExcludeChildren (Java.Lang.Class? type, bool exclude);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition ExcludeChildren(class Java.Lang.Class type, bool exclude) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.ExcludeChildren(Java.Lang.Class,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member ExcludeChildren : Java.Lang.Class * bool -&gt; Android.Transitions.Transition&#xA;override this.ExcludeChildren : Java.Lang.Class * bool -&gt; Android.Transitions.Transition" Usage="transition.ExcludeChildren (type, exclude)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("excludeChildren", "(Ljava/lang/Class;Z)Landroid/transition/Transition;", "GetExcludeChildren_Ljava_lang_Class_ZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("excludeChildren", "(Ljava/lang/Class;Z)Landroid/transition/Transition;", "GetExcludeChildren_Ljava_lang_Class_ZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="type" Type="Java.Lang.Class" />
+        <Parameter Name="exclude" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="type">The type to ignore when running this transition.</param>
+        <param name="exclude">Whether to add the target type to or remove it from the
+            current list of excluded target types.</param>
+        <summary>Whether to add the given type to the list of types whose children should
+            be excluded from this transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Whether to add the given type to the list of types whose children should
+            be excluded from this transition. The <c>exclude</c> parameter
+            specifies whether the target type should be added to or removed from
+            the excluded list.</para>
+          <para>Excluding targets is a general mechanism for allowing transitions to run on
+            a view hierarchy while skipping target views that should not be part of
+            the transition. For example, you may want to avoid animating children
+            of a specific ListView or Spinner. Views can be excluded either by their
+            id, or by their instance reference, or by the Class of that view
+            (eg, <c>Spinner</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#excludeChildren(java.lang.Class,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.excludeChildren(java.lang.Class, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Java.Lang.Class, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(System.Int32, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(Android.Views.View, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExcludeChildren">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? ExcludeChildren (int targetId, bool exclude);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition ExcludeChildren(int32 targetId, bool exclude) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.ExcludeChildren(System.Int32,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member ExcludeChildren : int * bool -&gt; Android.Transitions.Transition&#xA;override this.ExcludeChildren : int * bool -&gt; Android.Transitions.Transition" Usage="transition.ExcludeChildren (targetId, exclude)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("excludeChildren", "(IZ)Landroid/transition/Transition;", "GetExcludeChildren_IZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("excludeChildren", "(IZ)Landroid/transition/Transition;", "GetExcludeChildren_IZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetId" Type="System.Int32" />
+        <Parameter Name="exclude" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="targetId">The id of a target whose children should be ignored when running
+            this transition.</param>
+        <param name="exclude">Whether to add the target to or remove the target from the
+            current list of excluded-child targets.</param>
+        <summary>Whether to add the children of the given id to the list of targets to exclude
+            from this transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Whether to add the children of the given id to the list of targets to exclude
+            from this transition. The <c>exclude</c> parameter specifies whether
+            the children of the target should be added to or removed from the excluded list.
+            Excluding children in this way provides a simple mechanism for excluding all
+            children of specific targets, rather than individually excluding each
+            child individually.</para>
+          <para>Excluding targets is a general mechanism for allowing transitions to run on
+            a view hierarchy while skipping target views that should not be part of
+            the transition. For example, you may want to avoid animating children
+            of a specific ListView or Spinner. Views can be excluded either by their
+            id, or by their instance reference, or by the Class of that view
+            (eg, <c>Spinner</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#excludeChildren(int,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.excludeChildren(int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(System.Int32, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(Android.Views.View, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(Java.Lang.Class, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExcludeTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? ExcludeTarget (Android.Views.View? target, bool exclude);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition ExcludeTarget(class Android.Views.View target, bool exclude) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.ExcludeTarget(Android.Views.View,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member ExcludeTarget : Android.Views.View * bool -&gt; Android.Transitions.Transition&#xA;override this.ExcludeTarget : Android.Views.View * bool -&gt; Android.Transitions.Transition" Usage="transition.ExcludeTarget (target, exclude)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("excludeTarget", "(Landroid/view/View;Z)Landroid/transition/Transition;", "GetExcludeTarget_Landroid_view_View_ZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("excludeTarget", "(Landroid/view/View;Z)Landroid/transition/Transition;", "GetExcludeTarget_Landroid_view_View_ZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="target" Type="Android.Views.View" />
+        <Parameter Name="exclude" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="target">The target to ignore when running this transition.</param>
+        <param name="exclude">Whether to add the target to or remove the target from the
+            current list of excluded targets.</param>
+        <summary>Whether to add the given target to the list of targets to exclude from this
+            transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Whether to add the given target to the list of targets to exclude from this
+            transition. The <c>exclude</c> parameter specifies whether the target
+            should be added to or removed from the excluded list.</para>
+          <para>Excluding targets is a general mechanism for allowing transitions to run on
+            a view hierarchy while skipping target views that should not be part of
+            the transition. For example, you may want to avoid animating children
+            of a specific ListView or Spinner. Views can be excluded either by their
+            id, or by their instance reference, or by the Class of that view
+            (eg, <c>Spinner</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#excludeTarget(android.view.View,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.excludeTarget(android.view.View, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(Android.Views.View, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(System.Int32, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Java.Lang.Class, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExcludeTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? ExcludeTarget (Java.Lang.Class? type, bool exclude);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition ExcludeTarget(class Java.Lang.Class type, bool exclude) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.ExcludeTarget(Java.Lang.Class,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member ExcludeTarget : Java.Lang.Class * bool -&gt; Android.Transitions.Transition&#xA;override this.ExcludeTarget : Java.Lang.Class * bool -&gt; Android.Transitions.Transition" Usage="transition.ExcludeTarget (type, exclude)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("excludeTarget", "(Ljava/lang/Class;Z)Landroid/transition/Transition;", "GetExcludeTarget_Ljava_lang_Class_ZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("excludeTarget", "(Ljava/lang/Class;Z)Landroid/transition/Transition;", "GetExcludeTarget_Ljava_lang_Class_ZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="type" Type="Java.Lang.Class" />
+        <Parameter Name="exclude" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="type">The type to ignore when running this transition.</param>
+        <param name="exclude">Whether to add the target type to or remove it from the
+            current list of excluded target types.</param>
+        <summary>Whether to add the given type to the list of types to exclude from this
+            transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Whether to add the given type to the list of types to exclude from this
+            transition. The <c>exclude</c> parameter specifies whether the target
+            type should be added to or removed from the excluded list.</para>
+          <para>Excluding targets is a general mechanism for allowing transitions to run on
+            a view hierarchy while skipping target views that should not be part of
+            the transition. For example, you may want to avoid animating children
+            of a specific ListView or Spinner. Views can be excluded either by their
+            id, or by their instance reference, or by the Class of that view
+            (eg, <c>Spinner</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#excludeTarget(java.lang.Class,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.excludeTarget(java.lang.Class, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(Java.Lang.Class, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(System.Int32, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Android.Views.View, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExcludeTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? ExcludeTarget (int targetId, bool exclude);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition ExcludeTarget(int32 targetId, bool exclude) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.ExcludeTarget(System.Int32,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member ExcludeTarget : int * bool -&gt; Android.Transitions.Transition&#xA;override this.ExcludeTarget : int * bool -&gt; Android.Transitions.Transition" Usage="transition.ExcludeTarget (targetId, exclude)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("excludeTarget", "(IZ)Landroid/transition/Transition;", "GetExcludeTarget_IZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("excludeTarget", "(IZ)Landroid/transition/Transition;", "GetExcludeTarget_IZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetId" Type="System.Int32" />
+        <Parameter Name="exclude" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="targetId">The id of a target to ignore when running this transition.</param>
+        <param name="exclude">Whether to add the target to or remove the target from the
+            current list of excluded targets.</param>
+        <summary>Whether to add the given id to the list of target ids to exclude from this
+            transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Whether to add the given id to the list of target ids to exclude from this
+            transition. The <c>exclude</c> parameter specifies whether the target
+            should be added to or removed from the excluded list.</para>
+          <para>Excluding targets is a general mechanism for allowing transitions to run on
+            a view hierarchy while skipping target views that should not be part of
+            the transition. For example, you may want to avoid animating children
+            of a specific ListView or Spinner. Views can be excluded either by their
+            id, or by their instance reference, or by the Class of that view
+            (eg, <c>Spinner</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#excludeTarget(int,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.excludeTarget(int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.ExcludeChildren(System.Int32, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Android.Views.View, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Java.Lang.Class, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExcludeTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? ExcludeTarget (string? targetName, bool exclude);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition ExcludeTarget(string targetName, bool exclude) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.ExcludeTarget(System.String,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member ExcludeTarget : string * bool -&gt; Android.Transitions.Transition&#xA;override this.ExcludeTarget : string * bool -&gt; Android.Transitions.Transition" Usage="transition.ExcludeTarget (targetName, exclude)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("excludeTarget", "(Ljava/lang/String;Z)Landroid/transition/Transition;", "GetExcludeTarget_Ljava_lang_String_ZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("excludeTarget", "(Ljava/lang/String;Z)Landroid/transition/Transition;", "GetExcludeTarget_Ljava_lang_String_ZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetName" Type="System.String" />
+        <Parameter Name="exclude" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="targetName">The name of a target to ignore when running this transition.</param>
+        <param name="exclude">Whether to add the target to or remove the target from the
+            current list of excluded targets.</param>
+        <summary>Whether to add the given transitionName to the list of target transitionNames to exclude
+            from this transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Whether to add the given transitionName to the list of target transitionNames to exclude
+            from this transition. The <c>exclude</c> parameter specifies whether the target
+            should be added to or removed from the excluded list.</para>
+          <para>Excluding targets is a general mechanism for allowing transitions to run on
+            a view hierarchy while skipping target views that should not be part of
+            the transition. For example, you may want to avoid animating children
+            of a specific ListView or Spinner. Views can be excluded by their
+            id, their instance reference, their transitionName, or by the Class of that view
+            (eg, <c>Spinner</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#excludeTarget(java.lang.String,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.excludeTarget(java.lang.String, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Android.Views.View, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(System.Int32, System.Boolean)" />
+        <altmember cref="M:Android.Transitions.Transition.ExcludeTarget(Java.Lang.Class, System.Boolean)" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetEpicenterCallback">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition.EpicenterCallback? GetEpicenterCallback ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition/EpicenterCallback GetEpicenterCallback() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.GetEpicenterCallback" />
+      <MemberSignature Language="F#" Value="abstract member GetEpicenterCallback : unit -&gt; Android.Transitions.Transition.EpicenterCallback&#xA;override this.GetEpicenterCallback : unit -&gt; Android.Transitions.Transition.EpicenterCallback" Usage="transition.GetEpicenterCallback " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getEpicenterCallback", "()Landroid/transition/Transition$EpicenterCallback;", "GetGetEpicenterCallbackHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getEpicenterCallback", "()Landroid/transition/Transition$EpicenterCallback;", "GetGetEpicenterCallbackHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition+EpicenterCallback</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the callback used to find the epicenter of the Transition.</summary>
+        <returns>the callback used to find the epicenter of the Transition.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getEpicenterCallback()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getEpicenterCallback()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetTransitionProperties">
+      <MemberSignature Language="C#" Value="public virtual string[]? GetTransitionProperties ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string[] GetTransitionProperties() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.GetTransitionProperties" />
+      <MemberSignature Language="F#" Value="abstract member GetTransitionProperties : unit -&gt; string[]&#xA;override this.GetTransitionProperties : unit -&gt; string[]" Usage="transition.GetTransitionProperties " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getTransitionProperties", "()[Ljava/lang/String;", "GetGetTransitionPropertiesHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getTransitionProperties", "()[Ljava/lang/String;", "GetGetTransitionPropertiesHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the set of property names used stored in the <c>TransitionValues</c>
+            object passed into <c>#captureStartValues(TransitionValues)</c> that
+            this transition cares about for the purposes of canceling overlapping animations.</summary>
+        <returns>An array of property names as described in the class documentation for
+            <c>TransitionValues</c>. The default implementation returns <c>null</c>.</returns>
+        <remarks>
+          <para>Returns the set of property names used stored in the <c>TransitionValues</c>
+            object passed into <c>#captureStartValues(TransitionValues)</c> that
+            this transition cares about for the purposes of canceling overlapping animations.
+            When any transition is started on a given scene root, all transitions
+            currently running on that same scene root are checked to see whether the
+            properties on which they based their animations agree with the end values of
+            the same properties in the new transition. If the end values are not equal,
+            then the old animation is canceled since the new transition will start a new
+            animation to these new values. If the values are equal, the old animation is
+            allowed to continue and no new animation is started for that transition.</para>
+          <para>A transition does not need to override this method. However, not doing so
+            will mean that the cancellation logic outlined in the previous paragraph
+            will be skipped for that transition, possibly leading to artifacts as
+            old transitions and new transitions on the same targets run in parallel,
+            animating views toward potentially different end values.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getTransitionProperties()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getTransitionProperties()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetTransitionValues">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.TransitionValues? GetTransitionValues (Android.Views.View? view, bool start);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.TransitionValues GetTransitionValues(class Android.Views.View view, bool start) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.GetTransitionValues(Android.Views.View,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member GetTransitionValues : Android.Views.View * bool -&gt; Android.Transitions.TransitionValues&#xA;override this.GetTransitionValues : Android.Views.View * bool -&gt; Android.Transitions.TransitionValues" Usage="transition.GetTransitionValues (view, start)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getTransitionValues", "(Landroid/view/View;Z)Landroid/transition/TransitionValues;", "GetGetTransitionValues_Landroid_view_View_ZHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getTransitionValues", "(Landroid/view/View;Z)Landroid/transition/TransitionValues;", "GetGetTransitionValues_Landroid_view_View_ZHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.TransitionValues</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="view" Type="Android.Views.View" />
+        <Parameter Name="start" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="view">To be added.</param>
+        <param name="start">To be added.</param>
+        <summary>This method can be called by transitions to get the TransitionValues for
+            any particular view during the transition-playing process.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>This method can be called by transitions to get the TransitionValues for
+            any particular view during the transition-playing process. This might be
+            necessary, for example, to query the before/after state of related views
+            for a given transition.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getTransitionValues(android.view.View,%20boolean)" title="Reference documentation">Java documentation for <code>android.transition.Transition.getTransitionValues(android.view.View, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Interpolator">
+      <MemberSignature Language="C#" Value="public virtual Android.Animation.ITimeInterpolator? Interpolator { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Animation.ITimeInterpolator Interpolator" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.Interpolator" />
+      <MemberSignature Language="F#" Value="member this.Interpolator : Android.Animation.ITimeInterpolator" Usage="Android.Transitions.Transition.Interpolator" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getInterpolator", "()Landroid/animation/TimeInterpolator;", "GetGetInterpolatorHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInterpolator", "()Landroid/animation/TimeInterpolator;", "GetGetInterpolatorHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Animation.ITimeInterpolator</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the interpolator set on this transition.</summary>
+        <value>The interpolator set on this transition, if one has been set, otherwise
+            returns null.</value>
+        <remarks>
+          <para>Returns the interpolator set on this transition. If no interpolator has been set,
+            the returned value will be null, indicating that resulting animators will
+            retain their own interpolators.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getInterpolator()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getInterpolator()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsTransitionRequired">
+      <MemberSignature Language="C#" Value="public virtual bool IsTransitionRequired (Android.Transitions.TransitionValues? startValues, Android.Transitions.TransitionValues? endValues);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool IsTransitionRequired(class Android.Transitions.TransitionValues startValues, class Android.Transitions.TransitionValues endValues) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.IsTransitionRequired(Android.Transitions.TransitionValues,Android.Transitions.TransitionValues)" />
+      <MemberSignature Language="F#" Value="abstract member IsTransitionRequired : Android.Transitions.TransitionValues * Android.Transitions.TransitionValues -&gt; bool&#xA;override this.IsTransitionRequired : Android.Transitions.TransitionValues * Android.Transitions.TransitionValues -&gt; bool" Usage="transition.IsTransitionRequired (startValues, endValues)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isTransitionRequired", "(Landroid/transition/TransitionValues;Landroid/transition/TransitionValues;)Z", "GetIsTransitionRequired_Landroid_transition_TransitionValues_Landroid_transition_TransitionValues_Handler", ApiSince=23)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isTransitionRequired", "(Landroid/transition/TransitionValues;Landroid/transition/TransitionValues;)Z", "GetIsTransitionRequired_Landroid_transition_TransitionValues_Landroid_transition_TransitionValues_Handler", ApiSince=23)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="startValues" Type="Android.Transitions.TransitionValues" />
+        <Parameter Name="endValues" Type="Android.Transitions.TransitionValues" />
+      </Parameters>
+      <Docs>
+        <param name="startValues">the values from captureStartValues, This may be <c>null</c> if the
+                               View did not exist in the start state.</param>
+        <param name="endValues">the values from captureEndValues. This may be <c>null</c> if the View
+                             did not exist in the end state.</param>
+        <summary>Returns whether or not the transition should create an Animator, based on the values
+            captured during <c>#captureStartValues(TransitionValues)</c> and
+            <c>#captureEndValues(TransitionValues)</c>.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Returns whether or not the transition should create an Animator, based on the values
+            captured during <c>#captureStartValues(TransitionValues)</c> and
+            <c>#captureEndValues(TransitionValues)</c>. The default implementation compares the
+            property values returned from <c>#getTransitionProperties()</c>, or all property values if
+            <c>getTransitionProperties()</c> returns null. Subclasses may override this method to
+            provide logic more specific to the transition implementation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#isTransitionRequired(android.transition.TransitionValues,%20android.transition.TransitionValues)" title="Reference documentation">Java documentation for <code>android.transition.Transition.isTransitionRequired(android.transition.TransitionValues, android.transition.TransitionValues)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Transitions.Transition.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MatchId">
+      <MemberSignature Language="C#" Value="public const Android.Transitions.MatchTarget MatchId = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Transitions.MatchTarget MatchId = (3)" />
+      <MemberSignature Language="DocId" Value="F:Android.Transitions.Transition.MatchId" />
+      <MemberSignature Language="F#" Value="val mutable MatchId : Android.Transitions.MatchTarget" Usage="Android.Transitions.Transition.MatchId" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("MATCH_ID")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("MATCH_ID")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.MatchTarget</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>With <c>#setMatchOrder(int...)</c>, chooses to match by
+            <c>android.view.View#getId()</c>.</summary>
+        <remarks>
+          <para>With <c>#setMatchOrder(int...)</c>, chooses to match by
+            <c>android.view.View#getId()</c>. Negative IDs will not be matched.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#MATCH_ID" title="Reference documentation">Java documentation for <code>android.transition.Transition.MATCH_ID</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MatchInstance">
+      <MemberSignature Language="C#" Value="public const Android.Transitions.MatchTarget MatchInstance = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Transitions.MatchTarget MatchInstance = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Transitions.Transition.MatchInstance" />
+      <MemberSignature Language="F#" Value="val mutable MatchInstance : Android.Transitions.MatchTarget" Usage="Android.Transitions.Transition.MatchInstance" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("MATCH_INSTANCE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("MATCH_INSTANCE")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.MatchTarget</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>With <c>#setMatchOrder(int...)</c>, chooses to match by View instance.</summary>
+        <remarks>
+          <para>With <c>#setMatchOrder(int...)</c>, chooses to match by View instance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#MATCH_INSTANCE" title="Reference documentation">Java documentation for <code>android.transition.Transition.MATCH_INSTANCE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MatchItemId">
+      <MemberSignature Language="C#" Value="public const Android.Transitions.MatchTarget MatchItemId = 4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Transitions.MatchTarget MatchItemId = (4)" />
+      <MemberSignature Language="DocId" Value="F:Android.Transitions.Transition.MatchItemId" />
+      <MemberSignature Language="F#" Value="val mutable MatchItemId : Android.Transitions.MatchTarget" Usage="Android.Transitions.Transition.MatchItemId" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("MATCH_ITEM_ID")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("MATCH_ITEM_ID")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.MatchTarget</ReturnType>
+      </ReturnValue>
+      <MemberValue>4</MemberValue>
+      <Docs>
+        <summary>With <c>#setMatchOrder(int...)</c>, chooses to match by the <c>android.widget.Adapter</c>
+            item id.</summary>
+        <remarks>
+          <para>With <c>#setMatchOrder(int...)</c>, chooses to match by the <c>android.widget.Adapter</c>
+            item id. When <c>android.widget.Adapter#hasStableIds()</c> returns false, no match
+            will be made for items.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#MATCH_ITEM_ID" title="Reference documentation">Java documentation for <code>android.transition.Transition.MATCH_ITEM_ID</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MatchName">
+      <MemberSignature Language="C#" Value="public const Android.Transitions.MatchTarget MatchName = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Transitions.MatchTarget MatchName = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Transitions.Transition.MatchName" />
+      <MemberSignature Language="F#" Value="val mutable MatchName : Android.Transitions.MatchTarget" Usage="Android.Transitions.Transition.MatchName" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("MATCH_NAME")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("MATCH_NAME")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Transitions.MatchTarget enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.MatchTarget</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>With <c>#setMatchOrder(int...)</c>, chooses to match by
+            <c>android.view.View#getTransitionName()</c>.</summary>
+        <remarks>
+          <para>With <c>#setMatchOrder(int...)</c>, chooses to match by
+            <c>android.view.View#getTransitionName()</c>. Null names will not be matched.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#MATCH_NAME" title="Reference documentation">Java documentation for <code>android.transition.Transition.MATCH_NAME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="public virtual string? Name { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Name" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.Name" />
+      <MemberSignature Language="F#" Value="member this.Name : string" Usage="Android.Transitions.Transition.Name" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getName", "()Ljava/lang/String;", "GetGetNameHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getName", "()Ljava/lang/String;", "GetGetNameHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the name of this Transition.</summary>
+        <value>The name of this transition.</value>
+        <remarks>
+          <para>Returns the name of this Transition. This name is used internally to distinguish
+            between different transitions to determine when interrupting transitions overlap.
+            For example, a ChangeBounds running on the same target view as another ChangeBounds
+            should determine whether the old transition is animating to different end values
+            and should be canceled in favor of the new transition.</para>
+          <para>By default, a Transition's name is simply the value of <c>Class#getName()</c>,
+            but subclasses are free to override and return something different.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getName()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getName()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PathMotion">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.PathMotion? PathMotion { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Transitions.PathMotion PathMotion" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.PathMotion" />
+      <MemberSignature Language="F#" Value="member this.PathMotion : Android.Transitions.PathMotion with get, set" Usage="Android.Transitions.Transition.PathMotion" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPathMotion", "()Landroid/transition/PathMotion;", "GetGetPathMotionHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPathMotion", "()Landroid/transition/PathMotion;", "GetGetPathMotionHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setPathMotion", "(Landroid/transition/PathMotion;)V", "GetSetPathMotion_Landroid_transition_PathMotion_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setPathMotion", "(Landroid/transition/PathMotion;)V", "GetSetPathMotion_Landroid_transition_PathMotion_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.PathMotion</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="pathMotion">Algorithm object to use for determining how to interpolate in two
+                              dimensions. If null, a straight-path algorithm will be used.</param>
+        <summary>Returns the algorithm object used to interpolate along two dimensions. -or- Sets the algorithm used to calculate two-dimensional interpolation.</summary>
+        <value>The algorithm object used to interpolate along two dimensions.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the algorithm object used to interpolate along two dimensions. This is typically
+            used to determine the View motion between two points.</para>
+          <para>When describing in XML, use a nested XML tag for the path motion. It can be one of
+                the built-in tags <c>arcMotion</c> or <c>patternPathMotion</c> or it can
+                be a custom PathMotion using <c>pathMotion</c> with the <c>class</c>
+                attributed with the fully-described class name. For example:</para>
+          <code lang="text/java">{@code
+            &lt;changeBounds&gt;
+                &lt;pathMotion class="my.app.transition.MyPathMotion"/&gt;
+            &lt;/changeBounds&gt;}
+            </code>
+          <para>or</para>
+          <code lang="text/java">{@code
+            &lt;changeBounds&gt;
+              &lt;arcMotion android:minimumHorizontalAngle="15"
+                         android:minimumVerticalAngle="0"
+                         android:maximumAngle="90"/&gt;
+            &lt;/changeBounds&gt;}
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getPathMotion()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getPathMotion()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the algorithm used to calculate two-dimensional interpolation.</para>
+          <para>Transitions such as <c>android.transition.ChangeBounds</c> move Views, typically
+                in a straight path between the start and end positions. Applications that desire to
+                have these motions move in a curve can change how Views interpolate in two dimensions
+                by extending PathMotion and implementing
+                <c>android.transition.PathMotion#getPath(float, float, float, float)</c>.</para>
+          <para>When describing in XML, use a nested XML tag for the path motion. It can be one of
+                the built-in tags <c>arcMotion</c> or <c>patternPathMotion</c> or it can
+                be a custom PathMotion using <c>pathMotion</c> with the <c>class</c>
+                attributed with the fully-described class name. For example:</para>
+          <code lang="text/java">{@code
+            &lt;changeBounds&gt;
+                &lt;pathMotion class="my.app.transition.MyPathMotion"/&gt;
+            &lt;/changeBounds&gt;
+            }
+            </code>
+          <para>or</para>
+          <code lang="text/java">{@code
+            &lt;changeBounds&gt;
+              &lt;arcMotion android:minimumHorizontalAngle="15"
+                android:minimumVerticalAngle="0" android:maximumAngle="90"/&gt;
+            &lt;/changeBounds&gt;
+            }
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#setPathMotion(android.transition.PathMotion)" title="Reference documentation">Java documentation for <code>android.transition.Transition.setPathMotion(android.transition.PathMotion)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="T:Android.Transitions.ArcMotion" />
+        <altmember cref="T:Android.Transitions.PatternPathMotion" />
+        <altmember cref="T:Android.Transitions.PathMotion" />
+      </Docs>
+    </Member>
+    <Member MemberName="Propagation">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.TransitionPropagation? Propagation { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Transitions.TransitionPropagation Propagation" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.Propagation" />
+      <MemberSignature Language="F#" Value="member this.Propagation : Android.Transitions.TransitionPropagation with get, set" Usage="Android.Transitions.Transition.Propagation" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPropagation", "()Landroid/transition/TransitionPropagation;", "GetGetPropagationHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPropagation", "()Landroid/transition/TransitionPropagation;", "GetGetPropagationHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setPropagation", "(Landroid/transition/TransitionPropagation;)V", "GetSetPropagation_Landroid_transition_TransitionPropagation_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setPropagation", "(Landroid/transition/TransitionPropagation;)V", "GetSetPropagation_Landroid_transition_TransitionPropagation_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.TransitionPropagation</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="transitionPropagation">The class used to determine the start delay of
+                                         Animators created by this Transition. A null value
+                                         indicates that no delay should be used.</param>
+        <summary>Returns the <c>android.transition.TransitionPropagation</c> used to calculate Animator start
+            delays. -or- Sets the method for determining Animator start delays.</summary>
+        <value>the <c>android.transition.TransitionPropagation</c> used to calculate Animator start
+            delays. This is null by default.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the <c>android.transition.TransitionPropagation</c> used to calculate Animator start
+            delays.
+            When a Transition affects several Views like <c>android.transition.Explode</c> or
+            <c>android.transition.Slide</c>, there may be a desire to have a "wave-front" effect
+            such that the Animator start delay depends on position of the View. The
+            TransitionPropagation specifies how the start delays are calculated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getPropagation()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getPropagation()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the method for determining Animator start delays.
+            When a Transition affects several Views like <c>android.transition.Explode</c> or
+            <c>android.transition.Slide</c>, there may be a desire to have a "wave-front" effect
+            such that the Animator start delay depends on position of the View. The
+            TransitionPropagation specifies how the start delays are calculated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#setPropagation(android.transition.TransitionPropagation)" title="Reference documentation">Java documentation for <code>android.transition.Transition.setPropagation(android.transition.TransitionPropagation)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveListener">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? RemoveListener (Android.Transitions.Transition.ITransitionListener? listener);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition RemoveListener(class Android.Transitions.Transition/ITransitionListener listener) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.RemoveListener(Android.Transitions.Transition.ITransitionListener)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveListener : Android.Transitions.Transition.ITransitionListener -&gt; Android.Transitions.Transition&#xA;override this.RemoveListener : Android.Transitions.Transition.ITransitionListener -&gt; Android.Transitions.Transition" Usage="transition.RemoveListener listener" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("removeListener", "(Landroid/transition/Transition$TransitionListener;)Landroid/transition/Transition;", "GetRemoveListener_Landroid_transition_Transition_TransitionListener_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeListener", "(Landroid/transition/Transition$TransitionListener;)Landroid/transition/Transition;", "GetRemoveListener_Landroid_transition_Transition_TransitionListener_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="listener" Type="Android.Transitions.Transition+ITransitionListener" />
+      </Parameters>
+      <Docs>
+        <param name="listener">the listener to be removed from the current set of
+            listeners for this transition.</param>
+        <summary>Removes a listener from the set listening to this animation.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#removeListener(android.transition.TransitionListener)" title="Reference documentation">Java documentation for <code>android.transition.Transition.removeListener(android.transition.TransitionListener)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? RemoveTarget (Android.Views.View? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition RemoveTarget(class Android.Views.View target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.RemoveTarget(Android.Views.View)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveTarget : Android.Views.View -&gt; Android.Transitions.Transition&#xA;override this.RemoveTarget : Android.Views.View -&gt; Android.Transitions.Transition" Usage="transition.RemoveTarget target" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("removeTarget", "(Landroid/view/View;)Landroid/transition/Transition;", "GetRemoveTarget_Landroid_view_View_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeTarget", "(Landroid/view/View;)Landroid/transition/Transition;", "GetRemoveTarget_Landroid_view_View_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="target" Type="Android.Views.View" />
+      </Parameters>
+      <Docs>
+        <param name="target">The target view, must be non-null.</param>
+        <summary>Removes the given target from the list of targets that this Transition
+            is interested in animating.</summary>
+        <returns>Transition The Transition from which the target is removed.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).removeTarget(someView);</c></returns>
+        <remarks>
+          <para>Removes the given target from the list of targets that this Transition
+            is interested in animating.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#removeTarget(android.view.View)" title="Reference documentation">Java documentation for <code>android.transition.Transition.removeTarget(android.view.View)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? RemoveTarget (Java.Lang.Class? target);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition RemoveTarget(class Java.Lang.Class target) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.RemoveTarget(Java.Lang.Class)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveTarget : Java.Lang.Class -&gt; Android.Transitions.Transition&#xA;override this.RemoveTarget : Java.Lang.Class -&gt; Android.Transitions.Transition" Usage="transition.RemoveTarget target" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("removeTarget", "(Ljava/lang/Class;)Landroid/transition/Transition;", "GetRemoveTarget_Ljava_lang_Class_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeTarget", "(Ljava/lang/Class;)Landroid/transition/Transition;", "GetRemoveTarget_Ljava_lang_Class_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="target" Type="Java.Lang.Class" />
+      </Parameters>
+      <Docs>
+        <param name="target">The type of the target view, must be non-null.</param>
+        <summary>Removes the given target from the list of targets that this Transition
+            is interested in animating.</summary>
+        <returns>Transition The Transition from which the target is removed.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).removeTarget(someType);</c></returns>
+        <remarks>
+          <para>Removes the given target from the list of targets that this Transition
+            is interested in animating.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#removeTarget(java.lang.Class)" title="Reference documentation">Java documentation for <code>android.transition.Transition.removeTarget(java.lang.Class)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? RemoveTarget (int targetId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition RemoveTarget(int32 targetId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.RemoveTarget(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveTarget : int -&gt; Android.Transitions.Transition&#xA;override this.RemoveTarget : int -&gt; Android.Transitions.Transition" Usage="transition.RemoveTarget targetId" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("removeTarget", "(I)Landroid/transition/Transition;", "GetRemoveTarget_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeTarget", "(I)Landroid/transition/Transition;", "GetRemoveTarget_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetId" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="targetId">The id of a target view, must be a positive number.</param>
+        <summary>Removes the given targetId from the list of ids that this Transition
+            is interested in animating.</summary>
+        <returns>The Transition from which the targetId is removed.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).removeTargetId(someId);</c></returns>
+        <remarks>
+          <para>Removes the given targetId from the list of ids that this Transition
+            is interested in animating.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#removeTarget(int)" title="Reference documentation">Java documentation for <code>android.transition.Transition.removeTarget(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveTarget">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? RemoveTarget (string? targetName);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition RemoveTarget(string targetName) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.RemoveTarget(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveTarget : string -&gt; Android.Transitions.Transition&#xA;override this.RemoveTarget : string -&gt; Android.Transitions.Transition" Usage="transition.RemoveTarget targetName" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("removeTarget", "(Ljava/lang/String;)Landroid/transition/Transition;", "GetRemoveTarget_Ljava_lang_String_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeTarget", "(Ljava/lang/String;)Landroid/transition/Transition;", "GetRemoveTarget_Ljava_lang_String_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="targetName" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="targetName">The transitionName of a target view, must not be null.</param>
+        <summary>Removes the given targetName from the list of transitionNames that this Transition
+            is interested in animating.</summary>
+        <returns>The Transition from which the targetName is removed.
+            Returning the same object makes it easier to chain calls during
+            construction, such as
+            <c>transitionSet.addTransitions(new Fade()).removeTargetName(someName);</c></returns>
+        <remarks>
+          <para>Removes the given targetName from the list of transitionNames that this Transition
+            is interested in animating.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#removeTarget(java.lang.String)" title="Reference documentation">Java documentation for <code>android.transition.Transition.removeTarget(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDuration">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? SetDuration (long duration);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition SetDuration(int64 duration) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.SetDuration(System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member SetDuration : int64 -&gt; Android.Transitions.Transition&#xA;override this.SetDuration : int64 -&gt; Android.Transitions.Transition" Usage="transition.SetDuration duration" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDuration", "(J)Landroid/transition/Transition;", "GetSetDuration_JHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDuration", "(J)Landroid/transition/Transition;", "GetSetDuration_JHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="duration" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="duration">The length of the animation, in milliseconds.</param>
+        <summary>Sets the duration of this transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Sets the duration of this transition. By default, there is no duration
+            (indicated by a negative number), which means that the Animator created by
+            the transition will have its own specified duration. If the duration of a
+            Transition is set, that duration will override the Animator duration.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#setDuration(long)" title="Reference documentation">Java documentation for <code>android.transition.Transition.setDuration(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetEpicenterCallback">
+      <MemberSignature Language="C#" Value="public virtual void SetEpicenterCallback (Android.Transitions.Transition.EpicenterCallback? epicenterCallback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetEpicenterCallback(class Android.Transitions.Transition/EpicenterCallback epicenterCallback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.SetEpicenterCallback(Android.Transitions.Transition.EpicenterCallback)" />
+      <MemberSignature Language="F#" Value="abstract member SetEpicenterCallback : Android.Transitions.Transition.EpicenterCallback -&gt; unit&#xA;override this.SetEpicenterCallback : Android.Transitions.Transition.EpicenterCallback -&gt; unit" Usage="transition.SetEpicenterCallback epicenterCallback" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setEpicenterCallback", "(Landroid/transition/Transition$EpicenterCallback;)V", "GetSetEpicenterCallback_Landroid_transition_Transition_EpicenterCallback_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setEpicenterCallback", "(Landroid/transition/Transition$EpicenterCallback;)V", "GetSetEpicenterCallback_Landroid_transition_Transition_EpicenterCallback_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="epicenterCallback" Type="Android.Transitions.Transition+EpicenterCallback" />
+      </Parameters>
+      <Docs>
+        <param name="epicenterCallback">The callback to use to find the epicenter of the Transition.</param>
+        <summary>Sets the callback to use to find the epicenter of a Transition.</summary>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#setEpicenterCallback(android.transition.EpicenterCallback)" title="Reference documentation">Java documentation for <code>android.transition.Transition.setEpicenterCallback(android.transition.EpicenterCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetInterpolator">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? SetInterpolator (Android.Animation.ITimeInterpolator? interpolator);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition SetInterpolator(class Android.Animation.ITimeInterpolator interpolator) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.SetInterpolator(Android.Animation.ITimeInterpolator)" />
+      <MemberSignature Language="F#" Value="abstract member SetInterpolator : Android.Animation.ITimeInterpolator -&gt; Android.Transitions.Transition&#xA;override this.SetInterpolator : Android.Animation.ITimeInterpolator -&gt; Android.Transitions.Transition" Usage="transition.SetInterpolator interpolator" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setInterpolator", "(Landroid/animation/TimeInterpolator;)Landroid/transition/Transition;", "GetSetInterpolator_Landroid_animation_TimeInterpolator_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setInterpolator", "(Landroid/animation/TimeInterpolator;)Landroid/transition/Transition;", "GetSetInterpolator_Landroid_animation_TimeInterpolator_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="interpolator" Type="Android.Animation.ITimeInterpolator" />
+      </Parameters>
+      <Docs>
+        <param name="interpolator">The time interpolator used by the transition</param>
+        <summary>Sets the interpolator of this transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Sets the interpolator of this transition. By default, the interpolator
+            is null, which means that the Animator created by the transition
+            will have its own specified interpolator. If the interpolator of a
+            Transition is set, that interpolator will override the Animator interpolator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#setInterpolator(android.animation.TimeInterpolator)" title="Reference documentation">Java documentation for <code>android.transition.Transition.setInterpolator(android.animation.TimeInterpolator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetMatchOrder">
+      <MemberSignature Language="C#" Value="public virtual void SetMatchOrder (params int[]? matches);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetMatchOrder(int32[] matches) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.SetMatchOrder(System.Int32[])" />
+      <MemberSignature Language="F#" Value="abstract member SetMatchOrder : int[] -&gt; unit&#xA;override this.SetMatchOrder : int[] -&gt; unit" Usage="transition.SetMatchOrder matches" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setMatchOrder", "([I)V", "GetSetMatchOrder_arrayIHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setMatchOrder", "([I)V", "GetSetMatchOrder_arrayIHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="matches" Type="System.Int32[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="matches">A list of zero or more of <c>#MATCH_INSTANCE</c>,
+                           <c>#MATCH_NAME</c>, <c>#MATCH_ITEM_ID</c>, and <c>#MATCH_ID</c>.
+                           If none are provided, then the default match order will be set.</param>
+        <summary>Sets the order in which Transition matches View start and end values.</summary>
+        <remarks>
+          <para>Sets the order in which Transition matches View start and end values.</para>
+          <para>The default behavior is to match first by <c>android.view.View#getTransitionName()</c>,
+            then by View instance, then by <c>android.view.View#getId()</c> and finally
+            by its item ID if it is in a direct child of ListView. The caller can
+            choose to have only some or all of the values of <c>#MATCH_INSTANCE</c>,
+            <c>#MATCH_NAME</c>, <c>#MATCH_ITEM_ID</c>, and <c>#MATCH_ID</c>. Only
+            the match algorithms supplied will be used to determine whether Views are the
+            the same in both the start and end Scene. Views that do not match will be considered
+            as entering or leaving the Scene.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#setMatchOrder(int...)" title="Reference documentation">Java documentation for <code>android.transition.Transition.setMatchOrder(int...)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStartDelay">
+      <MemberSignature Language="C#" Value="public virtual Android.Transitions.Transition? SetStartDelay (long startDelay);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Transitions.Transition SetStartDelay(int64 startDelay) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Transitions.Transition.SetStartDelay(System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member SetStartDelay : int64 -&gt; Android.Transitions.Transition&#xA;override this.SetStartDelay : int64 -&gt; Android.Transitions.Transition" Usage="transition.SetStartDelay startDelay" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setStartDelay", "(J)Landroid/transition/Transition;", "GetSetStartDelay_JHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setStartDelay", "(J)Landroid/transition/Transition;", "GetSetStartDelay_JHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Transitions.Transition</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="startDelay" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="startDelay">The length of the delay, in milliseconds.</param>
+        <summary>Sets the startDelay of this transition.</summary>
+        <returns>This transition object.</returns>
+        <remarks>
+          <para>Sets the startDelay of this transition. By default, there is no delay
+            (indicated by a negative number), which means that the Animator created by
+            the transition will have its own specified startDelay. If the delay of a
+            Transition is set, that delay will override the Animator delay.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#setStartDelay(long)" title="Reference documentation">Java documentation for <code>android.transition.Transition.setStartDelay(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="StartDelay">
+      <MemberSignature Language="C#" Value="public virtual long StartDelay { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 StartDelay" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.StartDelay" />
+      <MemberSignature Language="F#" Value="member this.StartDelay : int64" Usage="Android.Transitions.Transition.StartDelay" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getStartDelay", "()J", "GetGetStartDelayHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getStartDelay", "()J", "GetGetStartDelayHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the startDelay set on this transition.</summary>
+        <value>The startDelay set on this transition, in milliseconds, if one has
+            been set, otherwise returns a negative number.</value>
+        <remarks>
+          <para>Returns the startDelay set on this transition. If no startDelay has been set,
+            the returned value will be negative, indicating that resulting animators will
+            retain their own startDelays.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getStartDelay()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getStartDelay()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TargetIds">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;Java.Lang.Integer&gt;? TargetIds { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Java.Lang.Integer&gt; TargetIds" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.TargetIds" />
+      <MemberSignature Language="F#" Value="member this.TargetIds : System.Collections.Generic.IList&lt;Java.Lang.Integer&gt;" Usage="Android.Transitions.Transition.TargetIds" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTargetIds", "()Ljava/util/List;", "GetGetTargetIdsHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTargetIds", "()Ljava/util/List;", "GetGetTargetIdsHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Java.Lang.Integer&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the list of target IDs that this transition limits itself to
+            tracking and animating.</summary>
+        <value>the list of target IDs</value>
+        <remarks>
+          <para>Returns the list of target IDs that this transition limits itself to
+            tracking and animating. If the list is null or empty for
+            <c>#getTargetIds()</c>, <c>#getTargets()</c>, <c>#getTargetNames()</c>, and
+            <c>#getTargetTypes()</c> then this transition is
+            not limited to specific views, and will handle changes to any views
+            in the hierarchy of a scene change.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getTargetIds()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getTargetIds()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TargetNames">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;string&gt;? TargetNames { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;string&gt; TargetNames" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.TargetNames" />
+      <MemberSignature Language="F#" Value="member this.TargetNames : System.Collections.Generic.IList&lt;string&gt;" Usage="Android.Transitions.Transition.TargetNames" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTargetNames", "()Ljava/util/List;", "GetGetTargetNamesHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTargetNames", "()Ljava/util/List;", "GetGetTargetNamesHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the list of target transitionNames that this transition limits itself to
+            tracking and animating.</summary>
+        <value>the list of target transitionNames</value>
+        <remarks>
+          <para>Returns the list of target transitionNames that this transition limits itself to
+            tracking and animating. If the list is null or empty for
+            <c>#getTargetIds()</c>, <c>#getTargets()</c>, <c>#getTargetNames()</c>, and
+            <c>#getTargetTypes()</c> then this transition is
+            not limited to specific views, and will handle changes to any views
+            in the hierarchy of a scene change.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getTargetNames()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getTargetNames()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Targets">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;Android.Views.View&gt;? Targets { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Android.Views.View&gt; Targets" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.Targets" />
+      <MemberSignature Language="F#" Value="member this.Targets : System.Collections.Generic.IList&lt;Android.Views.View&gt;" Usage="Android.Transitions.Transition.Targets" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTargets", "()Ljava/util/List;", "GetGetTargetsHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTargets", "()Ljava/util/List;", "GetGetTargetsHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Android.Views.View&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the list of target views that this transition limits itself to
+            tracking and animating.</summary>
+        <value>the list of target views</value>
+        <remarks>
+          <para>Returns the list of target views that this transition limits itself to
+            tracking and animating. If the list is null or empty for
+            <c>#getTargetIds()</c>, <c>#getTargets()</c>, <c>#getTargetNames()</c>, and
+            <c>#getTargetTypes()</c> then this transition is
+            not limited to specific views, and will handle changes to any views
+            in the hierarchy of a scene change.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getTargets()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getTargets()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TargetTypes">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;Java.Lang.Class&gt;? TargetTypes { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Java.Lang.Class&gt; TargetTypes" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.TargetTypes" />
+      <MemberSignature Language="F#" Value="member this.TargetTypes : System.Collections.Generic.IList&lt;Java.Lang.Class&gt;" Usage="Android.Transitions.Transition.TargetTypes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTargetTypes", "()Ljava/util/List;", "GetGetTargetTypesHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTargetTypes", "()Ljava/util/List;", "GetGetTargetTypesHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Java.Lang.Class&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the list of target transitionNames that this transition limits itself to
+            tracking and animating.</summary>
+        <value>the list of target Types</value>
+        <remarks>
+          <para>Returns the list of target transitionNames that this transition limits itself to
+            tracking and animating. If the list is null or empty for
+            <c>#getTargetIds()</c>, <c>#getTargets()</c>, <c>#getTargetNames()</c>, and
+            <c>#getTargetTypes()</c> then this transition is
+            not limited to specific views, and will handle changes to any views
+            in the hierarchy of a scene change.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/transition/Transition#getTargetTypes()" title="Reference documentation">Java documentation for <code>android.transition.Transition.getTargetTypes()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Transitions.Transition.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Transitions.Transition.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Transitions.Transition.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

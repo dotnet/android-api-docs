@@ -1,0 +1,1834 @@
+<Type Name="Date" FullName="Java.Util.Date">
+  <TypeSignature Language="C#" Value="public class Date : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.IO.ISerializable, Java.Lang.ICloneable, Java.Lang.IComparable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Date extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class Java.Lang.ICloneable, class Java.Lang.IComparable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Util.Date" />
+  <TypeSignature Language="F#" Value="type Date = class&#xA;    inherit Object&#xA;    interface ISerializable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface ICloneable&#xA;    interface IComparable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.IO.ISerializable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Lang.ICloneable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Lang.IComparable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/util/Date", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/Date", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>The class <c>Date</c> represents a specific instant
+            in time, with millisecond precision.</summary>
+    <remarks>
+      <para>The class <c>Date</c> represents a specific instant
+            in time, with millisecond precision.</para>
+      <para>Prior to JDK&amp;nbsp;1.1, the class <c>Date</c> had two additional
+            functions.  It allowed the interpretation of dates as year, month, day, hour,
+            minute, and second values.  It also allowed the formatting and parsing
+            of date strings.  Unfortunately, the API for these functions was not
+            amenable to internationalization.  As of JDK&amp;nbsp;1.1, the
+            <c>Calendar</c> class should be used to convert between dates and time
+            fields and the <c>DateFormat</c> class should be used to format and
+            parse date strings.
+            The corresponding methods in <c>Date</c> are deprecated.</para>
+      <para>Although the <c>Date</c> class is intended to reflect
+            coordinated universal time (UTC), it may not do so exactly,
+            depending on the host environment of the Java Virtual Machine.
+            Nearly all modern operating systems assume that 1&amp;nbsp;day&amp;nbsp;=
+            24&amp;nbsp;&amp;times;&amp;nbsp;60&amp;nbsp;&amp;times;&amp;nbsp;60&amp;nbsp;= 86400 seconds
+            in all cases. In UTC, however, about once every year or two there
+            is an extra second, called a "leap second." The leap
+            second is always added as the last second of the day, and always
+            on December 31 or June 30. For example, the last minute of the
+            year 1995 was 61 seconds long, thanks to an added leap second.
+            Most computer clocks are not accurate enough to be able to reflect
+            the leap-second distinction.</para>
+      <para>Some computer standards are defined in terms of Greenwich mean
+            time (GMT), which is equivalent to universal time (UT).  GMT is
+            the "civil" name for the standard; UT is the
+            "scientific" name for the same standard. The
+            distinction between UTC and UT is that UTC is based on an atomic
+            clock and UT is based on astronomical observations, which for all
+            practical purposes is an invisibly fine hair to split. Because the
+            earth's rotation is not uniform (it slows down and speeds up
+            in complicated ways), UT does not always flow uniformly. Leap
+            seconds are introduced as needed into UTC so as to keep UTC within
+            0.9 seconds of UT1, which is a version of UT with certain
+            corrections applied. There are other time and date systems as
+            well; for example, the time scale used by the satellite-based
+            global positioning system (GPS) is synchronized to UTC but is
+            <i>not</i> adjusted for leap seconds. An interesting source of
+            further information is the United States Naval Observatory (USNO):
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">&lt;a href="http://www.usno.navy.mil/USNO"&gt;http://www.usno.navy.mil/USNO&lt;/a&gt;
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>and the material regarding "Systems of Time" at:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">&lt;a href="http://www.usno.navy.mil/USNO/time/master-clock/systems-of-time"&gt;http://www.usno.navy.mil/USNO/time/master-clock/systems-of-time&lt;/a&gt;
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>which has descriptions of various different time systems including
+            UT, UT1, and UTC.</para>
+      <para>In all methods of class <c>Date</c> that accept or return
+            year, month, date, hours, minutes, and seconds values, the
+            following representations are used:
+            &lt;ul&gt;
+            &lt;li&gt;A year <i>y</i> is represented by the integer
+                <i>y</i>&amp;nbsp;<c>- 1900</c>.
+            &lt;li&gt;A month is represented by an integer from 0 to 11; 0 is January,
+                1 is February, and so forth; thus 11 is December.
+            &lt;li&gt;A date (day of month) is represented by an integer from 1 to 31
+                in the usual manner.
+            &lt;li&gt;An hour is represented by an integer from 0 to 23. Thus, the hour
+                from midnight to 1 a.m. is hour 0, and the hour from noon to 1
+                p.m. is hour 12.
+            &lt;li&gt;A minute is represented by an integer from 0 to 59 in the usual manner.
+            &lt;li&gt;A second is represented by an integer from 0 to 61; the values 60 and
+                61 occur only for leap seconds and even then only in Java
+                implementations that actually track leap seconds correctly. Because
+                of the manner in which leap seconds are currently introduced, it is
+                extremely unlikely that two leap seconds will occur in the same
+                minute, but this specification follows the date and time conventions
+                for ISO C.
+            &lt;/ul&gt;</para>
+      <para>In all cases, arguments given to methods for these purposes need
+            not fall within the indicated ranges; for example, a date may be
+            specified as January 32 and is interpreted as meaning February 1.</para>
+      <para>Added in 1.0.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/util/Date" title="Reference documentation">Java documentation for <code>java.util.Date</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Date ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>Allocates a <c>Date</c> object and initializes it so that
+            it represents the time at which it was allocated, measured to the
+            nearest millisecond.</summary>
+        <remarks>
+          <para>Allocates a <c>Date</c> object and initializes it so that
+            it represents the time at which it was allocated, measured to the
+            nearest millisecond.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#Date()" title="Reference documentation">Java documentation for <code>java.util.Date.Date()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Date (long date);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int64 date) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.#ctor(System.Int64)" />
+      <MemberSignature Language="F#" Value="new Java.Util.Date : int64 -&gt; Java.Util.Date" Usage="new Java.Util.Date date" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(J)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(J)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="date" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="date">the milliseconds since January 1, 1970, 00:00:00 GMT.</param>
+        <summary>Allocates a <c>Date</c> object and initializes it to
+            represent the specified number of milliseconds since the
+            standard base time known as "the epoch", namely January 1,
+            1970, 00:00:00 GMT.</summary>
+        <remarks>
+          <para>Allocates a <c>Date</c> object and initializes it to
+            represent the specified number of milliseconds since the
+            standard base time known as "the epoch", namely January 1,
+            1970, 00:00:00 GMT.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#Date(long)" title="Reference documentation">Java documentation for <code>java.util.Date.Date(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Date (string? s);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string s) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.#ctor(System.String)" />
+      <MemberSignature Language="F#" Value="new Java.Util.Date : string -&gt; Java.Util.Date" Usage="new Java.Util.Date s" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="s" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="s">a string representation of the date.</param>
+        <summary>Allocates a <c>Date</c> object and initializes it so that
+            it represents the date and time indicated by the string
+            <c>s</c>, which is interpreted as if by the
+            <c>Date#parse</c> method.</summary>
+        <remarks>
+          <para>Allocates a <c>Date</c> object and initializes it so that
+            it represents the date and time indicated by the string
+            <c>s</c>, which is interpreted as if by the
+            <c>Date#parse</c> method.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>DateFormat.parse(String s)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#Date(java.lang.String)" title="Reference documentation">Java documentation for <code>java.util.Date.Date(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected Date (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Util.Date : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Util.Date" Usage="new Java.Util.Date (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Date (int year, int month, int date);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 year, int32 month, int32 date) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.#ctor(System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Util.Date : int * int * int -&gt; Java.Util.Date" Usage="new Java.Util.Date (year, month, date)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(III)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(III)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="year" Type="System.Int32" />
+        <Parameter Name="month" Type="System.Int32" />
+        <Parameter Name="date" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="year">the year minus 1900.</param>
+        <param name="month">the month between 0-11.</param>
+        <param name="date">the day of the month between 1-31.</param>
+        <summary>Allocates a <c>Date</c> object and initializes it so that
+            it represents midnight, local time, at the beginning of the day
+            specified by the <c>year</c>, <c>month</c>, and
+            <c>date</c> arguments.</summary>
+        <remarks>
+          <para>Allocates a <c>Date</c> object and initializes it so that
+            it represents midnight, local time, at the beginning of the day
+            specified by the <c>year</c>, <c>month</c>, and
+            <c>date</c> arguments.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(year + 1900, month, date)</c>
+            or <c>GregorianCalendar(year + 1900, month, date)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#Date(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.Date.Date(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Date (int year, int month, int date, int hrs, int min);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 year, int32 month, int32 date, int32 hrs, int32 min) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Util.Date : int * int * int * int * int -&gt; Java.Util.Date" Usage="new Java.Util.Date (year, month, date, hrs, min)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(IIIII)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(IIIII)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="year" Type="System.Int32" />
+        <Parameter Name="month" Type="System.Int32" />
+        <Parameter Name="date" Type="System.Int32" />
+        <Parameter Name="hrs" Type="System.Int32" />
+        <Parameter Name="min" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="year">the year minus 1900.</param>
+        <param name="month">the month between 0-11.</param>
+        <param name="date">the day of the month between 1-31.</param>
+        <param name="hrs">the hours between 0-23.</param>
+        <param name="min">the minutes between 0-59.</param>
+        <summary>Allocates a <c>Date</c> object and initializes it so that
+            it represents the instant at the start of the minute specified by
+            the <c>year</c>, <c>month</c>, <c>date</c>,
+            <c>hrs</c>, and <c>min</c> arguments, in the local
+            time zone.</summary>
+        <remarks>
+          <para>Allocates a <c>Date</c> object and initializes it so that
+            it represents the instant at the start of the minute specified by
+            the <c>year</c>, <c>month</c>, <c>date</c>,
+            <c>hrs</c>, and <c>min</c> arguments, in the local
+            time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(year + 1900, month, date, hrs, min)</c>
+            or <c>GregorianCalendar(year + 1900, month, date, hrs, min)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#Date(int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.Date.Date(int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public Date (int year, int month, int date, int hrs, int min, int sec);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(int32 year, int32 month, int32 date, int32 hrs, int32 min, int32 sec) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="new Java.Util.Date : int * int * int * int * int * int -&gt; Java.Util.Date" Usage="new Java.Util.Date (year, month, date, hrs, min, sec)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(IIIIII)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(IIIIII)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="year" Type="System.Int32" />
+        <Parameter Name="month" Type="System.Int32" />
+        <Parameter Name="date" Type="System.Int32" />
+        <Parameter Name="hrs" Type="System.Int32" />
+        <Parameter Name="min" Type="System.Int32" />
+        <Parameter Name="sec" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="year">the year minus 1900.</param>
+        <param name="month">the month between 0-11.</param>
+        <param name="date">the day of the month between 1-31.</param>
+        <param name="hrs">the hours between 0-23.</param>
+        <param name="min">the minutes between 0-59.</param>
+        <param name="sec">the seconds between 0-59.</param>
+        <summary>Allocates a <c>Date</c> object and initializes it so that
+            it represents the instant at the start of the second specified
+            by the <c>year</c>, <c>month</c>, <c>date</c>,
+            <c>hrs</c>, <c>min</c>, and <c>sec</c> arguments,
+            in the local time zone.</summary>
+        <remarks>
+          <para>Allocates a <c>Date</c> object and initializes it so that
+            it represents the instant at the start of the second specified
+            by the <c>year</c>, <c>month</c>, <c>date</c>,
+            <c>hrs</c>, <c>min</c>, and <c>sec</c> arguments,
+            in the local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(year + 1900, month, date, hrs, min, sec)</c>
+            or <c>GregorianCalendar(year + 1900, month, date, hrs, min, sec)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#Date(int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.Date.Date(int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="After">
+      <MemberSignature Language="C#" Value="public virtual bool After (Java.Util.Date? when);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool After(class Java.Util.Date when) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.After(Java.Util.Date)" />
+      <MemberSignature Language="F#" Value="abstract member After : Java.Util.Date -&gt; bool&#xA;override this.After : Java.Util.Date -&gt; bool" Usage="date.After when" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("after", "(Ljava/util/Date;)Z", "GetAfter_Ljava_util_Date_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("after", "(Ljava/util/Date;)Z", "GetAfter_Ljava_util_Date_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="when" Type="Java.Util.Date" />
+      </Parameters>
+      <Docs>
+        <param name="when">a date.</param>
+        <summary>Tests if this date is after the specified date.</summary>
+        <returns>
+          <c>true</c> if and only if the instant represented
+                     by this <c>Date</c> object is strictly later than the
+                     instant represented by <c>when</c>;
+                     <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>Tests if this date is after the specified date.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#after(java.util.Date)" title="Reference documentation">Java documentation for <code>java.util.Date.after(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Before">
+      <MemberSignature Language="C#" Value="public virtual bool Before (Java.Util.Date? when);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool Before(class Java.Util.Date when) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.Before(Java.Util.Date)" />
+      <MemberSignature Language="F#" Value="abstract member Before : Java.Util.Date -&gt; bool&#xA;override this.Before : Java.Util.Date -&gt; bool" Usage="date.Before when" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("before", "(Ljava/util/Date;)Z", "GetBefore_Ljava_util_Date_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("before", "(Ljava/util/Date;)Z", "GetBefore_Ljava_util_Date_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="when" Type="Java.Util.Date" />
+      </Parameters>
+      <Docs>
+        <param name="when">a date.</param>
+        <summary>Tests if this date is before the specified date.</summary>
+        <returns>
+          <c>true</c> if and only if the instant of time
+                       represented by this <c>Date</c> object is strictly
+                       earlier than the instant represented by <c>when</c>;
+                     <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>Tests if this date is before the specified date.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#before(java.util.Date)" title="Reference documentation">Java documentation for <code>java.util.Date.before(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Clone">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? Clone ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object Clone() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.Clone" />
+      <MemberSignature Language="F#" Value="override this.Clone : unit -&gt; Java.Lang.Object" Usage="date.Clone " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("clone", "()Ljava/lang/Object;", "GetCloneHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clone", "()Ljava/lang/Object;", "GetCloneHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Return a copy of this object.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Return a copy of this object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#clone()" title="Reference documentation">Java documentation for <code>java.util.Date.clone()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <altmember cref="T:Java.Lang.ICloneable" />
+      </Docs>
+    </Member>
+    <Member MemberName="CompareTo">
+      <MemberSignature Language="C#" Value="public virtual int CompareTo (Java.Util.Date? anotherDate);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 CompareTo(class Java.Util.Date anotherDate) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.CompareTo(Java.Util.Date)" />
+      <MemberSignature Language="F#" Value="abstract member CompareTo : Java.Util.Date -&gt; int&#xA;override this.CompareTo : Java.Util.Date -&gt; int" Usage="date.CompareTo anotherDate" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("compareTo", "(Ljava/util/Date;)I", "GetCompareTo_Ljava_util_Date_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("compareTo", "(Ljava/util/Date;)I", "GetCompareTo_Ljava_util_Date_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="anotherDate" Type="Java.Util.Date" />
+      </Parameters>
+      <Docs>
+        <param name="anotherDate">the <c>Date</c> to be compared.</param>
+        <summary>Compares two Dates for ordering.</summary>
+        <returns>the value <c>0</c> if the argument Date is equal to
+                     this Date; a value less than <c>0</c> if this Date
+                     is before the Date argument; and a value greater than
+                 <c>0</c> if this Date is after the Date argument.</returns>
+        <remarks>
+          <para>Compares two Dates for ordering.</para>
+          <para>Added in 1.2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#compareTo(java.util.Date)" title="Reference documentation">Java documentation for <code>java.util.Date.compareTo(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Day">
+      <MemberSignature Language="C#" Value="public virtual int Day { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Day" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.Day" />
+      <MemberSignature Language="F#" Value="member this.Day : int" Usage="Java.Util.Date.Day" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDay", "()I", "GetGetDayHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDay", "()I", "GetGetDayHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the day of the week represented by this date.</summary>
+        <value>the day of the week represented by this date.</value>
+        <remarks>
+          <para>Returns the day of the week represented by this date. The
+            returned value (<c>0</c> = Sunday, <c>1</c> = Monday,
+            <c>2</c> = Tuesday, <c>3</c> = Wednesday, <c>4</c> =
+            Thursday, <c>5</c> = Friday, <c>6</c> = Saturday)
+            represents the day of the week that contains or begins with
+            the instant in time represented by this <c>Date</c> object,
+            as interpreted in the local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.get(Calendar.DAY_OF_WEEK)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getDay()" title="Reference documentation">Java documentation for <code>java.util.Date.getDay()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="From">
+      <MemberSignature Language="C#" Value="public static Java.Util.Date? From (Java.Time.Instant? instant);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.Date From(class Java.Time.Instant instant) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.From(Java.Time.Instant)" />
+      <MemberSignature Language="F#" Value="static member From : Java.Time.Instant -&gt; Java.Util.Date" Usage="Java.Util.Date.From instant" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("from", "(Ljava/time/Instant;)Ljava/util/Date;", "", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("from", "(Ljava/time/Instant;)Ljava/util/Date;", "", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Date</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="instant" Type="Java.Time.Instant" />
+      </Parameters>
+      <Docs>
+        <param name="instant">the instant to convert</param>
+        <summary>Obtains an instance of <c>Date</c> from an <c>Instant</c> object.</summary>
+        <returns>a <c>Date</c> representing the same point on the time-line as
+             the provided instant</returns>
+        <remarks>
+          <para>Obtains an instance of <c>Date</c> from an <c>Instant</c> object.</para>
+          <para>
+            <c>Instant</c> uses a precision of nanoseconds, whereas <c>Date</c>
+            uses a precision of milliseconds.  The conversion will truncate any
+            excess precision information as though the amount in nanoseconds was
+            subject to integer division by one million.</para>
+          <para>
+            <c>Instant</c> can store points on the time-line further in the future
+            and further in the past than <c>Date</c>. In this scenario, this method
+            will throw an exception.</para>
+          <para>Added in 1.8.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#from(java.time.Instant)" title="Reference documentation">Java documentation for <code>java.util.Date.from(java.time.Instant)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetDate">
+      <MemberSignature Language="C#" Value="public virtual int GetDate ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 GetDate() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.GetDate" />
+      <MemberSignature Language="F#" Value="abstract member GetDate : unit -&gt; int&#xA;override this.GetDate : unit -&gt; int" Usage="date.GetDate " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getDate", "()I", "GetGetDateHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getDate", "()I", "GetGetDateHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the day of the month represented by this <c>Date</c> object.</summary>
+        <returns>the day of the month represented by this date.</returns>
+        <remarks>
+          <para>Returns the day of the month represented by this <c>Date</c> object.
+            The value returned is between <c>1</c> and <c>31</c>
+            representing the day of the month that contains or begins with the
+            instant in time represented by this <c>Date</c> object, as
+            interpreted in the local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.get(Calendar.DAY_OF_MONTH)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getDate()" title="Reference documentation">Java documentation for <code>java.util.Date.getDate()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Hours">
+      <MemberSignature Language="C#" Value="public virtual int Hours { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Hours" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.Hours" />
+      <MemberSignature Language="F#" Value="member this.Hours : int with get, set" Usage="Java.Util.Date.Hours" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getHours", "()I", "GetGetHoursHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getHours", "()I", "GetGetHoursHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setHours", "(I)V", "GetSetHours_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setHours", "(I)V", "GetSetHours_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="hours">the hour value.</param>
+        <summary>Returns the hour represented by this <c>Date</c> object. -or- Sets the hour of this <c>Date</c> object to the specified value.</summary>
+        <value>the hour represented by this date.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the hour represented by this <c>Date</c> object. The
+            returned value is a number (<c>0</c> through <c>23</c>)
+            representing the hour within the day that contains or begins
+            with the instant in time represented by this <c>Date</c>
+            object, as interpreted in the local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.get(Calendar.HOUR_OF_DAY)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getHours()" title="Reference documentation">Java documentation for <code>java.util.Date.getHours()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the hour of this <c>Date</c> object to the specified value.
+            This <c>Date</c> object is modified so that it represents a point
+            in time within the specified hour of the day, with the year, month,
+            date, minute, and second the same as before, as interpreted in the
+            local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(Calendar.HOUR_OF_DAY, int hours)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#setHours(int)" title="Reference documentation">Java documentation for <code>java.util.Date.setHours(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Lang.IComparable.CompareTo">
+      <MemberSignature Language="C#" Value="int IComparable.CompareTo (Java.Lang.Object o);" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance int32 Java.Lang.IComparable.CompareTo(class Java.Lang.Object o) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.Java#Lang#IComparable#CompareTo(Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Java.Lang.IComparable.CompareTo : Java.Lang.Object -&gt; int&#xA;override this.Java.Lang.IComparable.CompareTo : Java.Lang.Object -&gt; int" Usage="date.Java.Lang.IComparable.CompareTo o" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Lang.IComparable.CompareTo(Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="o" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="o">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Util.Date.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Minutes">
+      <MemberSignature Language="C#" Value="public virtual int Minutes { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Minutes" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.Minutes" />
+      <MemberSignature Language="F#" Value="member this.Minutes : int with get, set" Usage="Java.Util.Date.Minutes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getMinutes", "()I", "GetGetMinutesHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMinutes", "()I", "GetGetMinutesHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setMinutes", "(I)V", "GetSetMinutes_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setMinutes", "(I)V", "GetSetMinutes_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="minutes">the value of the minutes.</param>
+        <summary>Returns the number of minutes past the hour represented by this date,
+            as interpreted in the local time zone. -or- Sets the minutes of this <c>Date</c> object to the specified value.</summary>
+        <value>the number of minutes past the hour represented by this date.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the number of minutes past the hour represented by this date,
+            as interpreted in the local time zone.
+            The value returned is between <c>0</c> and <c>59</c>.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.get(Calendar.MINUTE)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getMinutes()" title="Reference documentation">Java documentation for <code>java.util.Date.getMinutes()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the minutes of this <c>Date</c> object to the specified value.
+            This <c>Date</c> object is modified so that it represents a point
+            in time within the specified minute of the hour, with the year, month,
+            date, hour, and second the same as before, as interpreted in the
+            local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(Calendar.MINUTE, int minutes)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#setMinutes(int)" title="Reference documentation">Java documentation for <code>java.util.Date.setMinutes(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Month">
+      <MemberSignature Language="C#" Value="public virtual int Month { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Month" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.Month" />
+      <MemberSignature Language="F#" Value="member this.Month : int with get, set" Usage="Java.Util.Date.Month" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getMonth", "()I", "GetGetMonthHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMonth", "()I", "GetGetMonthHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setMonth", "(I)V", "GetSetMonth_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setMonth", "(I)V", "GetSetMonth_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="month">the month value between 0-11.</param>
+        <summary>Returns a number representing the month that contains or begins
+            with the instant in time represented by this <c>Date</c> object. -or- Sets the month of this date to the specified value.</summary>
+        <value>the month represented by this date.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns a number representing the month that contains or begins
+            with the instant in time represented by this <c>Date</c> object.
+            The value returned is between <c>0</c> and <c>11</c>,
+            with the value <c>0</c> representing January.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.get(Calendar.MONTH)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getMonth()" title="Reference documentation">Java documentation for <code>java.util.Date.getMonth()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the month of this date to the specified value. This
+            <c>Date</c> object is modified so that it represents a point
+            in time within the specified month, with the year, date, hour,
+            minute, and second the same as before, as interpreted in the
+            local time zone. If the date was October 31, for example, and
+            the month is set to June, then the new date will be treated as
+            if it were on July 1, because June has only 30 days.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(Calendar.MONTH, int month)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#setMonth(int)" title="Reference documentation">Java documentation for <code>java.util.Date.setMonth(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Parse">
+      <MemberSignature Language="C#" Value="public static long Parse (string? s);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 Parse(string s) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.Parse(System.String)" />
+      <MemberSignature Language="F#" Value="static member Parse : string -&gt; int64" Usage="Java.Util.Date.Parse s" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("parse", "(Ljava/lang/String;)J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("parse", "(Ljava/lang/String;)J", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="s" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="s">a string to be parsed as a date.</param>
+        <summary>Attempts to interpret the string <c>s</c> as a representation
+            of a date and time.</summary>
+        <returns>the number of milliseconds since January 1, 1970, 00:00:00 GMT
+                     represented by the string argument.</returns>
+        <remarks>
+          <para>Attempts to interpret the string <c>s</c> as a representation
+            of a date and time. If the attempt is successful, the time
+            indicated is returned represented as the distance, measured in
+            milliseconds, of that time from the epoch (00:00:00 GMT on
+            January 1, 1970). If the attempt fails, an
+            <c>IllegalArgumentException</c> is thrown.</para>
+          <para>It accepts many syntaxes; in particular, it recognizes the IETF
+            standard date syntax: "Sat, 12 Aug 1995 13:30:00 GMT". It also
+            understands the continental U.S. time-zone abbreviations, but for
+            general use, a time-zone offset should be used: "Sat, 12 Aug 1995
+            13:30:00 GMT+0430" (4 hours, 30 minutes west of the Greenwich
+            meridian). If no time zone is specified, the local time zone is
+            assumed. GMT and UTC are considered equivalent.</para>
+          <para>The string <c>s</c> is processed from left to right, looking for
+            data of interest. Any material in <c>s</c> that is within the
+            ASCII parenthesis characters <c>(</c> and <c>)</c> is ignored.
+            Parentheses may be nested. Otherwise, the only characters permitted
+            within <c>s</c> are these ASCII characters:
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">abcdefghijklmnopqrstuvwxyz
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ
+            0123456789,+-:/</code>
+          <para>&lt;/blockquote&gt;
+            and whitespace characters.</para>
+          <para>A consecutive sequence of decimal digits is treated as a decimal
+            number:&lt;ul&gt;
+            &lt;li&gt;If a number is preceded by <c>+</c> or <c>-</c> and a year
+                has already been recognized, then the number is a time-zone
+                offset. If the number is less than 24, it is an offset measured
+                in hours. Otherwise, it is regarded as an offset in minutes,
+                expressed in 24-hour time format without punctuation. A
+                preceding <c>-</c> means a westward offset. Time zone offsets
+                are always relative to UTC (Greenwich). Thus, for example,
+                <c>-5</c> occurring in the string would mean "five hours west
+                of Greenwich" and <c>+0430</c> would mean "four hours and
+                thirty minutes east of Greenwich." It is permitted for the
+                string to specify <c>GMT</c>, <c>UT</c>, or <c>UTC</c>
+                redundantly-for example, <c>GMT-5</c> or <c>utc+0430</c>.
+            &lt;li&gt;The number is regarded as a year number if one of the
+                following conditions is true:
+            &lt;ul&gt;
+                &lt;li&gt;The number is equal to or greater than 70 and followed by a
+                    space, comma, slash, or end of string
+                &lt;li&gt;The number is less than 70, and both a month and a day of
+                    the month have already been recognized&lt;/li&gt;
+            &lt;/ul&gt;
+                If the recognized year number is less than 100, it is
+                interpreted as an abbreviated year relative to a century of
+                which dates are within 80 years before and 19 years after
+                the time when the Date class is initialized.
+                After adjusting the year number, 1900 is subtracted from
+                it. For example, if the current year is 1999 then years in
+                the range 19 to 99 are assumed to mean 1919 to 1999, while
+                years from 0 to 18 are assumed to mean 2000 to 2018.  Note
+                that this is slightly different from the interpretation of
+                years less than 100 that is used in <c>java.text.SimpleDateFormat</c>.
+            &lt;li&gt;If the number is followed by a colon, it is regarded as an hour,
+                unless an hour has already been recognized, in which case it is
+                regarded as a minute.
+            &lt;li&gt;If the number is followed by a slash, it is regarded as a month
+                (it is decreased by 1 to produce a number in the range <c>0</c>
+                to <c>11</c>), unless a month has already been recognized, in
+                which case it is regarded as a day of the month.
+            &lt;li&gt;If the number is followed by whitespace, a comma, a hyphen, or
+                end of string, then if an hour has been recognized but not a
+                minute, it is regarded as a minute; otherwise, if a minute has
+                been recognized but not a second, it is regarded as a second;
+                otherwise, it is regarded as a day of the month. &lt;/ul&gt;</para>
+          <para>A consecutive sequence of letters is regarded as a word and treated
+            as follows:&lt;ul&gt;
+            &lt;li&gt;A word that matches <c>AM</c>, ignoring case, is ignored (but
+                the parse fails if an hour has not been recognized or is less
+                than <c>1</c> or greater than <c>12</c>).
+            &lt;li&gt;A word that matches <c>PM</c>, ignoring case, adds <c>12</c>
+                to the hour (but the parse fails if an hour has not been
+                recognized or is less than <c>1</c> or greater than <c>12</c>).
+            &lt;li&gt;Any word that matches any prefix of <c>SUNDAY, MONDAY, TUESDAY,
+                WEDNESDAY, THURSDAY, FRIDAY</c>, or <c>SATURDAY</c>, ignoring
+                case, is ignored. For example, <c>sat, Friday, TUE</c>, and
+                <c>Thurs</c> are ignored.
+            &lt;li&gt;Otherwise, any word that matches any prefix of <c>JANUARY,
+                FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER,
+                OCTOBER, NOVEMBER</c>, or <c>DECEMBER</c>, ignoring case, and
+                considering them in the order given here, is recognized as
+                specifying a month and is converted to a number (<c>0</c> to
+                <c>11</c>). For example, <c>aug, Sept, april</c>, and
+                <c>NOV</c> are recognized as months. So is <c>Ma</c>, which
+                is recognized as <c>MARCH</c>, not <c>MAY</c>.
+            &lt;li&gt;Any word that matches <c>GMT, UT</c>, or <c>UTC</c>, ignoring
+                case, is treated as referring to UTC.
+            &lt;li&gt;Any word that matches <c>EST, CST, MST</c>, or <c>PST</c>,
+                ignoring case, is recognized as referring to the time zone in
+                North America that is five, six, seven, or eight hours west of
+                Greenwich, respectively. Any word that matches <c>EDT, CDT,
+                MDT</c>, or <c>PDT</c>, ignoring case, is recognized as
+                referring to the same time zone, respectively, during daylight
+                saving time.&lt;/ul&gt;</para>
+          <para>Once the entire string s has been scanned, it is converted to a time
+            result in one of two ways. If a time zone or time-zone offset has been
+            recognized, then the year, month, day of month, hour, minute, and
+            second are interpreted in UTC and then the time-zone offset is
+            applied. Otherwise, the year, month, day of month, hour, minute, and
+            second are interpreted in the local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>DateFormat.parse(String s)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#parse(java.lang.String)" title="Reference documentation">Java documentation for <code>java.util.Date.parse(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Seconds">
+      <MemberSignature Language="C#" Value="public virtual int Seconds { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Seconds" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.Seconds" />
+      <MemberSignature Language="F#" Value="member this.Seconds : int with get, set" Usage="Java.Util.Date.Seconds" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSeconds", "()I", "GetGetSecondsHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSeconds", "()I", "GetGetSecondsHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setSeconds", "(I)V", "GetSetSeconds_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setSeconds", "(I)V", "GetSetSeconds_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="seconds">the seconds value.</param>
+        <summary>Returns the number of seconds past the minute represented by this date. -or- Sets the seconds of this <c>Date</c> to the specified value.</summary>
+        <value>the number of seconds past the minute represented by this date.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the number of seconds past the minute represented by this date.
+            The value returned is between <c>0</c> and <c>61</c>. The
+            values <c>60</c> and <c>61</c> can only occur on those
+            Java Virtual Machines that take leap seconds into account.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.get(Calendar.SECOND)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getSeconds()" title="Reference documentation">Java documentation for <code>java.util.Date.getSeconds()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the seconds of this <c>Date</c> to the specified value.
+            This <c>Date</c> object is modified so that it represents a
+            point in time within the specified second of the minute, with
+            the year, month, date, hour, and minute the same as before, as
+            interpreted in the local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(Calendar.SECOND, int seconds)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#setSeconds(int)" title="Reference documentation">Java documentation for <code>java.util.Date.setSeconds(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetDate">
+      <MemberSignature Language="C#" Value="public virtual void SetDate (int date);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDate(int32 date) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.SetDate(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetDate : int -&gt; unit&#xA;override this.SetDate : int -&gt; unit" Usage="date.SetDate date" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setDate", "(I)V", "GetSetDate_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDate", "(I)V", "GetSetDate_IHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="date" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="date">the day of the month value between 1-31.</param>
+        <summary>Sets the day of the month of this <c>Date</c> object to the
+            specified value.</summary>
+        <remarks>
+          <para>Sets the day of the month of this <c>Date</c> object to the
+            specified value. This <c>Date</c> object is modified so that
+            it represents a point in time within the specified day of the
+            month, with the year, month, hour, minute, and second the same
+            as before, as interpreted in the local time zone. If the date
+            was April 30, for example, and the date is set to 31, then it
+            will be treated as if it were on May 1, because April has only
+            30 days.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(Calendar.DAY_OF_MONTH, int date)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#setDate(int)" title="Reference documentation">Java documentation for <code>java.util.Date.setDate(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Util.Date.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Util.Date.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Time">
+      <MemberSignature Language="C#" Value="public virtual long Time { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 Time" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.Time" />
+      <MemberSignature Language="F#" Value="member this.Time : int64 with get, set" Usage="Java.Util.Date.Time" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTime", "()J", "GetGetTimeHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTime", "()J", "GetGetTimeHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setTime", "(J)V", "GetSetTime_JHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setTime", "(J)V", "GetSetTime_JHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="time">the number of milliseconds.</param>
+        <summary>Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT
+            represented by this <c>Date</c> object. -or- Sets this <c>Date</c> object to represent a point in time that is
+            <c>time</c> milliseconds after January 1, 1970 00:00:00 GMT.</summary>
+        <value>the number of milliseconds since January 1, 1970, 00:00:00 GMT
+                     represented by this date.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT
+            represented by this <c>Date</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getTime()" title="Reference documentation">Java documentation for <code>java.util.Date.getTime()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets this <c>Date</c> object to represent a point in time that is
+            <c>time</c> milliseconds after January 1, 1970 00:00:00 GMT.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#setTime(long)" title="Reference documentation">Java documentation for <code>java.util.Date.setTime(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="TimezoneOffset">
+      <MemberSignature Language="C#" Value="public virtual int TimezoneOffset { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 TimezoneOffset" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.TimezoneOffset" />
+      <MemberSignature Language="F#" Value="member this.TimezoneOffset : int" Usage="Java.Util.Date.TimezoneOffset" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTimezoneOffset", "()I", "GetGetTimezoneOffsetHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTimezoneOffset", "()I", "GetGetTimezoneOffsetHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the offset, measured in minutes, for the local time zone
+            relative to UTC that is appropriate for the time represented by
+            this <c>Date</c> object.</summary>
+        <value>the time-zone offset, in minutes, for the current time zone.</value>
+        <remarks>
+          <para>Returns the offset, measured in minutes, for the local time zone
+            relative to UTC that is appropriate for the time represented by
+            this <c>Date</c> object.</para>
+          <para>For example, in Massachusetts, five time zones west of Greenwich:
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">new Date(96, 1, 14).getTimezoneOffset() returns 300</code>
+          <para>&lt;/blockquote&gt;
+            because on February 14, 1996, standard time (Eastern Standard Time)
+            is in use, which is offset five hours from UTC; but:
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">new Date(96, 5, 1).getTimezoneOffset() returns 240</code>
+          <para>&lt;/blockquote&gt;
+            because on June 1, 1996, daylight saving time (Eastern Daylight Time)
+            is in use, which is offset only four hours from UTC.</para>
+          <para>This method produces the same result as if it computed:
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">(this.getTime() - UTC(this.getYear(),
+                                  this.getMonth(),
+                                  this.getDate(),
+                                  this.getHours(),
+                                  this.getMinutes(),
+                                  this.getSeconds())) / (60 * 1000)
+            </code>
+          <para>&lt;/blockquote&gt;</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>-(Calendar.get(Calendar.ZONE_OFFSET) +
+            Calendar.get(Calendar.DST_OFFSET)) / (60 * 1000)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getTimezoneOffset()" title="Reference documentation">Java documentation for <code>java.util.Date.getTimezoneOffset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ToGMTString">
+      <MemberSignature Language="C#" Value="public virtual string? ToGMTString ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string ToGMTString() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.ToGMTString" />
+      <MemberSignature Language="F#" Value="abstract member ToGMTString : unit -&gt; string&#xA;override this.ToGMTString : unit -&gt; string" Usage="date.ToGMTString " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("toGMTString", "()Ljava/lang/String;", "GetToGMTStringHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("toGMTString", "()Ljava/lang/String;", "GetToGMTStringHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Creates a string representation of this <c>Date</c> object of
+            the form:
+            &lt;blockquote&gt;</summary>
+        <returns>a string representation of this date, using the Internet GMT
+                     conventions.</returns>
+        <remarks>
+          <para>Creates a string representation of this <c>Date</c> object of
+            the form:
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">d mon yyyy hh:mm:ss GMT</code>
+          <para>&lt;/blockquote&gt;
+            where:&lt;ul&gt;
+            &lt;li&gt;<i>d</i> is the day of the month (<c>1</c> through <c>31</c>),
+                as one or two decimal digits.
+            &lt;li&gt;<i>mon</i> is the month (<c>Jan, Feb, Mar, Apr, May, Jun, Jul,
+                Aug, Sep, Oct, Nov, Dec</c>).
+            &lt;li&gt;<i>yyyy</i> is the year, as four decimal digits.
+            &lt;li&gt;<i>hh</i> is the hour of the day (<c>00</c> through <c>23</c>),
+                as two decimal digits.
+            &lt;li&gt;<i>mm</i> is the minute within the hour (<c>00</c> through
+                <c>59</c>), as two decimal digits.
+            &lt;li&gt;<i>ss</i> is the second within the minute (<c>00</c> through
+                <c>61</c>), as two decimal digits.
+            &lt;li&gt;<i>GMT</i> is exactly the ASCII letters "<c>GMT</c>" to indicate
+                Greenwich Mean Time.
+            &lt;/ul&gt;</para>
+          <para>The result does not depend on the local time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>DateFormat.format(Date date)</c>, using a
+            GMT <c>TimeZone</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#toGMTString()" title="Reference documentation">Java documentation for <code>java.util.Date.toGMTString()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ToInstant">
+      <MemberSignature Language="C#" Value="public virtual Java.Time.Instant? ToInstant ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Time.Instant ToInstant() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.ToInstant" />
+      <MemberSignature Language="F#" Value="abstract member ToInstant : unit -&gt; Java.Time.Instant&#xA;override this.ToInstant : unit -&gt; Java.Time.Instant" Usage="date.ToInstant " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("toInstant", "()Ljava/time/Instant;", "GetToInstantHandler", ApiSince=26)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("toInstant", "()Ljava/time/Instant;", "GetToInstantHandler", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Time.Instant</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Converts this <c>Date</c> object to an <c>Instant</c>.</summary>
+        <returns>an instant representing the same point on the time-line as
+             this <c>Date</c> object</returns>
+        <remarks>
+          <para>Converts this <c>Date</c> object to an <c>Instant</c>.</para>
+          <para>The conversion creates an <c>Instant</c> that represents the same
+            point on the time-line as this <c>Date</c>.</para>
+          <para>Added in 1.8.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#toInstant()" title="Reference documentation">Java documentation for <code>java.util.Date.toInstant()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ToLocaleString">
+      <MemberSignature Language="C#" Value="public virtual string? ToLocaleString ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance string ToLocaleString() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.ToLocaleString" />
+      <MemberSignature Language="F#" Value="abstract member ToLocaleString : unit -&gt; string&#xA;override this.ToLocaleString : unit -&gt; string" Usage="date.ToLocaleString " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("toLocaleString", "()Ljava/lang/String;", "GetToLocaleStringHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("toLocaleString", "()Ljava/lang/String;", "GetToLocaleStringHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Creates a string representation of this <c>Date</c> object in an
+            implementation-dependent form.</summary>
+        <returns>a string representation of this date, using the locale
+                     conventions.</returns>
+        <remarks>
+          <para>Creates a string representation of this <c>Date</c> object in an
+            implementation-dependent form. The intent is that the form should
+            be familiar to the user of the Java application, wherever it may
+            happen to be running. The intent is comparable to that of the
+            "<c>%c</c>" format supported by the <c>strftime()</c>
+            function of ISO&amp;nbsp;C.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>DateFormat.format(Date date)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#toLocaleString()" title="Reference documentation">Java documentation for <code>java.util.Date.toLocaleString()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="UTC">
+      <MemberSignature Language="C#" Value="public static long UTC (int year, int month, int date, int hrs, int min, int sec);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 UTC(int32 year, int32 month, int32 date, int32 hrs, int32 min, int32 sec) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Date.UTC(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member UTC : int * int * int * int * int * int -&gt; int64" Usage="Java.Util.Date.UTC (year, month, date, hrs, min, sec)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("UTC", "(IIIIII)J", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("UTC", "(IIIIII)J", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="year" Type="System.Int32" />
+        <Parameter Name="month" Type="System.Int32" />
+        <Parameter Name="date" Type="System.Int32" />
+        <Parameter Name="hrs" Type="System.Int32" />
+        <Parameter Name="min" Type="System.Int32" />
+        <Parameter Name="sec" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="year">the year minus 1900.</param>
+        <param name="month">the month between 0-11.</param>
+        <param name="date">the day of the month between 1-31.</param>
+        <param name="hrs">the hours between 0-23.</param>
+        <param name="min">the minutes between 0-59.</param>
+        <param name="sec">the seconds between 0-59.</param>
+        <summary>Determines the date and time based on the arguments.</summary>
+        <returns>the number of milliseconds since January 1, 1970, 00:00:00 GMT for
+                     the date and time specified by the arguments.</returns>
+        <remarks>
+          <para>Determines the date and time based on the arguments. The
+            arguments are interpreted as a year, month, day of the month,
+            hour of the day, minute within the hour, and second within the
+            minute, exactly as for the <c>Date</c> constructor with six
+            arguments, except that the arguments are interpreted relative
+            to UTC rather than to the local time zone. The time indicated is
+            returned represented as the distance, measured in milliseconds,
+            of that time from the epoch (00:00:00 GMT on January 1, 1970).</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(year + 1900, month, date, hrs, min, sec)</c>
+            or <c>GregorianCalendar(year + 1900, month, date, hrs, min, sec)</c>, using a UTC
+            <c>TimeZone</c>, followed by <c>Calendar.getTime().getTime()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#UTC(int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.Date.UTC(int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Year">
+      <MemberSignature Language="C#" Value="public virtual int Year { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 Year" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Date.Year" />
+      <MemberSignature Language="F#" Value="member this.Year : int with get, set" Usage="Java.Util.Date.Year" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getYear", "()I", "GetGetYearHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getYear", "()I", "GetGetYearHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setYear", "(I)V", "GetSetYear_IHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setYear", "(I)V", "GetSetYear_IHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="year">the year value.</param>
+        <summary>Returns a value that is the result of subtracting 1900 from the
+            year that contains or begins with the instant in time represented
+            by this <c>Date</c> object, as interpreted in the local
+            time zone. -or- Sets the year of this <c>Date</c> object to be the specified
+            value plus 1900.</summary>
+        <value>the year represented by this date, minus 1900.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns a value that is the result of subtracting 1900 from the
+            year that contains or begins with the instant in time represented
+            by this <c>Date</c> object, as interpreted in the local
+            time zone.</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.get(Calendar.YEAR) - 1900</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#getYear()" title="Reference documentation">Java documentation for <code>java.util.Date.getYear()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the year of this <c>Date</c> object to be the specified
+            value plus 1900. This <c>Date</c> object is modified so
+            that it represents a point in time within the specified year,
+            with the month, date, hour, minute, and second the same as
+            before, as interpreted in the local time zone. (Of course, if
+            the date was February 29, for example, and the year is set to a
+            non-leap year, then the new date will be treated as if it were
+            on March 1.)</para>
+          <para>This member is deprecated. As of JDK version 1.1,
+            replaced by <c>Calendar.set(Calendar.YEAR, year + 1900)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/Date#setYear(int)" title="Reference documentation">Java documentation for <code>java.util.Date.setYear(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>

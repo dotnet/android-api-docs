@@ -1,0 +1,1093 @@
+<Type Name="PrintJob" FullName="Android.PrintServices.PrintJob">
+  <TypeSignature Language="C#" Value="public sealed class PrintJob : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit PrintJob extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Android.PrintServices.PrintJob" />
+  <TypeSignature Language="F#" Value="type PrintJob = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/printservice/PrintJob", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/printservice/PrintJob", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="19">
+    <summary>This class represents a print job from the perspective of a print
+            service.</summary>
+    <remarks>
+      <para>This class represents a print job from the perspective of a print
+            service. It provides APIs for observing the print job state and
+            performing operations on the print job.</para>
+      <para>&lt;strong&gt;Note: &lt;/strong&gt; All methods of this class must be invoked on
+            the main application thread.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/printservice/PrintJob" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Block">
+      <MemberSignature Language="C#" Value="public bool Block (string? reason);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Block(string reason) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.Block(System.String)" />
+      <MemberSignature Language="F#" Value="member this.Block : string -&gt; bool" Usage="printJob.Block reason" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("block", "(Ljava/lang/String;)Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("block", "(Ljava/lang/String;)Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="reason" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="reason">The human readable, short, and translated reason why the print job is blocked.</param>
+        <summary>Blocks the print job.</summary>
+        <returns>Whether the job was blocked.</returns>
+        <remarks>
+          <para>Blocks the print job. You should call this method if <c>#isStarted()</c> returns true and
+            you need to block the print job. For example, the user has to add some paper to continue
+            printing. To resume the print job call <c>#start()</c>. To change the reason call
+            <c>#setStatus(CharSequence)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#block(java.lang.String)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.block(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="P:Android.PrintServices.PrintJob.IsStarted" />
+        <altmember cref="P:Android.PrintServices.PrintJob.IsBlocked" />
+      </Docs>
+    </Member>
+    <Member MemberName="Cancel">
+      <MemberSignature Language="C#" Value="public bool Cancel ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Cancel() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.Cancel" />
+      <MemberSignature Language="F#" Value="member this.Cancel : unit -&gt; bool" Usage="printJob.Cancel " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("cancel", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("cancel", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Cancels the print job.</summary>
+        <returns>Whether the job is canceled.</returns>
+        <remarks>
+          <para>Cancels the print job. You should call this method if <c>#isQueued()</c> or <c>#isStarted() or #isBlocked()</c> returns
+            true and you canceled the print job as a response to a call to
+            <c>PrintService#onRequestCancelPrintJob(PrintJob)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#cancel()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.cancel()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="P:Android.PrintServices.PrintJob.IsStarted" />
+        <altmember cref="P:Android.PrintServices.PrintJob.IsQueued" />
+        <altmember cref="P:Android.PrintServices.PrintJob.IsBlocked" />
+      </Docs>
+    </Member>
+    <Member MemberName="Complete">
+      <MemberSignature Language="C#" Value="public bool Complete ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Complete() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.Complete" />
+      <MemberSignature Language="F#" Value="member this.Complete : unit -&gt; bool" Usage="printJob.Complete " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("complete", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("complete", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Completes the print job.</summary>
+        <returns>Whether the job as completed.</returns>
+        <remarks>
+          <para>Completes the print job. You should call this method if <c>#isStarted()</c> returns true and you are done printing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#complete()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.complete()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="P:Android.PrintServices.PrintJob.IsStarted" />
+      </Docs>
+    </Member>
+    <Member MemberName="Document">
+      <MemberSignature Language="C#" Value="public Android.PrintServices.PrintDocument Document { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.PrintServices.PrintDocument Document" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.Document" />
+      <MemberSignature Language="F#" Value="member this.Document : Android.PrintServices.PrintDocument" Usage="Android.PrintServices.PrintJob.Document" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDocument", "()Landroid/printservice/PrintDocument;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDocument", "()Landroid/printservice/PrintDocument;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.PrintServices.PrintDocument</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the printed document.</summary>
+        <value>The document.</value>
+        <remarks>
+          <para>Gets the printed document.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#getDocument()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.getDocument()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Fail">
+      <MemberSignature Language="C#" Value="public bool Fail (string? error);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Fail(string error) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.Fail(System.String)" />
+      <MemberSignature Language="F#" Value="member this.Fail : string -&gt; bool" Usage="printJob.Fail error" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("fail", "(Ljava/lang/String;)Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("fail", "(Ljava/lang/String;)Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="error" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="error">The human readable, short, and translated reason
+            for the failure.</param>
+        <summary>Fails the print job.</summary>
+        <returns>Whether the job was failed.</returns>
+        <remarks>
+          <para>Fails the print job. You should call this method if <c>#isQueued()</c> or <c>#isStarted()</c> or <c>#isBlocked()</c>
+            returns true you failed while printing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#fail(java.lang.String)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.fail(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="P:Android.PrintServices.PrintJob.IsQueued" />
+        <altmember cref="P:Android.PrintServices.PrintJob.IsStarted" />
+        <altmember cref="P:Android.PrintServices.PrintJob.IsBlocked" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetAdvancedIntOption">
+      <MemberSignature Language="C#" Value="public int GetAdvancedIntOption (string? key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 GetAdvancedIntOption(string key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.GetAdvancedIntOption(System.String)" />
+      <MemberSignature Language="F#" Value="member this.GetAdvancedIntOption : string -&gt; int" Usage="printJob.GetAdvancedIntOption key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getAdvancedIntOption", "(Ljava/lang/String;)I", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getAdvancedIntOption", "(Ljava/lang/String;)I", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="key">The option key.</param>
+        <summary>Gets the value of an advanced (printer specific) print option.</summary>
+        <returns>The option value.</returns>
+        <remarks>
+          <para>Gets the value of an advanced (printer specific) print option.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#getAdvancedIntOption(java.lang.String)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.getAdvancedIntOption(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetAdvancedStringOption">
+      <MemberSignature Language="C#" Value="public string? GetAdvancedStringOption (string? key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string GetAdvancedStringOption(string key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.GetAdvancedStringOption(System.String)" />
+      <MemberSignature Language="F#" Value="member this.GetAdvancedStringOption : string -&gt; string" Usage="printJob.GetAdvancedStringOption key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getAdvancedStringOption", "(Ljava/lang/String;)Ljava/lang/String;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getAdvancedStringOption", "(Ljava/lang/String;)Ljava/lang/String;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="key">The option key.</param>
+        <summary>Gets the value of an advanced (printer specific) print option.</summary>
+        <returns>The option value.</returns>
+        <remarks>
+          <para>Gets the value of an advanced (printer specific) print option.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#getAdvancedStringOption(java.lang.String)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.getAdvancedStringOption(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="HasAdvancedOption">
+      <MemberSignature Language="C#" Value="public bool HasAdvancedOption (string? key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool HasAdvancedOption(string key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.HasAdvancedOption(System.String)" />
+      <MemberSignature Language="F#" Value="member this.HasAdvancedOption : string -&gt; bool" Usage="printJob.HasAdvancedOption key" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("hasAdvancedOption", "(Ljava/lang/String;)Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("hasAdvancedOption", "(Ljava/lang/String;)Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="key" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="key">The option key.</param>
+        <summary>Gets whether this job has a given advanced (printer specific) print
+            option.</summary>
+        <returns>Whether the option is present.</returns>
+        <remarks>
+          <para>Gets whether this job has a given advanced (printer specific) print
+            option.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#hasAdvancedOption(java.lang.String)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.hasAdvancedOption(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Id">
+      <MemberSignature Language="C#" Value="public Android.Print.PrintJobId? Id { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Print.PrintJobId Id" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.Id" />
+      <MemberSignature Language="F#" Value="member this.Id : Android.Print.PrintJobId" Usage="Android.PrintServices.PrintJob.Id" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getId", "()Landroid/print/PrintJobId;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getId", "()Landroid/print/PrintJobId;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Print.PrintJobId</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the unique print job id.</summary>
+        <value>The id.</value>
+        <remarks>
+          <para>Gets the unique print job id.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#getId()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.getId()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Info">
+      <MemberSignature Language="C#" Value="public Android.Print.PrintJobInfo Info { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Print.PrintJobInfo Info" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.Info" />
+      <MemberSignature Language="F#" Value="member this.Info : Android.Print.PrintJobInfo" Usage="Android.PrintServices.PrintJob.Info" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getInfo", "()Landroid/print/PrintJobInfo;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInfo", "()Landroid/print/PrintJobInfo;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Print.PrintJobInfo</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the <c>PrintJobInfo</c> that describes this job.</summary>
+        <value>The print job info.</value>
+        <remarks>
+          <para>Gets the <c>PrintJobInfo</c> that describes this job.</para>
+          <para>&lt;strong&gt;Node:&lt;/strong&gt;The returned info object is a snapshot of the
+            current print job state. Every call to this method returns a fresh
+            info object that reflects the current print job state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#getInfo()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.getInfo()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsBlocked">
+      <MemberSignature Language="C#" Value="public bool IsBlocked { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsBlocked" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.IsBlocked" />
+      <MemberSignature Language="F#" Value="member this.IsBlocked : bool" Usage="Android.PrintServices.PrintJob.IsBlocked" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isBlocked", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isBlocked", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets whether this print job is blocked.</summary>
+        <value>Whether the print job is blocked.</value>
+        <remarks>
+          <para>Gets whether this print job is blocked. Such a print job is halted
+            due to an abnormal condition and can be started or canceled or failed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#isBlocked()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.isBlocked()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.PrintServices.PrintJob.Start" />
+        <altmember cref="M:Android.PrintServices.PrintJob.Cancel" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsCancelled">
+      <MemberSignature Language="C#" Value="public bool IsCancelled { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsCancelled" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.IsCancelled" />
+      <MemberSignature Language="F#" Value="member this.IsCancelled : bool" Usage="Android.PrintServices.PrintJob.IsCancelled" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isCancelled", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isCancelled", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets whether this print job is cancelled.</summary>
+        <value>Whether the print job is cancelled.</value>
+        <remarks>
+          <para>Gets whether this print job is cancelled. Such a print job was
+            cancelled as a result of a user request. This is a final state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#isCancelled()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.isCancelled()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.PrintServices.PrintJob.Cancel" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsCompleted">
+      <MemberSignature Language="C#" Value="public bool IsCompleted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsCompleted" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.IsCompleted" />
+      <MemberSignature Language="F#" Value="member this.IsCompleted : bool" Usage="Android.PrintServices.PrintJob.IsCompleted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isCompleted", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isCompleted", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets whether this print job is completed.</summary>
+        <value>Whether the print job is completed.</value>
+        <remarks>
+          <para>Gets whether this print job is completed. Such a print job
+            is successfully printed. This is a final state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#isCompleted()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.isCompleted()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.PrintServices.PrintJob.Complete" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsFailed">
+      <MemberSignature Language="C#" Value="public bool IsFailed { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsFailed" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.IsFailed" />
+      <MemberSignature Language="F#" Value="member this.IsFailed : bool" Usage="Android.PrintServices.PrintJob.IsFailed" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isFailed", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isFailed", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets whether this print job is failed.</summary>
+        <value>Whether the print job is failed.</value>
+        <remarks>
+          <para>Gets whether this print job is failed. Such a print job is
+            not successfully printed due to an error. This is a final state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#isFailed()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.isFailed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsQueued">
+      <MemberSignature Language="C#" Value="public bool IsQueued { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsQueued" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.IsQueued" />
+      <MemberSignature Language="F#" Value="member this.IsQueued : bool" Usage="Android.PrintServices.PrintJob.IsQueued" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isQueued", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isQueued", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets whether this print job is queued.</summary>
+        <value>Whether the print job is queued.</value>
+        <remarks>
+          <para>Gets whether this print job is queued. Such a print job is
+            ready to be printed and can be started or cancelled.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#isQueued()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.isQueued()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.PrintServices.PrintJob.Start" />
+        <altmember cref="M:Android.PrintServices.PrintJob.Cancel" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsStarted">
+      <MemberSignature Language="C#" Value="public bool IsStarted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsStarted" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.IsStarted" />
+      <MemberSignature Language="F#" Value="member this.IsStarted : bool" Usage="Android.PrintServices.PrintJob.IsStarted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isStarted", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isStarted", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets whether this print job is started.</summary>
+        <value>Whether the print job is started.</value>
+        <remarks>
+          <para>Gets whether this print job is started. Such a print job is
+            being printed and can be completed or canceled or failed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#isStarted()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.isStarted()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.PrintServices.PrintJob.Complete" />
+        <altmember cref="M:Android.PrintServices.PrintJob.Cancel" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.PrintServices.PrintJob.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetProgress">
+      <MemberSignature Language="C#" Value="public void SetProgress (float progress);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetProgress(float32 progress) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.SetProgress(System.Single)" />
+      <MemberSignature Language="F#" Value="member this.SetProgress : single -&gt; unit" Usage="printJob.SetProgress progress" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setProgress", "(F)V", "", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setProgress", "(F)V", "", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="progress" Type="System.Single" />
+      </Parameters>
+      <Docs>
+        <param name="progress">The new progress</param>
+        <summary>Sets the progress of this print job as a fraction of 1.</summary>
+        <remarks>
+          <para>Sets the progress of this print job as a fraction of 1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#setProgress(float)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.setProgress(float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStatus">
+      <MemberSignature Language="C#" Value="public void SetStatus (Java.Lang.ICharSequence? status);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStatus(class Java.Lang.ICharSequence status) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.SetStatus(Java.Lang.ICharSequence)" />
+      <MemberSignature Language="F#" Value="member this.SetStatus : Java.Lang.ICharSequence -&gt; unit" Usage="printJob.SetStatus status" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setStatus", "(Ljava/lang/CharSequence;)V", "", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setStatus", "(Ljava/lang/CharSequence;)V", "", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="status" Type="Java.Lang.ICharSequence" />
+      </Parameters>
+      <Docs>
+        <param name="status">The new status. If null the status will be empty.</param>
+        <summary>Sets the status of this print job.</summary>
+        <remarks>
+          <para>Sets the status of this print job. This should be a human readable, short, and translated
+            description of the current state of the print job.
+            &lt;p /&gt;
+            This overrides any previously set status set via <c>#setStatus(CharSequence)</c>,
+            <c>#setStatus(int)</c>, <c>#block(String)</c>, or <c>#fail(String)</c>,</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#setStatus(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.setStatus(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStatus">
+      <MemberSignature Language="C#" Value="public void SetStatus (int statusResId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStatus(int32 statusResId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.SetStatus(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.SetStatus : int -&gt; unit" Usage="printJob.SetStatus statusResId" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setStatus", "(I)V", "", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setStatus", "(I)V", "", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="statusResId" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="statusResId">The new status as a String resource. If 0 the status will be empty.</param>
+        <summary>Sets the status of this print job as a string resource.</summary>
+        <remarks>
+          <para>Sets the status of this print job as a string resource.
+            &lt;p /&gt;
+            This overrides any previously set status set via <c>#setStatus(CharSequence)</c>,
+            <c>#setStatus(int)</c>, <c>#block(String)</c>, or <c>#fail(String)</c>,</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#setStatus(int)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.setStatus(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetStatus">
+      <MemberSignature Language="C#" Value="public void SetStatus (string? status);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetStatus(string status) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.SetStatus(System.String)" />
+      <MemberSignature Language="F#" Value="member this.SetStatus : string -&gt; unit" Usage="printJob.SetStatus status" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="status" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="status">The new status. If null the status will be empty.</param>
+        <summary>Sets the status of this print job.</summary>
+        <remarks>
+          <para>Sets the status of this print job. This should be a human readable, short, and translated
+            description of the current state of the print job.
+            &lt;p /&gt;
+            This overrides any previously set status set via <c>#setStatus(CharSequence)</c>,
+            <c>#setStatus(int)</c>, <c>#block(String)</c>, or <c>#fail(String)</c>,</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#setStatus(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.setStatus(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetTag">
+      <MemberSignature Language="C#" Value="public bool SetTag (string tag);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool SetTag(string tag) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.SetTag(System.String)" />
+      <MemberSignature Language="F#" Value="member this.SetTag : string -&gt; bool" Usage="printJob.SetTag tag" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setTag", "(Ljava/lang/String;)Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setTag", "(Ljava/lang/String;)Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="tag" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="tag">The tag.</param>
+        <summary>Sets a tag that is valid in the context of a <c>PrintService</c>
+            and is not interpreted by the system.</summary>
+        <returns>True if the tag was set, false otherwise.</returns>
+        <remarks>
+          <para>Sets a tag that is valid in the context of a <c>PrintService</c>
+            and is not interpreted by the system. For example, a print service
+            may set as a tag the key of the print job returned by a remote
+            print server, if the printing is off handed to a cloud based service.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#setTag(java.lang.String)" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.setTag(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Start">
+      <MemberSignature Language="C#" Value="public bool Start ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool Start() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.PrintServices.PrintJob.Start" />
+      <MemberSignature Language="F#" Value="member this.Start : unit -&gt; bool" Usage="printJob.Start " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("start", "()Z", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("start", "()Z", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Starts the print job.</summary>
+        <returns>Whether the job was started.</returns>
+        <remarks>
+          <para>Starts the print job. You should call this method if <c>#isQueued()</c> or <c>#isBlocked()</c> returns true and you started
+            resumed printing.</para>
+          <para>This resets the print status to null. Set the new status by using <c>#setStatus</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#start()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.start()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="P:Android.PrintServices.PrintJob.IsQueued" />
+        <altmember cref="P:Android.PrintServices.PrintJob.IsBlocked" />
+      </Docs>
+    </Member>
+    <Member MemberName="Tag">
+      <MemberSignature Language="C#" Value="public string? Tag { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Tag" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.Tag" />
+      <MemberSignature Language="F#" Value="member this.Tag : string" Usage="Android.PrintServices.PrintJob.Tag" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTag", "()Ljava/lang/String;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTag", "()Ljava/lang/String;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the print job tag.</summary>
+        <value>The tag or null.</value>
+        <remarks>
+          <para>Gets the print job tag.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/printservice/PrintJob#getTag()" title="Reference documentation">Java documentation for <code>android.printservice.PrintJob.getTag()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <altmember cref="M:Android.PrintServices.PrintJob.SetTag(System.String)" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.PrintServices.PrintJob.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.PrintServices.PrintJob.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.PrintServices.PrintJob.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

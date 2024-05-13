@@ -1,0 +1,924 @@
+<Type Name="AbstractExecutorService" FullName="Java.Util.Concurrent.AbstractExecutorService">
+  <TypeSignature Language="C#" Value="public abstract class AbstractExecutorService : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Util.Concurrent.IExecutorService" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit AbstractExecutorService extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.Concurrent.IExecutor, class Java.Util.Concurrent.IExecutorService, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Util.Concurrent.AbstractExecutorService" />
+  <TypeSignature Language="F#" Value="type AbstractExecutorService = class&#xA;    inherit Object&#xA;    interface IExecutorService&#xA;    interface IExecutor&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Util.Concurrent.IExecutor</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Util.Concurrent.IExecutorService</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/util/concurrent/AbstractExecutorService", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/concurrent/AbstractExecutorService", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>Provides default implementations of <c>ExecutorService</c>
+            execution methods.</summary>
+    <remarks>
+      <para>Provides default implementations of <c>ExecutorService</c>
+            execution methods. This class implements the <c>submit</c>,
+            <c>invokeAny</c> and <c>invokeAll</c> methods using a
+            <c>RunnableFuture</c> returned by <c>newTaskFor</c>, which defaults
+            to the <c>FutureTask</c> class provided in this package.  For example,
+            the implementation of <c>submit(Runnable)</c> creates an
+            associated <c>RunnableFuture</c> that is executed and
+            returned. Subclasses may override the <c>newTaskFor</c> methods
+            to return <c>RunnableFuture</c> implementations other than
+            <c>FutureTask</c>.</para>
+      <para>&lt;b&gt;Extension example.&lt;/b&gt; Here is a sketch of a class
+            that customizes <c>ThreadPoolExecutor</c> to use
+            a <c>CustomTask</c> class instead of the default <c>FutureTask</c>:</para>
+      <code lang="text/java">{@code
+            public class CustomThreadPoolExecutor extends ThreadPoolExecutor {
+            
+              static class CustomTask&lt;V&gt; implements RunnableFuture&lt;V&gt; { ... }
+            
+              protected &lt;V&gt; RunnableFuture&lt;V&gt; newTaskFor(Callable&lt;V&gt; c) {
+                  return new CustomTask&lt;V&gt;(c);
+              }
+              protected &lt;V&gt; RunnableFuture&lt;V&gt; newTaskFor(Runnable r, V v) {
+                  return new CustomTask&lt;V&gt;(r, v);
+              }
+              // ... add constructors, etc.
+            }}</code>
+      <para>Added in 1.5.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/util/concurrent/AbstractExecutorService" title="Reference documentation">Java documentation for <code>java.util.concurrent.AbstractExecutorService</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public AbstractExecutorService ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>Constructor for subclasses to call.</summary>
+        <remarks>
+          <para>Constructor for subclasses to call.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/AbstractExecutorService#AbstractExecutorService()" title="Reference documentation">Java documentation for <code>java.util.concurrent.AbstractExecutorService.AbstractExecutorService()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected AbstractExecutorService (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Util.Concurrent.AbstractExecutorService : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Util.Concurrent.AbstractExecutorService" Usage="new Java.Util.Concurrent.AbstractExecutorService (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AwaitTermination">
+      <MemberSignature Language="C#" Value="public abstract bool AwaitTermination (long timeout, Java.Util.Concurrent.TimeUnit? unit);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool AwaitTermination(int64 timeout, class Java.Util.Concurrent.TimeUnit unit) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.AwaitTermination(System.Int64,Java.Util.Concurrent.TimeUnit)" />
+      <MemberSignature Language="F#" Value="abstract member AwaitTermination : int64 * Java.Util.Concurrent.TimeUnit -&gt; bool" Usage="abstractExecutorService.AwaitTermination (timeout, unit)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.AwaitTermination(System.Int64,Java.Util.Concurrent.TimeUnit)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("awaitTermination", "(JLjava/util/concurrent/TimeUnit;)Z", "GetAwaitTermination_JLjava_util_concurrent_TimeUnit_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("awaitTermination", "(JLjava/util/concurrent/TimeUnit;)Z", "GetAwaitTermination_JLjava_util_concurrent_TimeUnit_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="timeout" Type="System.Int64" />
+        <Parameter Name="unit" Type="Java.Util.Concurrent.TimeUnit" />
+      </Parameters>
+      <Docs>
+        <param name="timeout">the maximum time to wait</param>
+        <param name="unit">the time unit of the timeout argument</param>
+        <summary>Blocks until all tasks have completed execution after a shutdown
+            request, or the timeout occurs, or the current thread is
+            interrupted, whichever happens first.</summary>
+        <returns>
+          <c>true</c> if this executor terminated and
+                    <c>false</c> if the timeout elapsed before termination</returns>
+        <remarks>
+          <para>Blocks until all tasks have completed execution after a shutdown
+            request, or the timeout occurs, or the current thread is
+            interrupted, whichever happens first.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/ExecutorService#awaitTermination(long,%20java.util.concurrent.TimeUnit)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ExecutorService.awaitTermination(long, java.util.concurrent.TimeUnit)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AwaitTerminationAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;bool&gt; AwaitTerminationAsync (long timeout, Java.Util.Concurrent.TimeUnit? unit);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;bool&gt; AwaitTerminationAsync(int64 timeout, class Java.Util.Concurrent.TimeUnit unit) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.AwaitTerminationAsync(System.Int64,Java.Util.Concurrent.TimeUnit)" />
+      <MemberSignature Language="F#" Value="member this.AwaitTerminationAsync : int64 * Java.Util.Concurrent.TimeUnit -&gt; System.Threading.Tasks.Task&lt;bool&gt;" Usage="abstractExecutorService.AwaitTerminationAsync (timeout, unit)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Boolean&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="timeout" Type="System.Int64" />
+        <Parameter Name="unit" Type="Java.Util.Concurrent.TimeUnit" />
+      </Parameters>
+      <Docs>
+        <param name="timeout">To be added.</param>
+        <param name="unit">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Execute">
+      <MemberSignature Language="C#" Value="public abstract void Execute (Java.Lang.IRunnable? command);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Execute(class Java.Lang.IRunnable command) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.Execute(Java.Lang.IRunnable)" />
+      <MemberSignature Language="F#" Value="abstract member Execute : Java.Lang.IRunnable -&gt; unit" Usage="abstractExecutorService.Execute command" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutor.Execute(Java.Lang.IRunnable)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("execute", "(Ljava/lang/Runnable;)V", "GetExecute_Ljava_lang_Runnable_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("execute", "(Ljava/lang/Runnable;)V", "GetExecute_Ljava_lang_Runnable_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="command" Type="Java.Lang.IRunnable" />
+      </Parameters>
+      <Docs>
+        <param name="command">the runnable task</param>
+        <summary>Executes the given command at some time in the future.</summary>
+        <remarks>
+          <para>Executes the given command at some time in the future.  The command
+            may execute in a new thread, in a pooled thread, or in the calling
+            thread, at the discretion of the <c>Executor</c> implementation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/Executor#execute(java.lang.Runnable)" title="Reference documentation">Java documentation for <code>java.util.concurrent.Executor.execute(java.lang.Runnable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeAll">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.IList? InvokeAll (System.Collections.ICollection? tasks);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.IList InvokeAll(class System.Collections.ICollection tasks) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.InvokeAll(System.Collections.ICollection)" />
+      <MemberSignature Language="F#" Value="abstract member InvokeAll : System.Collections.ICollection -&gt; System.Collections.IList&#xA;override this.InvokeAll : System.Collections.ICollection -&gt; System.Collections.IList" Usage="abstractExecutorService.InvokeAll tasks" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.InvokeAll(System.Collections.ICollection)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("invokeAll", "(Ljava/util/Collection;)Ljava/util/List;", "GetInvokeAll_Ljava_util_Collection_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("invokeAll", "(Ljava/util/Collection;)Ljava/util/List;", "GetInvokeAll_Ljava_util_Collection_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.IList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="tasks" Type="System.Collections.ICollection" />
+      </Parameters>
+      <Docs>
+        <param name="tasks">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeAll">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.IList? InvokeAll (System.Collections.ICollection? tasks, long timeout, Java.Util.Concurrent.TimeUnit? unit);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.IList InvokeAll(class System.Collections.ICollection tasks, int64 timeout, class Java.Util.Concurrent.TimeUnit unit) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.InvokeAll(System.Collections.ICollection,System.Int64,Java.Util.Concurrent.TimeUnit)" />
+      <MemberSignature Language="F#" Value="abstract member InvokeAll : System.Collections.ICollection * int64 * Java.Util.Concurrent.TimeUnit -&gt; System.Collections.IList&#xA;override this.InvokeAll : System.Collections.ICollection * int64 * Java.Util.Concurrent.TimeUnit -&gt; System.Collections.IList" Usage="abstractExecutorService.InvokeAll (tasks, timeout, unit)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.InvokeAll(System.Collections.ICollection,System.Int64,Java.Util.Concurrent.TimeUnit)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("invokeAll", "(Ljava/util/Collection;JLjava/util/concurrent/TimeUnit;)Ljava/util/List;", "GetInvokeAll_Ljava_util_Collection_JLjava_util_concurrent_TimeUnit_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("invokeAll", "(Ljava/util/Collection;JLjava/util/concurrent/TimeUnit;)Ljava/util/List;", "GetInvokeAll_Ljava_util_Collection_JLjava_util_concurrent_TimeUnit_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.IList</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="tasks" Type="System.Collections.ICollection" />
+        <Parameter Name="timeout" Type="System.Int64" />
+        <Parameter Name="unit" Type="Java.Util.Concurrent.TimeUnit" />
+      </Parameters>
+      <Docs>
+        <param name="tasks">To be added.</param>
+        <param name="timeout">To be added.</param>
+        <param name="unit">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeAny">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? InvokeAny (System.Collections.ICollection? tasks);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object InvokeAny(class System.Collections.ICollection tasks) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.InvokeAny(System.Collections.ICollection)" />
+      <MemberSignature Language="F#" Value="abstract member InvokeAny : System.Collections.ICollection -&gt; Java.Lang.Object&#xA;override this.InvokeAny : System.Collections.ICollection -&gt; Java.Lang.Object" Usage="abstractExecutorService.InvokeAny tasks" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.InvokeAny(System.Collections.ICollection)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("invokeAny", "(Ljava/util/Collection;)Ljava/lang/Object;", "GetInvokeAny_Ljava_util_Collection_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("invokeAny", "(Ljava/util/Collection;)Ljava/lang/Object;", "GetInvokeAny_Ljava_util_Collection_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="tasks" Type="System.Collections.ICollection" />
+      </Parameters>
+      <Docs>
+        <param name="tasks">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeAny">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? InvokeAny (System.Collections.ICollection? tasks, long timeout, Java.Util.Concurrent.TimeUnit? unit);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object InvokeAny(class System.Collections.ICollection tasks, int64 timeout, class Java.Util.Concurrent.TimeUnit unit) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.InvokeAny(System.Collections.ICollection,System.Int64,Java.Util.Concurrent.TimeUnit)" />
+      <MemberSignature Language="F#" Value="abstract member InvokeAny : System.Collections.ICollection * int64 * Java.Util.Concurrent.TimeUnit -&gt; Java.Lang.Object&#xA;override this.InvokeAny : System.Collections.ICollection * int64 * Java.Util.Concurrent.TimeUnit -&gt; Java.Lang.Object" Usage="abstractExecutorService.InvokeAny (tasks, timeout, unit)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.InvokeAny(System.Collections.ICollection,System.Int64,Java.Util.Concurrent.TimeUnit)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("invokeAny", "(Ljava/util/Collection;JLjava/util/concurrent/TimeUnit;)Ljava/lang/Object;", "GetInvokeAny_Ljava_util_Collection_JLjava_util_concurrent_TimeUnit_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("invokeAny", "(Ljava/util/Collection;JLjava/util/concurrent/TimeUnit;)Ljava/lang/Object;", "GetInvokeAny_Ljava_util_Collection_JLjava_util_concurrent_TimeUnit_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="tasks" Type="System.Collections.ICollection" />
+        <Parameter Name="timeout" Type="System.Int64" />
+        <Parameter Name="unit" Type="Java.Util.Concurrent.TimeUnit" />
+      </Parameters>
+      <Docs>
+        <param name="tasks">To be added.</param>
+        <param name="timeout">To be added.</param>
+        <param name="unit">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsShutdown">
+      <MemberSignature Language="C#" Value="public abstract bool IsShutdown { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsShutdown" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Concurrent.AbstractExecutorService.IsShutdown" />
+      <MemberSignature Language="F#" Value="member this.IsShutdown : bool" Usage="Java.Util.Concurrent.AbstractExecutorService.IsShutdown" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Util.Concurrent.IExecutorService.IsShutdown</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isShutdown", "()Z", "GetIsShutdownHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isShutdown", "()Z", "GetIsShutdownHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsTerminated">
+      <MemberSignature Language="C#" Value="public abstract bool IsTerminated { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsTerminated" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Concurrent.AbstractExecutorService.IsTerminated" />
+      <MemberSignature Language="F#" Value="member this.IsTerminated : bool" Usage="Java.Util.Concurrent.AbstractExecutorService.IsTerminated" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Util.Concurrent.IExecutorService.IsTerminated</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isTerminated", "()Z", "GetIsTerminatedHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isTerminated", "()Z", "GetIsTerminatedHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Concurrent.AbstractExecutorService.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Util.Concurrent.AbstractExecutorService.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NewTaskFor">
+      <MemberSignature Language="C#" Value="protected virtual Java.Util.Concurrent.IRunnableFuture? NewTaskFor (Java.Util.Concurrent.ICallable? callable);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Java.Util.Concurrent.IRunnableFuture NewTaskFor(class Java.Util.Concurrent.ICallable callable) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.NewTaskFor(Java.Util.Concurrent.ICallable)" />
+      <MemberSignature Language="F#" Value="abstract member NewTaskFor : Java.Util.Concurrent.ICallable -&gt; Java.Util.Concurrent.IRunnableFuture&#xA;override this.NewTaskFor : Java.Util.Concurrent.ICallable -&gt; Java.Util.Concurrent.IRunnableFuture" Usage="abstractExecutorService.NewTaskFor callable" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("newTaskFor", "(Ljava/util/concurrent/Callable;)Ljava/util/concurrent/RunnableFuture;", "GetNewTaskFor_Ljava_util_concurrent_Callable_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("newTaskFor", "(Ljava/util/concurrent/Callable;)Ljava/util/concurrent/RunnableFuture;", "GetNewTaskFor_Ljava_util_concurrent_Callable_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Concurrent.IRunnableFuture</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="callable" Type="Java.Util.Concurrent.ICallable" />
+      </Parameters>
+      <Docs>
+        <param name="callable">the callable task being wrapped</param>
+        <param name="&lt;T&gt;&lt;T&gt;">the type of the callable's result</param>
+        <summary>Returns a <c>RunnableFuture</c> for the given callable task.</summary>
+        <returns>a <c>RunnableFuture</c> which, when run, will call the
+            underlying callable and which, as a <c>Future</c>, will yield
+            the callable's result as its result and provide for
+            cancellation of the underlying task</returns>
+        <remarks>
+          <para>Returns a <c>RunnableFuture</c> for the given callable task.</para>
+          <para>Added in 1.6.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/AbstractExecutorService#newTaskFor(java.util.concurrent.Callable%3CT%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.AbstractExecutorService.newTaskFor(java.util.concurrent.Callable&lt;T&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NewTaskFor">
+      <MemberSignature Language="C#" Value="protected virtual Java.Util.Concurrent.IRunnableFuture? NewTaskFor (Java.Lang.IRunnable? runnable, Java.Lang.Object? value);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Java.Util.Concurrent.IRunnableFuture NewTaskFor(class Java.Lang.IRunnable runnable, class Java.Lang.Object value) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.NewTaskFor(Java.Lang.IRunnable,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member NewTaskFor : Java.Lang.IRunnable * Java.Lang.Object -&gt; Java.Util.Concurrent.IRunnableFuture&#xA;override this.NewTaskFor : Java.Lang.IRunnable * Java.Lang.Object -&gt; Java.Util.Concurrent.IRunnableFuture" Usage="abstractExecutorService.NewTaskFor (runnable, value)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("newTaskFor", "(Ljava/lang/Runnable;Ljava/lang/Object;)Ljava/util/concurrent/RunnableFuture;", "GetNewTaskFor_Ljava_lang_Runnable_Ljava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("newTaskFor", "(Ljava/lang/Runnable;Ljava/lang/Object;)Ljava/util/concurrent/RunnableFuture;", "GetNewTaskFor_Ljava_lang_Runnable_Ljava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Concurrent.IRunnableFuture</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="runnable" Type="Java.Lang.IRunnable" />
+        <Parameter Name="value" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="runnable">the runnable task being wrapped</param>
+        <param name="value">the default value for the returned future</param>
+        <param name="&lt;T&gt;&lt;T&gt;">the type of the given value</param>
+        <summary>Returns a <c>RunnableFuture</c> for the given runnable and default
+            value.</summary>
+        <returns>a <c>RunnableFuture</c> which, when run, will run the
+            underlying runnable and which, as a <c>Future</c>, will yield
+            the given value as its result and provide for cancellation of
+            the underlying task</returns>
+        <remarks>
+          <para>Returns a <c>RunnableFuture</c> for the given runnable and default
+            value.</para>
+          <para>Added in 1.6.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/AbstractExecutorService#newTaskFor(java.lang.Runnable,%20T)" title="Reference documentation">Java documentation for <code>java.util.concurrent.AbstractExecutorService.newTaskFor(java.lang.Runnable, T)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Shutdown">
+      <MemberSignature Language="C#" Value="public abstract void Shutdown ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Shutdown() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.Shutdown" />
+      <MemberSignature Language="F#" Value="abstract member Shutdown : unit -&gt; unit" Usage="abstractExecutorService.Shutdown " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.Shutdown</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("shutdown", "()V", "GetShutdownHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("shutdown", "()V", "GetShutdownHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Initiates an orderly shutdown in which previously submitted
+            tasks are executed, but no new tasks will be accepted.</summary>
+        <remarks>
+          <para>Initiates an orderly shutdown in which previously submitted
+            tasks are executed, but no new tasks will be accepted.
+            Invocation has no additional effect if already shut down.</para>
+          <para>This method does not wait for previously submitted tasks to
+            complete execution.  Use <c>#awaitTermination awaitTermination</c>
+            to do that.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/ExecutorService#shutdown()" title="Reference documentation">Java documentation for <code>java.util.concurrent.ExecutorService.shutdown()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ShutdownNow">
+      <MemberSignature Language="C#" Value="public abstract System.Collections.Generic.IList&lt;Java.Lang.IRunnable&gt;? ShutdownNow ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IList`1&lt;class Java.Lang.IRunnable&gt; ShutdownNow() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.ShutdownNow" />
+      <MemberSignature Language="F#" Value="abstract member ShutdownNow : unit -&gt; System.Collections.Generic.IList&lt;Java.Lang.IRunnable&gt;" Usage="abstractExecutorService.ShutdownNow " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.ShutdownNow</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("shutdownNow", "()Ljava/util/List;", "GetShutdownNowHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("shutdownNow", "()Ljava/util/List;", "GetShutdownNowHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Java.Lang.IRunnable&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Attempts to stop all actively executing tasks, halts the
+            processing of waiting tasks, and returns a list of the tasks
+            that were awaiting execution.</summary>
+        <returns>list of tasks that never commenced execution</returns>
+        <remarks>
+          <para>Attempts to stop all actively executing tasks, halts the
+            processing of waiting tasks, and returns a list of the tasks
+            that were awaiting execution.</para>
+          <para>This method does not wait for actively executing tasks to
+            terminate.  Use <c>#awaitTermination awaitTermination</c> to
+            do that.</para>
+          <para>There are no guarantees beyond best-effort attempts to stop
+            processing actively executing tasks.  For example, typical
+            implementations will cancel via <c>Thread#interrupt</c>, so any
+            task that fails to respond to interrupts may never terminate.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/ExecutorService#shutdownNow()" title="Reference documentation">Java documentation for <code>java.util.concurrent.ExecutorService.shutdownNow()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Submit">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.Concurrent.IFuture? Submit (Java.Lang.IRunnable? task);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.Concurrent.IFuture Submit(class Java.Lang.IRunnable task) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.Submit(Java.Lang.IRunnable)" />
+      <MemberSignature Language="F#" Value="abstract member Submit : Java.Lang.IRunnable -&gt; Java.Util.Concurrent.IFuture&#xA;override this.Submit : Java.Lang.IRunnable -&gt; Java.Util.Concurrent.IFuture" Usage="abstractExecutorService.Submit task" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.Submit(Java.Lang.IRunnable)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("submit", "(Ljava/lang/Runnable;)Ljava/util/concurrent/Future;", "GetSubmit_Ljava_lang_Runnable_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("submit", "(Ljava/lang/Runnable;)Ljava/util/concurrent/Future;", "GetSubmit_Ljava_lang_Runnable_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Concurrent.IFuture</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="task" Type="Java.Lang.IRunnable" />
+      </Parameters>
+      <Docs>
+        <param name="task">the task to submit</param>
+        <summary>Submits a Runnable task for execution and returns a Future
+ representing that task.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/AbstractExecutorService#submit(java.lang.Runnable)" title="Reference documentation">Java documentation for <code>java.util.concurrent.AbstractExecutorService.submit(java.lang.Runnable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Util.Concurrent.RejectedExecutionException" />
+        <exception cref="T:Java.Lang.NullPointerException" />
+      </Docs>
+    </Member>
+    <Member MemberName="Submit">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.Concurrent.IFuture? Submit (Java.Util.Concurrent.ICallable? task);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.Concurrent.IFuture Submit(class Java.Util.Concurrent.ICallable task) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.Submit(Java.Util.Concurrent.ICallable)" />
+      <MemberSignature Language="F#" Value="abstract member Submit : Java.Util.Concurrent.ICallable -&gt; Java.Util.Concurrent.IFuture&#xA;override this.Submit : Java.Util.Concurrent.ICallable -&gt; Java.Util.Concurrent.IFuture" Usage="abstractExecutorService.Submit task" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.Submit(Java.Util.Concurrent.ICallable)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("submit", "(Ljava/util/concurrent/Callable;)Ljava/util/concurrent/Future;", "GetSubmit_Ljava_util_concurrent_Callable_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("submit", "(Ljava/util/concurrent/Callable;)Ljava/util/concurrent/Future;", "GetSubmit_Ljava_util_concurrent_Callable_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Concurrent.IFuture</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="task" Type="Java.Util.Concurrent.ICallable" />
+      </Parameters>
+      <Docs>
+        <param name="task">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/AbstractExecutorService#submit(java.util.concurrent.Callable%3CT%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.AbstractExecutorService.submit(java.util.concurrent.Callable&lt;T&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Submit">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.Concurrent.IFuture? Submit (Java.Lang.IRunnable? task, Java.Lang.Object? result);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.Concurrent.IFuture Submit(class Java.Lang.IRunnable task, class Java.Lang.Object result) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.AbstractExecutorService.Submit(Java.Lang.IRunnable,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member Submit : Java.Lang.IRunnable * Java.Lang.Object -&gt; Java.Util.Concurrent.IFuture&#xA;override this.Submit : Java.Lang.IRunnable * Java.Lang.Object -&gt; Java.Util.Concurrent.IFuture" Usage="abstractExecutorService.Submit (task, result)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.Concurrent.IExecutorService.Submit(Java.Lang.IRunnable,Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("submit", "(Ljava/lang/Runnable;Ljava/lang/Object;)Ljava/util/concurrent/Future;", "GetSubmit_Ljava_lang_Runnable_Ljava_lang_Object_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("submit", "(Ljava/lang/Runnable;Ljava/lang/Object;)Ljava/util/concurrent/Future;", "GetSubmit_Ljava_lang_Runnable_Ljava_lang_Object_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Concurrent.IFuture</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="task" Type="Java.Lang.IRunnable" />
+        <Parameter Name="result" Type="Java.Lang.Object" />
+      </Parameters>
+      <Docs>
+        <param name="task">To be added.</param>
+        <param name="result">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/AbstractExecutorService#submit(java.lang.Runnable,%20T)" title="Reference documentation">Java documentation for <code>java.util.concurrent.AbstractExecutorService.submit(java.lang.Runnable, T)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Concurrent.AbstractExecutorService.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Util.Concurrent.AbstractExecutorService.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.Concurrent.AbstractExecutorService.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Util.Concurrent.AbstractExecutorService.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

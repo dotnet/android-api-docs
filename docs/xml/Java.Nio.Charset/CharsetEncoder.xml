@@ -1,0 +1,1521 @@
+<Type Name="CharsetEncoder" FullName="Java.Nio.Charset.CharsetEncoder">
+  <TypeSignature Language="C#" Value="public abstract class CharsetEncoder : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit CharsetEncoder extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Java.Nio.Charset.CharsetEncoder" />
+  <TypeSignature Language="F#" Value="type CharsetEncoder = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/nio/charset/CharsetEncoder", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/nio/charset/CharsetEncoder", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs since="1">
+    <summary>An engine that can transform a sequence of sixteen-bit Unicode characters into a sequence of
+            bytes in a specific charset.</summary>
+    <remarks>
+      <para>An engine that can transform a sequence of sixteen-bit Unicode characters into a sequence of
+            bytes in a specific charset.
+            
+            "steps"&gt;</para>
+      <para>The input character sequence is provided in a character buffer or a series
+            of such buffers.  The output byte sequence is written to a byte buffer
+            or a series of such buffers.  An encoder should always be used by making
+            the following sequence of method invocations, hereinafter referred to as an
+            <i>encoding operation</i>:
+            
+            &lt;ol&gt;
+            
+              &lt;li&gt;</para>
+      <para>Reset the encoder via the <c>#reset reset</c> method, unless it
+              has not been used before;</para>
+      <para>&lt;/li&gt;
+            
+              &lt;li&gt;</para>
+      <para>Invoke the <c>#encode encode</c> method zero or more times, as
+              long as additional input may be available, passing <c>false</c> for the
+              <c>endOfInput</c> argument and filling the input buffer and flushing the
+              output buffer between invocations;</para>
+      <para>&lt;/li&gt;
+            
+              &lt;li&gt;</para>
+      <para>Invoke the <c>#encode encode</c> method one final time, passing
+              <c>true</c> for the <c>endOfInput</c> argument; and then</para>
+      <para>&lt;/li&gt;
+            
+              &lt;li&gt;</para>
+      <para>Invoke the <c>#flush flush</c> method so that the encoder can
+              flush any internal state to the output buffer.</para>
+      <para>&lt;/li&gt;
+            
+            &lt;/ol&gt;
+            
+            Each invocation of the <c>#encode encode</c> method will encode as many
+            characters as possible from the input buffer, writing the resulting bytes
+            to the output buffer.  The <c>#encode encode</c> method returns when more
+            input is required, when there is not enough room in the output buffer, or
+            when an encoding error has occurred.  In each case a <c>CoderResult</c>
+            object is returned to describe the reason for termination.  An invoker can
+            examine this object and fill the input buffer, flush the output buffer, or
+            attempt to recover from an encoding error, as appropriate, and try again.
+            
+            "ce"&gt;</para>
+      <para>There are two general types of encoding errors.  If the input character
+            sequence is not a legal sixteen-bit Unicode sequence then the input is considered <i>malformed</i>.  If
+            the input character sequence is legal but cannot be mapped to a valid
+            byte sequence in the given charset then an <i>unmappable character</i> has been encountered.
+            
+            "cae"&gt;</para>
+      <para>How an encoding error is handled depends upon the action requested for
+            that type of error, which is described by an instance of the <c>CodingErrorAction</c> class.  The possible error actions are to CodingErrorAction#IGNORE ignore the erroneous input, CodingErrorAction#REPORT report the error to the invoker via
+            the returned <c>CoderResult</c> object, or CodingErrorAction#REPLACE
+            replace the erroneous input with the current value of the
+            replacement byte array.  The replacement
+            
+            
+            is initially set to the encoder's default replacement, which often
+            (but not always) has the initial value&amp;nbsp;<c>{</c>&amp;nbsp;<c>(byte)'?'</c>&amp;nbsp;<c>}</c>;
+            
+            
+            
+            
+            
+            its value may be changed via the <c>#replaceWith(byte[])
+            replaceWith</c> method.</para>
+      <para>The default action for malformed-input and unmappable-character errors
+            is to CodingErrorAction#REPORT report them.  The
+            malformed-input error action may be changed via the <c>#onMalformedInput(CodingErrorAction) onMalformedInput</c> method; the
+            unmappable-character action may be changed via the <c>#onUnmappableCharacter(CodingErrorAction) onUnmappableCharacter</c> method.</para>
+      <para>This class is designed to handle many of the details of the encoding
+            process, including the implementation of error actions.  An encoder for a
+            specific charset, which is a concrete subclass of this class, need only
+            implement the abstract <c>#encodeLoop encodeLoop</c> method, which
+            encapsulates the basic encoding loop.  A subclass that maintains internal
+            state should, additionally, override the <c>#implFlush implFlush</c> and
+            <c>#implReset implReset</c> methods.</para>
+      <para>Instances of this class are not safe for use by multiple concurrent
+            threads.</para>
+      <para>Added in 1.4.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+    <since version="Added in API level 1" />
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected CharsetEncoder (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Nio.Charset.CharsetEncoder : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Nio.Charset.CharsetEncoder" Usage="new Java.Nio.Charset.CharsetEncoder (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected CharsetEncoder (Java.Nio.Charset.Charset? cs, float averageBytesPerChar, float maxBytesPerChar);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class Java.Nio.Charset.Charset cs, float32 averageBytesPerChar, float32 maxBytesPerChar) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.#ctor(Java.Nio.Charset.Charset,System.Single,System.Single)" />
+      <MemberSignature Language="F#" Value="new Java.Nio.Charset.CharsetEncoder : Java.Nio.Charset.Charset * single * single -&gt; Java.Nio.Charset.CharsetEncoder" Usage="new Java.Nio.Charset.CharsetEncoder (cs, averageBytesPerChar, maxBytesPerChar)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/nio/charset/Charset;FF)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/nio/charset/Charset;FF)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="cs" Type="Java.Nio.Charset.Charset" />
+        <Parameter Name="averageBytesPerChar" Type="System.Single" />
+        <Parameter Name="maxBytesPerChar" Type="System.Single" />
+      </Parameters>
+      <Docs>
+        <param name="cs">The charset that created this encoder</param>
+        <param name="averageBytesPerChar">A positive float value indicating the expected number of
+                    bytes that will be produced for each input character</param>
+        <param name="maxBytesPerChar">A positive float value indicating the maximum number of
+                    bytes that will be produced for each input character</param>
+        <summary>Initializes a new encoder.</summary>
+        <remarks>
+          <para>Initializes a new encoder.  The new encoder will have the given
+            bytes-per-char values and its replacement will be the
+            byte array <c>{</c>&amp;nbsp;<c>(byte)'?'</c>&amp;nbsp;<c>}</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#CharsetEncoder(java.nio.charset.Charset,%20float,%20float)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.CharsetEncoder(java.nio.charset.Charset, float, float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected CharsetEncoder (Java.Nio.Charset.Charset? cs, float averageBytesPerChar, float maxBytesPerChar, byte[]? replacement);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(class Java.Nio.Charset.Charset cs, float32 averageBytesPerChar, float32 maxBytesPerChar, unsigned int8[] replacement) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.#ctor(Java.Nio.Charset.Charset,System.Single,System.Single,System.Byte[])" />
+      <MemberSignature Language="F#" Value="new Java.Nio.Charset.CharsetEncoder : Java.Nio.Charset.Charset * single * single * byte[] -&gt; Java.Nio.Charset.CharsetEncoder" Usage="new Java.Nio.Charset.CharsetEncoder (cs, averageBytesPerChar, maxBytesPerChar, replacement)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/nio/charset/Charset;FF[B)V", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/nio/charset/Charset;FF[B)V", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="cs" Type="Java.Nio.Charset.Charset" />
+        <Parameter Name="averageBytesPerChar" Type="System.Single" />
+        <Parameter Name="maxBytesPerChar" Type="System.Single" />
+        <Parameter Name="replacement" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="cs">The charset that created this encoder</param>
+        <param name="averageBytesPerChar">A positive float value indicating the expected number of
+                    bytes that will be produced for each input character</param>
+        <param name="maxBytesPerChar">A positive float value indicating the maximum number of
+                    bytes that will be produced for each input character</param>
+        <param name="replacement">The initial replacement; must not be <c>null</c>, must have
+                    non-zero length, must not be longer than maxBytesPerChar,
+                    and must be #isLegalReplacement legal</param>
+        <summary>Initializes a new encoder.</summary>
+        <remarks>
+          <para>Initializes a new encoder.  The new encoder will have the given
+            bytes-per-char and replacement values.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#CharsetEncoder(java.nio.charset.Charset,%20float,%20float,%20byte[])" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.CharsetEncoder(java.nio.charset.Charset, float, float, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if any parameters are invalid.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="AverageBytesPerChar">
+      <MemberSignature Language="C#" Value="public float AverageBytesPerChar ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float32 AverageBytesPerChar() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.AverageBytesPerChar" />
+      <MemberSignature Language="F#" Value="member this.AverageBytesPerChar : unit -&gt; single" Usage="charsetEncoder.AverageBytesPerChar " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("averageBytesPerChar", "()F", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("averageBytesPerChar", "()F", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the average number of bytes that will be produced for each
+            character of input.</summary>
+        <returns>The average number of bytes produced
+                     per character of input</returns>
+        <remarks>
+          <para>Returns the average number of bytes that will be produced for each
+            character of input.  This heuristic value may be used to estimate the size
+            of the output buffer required for a given input sequence.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#averageBytesPerChar()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.averageBytesPerChar()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="CanEncode">
+      <MemberSignature Language="C#" Value="public virtual bool CanEncode (Java.Lang.ICharSequence? cs);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool CanEncode(class Java.Lang.ICharSequence cs) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.CanEncode(Java.Lang.ICharSequence)" />
+      <MemberSignature Language="F#" Value="abstract member CanEncode : Java.Lang.ICharSequence -&gt; bool&#xA;override this.CanEncode : Java.Lang.ICharSequence -&gt; bool" Usage="charsetEncoder.CanEncode cs" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("canEncode", "(Ljava/lang/CharSequence;)Z", "GetCanEncode_Ljava_lang_CharSequence_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("canEncode", "(Ljava/lang/CharSequence;)Z", "GetCanEncode_Ljava_lang_CharSequence_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cs" Type="Java.Lang.ICharSequence" />
+      </Parameters>
+      <Docs>
+        <param name="cs">The given character sequence</param>
+        <summary>Tells whether or not this encoder can encode the given character
+            sequence.</summary>
+        <returns>
+          <c>true</c> if, and only if, this encoder can encode
+                     the given character without throwing any exceptions and without
+                     performing any replacements</returns>
+        <remarks>
+          <para>Tells whether or not this encoder can encode the given character
+            sequence.</para>
+          <para>If this method returns <c>false</c> for a particular character
+            sequence then more information about why the sequence cannot be encoded
+            may be obtained by performing a full encoding
+            operation.</para>
+          <para>This method may modify this encoder's state; it should therefore not
+            be invoked if an encoding operation is already in progress.</para>
+          <para>The default implementation of this method is not very efficient; it
+            should generally be overridden to improve performance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#canEncode(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.canEncode(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalStateException">if another encode process is ongoing.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="CanEncode">
+      <MemberSignature Language="C#" Value="public virtual bool CanEncode (char c);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool CanEncode(char c) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.CanEncode(System.Char)" />
+      <MemberSignature Language="F#" Value="abstract member CanEncode : char -&gt; bool&#xA;override this.CanEncode : char -&gt; bool" Usage="charsetEncoder.CanEncode c" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("canEncode", "(C)Z", "GetCanEncode_CHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("canEncode", "(C)Z", "GetCanEncode_CHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="c" Type="System.Char" />
+      </Parameters>
+      <Docs>
+        <param name="c">The given character</param>
+        <summary>Tells whether or not this encoder can encode the given character.</summary>
+        <returns>
+          <c>true</c> if, and only if, this encoder can encode
+                     the given character</returns>
+        <remarks>
+          <para>Tells whether or not this encoder can encode the given character.</para>
+          <para>This method returns <c>false</c> if the given character is a
+            surrogate character; such characters can be interpreted only when they
+            are members of a pair consisting of a high surrogate followed by a low
+            surrogate.  The <c>#canEncode(java.lang.CharSequence)
+            canEncode(CharSequence)</c> method may be used to test whether or not a
+            character sequence can be encoded.</para>
+          <para>This method may modify this encoder's state; it should therefore not
+            be invoked if an encoding operation is already in
+            progress.</para>
+          <para>The default implementation of this method is not very efficient; it
+            should generally be overridden to improve performance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#canEncode(char)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.canEncode(char)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalStateException">if another encode process is ongoing.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="CanEncode">
+      <MemberSignature Language="C#" Value="public bool CanEncode (string? cs);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool CanEncode(string cs) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.CanEncode(System.String)" />
+      <MemberSignature Language="F#" Value="member this.CanEncode : string -&gt; bool" Usage="charsetEncoder.CanEncode cs" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cs" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="cs">The given character sequence</param>
+        <summary>Tells whether or not this encoder can encode the given character
+            sequence.</summary>
+        <returns>
+          <c>true</c> if, and only if, this encoder can encode
+                     the given character without throwing any exceptions and without
+                     performing any replacements</returns>
+        <remarks>
+          <para>Tells whether or not this encoder can encode the given character
+            sequence.</para>
+          <para>If this method returns <c>false</c> for a particular character
+            sequence then more information about why the sequence cannot be encoded
+            may be obtained by performing a full encoding
+            operation.</para>
+          <para>This method may modify this encoder's state; it should therefore not
+            be invoked if an encoding operation is already in progress.</para>
+          <para>The default implementation of this method is not very efficient; it
+            should generally be overridden to improve performance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#canEncode(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.canEncode(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Charset">
+      <MemberSignature Language="C#" Value="public Java.Nio.Charset.Charset? Charset ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.Charset.Charset Charset() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.Charset" />
+      <MemberSignature Language="F#" Value="member this.Charset : unit -&gt; Java.Nio.Charset.Charset" Usage="charsetEncoder.Charset " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("charset", "()Ljava/nio/charset/Charset;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("charset", "()Ljava/nio/charset/Charset;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.Charset</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the charset that created this encoder.</summary>
+        <returns>This encoder's charset</returns>
+        <remarks>
+          <para>Returns the charset that created this encoder.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#charset()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.charset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Encode">
+      <MemberSignature Language="C#" Value="public Java.Nio.ByteBuffer? Encode (Java.Nio.CharBuffer? in);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.ByteBuffer Encode(class Java.Nio.CharBuffer in) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.Encode(Java.Nio.CharBuffer)" />
+      <MemberSignature Language="F#" Value="member this.Encode : Java.Nio.CharBuffer -&gt; Java.Nio.ByteBuffer" Usage="charsetEncoder.Encode in" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("encode", "(Ljava/nio/CharBuffer;)Ljava/nio/ByteBuffer;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("encode", "(Ljava/nio/CharBuffer;)Ljava/nio/ByteBuffer;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.ByteBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="in" Type="Java.Nio.CharBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="in">The input character buffer</param>
+        <summary>Convenience method that encodes the remaining content of a single input
+            character buffer into a newly-allocated byte buffer.</summary>
+        <returns>A newly-allocated byte buffer containing the result of the
+                    encoding operation.  The buffer's position will be zero and its
+                    limit will follow the last byte written.</returns>
+        <remarks>
+          <para>Convenience method that encodes the remaining content of a single input
+            character buffer into a newly-allocated byte buffer.</para>
+          <para>This method implements an entire encoding
+            operation; that is, it resets this encoder, then it encodes the
+            characters in the given character buffer, and finally it flushes this
+            encoder.  This method should therefore not be invoked if an encoding
+            operation is already in progress.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#encode(java.nio.CharBuffer)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.encode(java.nio.CharBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalStateException">if another encoding operation is ongoing.</exception>
+        <exception cref="T:Java.Nio.Charset.MalformedInputException">if an illegal input character sequence for this charset is
+             encountered, and the action for malformed error is
+             <see cref="P:Java.Nio.Charset.CodingErrorAction.Report" /></exception>
+        <exception cref="T:Java.Nio.Charset.UnmappableCharacterException">if a legal but unmappable input character sequence for this
+             charset is encountered, and the action for unmappable
+             character error is
+             <see cref="P:Java.Nio.Charset.CodingErrorAction.Report" />.
+             Unmappable means the Unicode character sequence at the input
+             buffer's current position cannot be mapped to a equivalent
+             byte sequence.</exception>
+        <exception cref="T:Java.Nio.Charset.CharacterCodingException">if other exception happened during the encode operation.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Encode">
+      <MemberSignature Language="C#" Value="public Java.Nio.Charset.CoderResult? Encode (Java.Nio.CharBuffer? in, Java.Nio.ByteBuffer? out, bool endOfInput);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.Charset.CoderResult Encode(class Java.Nio.CharBuffer in, class Java.Nio.ByteBuffer out, bool endOfInput) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.Encode(Java.Nio.CharBuffer,Java.Nio.ByteBuffer,System.Boolean)" />
+      <MemberSignature Language="F#" Value="member this.Encode : Java.Nio.CharBuffer * Java.Nio.ByteBuffer * bool -&gt; Java.Nio.Charset.CoderResult" Usage="charsetEncoder.Encode (in, out, endOfInput)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("encode", "(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;Z)Ljava/nio/charset/CoderResult;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("encode", "(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;Z)Ljava/nio/charset/CoderResult;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CoderResult</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="in" Type="Java.Nio.CharBuffer" />
+        <Parameter Name="out" Type="Java.Nio.ByteBuffer" />
+        <Parameter Name="endOfInput" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="in">The input character buffer</param>
+        <param name="out">The output byte buffer</param>
+        <param name="endOfInput">
+          <c>true</c> if, and only if, the invoker can provide no
+                    additional input characters beyond those in the given buffer</param>
+        <summary>Encodes as many characters as possible from the given input buffer,
+            writing the results to the given output buffer.</summary>
+        <returns>A coder-result object describing the reason for termination</returns>
+        <remarks>
+          <para>Encodes as many characters as possible from the given input buffer,
+            writing the results to the given output buffer.</para>
+          <para>The buffers are read from, and written to, starting at their current
+            positions.  At most <c>Buffer#remaining in.remaining()</c> characters
+            will be read and at most <c>Buffer#remaining out.remaining()</c>
+            bytes will be written.  The buffers' positions will be advanced to
+            reflect the characters read and the bytes written, but their marks and
+            limits will not be modified.</para>
+          <para>In addition to reading characters from the input buffer and writing
+            bytes to the output buffer, this method returns a <c>CoderResult</c>
+            object to describe its reason for termination:
+            
+            &lt;ul&gt;
+            
+              &lt;li&gt;</para>
+          <para>
+            <c>CoderResult#UNDERFLOW</c> indicates that as much of the
+              input buffer as possible has been encoded.  If there is no further
+              input then the invoker can proceed to the next step of the
+              encoding operation.  Otherwise this method
+              should be invoked again with further input.</para>
+          <para>&lt;/li&gt;
+            
+              &lt;li&gt;</para>
+          <para>
+            <c>CoderResult#OVERFLOW</c> indicates that there is
+              insufficient space in the output buffer to encode any more characters.
+              This method should be invoked again with an output buffer that has
+              more Buffer#remaining remaining bytes. This is
+              typically done by draining any encoded bytes from the output
+              buffer.</para>
+          <para>&lt;/li&gt;
+            
+              &lt;li&gt;</para>
+          <para>A CoderResult#malformedForLength
+              malformed-input result indicates that a malformed-input
+              error has been detected.  The malformed characters begin at the input
+              buffer's (possibly incremented) position; the number of malformed
+              characters may be determined by invoking the result object's <c>CoderResult#length() length</c> method.  This case applies only if the
+              #onMalformedInput malformed action of this encoder
+              is <c>CodingErrorAction#REPORT</c>; otherwise the malformed input
+              will be ignored or replaced, as requested.</para>
+          <para>&lt;/li&gt;
+            
+              &lt;li&gt;</para>
+          <para>An CoderResult#unmappableForLength
+              unmappable-character result indicates that an
+              unmappable-character error has been detected.  The characters that
+              encode the unmappable character begin at the input buffer's (possibly
+              incremented) position; the number of such characters may be determined
+              by invoking the result object's <c>CoderResult#length() length</c>
+              method.  This case applies only if the #onUnmappableCharacter
+              unmappable action of this encoder is <c>CodingErrorAction#REPORT</c>; otherwise the unmappable character will be
+              ignored or replaced, as requested.</para>
+          <para>&lt;/li&gt;
+            
+            &lt;/ul&gt;
+            
+            In any case, if this method is to be reinvoked in the same encoding
+            operation then care should be taken to preserve any characters remaining
+            in the input buffer so that they are available to the next invocation.</para>
+          <para>The <c>endOfInput</c> parameter advises this method as to whether
+            the invoker can provide further input beyond that contained in the given
+            input buffer.  If there is a possibility of providing additional input
+            then the invoker should pass <c>false</c> for this parameter; if there
+            is no possibility of providing further input then the invoker should
+            pass <c>true</c>.  It is not erroneous, and in fact it is quite
+            common, to pass <c>false</c> in one invocation and later discover that
+            no further input was actually available.  It is critical, however, that
+            the final invocation of this method in a sequence of invocations always
+            pass <c>true</c> so that any remaining unencoded input will be treated
+            as being malformed.</para>
+          <para>This method works by invoking the <c>#encodeLoop encodeLoop</c>
+            method, interpreting its results, handling error conditions, and
+            reinvoking it as necessary.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#encode(java.nio.CharBuffer,%20java.nio.ByteBuffer,%20boolean)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.encode(java.nio.CharBuffer, java.nio.ByteBuffer, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalStateException">if the encoding operation has already started or no more
+             input is needed in this encoding process.</exception>
+        <exception cref="T:Java.Nio.Charset.CoderMalfunctionError">If the <see cref="M:Java.Nio.Charset.CharsetEncoder.EncodeLoop(Java.Nio.CharBuffer,Java.Nio.ByteBuffer)" />
+             method threw an <c>BufferUnderflowException</c> or
+             <c>BufferUnderflowException</c>.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="EncodeLoop">
+      <MemberSignature Language="C#" Value="protected abstract Java.Nio.Charset.CoderResult? EncodeLoop (Java.Nio.CharBuffer? in, Java.Nio.ByteBuffer? out);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Java.Nio.Charset.CoderResult EncodeLoop(class Java.Nio.CharBuffer in, class Java.Nio.ByteBuffer out) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.EncodeLoop(Java.Nio.CharBuffer,Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member EncodeLoop : Java.Nio.CharBuffer * Java.Nio.ByteBuffer -&gt; Java.Nio.Charset.CoderResult" Usage="charsetEncoder.EncodeLoop (in, out)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("encodeLoop", "(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;", "GetEncodeLoop_Ljava_nio_CharBuffer_Ljava_nio_ByteBuffer_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("encodeLoop", "(Ljava/nio/CharBuffer;Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;", "GetEncodeLoop_Ljava_nio_CharBuffer_Ljava_nio_ByteBuffer_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CoderResult</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="in" Type="Java.Nio.CharBuffer" />
+        <Parameter Name="out" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="in">The input character buffer</param>
+        <param name="out">The output byte buffer</param>
+        <summary>Encodes one or more characters into one or more bytes.</summary>
+        <returns>A coder-result object describing the reason for termination</returns>
+        <remarks>
+          <para>Encodes one or more characters into one or more bytes.</para>
+          <para>This method encapsulates the basic encoding loop, encoding as many
+            characters as possible until it either runs out of input, runs out of room
+            in the output buffer, or encounters an encoding error.  This method is
+            invoked by the <c>#encode encode</c> method, which handles result
+            interpretation and error recovery.</para>
+          <para>The buffers are read from, and written to, starting at their current
+            positions.  At most <c>Buffer#remaining in.remaining()</c> characters
+            will be read, and at most <c>Buffer#remaining out.remaining()</c>
+            bytes will be written.  The buffers' positions will be advanced to
+            reflect the characters read and the bytes written, but their marks and
+            limits will not be modified.</para>
+          <para>This method returns a <c>CoderResult</c> object to describe its
+            reason for termination, in the same manner as the <c>#encode encode</c>
+            method.  Most implementations of this method will handle encoding errors
+            by returning an appropriate result object for interpretation by the
+            <c>#encode encode</c> method.  An optimized implementation may instead
+            examine the relevant error action and implement that action itself.</para>
+          <para>An implementation of this method may perform arbitrary lookahead by
+            returning <c>CoderResult#UNDERFLOW</c> until it receives sufficient
+            input.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#encodeLoop(java.nio.CharBuffer,%20java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.encodeLoop(java.nio.CharBuffer, java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Flush">
+      <MemberSignature Language="C#" Value="public Java.Nio.Charset.CoderResult? Flush (Java.Nio.ByteBuffer? out);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.Charset.CoderResult Flush(class Java.Nio.ByteBuffer out) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.Flush(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="member this.Flush : Java.Nio.ByteBuffer -&gt; Java.Nio.Charset.CoderResult" Usage="charsetEncoder.Flush out" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("flush", "(Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("flush", "(Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CoderResult</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="out" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="out">The output byte buffer</param>
+        <summary>Flushes this encoder.</summary>
+        <returns>A coder-result object, either <c>CoderResult#UNDERFLOW</c> or
+                     <c>CoderResult#OVERFLOW</c></returns>
+        <remarks>
+          <para>Flushes this encoder.</para>
+          <para>Some encoders maintain internal state and may need to write some
+            final bytes to the output buffer once the overall input sequence has
+            been read.</para>
+          <para>Any additional output is written to the output buffer beginning at
+            its current position.  At most <c>Buffer#remaining out.remaining()</c>
+            bytes will be written.  The buffer's position will be advanced
+            appropriately, but its mark and limit will not be modified.</para>
+          <para>If this method completes successfully then it returns <c>CoderResult#UNDERFLOW</c>.  If there is insufficient room in the output
+            buffer then it returns <c>CoderResult#OVERFLOW</c>.  If this happens
+            then this method must be invoked again, with an output buffer that has
+            more room, in order to complete the current encoding
+            operation.</para>
+          <para>If this encoder has already been flushed then invoking this method
+            has no effect.</para>
+          <para>This method invokes the <c>#implFlush implFlush</c> method to
+            perform the actual flushing operation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#flush(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.flush(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalStateException">if this encoder isn't already flushed or at end of input.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="ImplFlush">
+      <MemberSignature Language="C#" Value="protected virtual Java.Nio.Charset.CoderResult? ImplFlush (Java.Nio.ByteBuffer? out);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class Java.Nio.Charset.CoderResult ImplFlush(class Java.Nio.ByteBuffer out) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.ImplFlush(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member ImplFlush : Java.Nio.ByteBuffer -&gt; Java.Nio.Charset.CoderResult&#xA;override this.ImplFlush : Java.Nio.ByteBuffer -&gt; Java.Nio.Charset.CoderResult" Usage="charsetEncoder.ImplFlush out" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("implFlush", "(Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;", "GetImplFlush_Ljava_nio_ByteBuffer_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("implFlush", "(Ljava/nio/ByteBuffer;)Ljava/nio/charset/CoderResult;", "GetImplFlush_Ljava_nio_ByteBuffer_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CoderResult</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="out" Type="Java.Nio.ByteBuffer" />
+      </Parameters>
+      <Docs>
+        <param name="out">The output byte buffer</param>
+        <summary>Flushes this encoder.</summary>
+        <returns>A coder-result object, either <c>CoderResult#UNDERFLOW</c> or
+                     <c>CoderResult#OVERFLOW</c></returns>
+        <remarks>
+          <para>Flushes this encoder.</para>
+          <para>The default implementation of this method does nothing, and always
+            returns <c>CoderResult#UNDERFLOW</c>.  This method should be overridden
+            by encoders that may need to write final bytes to the output buffer
+            once the entire input sequence has been read.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#implFlush(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.implFlush(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ImplOnMalformedInput">
+      <MemberSignature Language="C#" Value="protected virtual void ImplOnMalformedInput (Java.Nio.Charset.CodingErrorAction? newAction);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void ImplOnMalformedInput(class Java.Nio.Charset.CodingErrorAction newAction) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.ImplOnMalformedInput(Java.Nio.Charset.CodingErrorAction)" />
+      <MemberSignature Language="F#" Value="abstract member ImplOnMalformedInput : Java.Nio.Charset.CodingErrorAction -&gt; unit&#xA;override this.ImplOnMalformedInput : Java.Nio.Charset.CodingErrorAction -&gt; unit" Usage="charsetEncoder.ImplOnMalformedInput newAction" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("implOnMalformedInput", "(Ljava/nio/charset/CodingErrorAction;)V", "GetImplOnMalformedInput_Ljava_nio_charset_CodingErrorAction_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("implOnMalformedInput", "(Ljava/nio/charset/CodingErrorAction;)V", "GetImplOnMalformedInput_Ljava_nio_charset_CodingErrorAction_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newAction" Type="Java.Nio.Charset.CodingErrorAction" />
+      </Parameters>
+      <Docs>
+        <param name="newAction">The new action</param>
+        <summary>Reports a change to this encoder's malformed-input action.</summary>
+        <remarks>
+          <para>Reports a change to this encoder's malformed-input action.</para>
+          <para>The default implementation of this method does nothing.  This method
+            should be overridden by encoders that require notification of changes to
+            the malformed-input action.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#implOnMalformedInput(java.nio.charset.CodingErrorAction)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.implOnMalformedInput(java.nio.charset.CodingErrorAction)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ImplOnUnmappableCharacter">
+      <MemberSignature Language="C#" Value="protected virtual void ImplOnUnmappableCharacter (Java.Nio.Charset.CodingErrorAction? newAction);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void ImplOnUnmappableCharacter(class Java.Nio.Charset.CodingErrorAction newAction) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.ImplOnUnmappableCharacter(Java.Nio.Charset.CodingErrorAction)" />
+      <MemberSignature Language="F#" Value="abstract member ImplOnUnmappableCharacter : Java.Nio.Charset.CodingErrorAction -&gt; unit&#xA;override this.ImplOnUnmappableCharacter : Java.Nio.Charset.CodingErrorAction -&gt; unit" Usage="charsetEncoder.ImplOnUnmappableCharacter newAction" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("implOnUnmappableCharacter", "(Ljava/nio/charset/CodingErrorAction;)V", "GetImplOnUnmappableCharacter_Ljava_nio_charset_CodingErrorAction_Handler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("implOnUnmappableCharacter", "(Ljava/nio/charset/CodingErrorAction;)V", "GetImplOnUnmappableCharacter_Ljava_nio_charset_CodingErrorAction_Handler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newAction" Type="Java.Nio.Charset.CodingErrorAction" />
+      </Parameters>
+      <Docs>
+        <param name="newAction">The new action</param>
+        <summary>Reports a change to this encoder's unmappable-character action.</summary>
+        <remarks>
+          <para>Reports a change to this encoder's unmappable-character action.</para>
+          <para>The default implementation of this method does nothing.  This method
+            should be overridden by encoders that require notification of changes to
+            the unmappable-character action.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#implOnUnmappableCharacter(java.nio.charset.CodingErrorAction)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.implOnUnmappableCharacter(java.nio.charset.CodingErrorAction)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ImplReplaceWith">
+      <MemberSignature Language="C#" Value="protected virtual void ImplReplaceWith (byte[]? newReplacement);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void ImplReplaceWith(unsigned int8[] newReplacement) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.ImplReplaceWith(System.Byte[])" />
+      <MemberSignature Language="F#" Value="abstract member ImplReplaceWith : byte[] -&gt; unit&#xA;override this.ImplReplaceWith : byte[] -&gt; unit" Usage="charsetEncoder.ImplReplaceWith newReplacement" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("implReplaceWith", "([B)V", "GetImplReplaceWith_arrayBHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("implReplaceWith", "([B)V", "GetImplReplaceWith_arrayBHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newReplacement" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="newReplacement">The replacement value</param>
+        <summary>Reports a change to this encoder's replacement value.</summary>
+        <remarks>
+          <para>Reports a change to this encoder's replacement value.</para>
+          <para>The default implementation of this method does nothing.  This method
+            should be overridden by encoders that require notification of changes to
+            the replacement.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#implReplaceWith(byte[])" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.implReplaceWith(byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ImplReset">
+      <MemberSignature Language="C#" Value="protected virtual void ImplReset ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void ImplReset() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.ImplReset" />
+      <MemberSignature Language="F#" Value="abstract member ImplReset : unit -&gt; unit&#xA;override this.ImplReset : unit -&gt; unit" Usage="charsetEncoder.ImplReset " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("implReset", "()V", "GetImplResetHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("implReset", "()V", "GetImplResetHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Resets this encoder, clearing any charset-specific internal state.</summary>
+        <remarks>
+          <para>Resets this encoder, clearing any charset-specific internal state.</para>
+          <para>The default implementation of this method does nothing.  This method
+            should be overridden by encoders that maintain internal state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#implReset()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.implReset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="IsLegalReplacement">
+      <MemberSignature Language="C#" Value="public virtual bool IsLegalReplacement (byte[]? repl);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool IsLegalReplacement(unsigned int8[] repl) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.IsLegalReplacement(System.Byte[])" />
+      <MemberSignature Language="F#" Value="abstract member IsLegalReplacement : byte[] -&gt; bool&#xA;override this.IsLegalReplacement : byte[] -&gt; bool" Usage="charsetEncoder.IsLegalReplacement repl" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isLegalReplacement", "([B)Z", "GetIsLegalReplacement_arrayBHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isLegalReplacement", "([B)Z", "GetIsLegalReplacement_arrayBHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="repl" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="repl">The byte array to be tested</param>
+        <summary>Tells whether or not the given byte array is a legal replacement value
+            for this encoder.</summary>
+        <returns>
+          <c>true</c> if, and only if, the given byte array
+                     is a legal replacement value for this encoder</returns>
+        <remarks>
+          <para>Tells whether or not the given byte array is a legal replacement value
+            for this encoder.</para>
+          <para>A replacement is legal if, and only if, it is a legal sequence of
+            bytes in this encoder's charset; that is, it must be possible to decode
+            the replacement into one or more sixteen-bit Unicode characters.</para>
+          <para>The default implementation of this method is not very efficient; it
+            should generally be overridden to improve performance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#isLegalReplacement(byte[])" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.isLegalReplacement(byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Charset.CharsetEncoder.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Nio.Charset.CharsetEncoder.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="MalformedInputAction">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.Charset.CodingErrorAction? MalformedInputAction ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Charset.CodingErrorAction MalformedInputAction() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.MalformedInputAction" />
+      <MemberSignature Language="F#" Value="abstract member MalformedInputAction : unit -&gt; Java.Nio.Charset.CodingErrorAction&#xA;override this.MalformedInputAction : unit -&gt; Java.Nio.Charset.CodingErrorAction" Usage="charsetEncoder.MalformedInputAction " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("malformedInputAction", "()Ljava/nio/charset/CodingErrorAction;", "GetMalformedInputActionHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("malformedInputAction", "()Ljava/nio/charset/CodingErrorAction;", "GetMalformedInputActionHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CodingErrorAction</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns this encoder's current action for malformed-input errors.</summary>
+        <returns>The current malformed-input action, which is never <c>null</c></returns>
+        <remarks>
+          <para>Returns this encoder's current action for malformed-input errors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#malformedInputAction()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.malformedInputAction()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="MaxBytesPerChar">
+      <MemberSignature Language="C#" Value="public float MaxBytesPerChar ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float32 MaxBytesPerChar() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.MaxBytesPerChar" />
+      <MemberSignature Language="F#" Value="member this.MaxBytesPerChar : unit -&gt; single" Usage="charsetEncoder.MaxBytesPerChar " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("maxBytesPerChar", "()F", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("maxBytesPerChar", "()F", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the maximum number of bytes that will be produced for each
+            character of input.</summary>
+        <returns>The maximum number of bytes that will be produced per
+                     character of input</returns>
+        <remarks>
+          <para>Returns the maximum number of bytes that will be produced for each
+            character of input.  This value may be used to compute the worst-case size
+            of the output buffer required for a given input sequence. This value
+            accounts for any necessary content-independent prefix or suffix</para>
+          <para>bytes, such as byte-order marks.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#maxBytesPerChar()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.maxBytesPerChar()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnMalformedInput">
+      <MemberSignature Language="C#" Value="public Java.Nio.Charset.CharsetEncoder? OnMalformedInput (Java.Nio.Charset.CodingErrorAction? newAction);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.Charset.CharsetEncoder OnMalformedInput(class Java.Nio.Charset.CodingErrorAction newAction) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.OnMalformedInput(Java.Nio.Charset.CodingErrorAction)" />
+      <MemberSignature Language="F#" Value="member this.OnMalformedInput : Java.Nio.Charset.CodingErrorAction -&gt; Java.Nio.Charset.CharsetEncoder" Usage="charsetEncoder.OnMalformedInput newAction" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onMalformedInput", "(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onMalformedInput", "(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CharsetEncoder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newAction" Type="Java.Nio.Charset.CodingErrorAction" />
+      </Parameters>
+      <Docs>
+        <param name="newAction">The new action; must not be <c>null</c></param>
+        <summary>Changes this encoder's action for malformed-input errors.</summary>
+        <returns>This encoder</returns>
+        <remarks>
+          <para>Changes this encoder's action for malformed-input errors.</para>
+          <para>This method invokes the <c>#implOnMalformedInput
+            implOnMalformedInput</c> method, passing the new action.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#onMalformedInput(java.nio.charset.CodingErrorAction)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.onMalformedInput(java.nio.charset.CodingErrorAction)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the given newAction is null.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="OnUnmappableCharacter">
+      <MemberSignature Language="C#" Value="public Java.Nio.Charset.CharsetEncoder? OnUnmappableCharacter (Java.Nio.Charset.CodingErrorAction? newAction);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.Charset.CharsetEncoder OnUnmappableCharacter(class Java.Nio.Charset.CodingErrorAction newAction) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.OnUnmappableCharacter(Java.Nio.Charset.CodingErrorAction)" />
+      <MemberSignature Language="F#" Value="member this.OnUnmappableCharacter : Java.Nio.Charset.CodingErrorAction -&gt; Java.Nio.Charset.CharsetEncoder" Usage="charsetEncoder.OnUnmappableCharacter newAction" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onUnmappableCharacter", "(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onUnmappableCharacter", "(Ljava/nio/charset/CodingErrorAction;)Ljava/nio/charset/CharsetEncoder;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CharsetEncoder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newAction" Type="Java.Nio.Charset.CodingErrorAction" />
+      </Parameters>
+      <Docs>
+        <param name="newAction">The new action; must not be <c>null</c></param>
+        <summary>Changes this encoder's action for unmappable-character errors.</summary>
+        <returns>This encoder</returns>
+        <remarks>
+          <para>Changes this encoder's action for unmappable-character errors.</para>
+          <para>This method invokes the <c>#implOnUnmappableCharacter
+            implOnUnmappableCharacter</c> method, passing the new action.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#onUnmappableCharacter(java.nio.charset.CodingErrorAction)" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.onUnmappableCharacter(java.nio.charset.CodingErrorAction)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the given newAction is null.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Replacement">
+      <MemberSignature Language="C#" Value="public byte[]? Replacement ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance unsigned int8[] Replacement() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.Replacement" />
+      <MemberSignature Language="F#" Value="member this.Replacement : unit -&gt; byte[]" Usage="charsetEncoder.Replacement " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("replacement", "()[B", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("replacement", "()[B", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns this encoder's replacement value.</summary>
+        <returns>This encoder's current replacement,
+                     which is never <c>null</c> and is never empty</returns>
+        <remarks>
+          <para>Returns this encoder's replacement value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#replacement()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.replacement()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ReplaceWith">
+      <MemberSignature Language="C#" Value="public Java.Nio.Charset.CharsetEncoder? ReplaceWith (byte[]? newReplacement);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.Charset.CharsetEncoder ReplaceWith(unsigned int8[] newReplacement) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.ReplaceWith(System.Byte[])" />
+      <MemberSignature Language="F#" Value="member this.ReplaceWith : byte[] -&gt; Java.Nio.Charset.CharsetEncoder" Usage="charsetEncoder.ReplaceWith newReplacement" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("replaceWith", "([B)Ljava/nio/charset/CharsetEncoder;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("replaceWith", "([B)Ljava/nio/charset/CharsetEncoder;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CharsetEncoder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newReplacement" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="newReplacement">The new replacement; must not be
+                    <c>null</c>, must have non-zero length,
+            
+            
+            
+            
+            
+                    must not be longer than the value returned by the
+                    <c>#maxBytesPerChar() maxBytesPerChar</c> method, and
+                    must be <c>#isLegalReplacement legal</c></param>
+        <summary>Changes this encoder's replacement value.</summary>
+        <returns>This encoder</returns>
+        <remarks>
+          <para>Changes this encoder's replacement value.</para>
+          <para>This method invokes the <c>#implReplaceWith implReplaceWith</c>
+            method, passing the new replacement, after checking that the new
+            replacement is acceptable.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#replaceWith(byte[])" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.replaceWith(byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the given replacement cannot satisfy the requirement
+             mentioned above.
+</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Reset">
+      <MemberSignature Language="C#" Value="public Java.Nio.Charset.CharsetEncoder? Reset ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Nio.Charset.CharsetEncoder Reset() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.Reset" />
+      <MemberSignature Language="F#" Value="member this.Reset : unit -&gt; Java.Nio.Charset.CharsetEncoder" Usage="charsetEncoder.Reset " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("reset", "()Ljava/nio/charset/CharsetEncoder;", "")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reset", "()Ljava/nio/charset/CharsetEncoder;", "")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CharsetEncoder</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Resets this encoder, clearing any internal state.</summary>
+        <returns>This encoder</returns>
+        <remarks>
+          <para>Resets this encoder, clearing any internal state.</para>
+          <para>This method resets charset-independent state and also invokes the
+            <c>#implReset() implReset</c> method in order to perform any
+            charset-specific reset actions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#reset()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.reset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Charset.CharsetEncoder.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Nio.Charset.CharsetEncoder.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Nio.Charset.CharsetEncoder.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Nio.Charset.CharsetEncoder.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="UnmappableCharacterAction">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.Charset.CodingErrorAction? UnmappableCharacterAction ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.Charset.CodingErrorAction UnmappableCharacterAction() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.Charset.CharsetEncoder.UnmappableCharacterAction" />
+      <MemberSignature Language="F#" Value="abstract member UnmappableCharacterAction : unit -&gt; Java.Nio.Charset.CodingErrorAction&#xA;override this.UnmappableCharacterAction : unit -&gt; Java.Nio.Charset.CodingErrorAction" Usage="charsetEncoder.UnmappableCharacterAction " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("unmappableCharacterAction", "()Ljava/nio/charset/CodingErrorAction;", "GetUnmappableCharacterActionHandler")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("unmappableCharacterAction", "()Ljava/nio/charset/CodingErrorAction;", "GetUnmappableCharacterActionHandler")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.Charset.CodingErrorAction</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns this encoder's current action for unmappable-character errors.</summary>
+        <returns>The current unmappable-character action, which is never
+                    <c>null</c></returns>
+        <remarks>
+          <para>Returns this encoder's current action for unmappable-character errors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/charset/CharsetEncoder#unmappableCharacterAction()" title="Reference documentation">Java documentation for <code>java.nio.charset.CharsetEncoder.unmappableCharacterAction()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+        <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+  </Members>
+</Type>
