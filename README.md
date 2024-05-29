@@ -1,10 +1,14 @@
-# Contributing
+# .NET for Android API documentation
+
+This repository contains the API documentation for .NET for Android. It's published at the [.NET API browser](https://learn.microsoft.com/dotnet/api).
+
+## Contributing
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-# Legal Notices
+## Legal Notices
 
 .NET Foundation and any contributors grant you a license to the .NET Foundation documentation and other content
 in this repository under the [Creative Commons Attribution 4.0 International Public License](https://creativecommons.org/licenses/by/4.0/legalcode),
