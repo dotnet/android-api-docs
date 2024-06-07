@@ -2,7 +2,6 @@
 
 This repository contains the API documentation for .NET for Android. It's published at the [.NET API browser](https://learn.microsoft.com/dotnet/api).
 
-
 ## Legal Notices
 
 .NET Foundation and any contributors grant you a license to the .NET Foundation documentation and other content
