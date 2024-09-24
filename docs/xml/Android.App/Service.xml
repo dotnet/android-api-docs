@@ -57,39 +57,39 @@
             as a standard implementation of Service that has its own thread where it
             schedules its work to be done.</para>
       <para>Topics covered here:
-            &lt;ol&gt;
-            &lt;li&gt;What is a Service?&lt;li&gt;Service Lifecycle&lt;li&gt;Permissions&lt;li&gt;Process Lifecycle&lt;li&gt;Local Service Sample&lt;li&gt;Remote Messenger Service Sample&lt;/ol&gt;
+            <ol>
+            <li>What is a Service?<li>Service Lifecycle<li>Permissions<li>Process Lifecycle<li>Local Service Sample<li>Remote Messenger Service Sample</ol>
             
-            &lt;div class="special reference"&gt;
-            &lt;h3&gt;Developer Guides&lt;/h3&gt;</para>
+            <div class="special reference">
+            <h3>Developer Guides</h3></para>
       <para>For a detailed discussion about how to create services, read the
             <see href="https://developer.android.com/guide/topics/fundamentals/services.html">Services</see> developer guide.</para>
-      <para>&lt;/div&gt;
+      <para></div>
             
-            "WhatIsAService"&gt;&lt;h3&gt;What is a Service?&lt;/h3&gt;</para>
+            "WhatIsAService"&gt;<h3>What is a Service?</h3></para>
       <para>Most confusion about the Service class actually revolves around what
-            it is &lt;em&gt;not&lt;/em&gt;:</para>
-      <para>&lt;ul&gt;
-            &lt;li&gt; A Service is &lt;b&gt;not&lt;/b&gt; a separate process.  The Service object itself
+            it is <em>not</em>:</para>
+      <para><ul>
+            <li> A Service is <b>not</b> a separate process.  The Service object itself
             does not imply it is running in its own process; unless otherwise specified,
             it runs in the same process as the application it is part of.
-            &lt;li&gt; A Service is &lt;b&gt;not&lt;/b&gt; a thread.  It is not a means itself to do work off
+            <li> A Service is <b>not</b> a thread.  It is not a means itself to do work off
             of the main thread (to avoid Application Not Responding errors).
-            &lt;/ul&gt;</para>
+            </ul></para>
       <para>Thus a Service itself is actually very simple, providing two main features:</para>
-      <para>&lt;ul&gt;
-            &lt;li&gt;A facility for the application to tell the system &lt;em&gt;about&lt;/em&gt;
+      <para><ul>
+            <li>A facility for the application to tell the system <em>about</em>
             something it wants to be doing in the background (even when the user is not
             directly interacting with the application).  This corresponds to calls to
             <c>android.content.Context#startService Context.startService()</c>, which
             ask the system to schedule work for the service, to be run until the service
             or someone else explicitly stop it.
-            &lt;li&gt;A facility for an application to expose some of its functionality to
+            <li>A facility for an application to expose some of its functionality to
             other applications.  This corresponds to calls to
             <c>android.content.Context#bindService Context.bindService()</c>, which
             allows a long-standing connection to be made to the service in order to
             interact with it.
-            &lt;/ul&gt;</para>
+            </ul></para>
       <para>When a Service component is actually created, for either of these reasons,
             all that the system actually does is instantiate the component
             and call its <c>#onCreate</c> and any other appropriate callbacks on the
@@ -100,7 +100,7 @@
             as a local Java object that you make direct method calls on (as illustrated
             by Local Service Sample), to providing
             a full remoteable interface using AIDL.</para>
-      <para>"ServiceLifecycle"&gt;&lt;h3&gt;Service Lifecycle&lt;/h3&gt;</para>
+      <para>"ServiceLifecycle"<h3>Service Lifecycle</h3></para>
       <para>There are two reasons that a service can be run by the system.  If someone
             calls <c>android.content.Context#startService Context.startService()</c> then the system will
             retrieve the service (creating it and calling its <c>#onCreate</c> method
@@ -133,14 +133,14 @@
             in aidl</see>.</para>
       <para>A service can be both started and have connections bound to it.  In such
             a case, the system will keep the service running as long as either it is
-            started &lt;em&gt;or&lt;/em&gt; there are one or more connections to it with the
+            started <em>or</em> there are one or more connections to it with the
             <c>android.content.Context#BIND_AUTO_CREATE Context.BIND_AUTO_CREATE</c>
             flag.  Once neither
             of these situations hold, the service's <c>#onDestroy</c> method is called
             and the service is effectively terminated.  All cleanup (stopping threads,
             unregistering receivers) should be complete upon returning from onDestroy().
             
-            "Permissions"&gt;&lt;h3&gt;Permissions&lt;/h3&gt;</para>
+            "Permissions"><h3>Permissions</h3></para>
       <para>Global access to a service can be enforced when it is declared in its
             manifest's <c>android.R.styleable#AndroidManifestService &amp;lt;service&amp;gt;</c>
             tag.  By doing so, other applications will need to declare a corresponding
@@ -165,32 +165,32 @@
       <para>See the <see href="https://developer.android.com/guide/topics/security/security.html">Security and Permissions</see>
             document for more information on permissions and security in general.
             
-            "ProcessLifecycle"&gt;&lt;h3&gt;Process Lifecycle&lt;/h3&gt;</para>
+            "ProcessLifecycle"><h3>Process Lifecycle</h3></para>
       <para>The Android system will attempt to keep the process hosting a service
             around as long as the service has been started or has clients bound to it.
             When running low on memory and needing to kill existing processes, the
             priority of a process hosting the service will be the higher of the
             following possibilities:
             
-            &lt;ul&gt;
-            &lt;li&gt;</para>
+            <ul>
+            <li></para>
       <para>If the service is currently executing code in its
             <c>#onCreate onCreate()</c>, <c>#onStartCommand onStartCommand()</c>,
             or <c>#onDestroy onDestroy()</c> methods, then the hosting process will
             be a foreground process to ensure this code can execute without
             being killed.
-            &lt;li&gt;</para>
+            <li></para>
       <para>If the service has been started, then its hosting process is considered
             to be less important than any processes that are currently visible to the
             user on-screen, but more important than any process not visible.  Because
             only a few processes are generally visible to the user, this means that
             the service should not be killed except in low memory conditions.  However, since
-            the user is not directly aware of a background service, in that state it &lt;em&gt;is&lt;/em&gt;
+            the user is not directly aware of a background service, in that state it <em>is</em>
             considered a valid candidate to kill, and you should be prepared for this to
             happen.  In particular, long-running services will be increasingly likely to
             kill and are guaranteed to be killed (and restarted if appropriate) if they
             remain started long enough.
-            &lt;li&gt;</para>
+            <li></para>
       <para>If there are clients bound to the service, then the service's hosting
             process is never less important than the most important client.  That is,
             if one of its clients is visible to the user, then the service itself is
@@ -198,14 +198,14 @@
             importance can be adjusted through <c>Context#BIND_ABOVE_CLIENT</c>,
             <c>Context#BIND_ALLOW_OOM_MANAGEMENT</c>, <c>Context#BIND_WAIVE_PRIORITY</c>,
             <c>Context#BIND_IMPORTANT</c>, and <c>Context#BIND_ADJUST_WITH_ACTIVITY</c>.
-            &lt;li&gt;</para>
+            <li></para>
       <para>A started service can use the <c>#startForeground(int, Notification)</c>
             API to put the service in a foreground state, where the system considers
             it to be something the user is actively aware of and thus not a candidate
             for killing when low on memory.  (It is still theoretically possible for
             the service to be killed under extreme memory pressure from the current
             foreground application, but in practice this should not be a concern.)
-            &lt;/ul&gt;</para>
+            </ul></para>
       <para>Note this means that most of the time your service is running, it may
             be killed by the system if it is under heavy memory pressure.  If this
             happens, the system will later try to restart the service.  An important
@@ -219,7 +219,7 @@
             importance of the overall
             process beyond just the importance of the service itself.
             
-            "LocalServiceSample"&gt;&lt;h3&gt;Local Service Sample&lt;/h3&gt;</para>
+            "LocalServiceSample"><h3>Local Service Sample</h3></para>
       <para>One of the most common uses of a Service is as a secondary component
             running alongside other parts of an application, in the same process as
             the rest of the components.  All components of an .apk run in the same
