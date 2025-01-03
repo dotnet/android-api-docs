@@ -20,18 +20,20 @@
       <AttributeName Language="C#">[System.Obsolete("This class is obsoleted in this android platform")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Obsolete("This class is obsoleted in this android platform")&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
     <summary>Handle returned by <c>KeyguardManager#newKeyguardLock</c> that allows
-            you to disable / reenable the keyguard.</summary>
+            you to temporarily disable / reenable the keyguard (lock screen).</summary>
     <remarks>
       <para>Handle returned by <c>KeyguardManager#newKeyguardLock</c> that allows
-            you to disable / reenable the keyguard.</para>
-      <para>This member is deprecated. Use <c>LayoutParams#FLAG_DISMISS_KEYGUARD</c>
-            and/or <c>LayoutParams#FLAG_SHOW_WHEN_LOCKED</c>
-            instead; this allows you to seamlessly hide the keyguard as your application
-            moves in and out of the foreground and does not require that any special
-            permissions be requested.</para>
+            you to temporarily disable / reenable the keyguard (lock screen).</para>
+      <para>This member is deprecated. Use <c>android.R.attr#showWhenLocked</c> or <c>android.app.Activity#setShowWhenLocked(boolean)</c> instead. This allows you to seamlessly
+              occlude and unocclude the keyguard as your application moves in and out of the foreground
+              and does not require that any special permissions be requested.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/KeyguardManager.KeyguardLock" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.KeyguardLock</code>.</a>
@@ -97,12 +99,9 @@
         <remarks>
           <para>Disable the keyguard from showing.  If the keyguard is currently
             showing, hide it.  The keyguard will be prevented from showing again
-            until <c>#reenableKeyguard()</c> is called.
-            
-            A good place to call this is from <c>android.app.Activity#onResume()</c>
-            
-            Note: This call has no effect while any <c>android.app.admin.DevicePolicyManager</c>
-            is enabled that requires a password.</para>
+            until <c>#reenableKeyguard()</c> is called.</para>
+          <para>This only works if the keyguard is not secure.</para>
+          <para>A good place to call this is from <c>android.app.Activity#onResume()</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager.KeyguardLock#disableKeyguard()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.KeyguardLock.disableKeyguard()</code>.</a>
@@ -179,10 +178,7 @@
           <para>Reenable the keyguard.  The keyguard will reappear if the previous
             call to <c>#disableKeyguard()</c> caused it to be hidden.
             
-            A good place to call this is from <c>android.app.Activity#onPause()</c>
-            
-            Note: This call has no effect while any <c>android.app.admin.DevicePolicyManager</c>
-            is enabled that requires a password.</para>
+            A good place to call this is from <c>android.app.Activity#onPause()</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager.KeyguardLock#reenableKeyguard()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.KeyguardLock.reenableKeyguard()</code>.</a>

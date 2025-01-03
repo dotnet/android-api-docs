@@ -33,10 +33,26 @@
             to ensure the preference values remain in a consistent state and control
             when they are committed to storage.  Objects that are returned from the
             various <c>get</c> methods must be treated as immutable by the application.</para>
-      <para>Note: This class provides strong consistency guarantees. It is using expensive operations
-            which might slow down an app. Frequently changing properties or properties where loss can be
-            tolerated should use other mechanisms. For more details read the comments on
-            <c>Editor#commit()</c> and <c>Editor#apply()</c>.</para>
+      <para>SharedPreferences is best suited to storing data about how the user prefers
+            to experience the app, for example, whether the user prefers a particular UI theme
+            or whether they prefer viewing particular content in a list vs. a grid. To this end,
+            SharedPreferences reflects changes <c>Editor#commit() committed</c> or
+            <c>Editor#apply() applied</c> by <c>Editor</c>s &lt;em&gt;immediately&lt;/em&gt;, potentially
+            before those changes are durably persisted.
+            Under some circumstances such as app crashes or termination these changes may be lost,
+            even if an <c>OnSharedPreferenceChangeListener</c> reported the change was successful.
+            SharedPreferences is not recommended for storing data that is sensitive to this
+            kind of rollback to a prior state such as user security or privacy settings.
+            For other high-level data persistence options, see
+            <see href="https://d.android.com/room">Room</see> or
+            <see href="https://d.android.com/datastore">DataStore</see>.</para>
+      <para>&lt;em&gt;Note:&lt;/em&gt; Common implementations guarantee that outstanding edits to preference
+            files are persisted to disk when host Activities become stopped. In some situations
+            (e.g. performing many <c>Editor#commit()</c> or <c>Editor#apply()</c>
+            operations just prior to navigating away from the host Activity) this can lead
+            to blocking the main thread during lifecycle transition events and associated
+            ANR errors. For more details see the documentation for <c>Editor#commit()</c> and
+            <c>Editor#apply()</c>.</para>
       <para>&lt;em&gt;Note: This class does not support use across multiple processes.&lt;/em&gt;
             
             &lt;div class="special reference"&gt;
@@ -70,6 +86,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getAll", "()Ljava/util/Map;", "GetGetAllHandler:Android.Content.ISharedPreferencesInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAll", "()Ljava/util/Map;", "GetGetAllHandler:Android.Content.ISharedPreferencesInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")&gt;]</AttributeName>
@@ -425,10 +445,23 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="key" Type="System.String" />
-        <Parameter Name="defValues" Type="System.Collections.Generic.ICollection&lt;System.String&gt;" />
+        <Parameter Name="defValues" Type="System.Collections.Generic.ICollection&lt;System.String&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="key">The name of the preference to retrieve.</param>

@@ -17,23 +17,29 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/companion/CompanionDeviceManager", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>System level service for managing companion devices
-            
-            See <see href="https://developer.android.com/guide/topics/connectivity/companion-device-pairing">this guide</see>
-            for a usage example.</summary>
+    <summary>Public interfaces for managing companion devices.</summary>
     <remarks>
-      <para>System level service for managing companion devices
-            
-            See <see href="https://developer.android.com/guide/topics/connectivity/companion-device-pairing">this guide</see>
-            for a usage example.</para>
-      <para>To obtain an instance call <c>Context#getSystemService</c>(<c>Context#COMPANION_DEVICE_SERVICE</c>) Then, call <c>#associate(AssociationRequest,
-            Callback, Handler)</c> to initiate the flow of associating current package with a
-            device selected by user.</para>
+      <para>Public interfaces for managing companion devices.</para>
+      <para>The interfaces in this class allow companion apps to
+            <c>#associate(AssociationRequest, Executor, Callback)</c> discover and request device profiles}
+            for companion devices, <c>#startObservingDevicePresence(String) listen to device presence
+            events</c>, <c>#startSystemDataTransfer(int, Executor, OutcomeReceiver) transfer system level
+            data</c> via <c>#attachSystemDataTransport(int, InputStream, OutputStream) the reported
+            channel</c> and more.</para>
+      <para>&lt;div class="special reference"&gt;
+            &lt;h3&gt;Developer Guides&lt;/h3&gt;</para>
+      <para>For more information about managing companion devices, read the <see href="https://developer.android.com/guide/topics/connectivity/companion-device-pairing">Companion Device Pairing</see>
+            developer guide.
+            &lt;/div&gt;</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/companion/CompanionDeviceManager" title="Reference documentation">Java documentation for <code>android.companion.CompanionDeviceManager</code>.</a>
@@ -73,7 +79,14 @@
       <Parameters>
         <Parameter Name="request" Type="Android.Companion.AssociationRequest" />
         <Parameter Name="callback" Type="Android.Companion.CompanionDeviceManager+Callback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="request">specific details about this request</param>
@@ -742,9 +755,9 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Used by <c>#enableSystemDataSync(int, int)</c>}.</summary>
+        <summary>Used by <c>#enableSystemDataSyncForTypes(int, int)</c>}.</summary>
         <remarks>
-          <para>Used by <c>#enableSystemDataSync(int, int)</c>}.
+          <para>Used by <c>#enableSystemDataSyncForTypes(int, int)</c>}.
             Sync call metadata like muting, ending and silencing a call.</para>
           <para>
             <format type="text/html">
@@ -808,6 +821,58 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/companion/CompanionDeviceManager#hasNotificationAccess(android.content.ComponentName)" title="Reference documentation">Java documentation for <code>android.companion.CompanionDeviceManager.hasNotificationAccess(android.content.ComponentName)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsPermissionTransferUserConsented">
+      <MemberSignature Language="C#" Value="public bool IsPermissionTransferUserConsented (int associationId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool IsPermissionTransferUserConsented(int32 associationId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Companion.CompanionDeviceManager.IsPermissionTransferUserConsented(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.IsPermissionTransferUserConsented : int -&gt; bool" Usage="companionDeviceManager.IsPermissionTransferUserConsented associationId" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("isPermissionTransferUserConsented", "(I)Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isPermissionTransferUserConsented", "(I)Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="associationId" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="associationId">The unique <c>AssociationInfo#getId ID</c> assigned to the association
+                                 of the companion device recorded by CompanionDeviceManager</param>
+        <summary>Return the current state of consent for permission transfer for the association.</summary>
+        <returns>True if the user has consented to the permission transfer, or false otherwise.</returns>
+        <remarks>
+          <para>Return the current state of consent for permission transfer for the association.
+            True if the user has allowed permission transfer for the association, false otherwise.</para>
+          <para>Note: The initial user consent is collected via
+            <c>#buildPermissionTransferUserConsentIntent(int) a permission transfer user consent dialog</c>.
+            After the user has made their initial selection, they can toggle the permission transfer
+            feature in the settings.
+            This method always returns the state of the toggle setting.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/companion/CompanionDeviceManager#isPermissionTransferUserConsented(int)" title="Reference documentation">Java documentation for <code>android.companion.CompanionDeviceManager.isPermissionTransferUserConsented(int)</code>.</a>
             </format>
           </para>
           <para>
@@ -929,7 +994,9 @@
             Only components from the same <c>ComponentName#getPackageName package</c> as the calling app
             are allowed.
             
-            Your app must have an association with a device before calling this API</para>
+            Your app must have an association with a device before calling this API.
+            
+            Side-loaded apps must allow restricted settings before requesting notification access.</para>
           <para>Calling this API requires a uses-feature
             <c>PackageManager#FEATURE_COMPANION_DEVICE_SETUP</c> declaration in the manifest</para>
           <para>

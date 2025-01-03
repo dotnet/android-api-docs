@@ -17,19 +17,108 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/StringSearch", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>StringSearch</c> is a <c>SearchIterator</c> that provides
+            language-sensitive text searching based on the comparison rules defined
+            in a <c>RuleBasedCollator</c> object.</summary>
     <remarks>
       <para>
+        <c>StringSearch</c> is a <c>SearchIterator</c> that provides
+            language-sensitive text searching based on the comparison rules defined
+            in a <c>RuleBasedCollator</c> object.
+            StringSearch ensures that language eccentricity can be
+            handled, e.g. for the German collator, characters &amp;szlig; and SS will be matched
+            if case is chosen to be ignored.
+            See the <see href="https://htmlpreview.github.io/?https://github.com/unicode-org/icu-docs/blob/main/design/collation/ICU_collation_design.htm">
+            "ICU Collation Design Document"</see> for more information.</para>
+      <para>There are 2 match options for selection:&lt;br&gt;
+            Let S' be the sub-string of a text string S between the offsets start and
+            end [start, end].
+            &lt;br&gt;
+            A pattern string P matches a text string S at the offsets [start, end]
+            if</para>
+      <code lang="text/java">option 1. Some canonical equivalent of P matches some canonical equivalent
+                      of S'
+            option 2. P matches S' and if P starts or ends with a combining mark,
+                      there exists no non-ignorable combining mark before or after S?
+                      in S respectively.
+            </code>
+      <para>Option 2. is the default.</para>
+      <para>This search has APIs similar to that of other text iteration mechanisms
+            such as the break iterators in <c>BreakIterator</c>. Using these
+            APIs, it is easy to scan through text looking for all occurrences of
+            a given pattern. This search iterator allows changing of direction by
+            calling a <c>#reset</c> followed by a <c>#next</c> or <c>#previous</c>.
+            Though a direction change can occur without calling <c>#reset</c> first,
+            this operation comes with some speed penalty.
+            Match results in the forward direction will match the result matches in
+            the backwards direction in the reverse order</para>
+      <para>
+        <c>SearchIterator</c> provides APIs to specify the starting position
+            within the text string to be searched, e.g. <c>SearchIterator#setIndex setIndex</c>,
+            <c>SearchIterator#preceding preceding</c> and <c>SearchIterator#following following</c>.
+            Since the starting position will be set as it is specified, please take note that
+            there are some danger points at which the search may render incorrect
+            results:
+            &lt;ul&gt;
+            &lt;li&gt; In the midst of a substring that requires normalization.
+            &lt;li&gt; If the following match is to be found, the position should not be the
+                 second character which requires swapping with the preceding
+                 character. Vice versa, if the preceding match is to be found, the
+                 position to search from should not be the first character which
+                 requires swapping with the next character. E.g certain Thai and
+                 Lao characters require swapping.
+            &lt;li&gt; If a following pattern match is to be found, any position within a
+                 contracting sequence except the first will fail. Vice versa if a
+                 preceding pattern match is to be found, an invalid starting point
+                 would be any character within a contracting sequence except the last.
+            &lt;/ul&gt;</para>
+      <para>A <c>BreakIterator</c> can be used if only matches at logical breaks are desired.
+            Using a <c>BreakIterator</c> will only give you results that exactly matches the
+            boundaries given by the <c>BreakIterator</c>. For instance the pattern "e" will
+            not be found in the string "\u00e9" if a character break iterator is used.</para>
+      <para>Options are provided to handle overlapping matches.
+            E.g. In English, overlapping matches produces the result 0 and 2
+            for the pattern "abab" in the text "ababab", where mutually
+            exclusive matches only produces the result of 0.</para>
+      <para>Options are also provided to implement "asymmetric search" as described in
+            <see href="http://www.unicode.org/reports/tr10/#Asymmetric_Search">
+            UTS #10 Unicode Collation Algorithm</see>, specifically the ElementComparisonType
+            values.</para>
+      <para>Though collator attributes will be taken into consideration while
+            performing matches, there are no APIs here for setting and getting the
+            attributes. These attributes can be set by getting the collator
+            from <c>#getCollator</c> and using the APIs in <c>RuleBasedCollator</c>.
+            Lastly to update <c>StringSearch</c> to the new collator attributes,
+            <c>#reset</c> has to be called.</para>
+      <para>Restriction: &lt;br&gt;
+            Currently there are no composite characters that consists of a
+            character with combining class &amp;gt; 0 before a character with combining
+            class == 0. However, if such a character exists in the future,
+            <c>StringSearch</c> does not guarantee the results for option 1.</para>
+      <para>Consult the <c>SearchIterator</c> documentation for information on
+            and examples of how to use instances of this class to implement text
+            searching.</para>
+      <para>Note, <c>StringSearch</c> is not to be subclassed.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/StringSearch" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/StringSearch" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -58,11 +147,25 @@
         <Parameter Name="target" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">text to look for.</param>
+        <param name="target">target text to search for pattern.</param>
+        <summary>Initializes the iterator to use the language-specific rules and
+            break iterator rules defined in the default locale to search for
+            argument pattern in the argument target text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Initializes the iterator to use the language-specific rules and
+            break iterator rules defined in the default locale to search for
+            argument pattern in the argument target text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#StringSearch(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.StringSearch(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -92,12 +195,27 @@
         <Parameter Name="collator" Type="Android.Icu.Text.RuleBasedCollator" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="collator">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">text to look for.</param>
+        <param name="target">target text to search for pattern.</param>
+        <param name="collator">
+          <c>RuleBasedCollator</c> that defines the language rules</param>
+        <summary>Initializes the iterator to use the language-specific rules defined in
+            the argument collator to search for argument pattern in the argument
+            target text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Initializes the iterator to use the language-specific rules defined in
+            the argument collator to search for argument pattern in the argument
+            target text. No <c>BreakIterator</c>s are set to test for logical matches.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#StringSearch(java.lang.String,%20java.text.CharacterIterator,%20android.icu.text.RuleBasedCollator)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.StringSearch(java.lang.String, java.text.CharacterIterator, android.icu.text.RuleBasedCollator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -127,12 +245,28 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">text to look for.</param>
+        <param name="target">target text to search for pattern.</param>
+        <param name="locale">locale to use for language and break iterator rules</param>
+        <summary>Initializes the iterator to use the language-specific rules and
+            break iterator rules defined in the argument locale to search for
+            argument pattern in the argument target text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Initializes the iterator to use the language-specific rules and
+            break iterator rules defined in the argument locale to search for
+            argument pattern in the argument target text.
+            See super class documentation for more details on the use of the target
+            text and <c>BreakIterator</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#StringSearch(java.lang.String,%20java.text.CharacterIterator,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.StringSearch(java.lang.String, java.text.CharacterIterator, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -162,12 +296,26 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">text to look for.</param>
+        <param name="target">target text to search for pattern.</param>
+        <param name="locale">locale to use for language and break iterator rules</param>
+        <summary>Initializes the iterator to use the language-specific rules and
+            break iterator rules defined in the argument locale to search for
+            argument pattern in the argument target text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Initializes the iterator to use the language-specific rules and
+            break iterator rules defined in the argument locale to search for
+            argument pattern in the argument target text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#StringSearch(java.lang.String,%20java.text.CharacterIterator,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.StringSearch(java.lang.String, java.text.CharacterIterator, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -198,13 +346,31 @@
         <Parameter Name="breakiter" Type="Android.Icu.Text.BreakIterator" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="collator">To be added.</param>
-        <param name="breakiter">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">text to look for.</param>
+        <param name="target">target text to search for pattern.</param>
+        <param name="collator">
+          <c>RuleBasedCollator</c> that defines the language rules</param>
+        <param name="breakiter">A <c>BreakIterator</c> that is used to determine the
+                           boundaries of a logical match. This argument can be null.</param>
+        <summary>Initializes the iterator to use the language-specific rules defined in
+            the argument collator to search for argument pattern in the argument
+            target text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Initializes the iterator to use the language-specific rules defined in
+            the argument collator to search for argument pattern in the argument
+            target text. The argument <c>breakiter</c> is used to define logical matches.
+            See super class documentation for more details on the use of the target
+            text and <c>BreakIterator</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#StringSearch(java.lang.String,%20java.text.CharacterIterator,%20android.icu.text.RuleBasedCollator,%20android.icu.text.BreakIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.StringSearch(java.lang.String, java.text.CharacterIterator, android.icu.text.RuleBasedCollator, android.icu.text.BreakIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -240,10 +406,33 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="allowCanonical">flag indicator if canonical matches are allowed</param>
+        <summary>Determines whether canonical matches (option 1, as described in the
+            class documentation) is set. -or- Set the canonical match mode.</summary>
+        <value>true if canonical matches is set, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Determines whether canonical matches (option 1, as described in the
+            class documentation) is set.
+            See setCanonical(boolean) for more information.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#isCanonical()" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.isCanonical()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the canonical match mode. See class documentation for details.
+            The default setting for this property is false.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#setCanonical(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.setCanonical(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -279,10 +468,35 @@
         <ReturnType>Android.Icu.Text.RuleBasedCollator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="collator">to use for this <c>StringSearch</c></param>
+        <summary>Gets the <c>RuleBasedCollator</c> used for the language rules. -or- Sets the <c>RuleBasedCollator</c> to be used for language-specific searching.</summary>
+        <value>
+          <c>RuleBasedCollator</c> used by this <c>StringSearch</c></value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Gets the <c>RuleBasedCollator</c> used for the language rules.</para>
+          <para>Since <c>StringSearch</c> depends on the returned <c>RuleBasedCollator</c>, any
+            changes to the <c>RuleBasedCollator</c> result should follow with a call to
+            either <c>#reset()</c> or <c>#setCollator(RuleBasedCollator)</c> to ensure the correct
+            search behavior.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#getCollator()" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.getCollator()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the <c>RuleBasedCollator</c> to be used for language-specific searching.</para>
+          <para>The iterator's position will not be changed by this method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#setCollator(android.icu.text.RuleBasedCollator)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.setCollator(android.icu.text.RuleBasedCollator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -314,10 +528,20 @@
       </Parameters>
       <Docs>
         <param name="position">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#handleNext(int)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.handleNext(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -349,10 +573,20 @@
       </Parameters>
       <Docs>
         <param name="position">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#handlePrevious(int)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.handlePrevious(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -380,10 +614,20 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#getIndex()" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.getIndex()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -405,6 +649,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -450,10 +698,30 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="pattern">for searching</param>
+        <summary>Returns the pattern for which <c>StringSearch</c> is searching for. -or- Set the pattern to search for.</summary>
+        <value>the pattern searched for</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the pattern for which <c>StringSearch</c> is searching for.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#getPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.getPattern()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the pattern to search for.
+            The iterator's position will not be changed by this method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/StringSearch#setPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.StringSearch.setPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -506,6 +774,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

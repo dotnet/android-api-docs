@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/appsearch/SetSchemaRequest", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,40 @@
   <Docs>
     <summary>Encapsulates a request to update the schema of an <c>AppSearchSession</c> database.</summary>
     <remarks>
+      <para>Encapsulates a request to update the schema of an <c>AppSearchSession</c> database.</para>
+      <para>The schema is composed of a collection of <c>AppSearchSchema</c> objects, each of which
+            defines a unique type of data.</para>
+      <para>The first call to SetSchemaRequest will set the provided schema and store it within the <c>AppSearchSession</c> database.</para>
+      <para>Subsequent calls will compare the provided schema to the previously saved schema, to determine
+            how to treat existing documents.</para>
+      <para>The following types of schema modifications are always safe and are made without deleting any
+            existing documents:
+            
+            &lt;ul&gt;
+              &lt;li&gt;Addition of new <c>AppSearchSchema</c> types
+              &lt;li&gt;Addition of new properties to an existing <c>AppSearchSchema</c> type
+              &lt;li&gt;Changing the cardinality of a property to be less restrictive
+            &lt;/ul&gt;</para>
+      <para>The following types of schema changes are not backwards compatible:
+            
+            &lt;ul&gt;
+              &lt;li&gt;Removal of an existing <c>AppSearchSchema</c> type
+              &lt;li&gt;Removal of a property from an existing <c>AppSearchSchema</c> type
+              &lt;li&gt;Changing the data type of an existing property
+              &lt;li&gt;Changing the cardinality of a property to be more restrictive
+            &lt;/ul&gt;</para>
+      <para>Providing a schema with incompatible changes, will throw an <c>android.app.appsearch.exceptions.AppSearchException</c>, with a message describing the
+            incompatibility. As a result, the previously set schema will remain unchanged.</para>
+      <para>Backward incompatible changes can be made by :
+            
+            &lt;ul&gt;
+              &lt;li&gt;setting <c>SetSchemaRequest.Builder#setForceOverride</c> method to <c>true</c>. This
+                  deletes all documents that are incompatible with the new schema. The new schema is then
+                  saved and persisted to disk.
+              &lt;li&gt;Add a <c>Migrator</c> for each incompatible type and make no deletion. The migrator will
+                  migrate documents from its old schema version to the new version. Migrated types will be
+                  set into both <c>SetSchemaResponse#getIncompatibleTypes()</c> and <c>SetSchemaResponse#getMigratedTypes()</c>. See the migration section below.
+            &lt;/ul&gt;</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest</code>.</a>
@@ -64,6 +102,7 @@
         <summary>Returns whether this request will force the schema to be overridden.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns whether this request will force the schema to be overridden.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#isForceOverride()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.isForceOverride()</code>.</a>
@@ -134,9 +173,54 @@
             associated with.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns the map of <c>Migrator</c>, the key will be the schema type of the <c>Migrator</c>
+            associated with.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getMigrators()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getMigrators()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PubliclyVisibleSchemas">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IDictionary&lt;string,Android.App.AppSearch.PackageIdentifier&gt; PubliclyVisibleSchemas { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IDictionary`2&lt;string, class Android.App.AppSearch.PackageIdentifier&gt; PubliclyVisibleSchemas" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SetSchemaRequest.PubliclyVisibleSchemas" />
+      <MemberSignature Language="F#" Value="member this.PubliclyVisibleSchemas : System.Collections.Generic.IDictionary&lt;string, Android.App.AppSearch.PackageIdentifier&gt;" Usage="Android.App.AppSearch.SetSchemaRequest.PubliclyVisibleSchemas" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPubliclyVisibleSchemas", "()Ljava/util/Map;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPubliclyVisibleSchemas", "()Ljava/util/Map;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IDictionary&lt;System.String,Android.App.AppSearch.PackageIdentifier&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a mapping of publicly visible schemas to the <c>PackageIdentifier</c> specifying the
+            package the schemas are from.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns a mapping of publicly visible schemas to the <c>PackageIdentifier</c> specifying the
+            package the schemas are from.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getPubliclyVisibleSchemas()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getPubliclyVisibleSchemas()</code>.</a>
             </format>
           </para>
           <para>
@@ -176,8 +260,22 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The <c>android.Manifest.permission#READ_ASSISTANT_APP_SEARCH_DATA</c> AppSearch supported in
+            <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></summary>
+        <remarks>
+          <para>The <c>android.Manifest.permission#READ_ASSISTANT_APP_SEARCH_DATA</c> AppSearch supported in
+            <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#READ_ASSISTANT_APP_SEARCH_DATA" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReadCalendar">
@@ -209,8 +307,20 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The <c>android.Manifest.permission#READ_CALENDAR</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></summary>
+        <remarks>
+          <para>The <c>android.Manifest.permission#READ_CALENDAR</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#READ_CALENDAR" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.READ_CALENDAR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReadContacts">
@@ -242,8 +352,20 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The <c>android.Manifest.permission#READ_CONTACTS</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></summary>
+        <remarks>
+          <para>The <c>android.Manifest.permission#READ_CONTACTS</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#READ_CONTACTS" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.READ_CONTACTS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReadExternalStorage">
@@ -275,8 +397,20 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></summary>
+        <remarks>
+          <para>The <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#READ_EXTERNAL_STORAGE" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.READ_EXTERNAL_STORAGE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReadHomeAppSearchData">
@@ -308,8 +442,22 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The <c>android.Manifest.permission#READ_HOME_APP_SEARCH_DATA</c> AppSearch supported in
+            <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></summary>
+        <remarks>
+          <para>The <c>android.Manifest.permission#READ_HOME_APP_SEARCH_DATA</c> AppSearch supported in
+            <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#READ_HOME_APP_SEARCH_DATA" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.READ_HOME_APP_SEARCH_DATA</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReadSms">
@@ -341,8 +489,20 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The <c>android.Manifest.permission#READ_SMS</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></summary>
+        <remarks>
+          <para>The <c>android.Manifest.permission#READ_SMS</c> AppSearch supported in <c>SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#READ_SMS" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.READ_SMS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequiredPermissionsForSchemaTypeVisibility">
@@ -369,9 +529,38 @@
         <ReturnType>System.Collections.Generic.IDictionary&lt;System.String,System.Collections.Generic.ICollection&lt;System.Collections.Generic.ICollection&lt;Java.Lang.Integer&gt;&gt;&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns a mapping of schema types to the Map of <c>android.Manifest.permission</c>
+            combinations that querier must hold to access that schema type.</summary>
+        <value>The map contains schema type and all combinations of required permission for querier
+                to access it. The supported Permission are <c>SetSchemaRequest#READ_SMS</c>, <c>SetSchemaRequest#READ_CALENDAR</c>, <c>SetSchemaRequest#READ_CONTACTS</c>, <c>SetSchemaRequest#READ_EXTERNAL_STORAGE</c>, <c>SetSchemaRequest#READ_HOME_APP_SEARCH_DATA</c> and <c>SetSchemaRequest#READ_ASSISTANT_APP_SEARCH_DATA</c>.</value>
+        <remarks>
+          <para>Returns a mapping of schema types to the Map of <c>android.Manifest.permission</c>
+            combinations that querier must hold to access that schema type.</para>
+          <para>The querier could read the <c>GenericDocument</c> objects under the <c>schemaType</c> if
+            they holds ALL required permissions of ANY of the individual value sets.</para>
+          <para>For example, if the Map contains <c>{% verbatim %</c>{{permissionA, PermissionB},
+            {PermissionC, PermissionD}, {PermissionE}}{% endverbatim %}}.
+            
+            &lt;ul&gt;
+              &lt;li&gt;A querier holds both PermissionA and PermissionB has access.
+              &lt;li&gt;A querier holds both PermissionC and PermissionD has access.
+              &lt;li&gt;A querier holds only PermissionE has access.
+              &lt;li&gt;A querier holds both PermissionA and PermissionE has access.
+              &lt;li&gt;A querier holds only PermissionA doesn't have access.
+              &lt;li&gt;A querier holds both PermissionA and PermissionC doesn't have access.
+            &lt;/ul&gt;</para>
+          <para>It’s inefficient to call this method repeatedly.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getRequiredPermissionsForSchemaTypeVisibility()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getRequiredPermissionsForSchemaTypeVisibility()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Schemas">
@@ -401,6 +590,7 @@
         <summary>Returns the <c>AppSearchSchema</c> types that are part of this request.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns the <c>AppSearchSchema</c> types that are part of this request.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getSchemas()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getSchemas()</code>.</a>
@@ -442,9 +632,55 @@
             UI surface.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns all the schema types that are opted out of being displayed and visible on any system
+            UI surface.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getSchemasNotDisplayedBySystem()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getSchemasNotDisplayedBySystem()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SchemasVisibleToConfigs">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IDictionary&lt;string,System.Collections.Generic.ICollection&lt;Android.App.AppSearch.SchemaVisibilityConfig&gt;&gt; SchemasVisibleToConfigs { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IDictionary`2&lt;string, class System.Collections.Generic.ICollection`1&lt;class Android.App.AppSearch.SchemaVisibilityConfig&gt;&gt; SchemasVisibleToConfigs" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SetSchemaRequest.SchemasVisibleToConfigs" />
+      <MemberSignature Language="F#" Value="member this.SchemasVisibleToConfigs : System.Collections.Generic.IDictionary&lt;string, System.Collections.Generic.ICollection&lt;Android.App.AppSearch.SchemaVisibilityConfig&gt;&gt;" Usage="Android.App.AppSearch.SetSchemaRequest.SchemasVisibleToConfigs" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSchemasVisibleToConfigs", "()Ljava/util/Map;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSchemasVisibleToConfigs", "()Ljava/util/Map;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IDictionary&lt;System.String,System.Collections.Generic.ICollection&lt;Android.App.AppSearch.SchemaVisibilityConfig&gt;&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a mapping of schema types to the set of <c>SchemaVisibilityConfig</c> that have
+            access to that schema type.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns a mapping of schema types to the set of <c>SchemaVisibilityConfig</c> that have
+            access to that schema type.</para>
+          <para>It’s inefficient to call this method repeatedly.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getSchemasVisibleToConfigs()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getSchemasVisibleToConfigs()</code>.</a>
             </format>
           </para>
           <para>
@@ -483,6 +719,9 @@
             type.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns a mapping of schema types to the set of packages that have access to that schema
+            type.</para>
+          <para>It’s inefficient to call this method repeatedly.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getSchemasVisibleToPackages()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getSchemasVisibleToPackages()</code>.</a>
@@ -581,6 +820,7 @@
         <summary>Returns the database overall schema version.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns the database overall schema version.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest#getVersion()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SetSchemaRequest.getVersion()</code>.</a>

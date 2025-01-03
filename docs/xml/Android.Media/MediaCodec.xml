@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/media/MediaCodec", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/MediaCodec", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="16">
     <summary>MediaCodec class can be used to access low-level media codecs, i.</summary>
@@ -271,6 +275,44 @@
              your input data using <c>#createInputSurface</c> after configuration. Alternately, set up the
              codec to use a previously created #createPersistentInputSurface persistent input
              surface by calling <c>#setInputSurface</c>.
+            
+             &lt;h4 id=EncoderProfiles&gt;"EncoderProfiles"&gt;Encoder Profiles&lt;/h4&gt;</para>
+      <para>When using an encoder, it is recommended to set the desired codec <c>MediaFormat#KEY_PROFILE
+             profile</c> during <c>#configure configure()</c>. (This is only meaningful for
+             <c>MediaFormat#KEY_MIME media formats</c> for which profiles are defined.)</para>
+      <para>If a profile is not specified during <c>configure</c>, the encoder will choose a profile for the
+             session based on the available information. We will call this value the <i>default profile</i>.
+             The selection of the default profile is device specific and may not be deterministic
+             (could be ad hoc or even experimental). The encoder may choose a default profile that is not
+             suitable for the intended encoding session, which may result in the encoder ultimately rejecting
+             the session.</para>
+      <para>The encoder may reject the encoding session if the configured (or default if unspecified) profile
+             does not support the codec input (mainly the <c>MediaFormat#KEY_COLOR_FORMAT color format</c> for
+             video/image codecs, or the <c>MediaFormat#KEY_PCM_ENCODING sample encoding</c> and the <c>MediaFormat#KEY_CHANNEL_COUNT number of channels</c> for audio codecs, but also possibly
+             <c>MediaFormat#KEY_WIDTH width</c>, <c>MediaFormat#KEY_HEIGHT height</c>,
+             <c>MediaFormat#KEY_FRAME_RATE frame rate</c>, <c>MediaFormat#KEY_BIT_RATE bitrate</c> or
+             <c>MediaFormat#KEY_SAMPLE_RATE sample rate</c>.)
+             Alternatively, the encoder may choose to (but is not required to) convert the input to support the
+             selected (or default) profile - or adjust the chosen profile based on the presumed or detected
+             input format - to ensure a successful encoding session. &lt;b&gt;Note&lt;/b&gt;: Converting the input to match
+             an incompatible profile will in most cases result in decreased codec performance.</para>
+      <para>To ensure backward compatibility, the following guarantees are provided by Android:
+             &lt;ul&gt;
+             &lt;li&gt;The default video encoder profile always supports 8-bit YUV 4:2:0 color format (<c>CodecCapabilities#COLOR_FormatYUV420Flexible COLOR_FormatYUV420Flexible</c> and equivalent
+             <c>CodecCapabilities#colorFormats supported formats</c>) for both Surface and ByteBuffer modes.
+             &lt;li&gt;The default video encoder profile always supports the default 8-bit RGBA color format in
+             Surface mode even if no such formats are enumerated in the <c>CodecCapabilities#colorFormats
+             supported formats</c>.
+             &lt;/ul&gt;
+             &lt;p class=note&gt;
+             &lt;b&gt;Note&lt;/b&gt;: the accepted profile can be queried through the <c>#getOutputFormat output
+             format</c> of the encoder after <c>configure</c> to allow applications to set up their
+             codec input to a format supported by the encoder profile.</para>
+      <para>&lt;b&gt;Implication:&lt;/b&gt;
+             &lt;ul&gt;
+             &lt;li&gt;Applications that want to encode 4:2:2, 4:4:4, 10+ bit or HDR video input &lt;b&gt;MUST&lt;/b&gt; configure
+             a suitable profile for encoders.
+             &lt;/ul&gt;
             
              &lt;h4 id=CSD&gt;"CSD"&gt;Codec-specific Data&lt;/h4&gt;</para>
       <para>Some formats, notably AAC audio and MPEG4, H.264 and H.265 video formats require the actual data
@@ -1965,6 +2007,54 @@
 </exception>
       </Docs>
     </Member>
+    <Member MemberName="ConfigureFlagDetachedSurface">
+      <MemberSignature Language="C#" Value="public const Android.Media.MediaCodecConfigFlags ConfigureFlagDetachedSurface = 8;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaCodecConfigFlags ConfigureFlagDetachedSurface = (8)" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaCodec.ConfigureFlagDetachedSurface" />
+      <MemberSignature Language="F#" Value="val mutable ConfigureFlagDetachedSurface : Android.Media.MediaCodecConfigFlags" Usage="Android.Media.MediaCodec.ConfigureFlagDetachedSurface" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CONFIGURE_FLAG_DETACHED_SURFACE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONFIGURE_FLAG_DETACHED_SURFACE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaCodecConfigFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaCodecConfigFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Media.MediaCodecConfigFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>8</MemberValue>
+      <Docs>
+        <summary>Configure the codec with a detached output surface.</summary>
+        <remarks>
+          <para>Configure the codec with a detached output surface.</para>
+          <para>This flag is only defined for a video decoder. MediaCodec
+            configured with this flag will be in Surface mode even though
+            the surface parameter is null.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaCodec#CONFIGURE_FLAG_DETACHED_SURFACE" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.CONFIGURE_FLAG_DETACHED_SURFACE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ConfigureFlagEncode">
       <MemberSignature Language="C#" Value="public const Android.Media.MediaCodecConfigFlags ConfigureFlagEncode = 1;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Media.MediaCodecConfigFlags ConfigureFlagEncode = (1)" />
@@ -2566,6 +2656,54 @@
 </exception>
       </Docs>
     </Member>
+    <Member MemberName="DetachOutputSurface">
+      <MemberSignature Language="C#" Value="public void DetachOutputSurface ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void DetachOutputSurface() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaCodec.DetachOutputSurface" />
+      <MemberSignature Language="F#" Value="member this.DetachOutputSurface : unit -&gt; unit" Usage="mediaCodec.DetachOutputSurface " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("detachOutputSurface", "()V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("detachOutputSurface", "()V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Detach the current output surface of a codec.</summary>
+        <remarks>
+          <para>Detach the current output surface of a codec.</para>
+          <para>Detaches the currently associated output Surface from the
+             MediaCodec decoder. This allows the SurfaceView or other
+             component holding the Surface to be safely destroyed or
+             modified without affecting the decoder's operation. After
+             calling this method (and after it returns), the decoder will
+             enter detached-Surface mode and will no longer render
+             output.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaCodec#detachOutputSurface()" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.detachOutputSurface()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Flush">
       <MemberSignature Language="C#" Value="public void Flush ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Flush() cil managed" />
@@ -3061,6 +3199,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Media.MediaCodec+ParameterDescriptor</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -3372,6 +3516,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Media.Image</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="hardwareBuffer" Type="Android.Hardware.HardwareBuffer" />
@@ -3410,6 +3560,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
@@ -3692,6 +3846,127 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaCodec#PARAMETER_KEY_OFFSET_TIME" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.PARAMETER_KEY_OFFSET_TIME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ParameterKeyQpOffsetMap">
+      <MemberSignature Language="C#" Value="public const string ParameterKeyQpOffsetMap;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ParameterKeyQpOffsetMap" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaCodec.ParameterKeyQpOffsetMap" />
+      <MemberSignature Language="F#" Value="val mutable ParameterKeyQpOffsetMap : string" Usage="Android.Media.MediaCodec.ParameterKeyQpOffsetMap" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_MAP", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_MAP", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Set the region of interest as QpOffset-Map on the next queued input frame.</summary>
+        <remarks>
+          <para>Set the region of interest as QpOffset-Map on the next queued input frame.</para>
+          <para>The associated value is a byte array containing quantization parameter (QP) offsets in
+            raster scan order for the entire frame at 16x16 granularity. The size of the byte array
+            shall be ((frame_width + 15) / 16) * ((frame_height + 15) / 16), where frame_width and
+            frame_height correspond to width and height configured using <c>MediaFormat#KEY_WIDTH</c>
+            and <c>MediaFormat#KEY_HEIGHT</c> keys respectively. During encoding, if the coding unit
+            size is larger than 16x16, then the qpOffset information of all 16x16 blocks that
+            encompass the coding unit is combined and used. The QP of target block will be calculated
+            as 'frameQP + offsetQP'. If the result exceeds minQP or maxQP configured then the value
+            will be clamped. Negative offset results in blocks encoded at lower QP than frame QP and
+            positive offsets will result in encoding blocks at higher QP than frame QP. If the areas
+            of negative QP and positive QP are chosen wisely, the overall viewing experience can be
+            improved.</para>
+          <para>If byte array size is too small than the expected size, components may ignore the
+            configuration silently. If the byte array exceeds the expected size, components shall use
+            the initial portion and ignore the rest.</para>
+          <para>The scope of this key is throughout the encoding session until it is reconfigured during
+            running state.</para>
+          <para />
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaCodec#PARAMETER_KEY_QP_OFFSET_MAP" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.PARAMETER_KEY_QP_OFFSET_MAP</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ParameterKeyQpOffsetRects">
+      <MemberSignature Language="C#" Value="public const string ParameterKeyQpOffsetRects;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ParameterKeyQpOffsetRects" />
+      <MemberSignature Language="DocId" Value="F:Android.Media.MediaCodec.ParameterKeyQpOffsetRects" />
+      <MemberSignature Language="F#" Value="val mutable ParameterKeyQpOffsetRects : string" Usage="Android.Media.MediaCodec.ParameterKeyQpOffsetRects" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_RECTS", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_RECTS", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Set the region of interest as QpOffset-Rects on the next queued input frame.</summary>
+        <remarks>
+          <para>Set the region of interest as QpOffset-Rects on the next queued input frame.</para>
+          <para>The associated value is a String in the format "Top1,Left1-Bottom1,Right1=Offset1;Top2,
+            Left2-Bottom2,Right2=Offset2;...". Co-ordinates (Top, Left), (Top, Right), (Bottom, Left)
+            and (Bottom, Right) form the vertices of bounding box of region of interest in pixels.
+            Pixel (0, 0) points to the top-left corner of the frame. Offset is the suggested
+            quantization parameter (QP) offset of the blocks in the bounding box. The bounding box
+            will get stretched outwards to align to LCU boundaries during encoding. The Qp Offset is
+            integral and shall be in the range [-128, 127]. The QP of target block will be calculated
+            as frameQP + offsetQP. If the result exceeds minQP or maxQP configured then the value will
+            be clamped. Negative offset results in blocks encoded at lower QP than frame QP and
+            positive offsets will result in blocks encoded at higher QP than frame QP. If the areas of
+            negative QP and positive QP are chosen wisely, the overall viewing experience can be
+            improved.</para>
+          <para>If Roi rect is not valid that is bounding box width is &lt; 0 or bounding box height is &lt; 0,
+            components may ignore the configuration silently. If Roi rect extends outside frame
+            boundaries, then rect shall be clamped to the frame boundaries.</para>
+          <para>The scope of this key is throughout the encoding session until it is reconfigured during
+            running state.</para>
+          <para>The maximum number of contours (rectangles) that can be specified for a given input frame
+            is device specific. Implementations will drop/ignore the rectangles that are beyond their
+            supported limit. Hence it is preferable to place the rects in descending order of
+            importance. Transitively, if the bounding boxes overlap, then the most preferred
+            rectangle's qp offset (earlier rectangle qp offset) will be used to quantize the block.</para>
+          <para />
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaCodec#PARAMETER_KEY_QP_OFFSET_RECTS" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.PARAMETER_KEY_QP_OFFSET_RECTS</code>.</a>
             </format>
           </para>
           <para>
@@ -4030,6 +4305,73 @@
          <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='M:Android Media MediaCodec Configure(Android Media MediaFormat,Android Views Surface,Android Views Surface,Android Views Surface)';scope=Xamarin" title="M:Android.Media.MediaCodec.Configure(Android.Media.MediaFormat,Android.Views.Surface,Android.Views.Surface,Android.Views.Surface)">M:Android.Media.MediaCodec.Configure(Android.Media.MediaFormat,Android.Views.Surface,Android.Views.Surface,Android.Views.Surface)</a></format></exception>
       </Docs>
     </Member>
+    <Member MemberName="QueueInputBuffers">
+      <MemberSignature Language="C#" Value="public void QueueInputBuffers (int index, Java.Util.ArrayDeque bufferInfos);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void QueueInputBuffers(int32 index, class Java.Util.ArrayDeque bufferInfos) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaCodec.QueueInputBuffers(System.Int32,Java.Util.ArrayDeque)" />
+      <MemberSignature Language="F#" Value="member this.QueueInputBuffers : int * Java.Util.ArrayDeque -&gt; unit" Usage="mediaCodec.QueueInputBuffers (index, bufferInfos)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("queueInputBuffers", "(ILjava/util/ArrayDeque;)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("queueInputBuffers", "(ILjava/util/ArrayDeque;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="bufferInfos" Type="Java.Util.ArrayDeque" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index of a client-owned input buffer previously returned
+                         in a call to <c>#dequeueInputBuffer</c>.</param>
+        <param name="bufferInfos">ArrayDeque of <c>MediaCodec.BufferInfo</c> that describes the
+                               contents in the buffer. The ArrayDeque and the BufferInfo objects provided
+                               can be recycled by the caller for re-use.</param>
+        <summary>Submit multiple access units to the codec along with multiple
+            <c>MediaCodec.BufferInfo</c> describing the contents of the buffer.</summary>
+        <remarks>
+          <para>Submit multiple access units to the codec along with multiple
+            <c>MediaCodec.BufferInfo</c> describing the contents of the buffer. This method
+            is supported only in asynchronous mode. While this method can be used for all codecs,
+            it is meant for buffer batching, which is only supported by codecs that advertise
+            FEATURE_MultipleFrames. Other codecs will not output large output buffers via
+            onOutputBuffersAvailable, and instead will output single-access-unit output via
+            onOutputBufferAvailable.</para>
+          <para>Output buffer size can be configured using the following MediaFormat keys.
+            <c>MediaFormat#KEY_BUFFER_BATCH_MAX_OUTPUT_SIZE</c> and
+            <c>MediaFormat#KEY_BUFFER_BATCH_THRESHOLD_OUTPUT_SIZE</c>.
+            Details for each access unit present in the buffer should be described using
+            <c>MediaCodec.BufferInfo</c>. Access units must be laid out contiguously (without any gaps)
+            and in order. Multiple access units in the output if present, will be available in
+            <c>Callback#onOutputBuffersAvailable</c> or <c>Callback#onOutputBufferAvailable</c>
+            in case of single-access-unit output or when output does not contain any buffers,
+            such as flags.</para>
+          <para>All other details for populating <c>MediaCodec.BufferInfo</c> is the same as described in
+            <c>#queueInputBuffer</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaCodec#queueInputBuffers(int,%20java.util.ArrayDeque%3Candroid.media.MediaCodec.BufferInfo%3E)" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.queueInputBuffers(int, java.util.ArrayDeque&lt;android.media.MediaCodec.BufferInfo&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="QueueSecureInputBuffer">
       <MemberSignature Language="C#" Value="public void QueueSecureInputBuffer (int index, int offset, Android.Media.MediaCodec.CryptoInfo info, long presentationTimeUs, Android.Media.MediaCodecBufferFlags flags);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void QueueSecureInputBuffer(int32 index, int32 offset, class Android.Media.MediaCodec/CryptoInfo info, int64 presentationTimeUs, valuetype Android.Media.MediaCodecBufferFlags flags) cil managed" />
@@ -4097,6 +4439,63 @@
               An error code associated with the exception helps identify the
               reason for the failure.
 </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="QueueSecureInputBuffers">
+      <MemberSignature Language="C#" Value="public void QueueSecureInputBuffers (int index, Java.Util.ArrayDeque bufferInfos, Java.Util.ArrayDeque cryptoInfos);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void QueueSecureInputBuffers(int32 index, class Java.Util.ArrayDeque bufferInfos, class Java.Util.ArrayDeque cryptoInfos) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaCodec.QueueSecureInputBuffers(System.Int32,Java.Util.ArrayDeque,Java.Util.ArrayDeque)" />
+      <MemberSignature Language="F#" Value="member this.QueueSecureInputBuffers : int * Java.Util.ArrayDeque * Java.Util.ArrayDeque -&gt; unit" Usage="mediaCodec.QueueSecureInputBuffers (index, bufferInfos, cryptoInfos)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("queueSecureInputBuffers", "(ILjava/util/ArrayDeque;Ljava/util/ArrayDeque;)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("queueSecureInputBuffers", "(ILjava/util/ArrayDeque;Ljava/util/ArrayDeque;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="bufferInfos" Type="Java.Util.ArrayDeque" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="cryptoInfos" Type="Java.Util.ArrayDeque" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index of a client-owned input buffer previously returned
+                         in a call to <c>#dequeueInputBuffer</c>.</param>
+        <param name="bufferInfos">ArrayDeque of <c>MediaCodec.BufferInfo</c> that describes the
+                               contents in the buffer. The ArrayDeque and the BufferInfo objects provided
+                               can be recycled by the caller for re-use.</param>
+        <param name="cryptoInfos">ArrayDeque of <c>MediaCodec.CryptoInfo</c> objects to facilitate the
+                               decryption of the contents. The ArrayDeque and the CryptoInfo objects
+                               provided can be reused immediately after the call returns. These objects
+                               should correspond to bufferInfo objects to ensure correct decryption.</param>
+        <summary>Similar to <c>#queueInputBuffers queueInputBuffers</c> but submits multiple access units
+            in a buffer that is potentially encrypted.</summary>
+        <remarks>
+          <para>Similar to <c>#queueInputBuffers queueInputBuffers</c> but submits multiple access units
+            in a buffer that is potentially encrypted.
+            &lt;strong&gt;Check out further notes at <c>#queueInputBuffers queueInputBuffers</c>.&lt;/strong&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaCodec#queueSecureInputBuffers(int,%20java.util.ArrayDeque%3Candroid.media.MediaCodec.BufferInfo%3E,%20java.util.ArrayDeque%3Candroid.media.MediaCodec.CryptoInfo%3E)" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.queueSecureInputBuffers(int, java.util.ArrayDeque&lt;android.media.MediaCodec.BufferInfo&gt;, java.util.ArrayDeque&lt;android.media.MediaCodec.CryptoInfo&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Release">

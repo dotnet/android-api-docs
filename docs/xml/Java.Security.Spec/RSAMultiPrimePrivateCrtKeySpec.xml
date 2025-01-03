@@ -16,14 +16,21 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/security/spec/RSAMultiPrimePrivateCrtKeySpec", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/security/spec/RSAMultiPrimePrivateCrtKeySpec", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>This class specifies an RSA multi-prime private key, as defined in the
-            PKCS#1 v2.</summary>
+            <see href="https://tools.ietf.org/rfc/rfc8017.txt">PKCS#1 v2.2</see> standard
+            using the Chinese Remainder Theorem (CRT) information values
+            for efficiency.</summary>
     <remarks>
       <para>This class specifies an RSA multi-prime private key, as defined in the
-            PKCS#1 v2.1, using the Chinese Remainder Theorem (CRT) information
-            values for efficiency.</para>
+            <see href="https://tools.ietf.org/rfc/rfc8017.txt">PKCS#1 v2.2</see> standard
+            using the Chinese Remainder Theorem (CRT) information values
+            for efficiency.</para>
       <para>Added in 1.4.</para>
       <para>
         <format type="text/html">
@@ -87,29 +94,31 @@
         <Parameter Name="primeExponentP" Type="Java.Math.BigInteger" />
         <Parameter Name="primeExponentQ" Type="Java.Math.BigInteger" />
         <Parameter Name="crtCoefficient" Type="Java.Math.BigInteger" />
-        <Parameter Name="otherPrimeInfo" Type="Java.Security.Spec.RSAOtherPrimeInfo[]" />
+        <Parameter Name="otherPrimeInfo" Type="Java.Security.Spec.RSAOtherPrimeInfo[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="modulus">the modulus n.</param>
-        <param name="publicExponent">the public exponent e.</param>
-        <param name="privateExponent">the private exponent d.</param>
-        <param name="primeP">the prime factor p of n.</param>
-        <param name="primeQ">the prime factor q of n.</param>
-        <param name="primeExponentP">this is d mod (p-1).</param>
-        <param name="primeExponentQ">this is d mod (q-1).</param>
+        <param name="modulus">the modulus n</param>
+        <param name="publicExponent">the public exponent e</param>
+        <param name="privateExponent">the private exponent d</param>
+        <param name="primeP">the prime factor p of n</param>
+        <param name="primeQ">the prime factor q of n</param>
+        <param name="primeExponentP">this is d mod (p-1)</param>
+        <param name="primeExponentQ">this is d mod (q-1)</param>
         <param name="crtCoefficient">the Chinese Remainder Theorem
-            coefficient q-1 mod p.</param>
+                                   coefficient q-1 mod p</param>
         <param name="otherPrimeInfo">triplets of the rest of primes, null can be
-            specified if there are only two prime factors (p and q).</param>
-        <summary>Creates a new <c>RSAMultiPrimePrivateCrtKeySpec</c>
-            given the modulus, publicExponent, privateExponent,
-            primeP, primeQ, primeExponentP, primeExponentQ,
-            crtCoefficient, and otherPrimeInfo as defined in PKCS#1 v2.</summary>
+                                   specified if there are only two prime factors
+                                   (p and q)</param>
+        <summary>Creates a new <c>RSAMultiPrimePrivateCrtKeySpec</c>.</summary>
         <remarks>
-          <para>Creates a new <c>RSAMultiPrimePrivateCrtKeySpec</c>
-            given the modulus, publicExponent, privateExponent,
-            primeP, primeQ, primeExponentP, primeExponentQ,
-            crtCoefficient, and otherPrimeInfo as defined in PKCS#1 v2.1.</para>
+          <para>Creates a new <c>RSAMultiPrimePrivateCrtKeySpec</c>.</para>
           <para>Note that the contents of <c>otherPrimeInfo</c>
             are copied to protect against subsequent modification when
             constructing this object.</para>
@@ -127,6 +136,81 @@
         <since version="Added in API level 1" />
         <exception cref="T:Java.Lang.IllegalArgumentException">if <c>otherPrimeInfo</c> is not null but empty.
 </exception>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public RSAMultiPrimePrivateCrtKeySpec (Java.Math.BigInteger? modulus, Java.Math.BigInteger? publicExponent, Java.Math.BigInteger? privateExponent, Java.Math.BigInteger? primeP, Java.Math.BigInteger? primeQ, Java.Math.BigInteger? primeExponentP, Java.Math.BigInteger? primeExponentQ, Java.Math.BigInteger? crtCoefficient, Java.Security.Spec.RSAOtherPrimeInfo[]? otherPrimeInfo, Java.Security.Spec.IAlgorithmParameterSpec? keyParams);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Java.Math.BigInteger modulus, class Java.Math.BigInteger publicExponent, class Java.Math.BigInteger privateExponent, class Java.Math.BigInteger primeP, class Java.Math.BigInteger primeQ, class Java.Math.BigInteger primeExponentP, class Java.Math.BigInteger primeExponentQ, class Java.Math.BigInteger crtCoefficient, class Java.Security.Spec.RSAOtherPrimeInfo[] otherPrimeInfo, class Java.Security.Spec.IAlgorithmParameterSpec keyParams) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.Spec.RSAMultiPrimePrivateCrtKeySpec.#ctor(Java.Math.BigInteger,Java.Math.BigInteger,Java.Math.BigInteger,Java.Math.BigInteger,Java.Math.BigInteger,Java.Math.BigInteger,Java.Math.BigInteger,Java.Math.BigInteger,Java.Security.Spec.RSAOtherPrimeInfo[],Java.Security.Spec.IAlgorithmParameterSpec)" />
+      <MemberSignature Language="F#" Value="new Java.Security.Spec.RSAMultiPrimePrivateCrtKeySpec : Java.Math.BigInteger * Java.Math.BigInteger * Java.Math.BigInteger * Java.Math.BigInteger * Java.Math.BigInteger * Java.Math.BigInteger * Java.Math.BigInteger * Java.Math.BigInteger * Java.Security.Spec.RSAOtherPrimeInfo[] * Java.Security.Spec.IAlgorithmParameterSpec -&gt; Java.Security.Spec.RSAMultiPrimePrivateCrtKeySpec" Usage="new Java.Security.Spec.RSAMultiPrimePrivateCrtKeySpec (modulus, publicExponent, privateExponent, primeP, primeQ, primeExponentP, primeExponentQ, crtCoefficient, otherPrimeInfo, keyParams)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;[Ljava/security/spec/RSAOtherPrimeInfo;Ljava/security/spec/AlgorithmParameterSpec;)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;Ljava/math/BigInteger;[Ljava/security/spec/RSAOtherPrimeInfo;Ljava/security/spec/AlgorithmParameterSpec;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="modulus" Type="Java.Math.BigInteger" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="publicExponent" Type="Java.Math.BigInteger" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="privateExponent" Type="Java.Math.BigInteger" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="primeP" Type="Java.Math.BigInteger" Index="3" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="primeQ" Type="Java.Math.BigInteger" Index="4" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="primeExponentP" Type="Java.Math.BigInteger" Index="5" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="primeExponentQ" Type="Java.Math.BigInteger" Index="6" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="crtCoefficient" Type="Java.Math.BigInteger" Index="7" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="otherPrimeInfo" Type="Java.Security.Spec.RSAOtherPrimeInfo[]" Index="8" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="keyParams" Type="Java.Security.Spec.IAlgorithmParameterSpec" Index="9" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="modulus">the modulus n</param>
+        <param name="publicExponent">the public exponent e</param>
+        <param name="privateExponent">the private exponent d</param>
+        <param name="primeP">the prime factor p of n</param>
+        <param name="primeQ">the prime factor q of n</param>
+        <param name="primeExponentP">this is d mod (p-1)</param>
+        <param name="primeExponentQ">this is d mod (q-1)</param>
+        <param name="crtCoefficient">the Chinese Remainder Theorem coefficient
+                                    q-1 mod p</param>
+        <param name="otherPrimeInfo">triplets of the rest of primes, null can be
+                                    specified if there are only two prime factors
+                                    (p and q)</param>
+        <param name="keyParams">the parameters associated with key</param>
+        <summary>Creates a new <c>RSAMultiPrimePrivateCrtKeySpec</c> with additional
+            key parameters.</summary>
+        <remarks>
+          <para>Creates a new <c>RSAMultiPrimePrivateCrtKeySpec</c> with additional
+            key parameters.</para>
+          <para>Note that the contents of <c>otherPrimeInfo</c>
+            are copied to protect against subsequent modification when
+            constructing this object.</para>
+          <para>Added in 11.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/RSAMultiPrimePrivateCrtKeySpec#RSAMultiPrimePrivateCrtKeySpec(java.math.BigInteger,%20java.math.BigInteger,%20java.math.BigInteger,%20java.math.BigInteger,%20java.math.BigInteger,%20java.math.BigInteger,%20java.math.BigInteger,%20java.math.BigInteger,%20java.security.spec.RSAOtherPrimeInfo[],%20java.security.spec.AlgorithmParameterSpec)" title="Reference documentation">Java documentation for <code>java.security.spec.RSAMultiPrimePrivateCrtKeySpec.RSAMultiPrimePrivateCrtKeySpec(java.math.BigInteger, java.math.BigInteger, java.math.BigInteger, java.math.BigInteger, java.math.BigInteger, java.math.BigInteger, java.math.BigInteger, java.math.BigInteger, java.security.spec.RSAOtherPrimeInfo[], java.security.spec.AlgorithmParameterSpec)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CrtCoefficient">
@@ -185,13 +269,19 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Security.Spec.RSAOtherPrimeInfo[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
         <summary>Returns a copy of the otherPrimeInfo or null if there are
             only two prime factors (p and q).</summary>
-        <returns>the otherPrimeInfo. Returns a new array each
-            time this method is called.</returns>
+        <returns>the otherPrimeInfo. Returns a new array each time this method
+                    is called.</returns>
         <remarks>
           <para>Returns a copy of the otherPrimeInfo or null if there are
             only two prime factors (p and q).</para>
@@ -227,6 +317,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -479,6 +573,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

@@ -16,10 +16,22 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/TrafficStats", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/TrafficStats", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="8">
     <summary>Class that provides network traffic statistics.</summary>
     <remarks>
+      <para>Class that provides network traffic statistics. These statistics include
+            bytes transmitted and received and network packets transmitted and received,
+            over all interfaces, over the mobile interface, and on a per-UID basis.</para>
+      <para>These statistics may not be available on all platforms. If the statistics are
+            not supported by this device, <c>#UNSUPPORTED</c> will be returned.</para>
+      <para>Note that the statistics returned by this class reset and start from zero
+            after every reboot. To access more robust historical network statistics data,
+            use <c>NetworkStatsManager</c> instead.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/net/TrafficStats" title="Reference documentation">Java documentation for <code>android.net.TrafficStats</code>.</a>
@@ -106,6 +118,8 @@
         <summary>Clear any active tag set to account <c>Socket</c> traffic originating
             from the current thread.</summary>
         <remarks>
+          <para>Clear any active tag set to account <c>Socket</c> traffic originating
+            from the current thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#clearThreadStatsTag()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.clearThreadStatsTag()</code>.</a>
@@ -149,6 +163,8 @@
         <summary>Clear any active UID set to account <c>Socket</c> traffic originating
             from the current thread.</summary>
         <remarks>
+          <para>Clear any active UID set to account <c>Socket</c> traffic originating
+            from the current thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#clearThreadStatsUid()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.clearThreadStatsUid()</code>.</a>
@@ -195,6 +211,13 @@
         <returns>the current tag for the calling thread, which can be used to
                     restore any existing values after a nested operation is finished</returns>
         <remarks>
+          <para>Set active tag to use when accounting <c>Socket</c> traffic originating
+            from the current thread. Only one active tag per thread is supported.</para>
+          <para>Changes only take effect during subsequent calls to
+            <c>#tagSocket(Socket)</c>.</para>
+          <para>Tags between <c>0xFFFFFF00</c> and <c>0xFFFFFFFF</c> are reserved and
+            used internally by system services like <c>DownloadManager</c> when
+            performing traffic on behalf of an application.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getAndSetThreadStatsTag(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getAndSetThreadStatsTag(int)</code>.</a>
@@ -240,6 +263,16 @@
             was created.</summary>
         <returns>The number of received bytes.</returns>
         <remarks>
+          <para>Return the number of bytes received on the specified interface since the interface
+            was created. Statistics are measured at the network layer, so both TCP
+            and UDP usage are included.
+            
+            Note that the returned values are partial statistics that do not count data from several
+            sources and do not apply several adjustments that are necessary for correctness, such
+            as adjusting for VPN apps, IPv6-in-IPv4 translation, etc. These values can be used to
+            determine whether traffic is being transferred on the specific interface but are not a
+            substitute for the more accurate statistics provided by the <c>NetworkStatsManager</c>
+            APIs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getRxBytes(java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getRxBytes(java.lang.String)</code>.</a>
@@ -285,6 +318,16 @@
             created.</summary>
         <returns>The number of received packets.</returns>
         <remarks>
+          <para>Return the number of packets received on the specified interface since the interface was
+            created. Statistics are measured at the network layer, so both TCP
+            and UDP usage are included.
+            
+            Note that the returned values are partial statistics that do not count data from several
+            sources and do not apply several adjustments that are necessary for correctness, such
+            as adjusting for VPN apps, IPv6-in-IPv4 translation, etc. These values can be used to
+            determine whether traffic is being transferred on the specific interface but are not a
+            substitute for the more accurate statistics provided by the <c>NetworkStatsManager</c>
+            APIs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getRxPackets(java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getRxPackets(java.lang.String)</code>.</a>
@@ -330,6 +373,16 @@
             was created.</summary>
         <returns>The number of transmitted bytes.</returns>
         <remarks>
+          <para>Return the number of bytes transmitted on the specified interface since the interface
+            was created. Statistics are measured at the network layer, so both TCP and
+            UDP usage are included.
+            
+            Note that the returned values are partial statistics that do not count data from several
+            sources and do not apply several adjustments that are necessary for correctness, such
+            as adjusting for VPN apps, IPv6-in-IPv4 translation, etc. These values can be used to
+            determine whether traffic is being transferred on the specific interface but are not a
+            substitute for the more accurate statistics provided by the <c>NetworkStatsManager</c>
+            APIs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getTxBytes(java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getTxBytes(java.lang.String)</code>.</a>
@@ -375,6 +428,16 @@
             was created.</summary>
         <returns>The number of transmitted packets.</returns>
         <remarks>
+          <para>Return the number of packets transmitted on the specified interface since the interface
+            was created. Statistics are measured at the network layer, so both TCP and
+            UDP usage are included.
+            
+            Note that the returned values are partial statistics that do not count data from several
+            sources and do not apply several adjustments that are necessary for correctness, such
+            as adjusting for VPN apps, IPv6-in-IPv4 translation, etc. These values can be used to
+            determine whether traffic is being transferred on the specific interface but are not a
+            substitute for the more accurate statistics provided by the <c>NetworkStatsManager</c>
+            APIs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getTxPackets(java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getTxPackets(java.lang.String)</code>.</a>
@@ -415,6 +478,17 @@
         <summary>Return number of bytes received by the given UID since device boot.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Return number of bytes received by the given UID since device boot.
+            Counts packets across all network interfaces, and always increases
+            monotonically since device boot. Statistics are measured at the network
+            layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may return
+            <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
+          <para>Starting in <c>android.os.Build.VERSION_CODES#N</c> this will only
+            report traffic statistics for the calling UID. It will return
+            <c>#UNSUPPORTED</c> for all other UIDs for privacy reasons. To access
+            historical network statistics belonging to other UIDs, use
+            <c>NetworkStatsManager</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidRxBytes(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidRxBytes(int)</code>.</a>
@@ -458,6 +532,17 @@
         <summary>Return number of packets received by the given UID since device boot.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Return number of packets received by the given UID since device boot.
+            Counts packets across all network interfaces, and always increases
+            monotonically since device boot. Statistics are measured at the network
+            layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may return
+            <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
+          <para>Starting in <c>android.os.Build.VERSION_CODES#N</c> this will only
+            report traffic statistics for the calling UID. It will return
+            <c>#UNSUPPORTED</c> for all other UIDs for privacy reasons. To access
+            historical network statistics belonging to other UIDs, use
+            <c>NetworkStatsManager</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidRxPackets(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidRxPackets(int)</code>.</a>
@@ -502,10 +587,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidTcpRxBytes(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidTcpRxBytes(int)</code>.</a>
@@ -549,10 +636,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidTcpRxSegments(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidTcpRxSegments(int)</code>.</a>
@@ -596,10 +685,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidTcpTxBytes(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidTcpTxBytes(int)</code>.</a>
@@ -643,10 +734,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidTcpTxSegments(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidTcpTxSegments(int)</code>.</a>
@@ -689,6 +782,17 @@
         <summary>Return number of bytes transmitted by the given UID since device boot.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Return number of bytes transmitted by the given UID since device boot.
+            Counts packets across all network interfaces, and always increases
+            monotonically since device boot. Statistics are measured at the network
+            layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
+          <para>Starting in <c>android.os.Build.VERSION_CODES#N</c> this will only
+            report traffic statistics for the calling UID. It will return
+            <c>#UNSUPPORTED</c> for all other UIDs for privacy reasons. To access
+            historical network statistics belonging to other UIDs, use
+            <c>NetworkStatsManager</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidTxBytes(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidTxBytes(int)</code>.</a>
@@ -732,6 +836,17 @@
         <summary>Return number of packets transmitted by the given UID since device boot.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Return number of packets transmitted by the given UID since device boot.
+            Counts packets across all network interfaces, and always increases
+            monotonically since device boot. Statistics are measured at the network
+            layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may return
+            <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
+          <para>Starting in <c>android.os.Build.VERSION_CODES#N</c> this will only
+            report traffic statistics for the calling UID. It will return
+            <c>#UNSUPPORTED</c> for all other UIDs for privacy reasons. To access
+            historical network statistics belonging to other UIDs, use
+            <c>NetworkStatsManager</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidTxPackets(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidTxPackets(int)</code>.</a>
@@ -776,10 +891,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidUdpRxBytes(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidUdpRxBytes(int)</code>.</a>
@@ -823,10 +940,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidUdpRxPackets(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidUdpRxPackets(int)</code>.</a>
@@ -870,10 +989,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidUdpTxBytes(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidUdpTxBytes(int)</code>.</a>
@@ -917,10 +1038,12 @@
       </Parameters>
       <Docs>
         <param name="uid">To be added.</param>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Starting in <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+                        transport layer statistics are no longer available, and will
+                        always return <c>#UNSUPPORTED</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getUidUdpTxPackets(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getUidUdpTxPackets(int)</code>.</a>
@@ -963,6 +1086,9 @@
         <summary>Increment count of network operations performed under the accounting tag
             currently active on the calling thread.</summary>
         <remarks>
+          <para>Increment count of network operations performed under the accounting tag
+            currently active on the calling thread. This can be used to derive
+            bytes-per-operation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#incrementOperationCount(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.incrementOperationCount(int)</code>.</a>
@@ -1006,6 +1132,8 @@
         <summary>Increment count of network operations performed under the given
             accounting tag.</summary>
         <remarks>
+          <para>Increment count of network operations performed under the given
+            accounting tag. This can be used to derive bytes-per-operation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#incrementOperationCount(int,%20int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.incrementOperationCount(int, int)</code>.</a>
@@ -1074,6 +1202,12 @@
         <summary>Return number of bytes received across mobile networks since device boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of bytes received across mobile networks since device boot.
+            Counts packets across all mobile network interfaces, and always increases
+            monotonically since device boot. Statistics are measured at the network
+            layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getMobileRxBytes()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getMobileRxBytes()</code>.</a>
@@ -1112,6 +1246,12 @@
             boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of packets received across mobile networks since device
+            boot. Counts packets across all mobile network interfaces, and always
+            increases monotonically since device boot. Statistics are measured at the
+            network layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getMobileRxPackets()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getMobileRxPackets()</code>.</a>
@@ -1150,6 +1290,12 @@
             boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of bytes transmitted across mobile networks since device
+            boot. Counts packets across all mobile network interfaces, and always
+            increases monotonically since device boot. Statistics are measured at the
+            network layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getMobileTxBytes()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getMobileTxBytes()</code>.</a>
@@ -1188,6 +1334,12 @@
             boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of packets transmitted across mobile networks since device
+            boot. Counts packets across all mobile network interfaces, and always
+            increases monotonically since device boot. Statistics are measured at the
+            network layer, so they include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getMobileTxPackets()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getMobileTxPackets()</code>.</a>
@@ -1233,6 +1385,11 @@
         <summary>Tag the given <c>DatagramSocket</c> with any statistics parameters
             active for the current thread.</summary>
         <remarks>
+          <para>Tag the given <c>DatagramSocket</c> with any statistics parameters
+            active for the current thread. Subsequent calls always replace any
+            existing parameters. When finished, call
+            <c>#untagDatagramSocket(DatagramSocket)</c> to remove statistics
+            parameters.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#tagDatagramSocket(java.net.DatagramSocket)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.tagDatagramSocket(java.net.DatagramSocket)</code>.</a>
@@ -1277,6 +1434,11 @@
         <summary>Tag the given <c>FileDescriptor</c> socket with any statistics
             parameters active for the current thread.</summary>
         <remarks>
+          <para>Tag the given <c>FileDescriptor</c> socket with any statistics
+            parameters active for the current thread. Subsequent calls always replace
+            any existing parameters. When finished, call
+            <c>#untagFileDescriptor(FileDescriptor)</c> to remove statistics
+            parameters.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#tagFileDescriptor(java.io.FileDescriptor)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.tagFileDescriptor(java.io.FileDescriptor)</code>.</a>
@@ -1317,6 +1479,10 @@
         <summary>Tag the given <c>Socket</c> with any statistics parameters active for
             the current thread.</summary>
         <remarks>
+          <para>Tag the given <c>Socket</c> with any statistics parameters active for
+            the current thread. Subsequent calls always replace any existing
+            parameters. When finished, call <c>#untagSocket(Socket)</c> to remove
+            statistics parameters.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#tagSocket(java.net.Socket)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.tagSocket(java.net.Socket)</code>.</a>
@@ -1363,12 +1529,22 @@
         <value>To be added.</value>
         <remarks>
           <para>Property getter documentation:</para>
+          <para>Get the active tag used when accounting <c>Socket</c> traffic originating
+            from the current thread. Only one active tag per thread is supported.
+            <c>#tagSocket(Socket)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getThreadStatsTag()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getThreadStatsTag()</code>.</a>
             </format>
           </para>
           <para>Property setter documentation:</para>
+          <para>Set active tag to use when accounting <c>Socket</c> traffic originating
+            from the current thread. Only one active tag per thread is supported.</para>
+          <para>Changes only take effect during subsequent calls to
+            <c>#tagSocket(Socket)</c>.</para>
+          <para>Tags between <c>0xFFFFFF00</c> and <c>0xFFFFFFFF</c> are reserved and
+            used internally by system services like <c>DownloadManager</c> when
+            performing traffic on behalf of an application.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#setThreadStatsTag(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.setThreadStatsTag(int)</code>.</a>
@@ -1423,12 +1599,26 @@
         <value>To be added.</value>
         <remarks>
           <para>Property getter documentation:</para>
+          <para>Get the active UID used when accounting <c>Socket</c> traffic originating
+            from the current thread. Only one active tag per thread is supported.
+            <c>#tagSocket(Socket)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getThreadStatsUid()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getThreadStatsUid()</code>.</a>
             </format>
           </para>
           <para>Property setter documentation:</para>
+          <para>Set specific UID to use when accounting <c>Socket</c> traffic
+            originating from the current thread. Designed for use when performing an
+            operation on behalf of another application, or when another application
+            is performing operations on your behalf.</para>
+          <para>Any app can &lt;em&gt;accept&lt;/em&gt; blame for traffic performed on a socket
+            originally created by another app by calling this method with the
+            <c>android.system.Os#getuid()</c> value. However, only apps holding the
+            <c>android.Manifest.permission#UPDATE_DEVICE_STATS</c> permission may
+            &lt;em&gt;assign&lt;/em&gt; blame to another UIDs.</para>
+          <para>Changes only take effect during subsequent calls to
+            <c>#tagSocket(Socket)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#setThreadStatsUid(int)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.setThreadStatsUid(int)</code>.</a>
@@ -1527,6 +1717,12 @@
         <summary>Return number of bytes received since device boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of bytes received since device boot. Counts packets across
+            all network interfaces, and always increases monotonically since device
+            boot. Statistics are measured at the network layer, so they include both
+            TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getTotalRxBytes()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getTotalRxBytes()</code>.</a>
@@ -1564,6 +1760,12 @@
         <summary>Return number of packets received since device boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of packets received since device boot. Counts packets
+            across all network interfaces, and always increases monotonically since
+            device boot. Statistics are measured at the network layer, so they
+            include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getTotalRxPackets()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getTotalRxPackets()</code>.</a>
@@ -1601,6 +1803,12 @@
         <summary>Return number of bytes transmitted since device boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of bytes transmitted since device boot. Counts packets
+            across all network interfaces, and always increases monotonically since
+            device boot. Statistics are measured at the network layer, so they
+            include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getTotalTxBytes()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getTotalTxBytes()</code>.</a>
@@ -1638,6 +1846,12 @@
         <summary>Return number of packets transmitted since device boot.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Return number of packets transmitted since device boot. Counts packets
+            across all network interfaces, and always increases monotonically since
+            device boot. Statistics are measured at the network layer, so they
+            include both TCP and UDP usage.</para>
+          <para>Before <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>, this may
+            return <c>#UNSUPPORTED</c> on devices where statistics aren't available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#getTotalTxPackets()" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.getTotalTxPackets()</code>.</a>
@@ -1675,6 +1889,7 @@
       <Docs>
         <summary>The return value to indicate that the device does not support the statistic.</summary>
         <remarks>
+          <para>The return value to indicate that the device does not support the statistic.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#UNSUPPORTED" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.UNSUPPORTED</code>.</a>
@@ -1719,6 +1934,7 @@
         <param name="socket">To be added.</param>
         <summary>Remove any statistics parameters from the given <c>DatagramSocket</c>.</summary>
         <remarks>
+          <para>Remove any statistics parameters from the given <c>DatagramSocket</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#untagDatagramSocket(java.net.DatagramSocket)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.untagDatagramSocket(java.net.DatagramSocket)</code>.</a>
@@ -1763,6 +1979,8 @@
         <summary>Remove any statistics parameters from the given <c>FileDescriptor</c>
             socket.</summary>
         <remarks>
+          <para>Remove any statistics parameters from the given <c>FileDescriptor</c>
+            socket.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#untagFileDescriptor(java.io.FileDescriptor)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.untagFileDescriptor(java.io.FileDescriptor)</code>.</a>
@@ -1802,6 +2020,14 @@
         <param name="socket">To be added.</param>
         <summary>Remove any statistics parameters from the given <c>Socket</c>.</summary>
         <remarks>
+          <para>Remove any statistics parameters from the given <c>Socket</c>.</para>
+          <para>In Android 8.1 (API level 27) and lower, a socket is automatically
+            untagged when it's sent to another process using binder IPC with a
+            <c>ParcelFileDescriptor</c> container. In Android 9.0 (API level 28)
+            and higher, the socket tag is kept when the socket is sent to another
+            process using binder IPC. You can mimic the previous behavior by
+            calling <c>untagSocket()</c> before sending the socket to another
+            process.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/TrafficStats#untagSocket(java.net.Socket)" title="Reference documentation">Java documentation for <code>android.net.TrafficStats.untagSocket(java.net.Socket)</code>.</a>

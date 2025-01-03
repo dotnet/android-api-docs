@@ -16,10 +16,27 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/ConnectivityManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/ConnectivityManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>Stub ConnectivityManager for layoutlib</summary>
+    <summary>Class that answers queries about the state of network connectivity.</summary>
     <remarks>
+      <para>Class that answers queries about the state of network connectivity. It also
+            notifies applications when network connectivity changes.</para>
+      <para>The primary responsibilities of this class are to:
+            &lt;ol&gt;
+            &lt;li&gt;Monitor network connections (Wi-Fi, GPRS, UMTS, etc.)&lt;/li&gt;
+            &lt;li&gt;Send broadcast intents when network connectivity changes&lt;/li&gt;
+            &lt;li&gt;Attempt to "fail over" to another network when connectivity to a network
+            is lost&lt;/li&gt;
+            &lt;li&gt;Provide an API that allows applications to query the coarse-grained or fine-grained
+            state of the available networks&lt;/li&gt;
+            &lt;li&gt;Provide an API that allows applications to request and select networks for their data
+            traffic&lt;/li&gt;
+            &lt;/ol&gt;</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/net/ConnectivityManager" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager</code>.</a>
@@ -82,9 +99,32 @@
       </ReturnValue>
       <Docs>
         <summary>Broadcast Action: The setting for background data usage has changed
- values.</summary>
+            values.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Broadcast Action: The setting for background data usage has changed
+            values. Use <c>#getBackgroundDataSetting()</c> to get the current value.</para>
+          <para>If an application uses the network in the background, it should listen
+            for this broadcast and stop using the background data if the value is
+            <c>false</c>.</para>
+          <para />
+          <para>This member is deprecated. As of <c>VERSION_CODES#ICE_CREAM_SANDWICH</c>, availability
+                        of background data depends on several combined factors, and
+                        this broadcast is no longer sent. Instead, when background
+                        data is unavailable, <c>#getActiveNetworkInfo()</c> will now
+                        appear disconnected. During first boot after a platform
+                        upgrade, this broadcast will be sent once if
+                        <c>#getBackgroundDataSetting()</c> was <c>false</c> before
+                        the upgrade.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#ACTION_BACKGROUND_DATA_SETTING_CHANGED" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
       </Docs>
@@ -113,9 +153,43 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The device has connected to a network that has presented a captive
+            portal, which is blocking Internet connectivity.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The device has connected to a network that has presented a captive
+            portal, which is blocking Internet connectivity. The user was presented
+            with a notification that network sign in is required,
+            and the user invoked the notification's action indicating they
+            desire to sign in to the network. Apps handling this activity should
+            facilitate signing in to the network. This action includes a
+            <c>Network</c> typed extra called <c>#EXTRA_NETWORK</c> that represents
+            the network presenting the captive portal; all communication with the
+            captive portal must be done using this <c>Network</c> object.
+            &lt;p/&gt;
+            This activity includes a <c>CaptivePortal</c> extra named
+            <c>#EXTRA_CAPTIVE_PORTAL</c> that can be used to indicate different
+            outcomes of the captive portal sign in to the system:
+            &lt;ul&gt;
+            &lt;li&gt; When the app handling this action believes the user has signed in to
+            the network and the captive portal has been dismissed, the app should
+            call <c>CaptivePortal#reportCaptivePortalDismissed</c> so the system can
+            reevaluate the network. If reevaluation finds the network no longer
+            subject to a captive portal, the network may become the default active
+            data network.&lt;/li&gt;
+            &lt;li&gt; When the app handling this action believes the user explicitly wants
+            to ignore the captive portal and the network, the app should call
+            <c>CaptivePortal#ignoreNetwork</c>. &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#ACTION_CAPTIVE_PORTAL_SIGN_IN" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.ACTION_CAPTIVE_PORTAL_SIGN_IN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -143,9 +217,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>A change in the background metered network activity restriction has occurred.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>A change in the background metered network activity restriction has occurred.</para>
+          <para>Applications should call <c>#getRestrictBackgroundStatus()</c> to check if the restriction
+            applies to them.</para>
+          <para>This is only sent to registered receivers, not manifest receivers.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#ACTION_RESTRICT_BACKGROUND_CHANGED" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -160,6 +247,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
@@ -177,10 +268,27 @@
         <ReturnType>Android.Net.Network</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a <c>Network</c> object corresponding to the currently active
+            default data network.</summary>
+        <value>a <c>Network</c> object for the current default network or
+                   <c>null</c> if no default network is currently active or if
+                   the default network is blocked for the caller</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>Network</c> object corresponding to the currently active
+            default data network.  In the event that the current active default data
+            network disconnects, the returned <c>Network</c> object will no longer
+            be usable.  This will return <c>null</c> when there is no default
+            network, or when the default network is blocked.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getActiveNetwork()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getActiveNetwork()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -195,6 +303,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android29.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android29.0")&gt;]</AttributeName>
@@ -213,9 +325,29 @@
       </ReturnValue>
       <Docs>
         <summary>Returns details about the currently active default data network.</summary>
-        <value>To be added.</value>
+        <value>a <c>NetworkInfo</c> object for the current default network
+                   or <c>null</c> if no default network is currently active</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns details about the currently active default data network. When
+            connected, this network is the default route for outgoing connections.
+            You should always check <c>NetworkInfo#isConnected()</c> before initiating
+            network traffic. This may return <c>null</c> when there is no default
+            network.
+            Note that if the default network is a VPN, this method will return the
+            NetworkInfo for one of its underlying networks instead, or null if the
+            VPN agent did not specify any. Apps interested in learning about VPNs
+            should use <c>#getNetworkInfo(android.net.Network)</c> instead.</para>
+          <para>This member is deprecated. See <c>NetworkInfo</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getActiveNetworkInfo()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getActiveNetworkInfo()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -277,9 +409,29 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the value of the setting for background data usage.</summary>
-        <value>To be added.</value>
+        <value>Whether background data usage is allowed.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the value of the setting for background data usage. If false,
+            applications should not use the network if the application is not in the
+            foreground. Developers should respect this setting, and check the value
+            of this before performing any background data operations.</para>
+          <para>All applications that have background services that use the network
+            should listen to <c>#ACTION_BACKGROUND_DATA_SETTING_CHANGED</c>.</para>
+          <para />
+          <para>This member is deprecated. As of <c>VERSION_CODES#ICE_CREAM_SANDWICH</c>, availability of
+            background data depends on several combined factors, and this method will
+            always return <c>true</c>. Instead, when background data is unavailable,
+            <c>#getActiveNetworkInfo()</c> will now appear disconnected.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getBackgroundDataSetting()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getBackgroundDataSetting()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
       </Docs>
@@ -311,11 +463,34 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="network">The <c>Network</c> to bind the current process to, or <c>null</c> to clear
+                           the current binding.</param>
+        <summary>Binds the current process to <c>network</c>.</summary>
+        <returns>
+          <c>true</c> on success, <c>false</c> if the <c>Network</c> is no longer valid.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Binds the current process to <c>network</c>.  All Sockets created in the future
+            (and not explicitly bound via a bound SocketFactory from
+            <c>Network#getSocketFactory() Network.getSocketFactory()</c>) will be bound to
+            <c>network</c>.  All host name resolutions will be limited to <c>network</c> as well.
+            Note that if <c>network</c> ever disconnects, all Sockets created in this way will cease to
+            work and all host name resolutions will fail.  This is by design so an application doesn't
+            accidentally use Sockets it thinks are still bound to a particular <c>Network</c>.
+            To clear binding pass <c>null</c> for <c>network</c>.  Using individually bound
+            Sockets created by Network.getSocketFactory().createSocket() and
+            performing network-specific host name resolutions via
+            <c>Network#getAllByName Network.getAllByName</c> is preferred to calling
+            <c>bindProcessToNetwork</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#bindProcessToNetwork(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.bindProcessToNetwork(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -331,6 +506,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
         </Attribute>
@@ -343,10 +522,23 @@
         <ReturnType>Android.Net.Network</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the <c>Network</c> currently bound to this process via
+            <c>#bindProcessToNetwork</c>, or <c>null</c> if no <c>Network</c> is explicitly bound.</summary>
+        <value>
+          <c>Network</c> to which this process is bound, or <c>null</c>.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the <c>Network</c> currently bound to this process via
+            <c>#bindProcessToNetwork</c>, or <c>null</c> if no <c>Network</c> is explicitly bound.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getBoundNetworkForProcess()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getBoundNetworkForProcess()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -376,7 +568,53 @@
       <Docs>
         <summary>A change in network connectivity has occurred.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>A change in network connectivity has occurred. A default connection has either
+            been established or lost. The NetworkInfo for the affected network is
+            sent as an extra; it should be consulted to see what kind of
+            connectivity event occurred.
+            &lt;p/&gt;
+            Apps targeting Android 7.0 (API level 24) and higher do not receive this
+            broadcast if they declare the broadcast receiver in their manifest. Apps
+            will still receive broadcasts if they register their
+            <c>android.content.BroadcastReceiver</c> with
+            <c>android.content.Context#registerReceiver Context.registerReceiver()</c>
+            and that context is still valid.
+            &lt;p/&gt;
+            If this is a connection that was the result of failing over from a
+            disconnected network, then the FAILOVER_CONNECTION boolean extra is
+            set to true.
+            &lt;p/&gt;
+            For a loss of connectivity, if the connectivity manager is attempting
+            to connect (or has already connected) to another network, the
+            NetworkInfo for the new network is also passed as an extra. This lets
+            any receivers of the broadcast know that they should not necessarily
+            tell the user that no data traffic will be possible. Instead, the
+            receiver should expect another broadcast soon, indicating either that
+            the failover attempt succeeded (and so there is still overall data
+            connectivity), or that the failover attempt failed, meaning that all
+            connectivity has been lost.
+            &lt;p/&gt;
+            For a disconnect event, the boolean extra EXTRA_NO_CONNECTIVITY
+            is set to <c>true</c> if there are no connected networks at all.
+            &lt;p /&gt;
+            Note that this broadcast is deprecated and generally tries to implement backwards
+            compatibility with older versions of Android. As such, it may not reflect new
+            capabilities of the system, like multiple networks being connected at the same
+            time, the details of newer technology, or changes in tethering state.</para>
+          <para>This member is deprecated. apps should use the more versatile <c>#requestNetwork</c>,
+                        <c>#registerNetworkCallback</c> or <c>#registerDefaultNetworkCallback</c>
+                        functions instead for faster and more detailed updates about the network
+                        changes they care about.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#CONNECTIVITY_ACTION" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.CONNECTIVITY_ACTION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -470,9 +708,26 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>If you want to set the default network preference,you can directly
- change the networkAttributes array in framework's config.xml.</summary>
+            change the networkAttributes array in framework's config.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>If you want to set the default network preference,you can directly
+            change the networkAttributes array in framework's config.xml.</para>
+          <para>This member is deprecated. Since we support so many more networks now, the single
+                        network default network preference can't really express
+                        the hierarchy.  Instead, the default is defined by the
+                        networkAttributes in config.xml.  You can determine
+                        the current value by calling <c>#getNetworkPreference()</c>
+                        from an App.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#DEFAULT_NETWORK_PREFERENCE" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.DEFAULT_NETWORK_PREFERENCE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -489,6 +744,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
         </Attribute>
@@ -501,10 +760,24 @@
         <ReturnType>Android.Net.ProxyInfo</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the current default HTTP proxy settings.</summary>
+        <value>the <c>ProxyInfo</c> for the current HTTP proxy, or <c>null</c> if no
+                   HTTP proxy is active.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the current default HTTP proxy settings.  If a global proxy is set it will be returned,
+            otherwise if this process is bound to a <c>Network</c> using
+            <c>#bindProcessToNetwork</c> then that <c>Network</c>'s proxy is returned, otherwise
+            the default network's proxy is returned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getDefaultProxy()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getDefaultProxy()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -532,9 +805,25 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The lookup key for a <c>CaptivePortal</c> object included with the
+            <c>#ACTION_CAPTIVE_PORTAL_SIGN_IN</c> intent.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a <c>CaptivePortal</c> object included with the
+            <c>#ACTION_CAPTIVE_PORTAL_SIGN_IN</c> intent.  The <c>CaptivePortal</c>
+            object can be used to either indicate to the system that the captive
+            portal has been dismissed or that the user does not want to pursue
+            signing in to captive portal.  Retrieve it with
+            <c>android.content.Intent#getParcelableExtra(String)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_CAPTIVE_PORTAL" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_CAPTIVE_PORTAL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -562,9 +851,19 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Key for passing a URL to the captive portal login activity.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Key for passing a URL to the captive portal login activity.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_CAPTIVE_PORTAL_URL" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_CAPTIVE_PORTAL_URL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -593,9 +892,24 @@
       </ReturnValue>
       <Docs>
         <summary>The lookup key for a string that provides optionally supplied
- extra information about the network state.</summary>
+            extra information about the network state.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a string that provides optionally supplied
+            extra information about the network state. The information
+            may be passed up from the lower networking layers, and its
+            meaning may be specific to a particular network type. Retrieve
+            it with <c>android.content.Intent#getStringExtra(String)</c>.</para>
+          <para>This member is deprecated. See <c>NetworkInfo#getExtraInfo()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_EXTRA_INFO" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_EXTRA_INFO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -625,10 +939,24 @@
       </ReturnValue>
       <Docs>
         <summary>The lookup key for a boolean that indicates whether a connect event
- is for a network to which the connectivity manager was failing over
- following a disconnect on another network.</summary>
+            is for a network to which the connectivity manager was failing over
+            following a disconnect on another network.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a boolean that indicates whether a connect event
+            is for a network to which the connectivity manager was failing over
+            following a disconnect on another network.
+            Retrieve it with <c>android.content.Intent#getBooleanExtra(String,boolean)</c>.</para>
+          <para>This member is deprecated. See <c>NetworkInfo</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_IS_FAILOVER" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_IS_FAILOVER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -657,9 +985,24 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The lookup key for a <c>Network</c> object included with the intent after
+            successfully finding a network for the applications request.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a <c>Network</c> object included with the intent after
+            successfully finding a network for the applications request.  Retrieve it with
+            <c>android.content.Intent#getParcelableExtra(String)</c>.</para>
+          <para>Note that if you intend to invoke <c>Network#openConnection(java.net.URL)</c>
+            then you must get a ConnectivityManager instance before doing so.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_NETWORK" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_NETWORK</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -687,9 +1030,24 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The lookup key for a <see cref="T:Android.Net.NetworkInfo" /> object.</summary>
+        <summary>The lookup key for a <c>NetworkInfo</c> object.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a <c>NetworkInfo</c> object. Retrieve with
+            <c>android.content.Intent#getParcelableExtra(String)</c>.</para>
+          <para>This member is deprecated. The <c>NetworkInfo</c> object is deprecated, as many of its properties
+                        can't accurately represent modern network characteristics.
+                        Please obtain information about networks from the <c>NetworkCapabilities</c>
+                        or <c>LinkProperties</c> objects instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_NETWORK_INFO" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_NETWORK_INFO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
         <altmember cref="F:Android.Net.ConnectivityManager.ExtraNetworkType" />
@@ -719,9 +1077,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The lookup key for a <c>NetworkRequest</c> object included with the intent after
+            successfully finding a network for the applications request.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a <c>NetworkRequest</c> object included with the intent after
+            successfully finding a network for the applications request.  Retrieve it with
+            <c>android.content.Intent#getParcelableExtra(String)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_NETWORK_REQUEST" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_NETWORK_REQUEST</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -749,9 +1120,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Network type which triggered a <see cref="F:Android.Net.ConnectivityManager.ConnectivityAction" /> broadcast.</summary>
+        <summary>Network type which triggered a <c>#CONNECTIVITY_ACTION</c> broadcast.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Network type which triggered a <c>#CONNECTIVITY_ACTION</c> broadcast.</para>
+          <para>This member is deprecated. The network type is not rich enough to represent the characteristics
+                        of modern networks. Please use <c>NetworkCapabilities</c> instead,
+                        in particular the transports.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_NETWORK_TYPE" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_NETWORK_TYPE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 17" />
         <altmember cref="M:Android.Content.Intent.GetIntExtra(System.String, System.Int32)" />
@@ -778,9 +1162,21 @@
       </ReturnValue>
       <Docs>
         <summary>The lookup key for a boolean that indicates whether there is a
- complete lack of connectivity, i.e., no network is available.</summary>
+            complete lack of connectivity, i.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a boolean that indicates whether there is a
+            complete lack of connectivity, i.e., no network is available.
+            Retrieve it with <c>android.content.Intent#getBooleanExtra(String,boolean)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_NO_CONNECTIVITY" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -809,9 +1205,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The lookup key for a <see cref="T:Android.Net.NetworkInfo" /> object.</summary>
+        <summary>The lookup key for a <c>NetworkInfo</c> object.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a <c>NetworkInfo</c> object. This is supplied when
+            there is another network that it may be possible to connect to. Retrieve with
+            <c>android.content.Intent#getParcelableExtra(String)</c>.</para>
+          <para>This member is deprecated. See <c>NetworkInfo</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_OTHER_NETWORK_INFO" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_OTHER_NETWORK_INFO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -837,9 +1246,22 @@
       </ReturnValue>
       <Docs>
         <summary>The lookup key for a string that indicates why an attempt to connect
- to a network failed.</summary>
+            to a network failed.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The lookup key for a string that indicates why an attempt to connect
+            to a network failed. The string has no particular structure. It is
+            intended to be used in notifications presented to users. Retrieve
+            it with <c>android.content.Intent#getStringExtra(String)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#EXTRA_REASON" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.EXTRA_REASON</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -856,6 +1278,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Android.Net.ConnectivityManager</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
@@ -898,11 +1326,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Returns connection status information about all network
- types supported by the device.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns connection status information about all network types supported by the device.</summary>
+        <returns>an array of <c>NetworkInfo</c> objects.  Check each
+            <c>NetworkInfo#getType</c> for which type each applies.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns connection status information about all network types supported by the device.</para>
+          <para>This member is deprecated. This method does not support multiple connected networks
+                        of the same type. Use <c>#getAllNetworks</c> and
+                        <c>#getNetworkInfo(android.net.Network)</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getAllNetworkInfo()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getAllNetworkInfo()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -936,11 +1377,26 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Returns an array of all <see cref="T:Android.Net.Network" /> currently tracked by the
- framework.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns an array of all <c>Network</c> currently tracked by the framework.</summary>
+        <returns>an array of <c>Network</c> objects.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns an array of all <c>Network</c> currently tracked by the framework.</para>
+          <para>This member is deprecated. This method does not provide any notification of network state changes, forcing
+                        apps to call it repeatedly. This is inefficient and prone to race conditions.
+                        Apps should use methods such as
+                        <c>#registerNetworkCallback(NetworkRequest, NetworkCallback)</c> instead.
+                        Apps that desire to obtain information about networks that do not apply to them
+                        can use <c>NetworkRequest.Builder#setIncludeOtherUidNetworks</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getAllNetworks()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getAllNetworks()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -973,12 +1429,26 @@
         <Parameter Name="remote" Type="Java.Net.InetSocketAddress" />
       </Parameters>
       <Docs>
-        <param name="protocol">To be added.</param>
-        <param name="local">To be added.</param>
-        <param name="remote">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="protocol">The protocol of the connection. Only <c>IPPROTO_TCP</c> and <c>IPPROTO_UDP</c> currently supported.</param>
+        <param name="local">The local <c>InetSocketAddress</c> of a connection.</param>
+        <param name="remote">The remote <c>InetSocketAddress</c> of a connection.</param>
+        <summary>Returns the <c>uid</c> of the owner of a network connection.</summary>
+        <returns>
+          <c>uid</c> if the connection is found and the app has permission to observe it
+                (e.g., if it is associated with the calling VPN app's VpnService tunnel) or <c>android.os.Process#INVALID_UID</c> if the connection is not found.</returns>
+        <remarks>
+          <para>Returns the <c>uid</c> of the owner of a network connection.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getConnectionOwnerUid(int,%20java.net.InetSocketAddress,%20java.net.InetSocketAddress)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getConnectionOwnerUid(int, java.net.InetSocketAddress, java.net.InetSocketAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetLinkProperties">
@@ -1008,11 +1478,22 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">The <see cref="T:Android.Net.Network" /> object identifying the network in question.</param>
-        <summary>Get the <see cref="T:Android.Net.LinkProperties" /> for the given <see cref="T:Android.Net.Network" />.</summary>
-        <returns>To be added.</returns>
+        <param name="network">The <c>Network</c> object identifying the network in question.</param>
+        <summary>Get the <c>LinkProperties</c> for the given <c>Network</c>.</summary>
+        <returns>The <c>LinkProperties</c> for the network, or <c>null</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the <c>LinkProperties</c> for the given <c>Network</c>.  This
+            will return <c>null</c> if the network is unknown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getLinkProperties(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getLinkProperties(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1043,7 +1524,7 @@
       <ReturnValue>
         <ReturnType>Android.Net.MultipathPreference</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -1053,11 +1534,28 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="network">The network on which the application desires to use multipath data.
+                           If <c>null</c>, this method will return a preference that will generally
+                           apply to metered networks.</param>
+        <summary>Provides a hint to the calling application on whether it is desirable to use the
+            multinetwork APIs (e.</summary>
+        <returns>a bitwise OR of zero or more of the <c>MULTIPATH_PREFERENCE_*</c> constants.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Provides a hint to the calling application on whether it is desirable to use the
+            multinetwork APIs (e.g., <c>Network#openConnection</c>, <c>Network#bindSocket</c>, etc.)
+            for multipath data transfer on this network when it is not the system default network.
+            Applications desiring to use multipath network protocols should call this method before
+            each such operation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getMultipathPreference(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getMultipathPreference(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1088,11 +1586,30 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">The <see cref="T:Android.Net.Network" /> object identifying the network in question.</param>
-        <summary>Get the <see cref="T:Android.Net.NetworkCapabilities" /> for the given <see cref="T:Android.Net.Network" />.</summary>
-        <returns>To be added.</returns>
+        <param name="network">The <c>Network</c> object identifying the network in question.</param>
+        <summary>Get the <c>NetworkCapabilities</c> for the given <c>Network</c>, or null.</summary>
+        <returns>The <c>NetworkCapabilities</c> for the network, or <c>null</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the <c>NetworkCapabilities</c> for the given <c>Network</c>, or null.
+            
+            This will remove any location sensitive data in the returned <c>NetworkCapabilities</c>.
+            Some <c>TransportInfo</c> instances like <c>android.net.wifi.WifiInfo</c> contain location
+            sensitive information. To retrieve this location sensitive information (subject to
+            the caller's location permissions), use a <c>NetworkCallback</c> with the
+            <c>NetworkCallback#FLAG_INCLUDE_LOCATION_INFO</c> flag instead.
+            
+            This method returns <c>null</c> if the network is unknown or if the |network| argument
+            is null.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getNetworkCapabilities(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getNetworkCapabilities(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1135,12 +1652,30 @@
       </Parameters>
       <Docs>
         <param name="networkType">integer specifying which networkType in
-        which you're interested.</param>
-        <summary tool="true">Returns connection status information about a particular
- network type.</summary>
-        <returns>To be added.</returns>
+                   which you're interested.</param>
+        <summary>Returns connection status information about a particular network type.</summary>
+        <returns>a <c>NetworkInfo</c> object for the requested
+                   network type or <c>null</c> if the type is not
+                   supported by the device. If <c>networkType</c> is
+                   TYPE_VPN and a VPN is active for the calling app,
+                   then this method will try to return one of the
+                   underlying networks for the VPN or null if the
+                   VPN agent didn't specify any.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns connection status information about a particular network type.</para>
+          <para>This member is deprecated. This method does not support multiple connected networks
+                        of the same type. Use <c>#getAllNetworks</c> and
+                        <c>#getNetworkInfo(android.net.Network)</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getNetworkInfo(int)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getNetworkInfo(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -1177,13 +1712,25 @@
       </Parameters>
       <Docs>
         <param name="network">
-          <see cref="T:Android.Net.Network" /> specifying which network
-        in which you're interested.</param>
-        <summary>Returns connection status information about a particular
- Network.</summary>
-        <returns>To be added.</returns>
+          <c>Network</c> specifying which network
+                   in which you're interested.</param>
+        <summary>Returns connection status information about a particular Network.</summary>
+        <returns>a <c>NetworkInfo</c> object for the requested
+                   network or <c>null</c> if the <c>Network</c>
+                   is not valid.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns connection status information about a particular Network.</para>
+          <para>This member is deprecated. See <c>NetworkInfo</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getNetworkInfo(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getNetworkInfo(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1212,9 +1759,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>The network watchlist is a list of domains and IP addresses that are associated with
+            potentially harmful apps.</summary>
+        <returns>Hash of network watchlist config file. Null if config does not exist.</returns>
+        <remarks>
+          <para>The network watchlist is a list of domains and IP addresses that are associated with
+            potentially harmful apps. This method returns the SHA-256 of the watchlist config file
+            currently used by the system for validation purposes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getNetworkWatchlistConfigHash()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getNetworkWatchlistConfigHash()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsActiveNetworkMetered">
@@ -1242,9 +1804,26 @@
       </ReturnValue>
       <Docs>
         <summary>Returns if the currently active data network is metered.</summary>
-        <value>To be added.</value>
+        <value>
+          <c>true</c> if large transfers should be avoided, otherwise
+                   <c>false</c>.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns if the currently active data network is metered. A network is
+            classified as metered when the user is sensitive to heavy data usage on
+            that connection due to monetary costs, data limitations or
+            battery/performance issues. You should check this before doing large
+            data transfers, and warn the user or delay the operation until another
+            network is available.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#isActiveNetworkMetered()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.isActiveNetworkMetered()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -1272,7 +1851,22 @@
         <summary>Return whether the data network is currently active.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return whether the data network is currently active.  An active network means that
+            it is currently in a high power state for performing data transmission.  On some
+            types of networks, it may be expensive to move and stay in such a state, so it is
+            more power efficient to batch network traffic together when the radio is already in
+            this state.  This method tells you whether right now is currently a good time to
+            initiate network traffic, as the network is already active.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#isDefaultNetworkActive()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.isDefaultNetworkActive()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1312,9 +1906,22 @@
       <Docs>
         <param name="networkType">the type to be tested</param>
         <summary>Tests if a given integer represents a valid network type.</summary>
-        <returns>To be added.</returns>
+        <returns>
+          <c>true</c> if the type is valid, else <c>false</c></returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tests if a given integer represents a valid network type.</para>
+          <para>This member is deprecated. All APIs accepting a network type are deprecated. There should be no need to
+                        validate a network type.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#isNetworkTypeValid(int)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.isNetworkTypeValid(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -1382,10 +1989,40 @@
         <ReturnType>Android.Net.ConnectivityType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Retrieves the current preferred network type.</summary>
-        <value>To be added.</value>
+        <param name="preference">the network type to prefer over all others.  It is
+                    unspecified what happens to the old preferred network in the
+                    overall ordering.</param>
+        <summary>Retrieves the current preferred network type. -or- Specifies the preferred network type.</summary>
+        <value>an integer representing the preferred network type</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Retrieves the current preferred network type.</para>
+          <para>This member is deprecated. Functionality has been removed as it no longer makes sense,
+                        with many more than two networks - we'd need an array to express
+                        preference.  Instead we use dynamic network properties of
+                        the networks to describe their precedence.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getNetworkPreference()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getNetworkPreference()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Specifies the preferred network type.  When the device has more
+            than one type available the preferred network type will be used.</para>
+          <para>This member is deprecated. Functionality has been removed as it no longer makes sense,
+                        with many more than two networks - we'd need an array to express
+                        preference.  Instead we use dynamic network properties of
+                        the networks to describe their precedence.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#setNetworkPreference(int)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.setNetworkPreference(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -1402,6 +2039,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android23.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android23.0")&gt;]</AttributeName>
         </Attribute>
@@ -1414,11 +2055,26 @@
         <ReturnType>Android.Net.Network</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the <see cref="T:Android.Net.Network" /> currently bound to this process via
- <see cref="M:Android.Net.ConnectivityManager.BindProcessToNetwork(Android.Net.Network)" />, or <c>null</c> if no <see cref="T:Android.Net.Network" /> is explicitly bound.</summary>
-        <value>To be added.</value>
+        <summary>Returns the <c>Network</c> currently bound to this process via
+            <c>#bindProcessToNetwork</c>, or <c>null</c> if no <c>Network</c> is explicitly bound.</summary>
+        <value>
+          <c>Network</c> to which this process is bound, or <c>null</c>.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the <c>Network</c> currently bound to this process via
+            <c>#bindProcessToNetwork</c>, or <c>null</c> if no <c>Network</c> is explicitly bound.</para>
+          <para>This member is deprecated. Using this function can lead to other functions throwing
+                        <c>IllegalStateException</c>.  Use <c>#getBoundNetworkForProcess</c> instead.
+                        <c>getBoundNetworkForProcess</c> is a direct replacement.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getProcessDefaultNetwork()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getProcessDefaultNetwork()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1568,11 +2224,51 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="operation">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="request">
+          <c>NetworkRequest</c> describing this request.</param>
+        <param name="operation">Action to perform when the network is available (corresponds
+                             to the <c>NetworkCallback#onAvailable</c> call.  Typically
+                             comes from <c>PendingIntent#getBroadcast</c>. Cannot be null.</param>
+        <summary>Registers a PendingIntent to be sent when a network is available which satisfies the given
+            <c>NetworkRequest</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Registers a PendingIntent to be sent when a network is available which satisfies the given
+            <c>NetworkRequest</c>.
+            
+            This function behaves identically to the version that takes a NetworkCallback, but instead
+            of <c>NetworkCallback</c> a <c>PendingIntent</c> is used.  This means
+            the request may outlive the calling application and get called back when a suitable
+            network is found.</para>
+          <para>The operation is an Intent broadcast that goes to a broadcast receiver that
+            you registered with <c>Context#registerReceiver</c> or through the
+            &amp;lt;receiver&amp;gt; tag in an AndroidManifest.xml file</para>
+          <para>The operation Intent is delivered with two extras, a <c>Network</c> typed
+            extra called <c>#EXTRA_NETWORK</c> and a <c>NetworkRequest</c>
+            typed extra called <c>#EXTRA_NETWORK_REQUEST</c> containing
+            the original requests parameters.</para>
+          <para>If there is already a request for this Intent registered (with the equality of
+            two Intents defined by <c>Intent#filterEquals</c>), then it will be removed and
+            replaced by this one, effectively releasing the previous <c>NetworkRequest</c>.</para>
+          <para>The request may be released normally by calling
+            <c>#unregisterNetworkCallback(android.app.PendingIntent)</c>.</para>
+          <para>To avoid performance issues due to apps leaking callbacks, the system will limit the
+            number of outstanding requests to 100 per app (identified by their UID), shared with
+            all variants of this method, of <c>#requestNetwork</c> as well as
+            <c>ConnectivityDiagnosticsManager#registerConnectivityDiagnosticsCallback</c>.
+            Requesting a network with this method will count toward this limit. If this limit is
+            exceeded, an exception will be thrown. To avoid hitting this issue and to conserve resources,
+            make sure to unregister the callbacks with <c>#unregisterNetworkCallback(PendingIntent)</c>
+            or <c>#releaseNetworkRequest(PendingIntent)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#registerNetworkCallback(android.net.NetworkRequest,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.registerNetworkCallback(android.net.NetworkRequest, android.app.PendingIntent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1685,10 +2381,26 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="operation">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="operation">A PendingIntent equal (as defined by <c>Intent#filterEquals</c>) to the
+                             PendingIntent passed to
+                             <c>#requestNetwork(NetworkRequest, android.app.PendingIntent)</c> with the
+                             corresponding NetworkRequest you'd like to remove. Cannot be null.</param>
+        <summary>Removes a request made via <c>#requestNetwork(NetworkRequest, android.app.PendingIntent)</c></summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Removes a request made via <c>#requestNetwork(NetworkRequest, android.app.PendingIntent)</c></para>
+          <para>This method has the same behavior as
+            <c>#unregisterNetworkCallback(android.app.PendingIntent)</c> with respect to
+            releasing network resources and disconnecting.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#releaseNetworkRequest(android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.releaseNetworkRequest(android.app.PendingIntent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1751,11 +2463,26 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">The <see cref="T:Android.Net.Network" /> the application was attempting to use
-                or <c>null</c> to indicate the current default network.</param>
+        <param name="network">The <c>Network</c> the application was attempting to use
+                           or <c>null</c> to indicate the current default network.</param>
         <summary>Report a problem network to the framework.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Report a problem network to the framework.  This provides a hint to the system
+            that there might be connectivity problems on this network and may cause
+            the framework to re-evaluate network connectivity and/or switch to another
+            network.</para>
+          <para>This member is deprecated. Use <c>#reportNetworkConnectivity</c> which allows reporting both
+                        working and non-working connectivity.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#reportBadNetwork(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.reportBadNetwork(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1787,11 +2514,27 @@
         <Parameter Name="hasConnectivity" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <param name="hasConnectivity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="network">The <c>Network</c> the application was attempting to use
+                           or <c>null</c> to indicate the current default network.</param>
+        <param name="hasConnectivity">
+          <c>true</c> if the application was able to successfully access the
+                                   Internet using <c>network</c> or <c>false</c> if not.</param>
+        <summary>Report to the framework whether a network has working connectivity.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Report to the framework whether a network has working connectivity.
+            This provides a hint to the system that a particular network is providing
+            working connectivity or not.  In response the framework may re-evaluate
+            the network's connectivity and might take further action thereafter.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#reportNetworkConnectivity(android.net.Network,%20boolean)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.reportNetworkConnectivity(android.net.Network, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1822,11 +2565,30 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="network">
+          <c>Network</c> specifying which network you're interested.</param>
+        <summary>Requests bandwidth update for a given <c>Network</c> and returns whether the update request
+            is accepted by ConnectivityService.</summary>
+        <returns>
+          <c>true</c> on success, <c>false</c> if the <c>Network</c> is no longer valid.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Requests bandwidth update for a given <c>Network</c> and returns whether the update request
+            is accepted by ConnectivityService. Once accepted, ConnectivityService will poll underlying
+            network connection for updated bandwidth information. The caller will be notified via
+            <c>ConnectivityManager.NetworkCallback</c> if there is an update. Notice that this
+            method assumes that the caller has previously called
+            <c>#registerNetworkCallback(NetworkRequest, NetworkCallback)</c> to listen for network
+            changes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#requestBandwidthUpdate(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.requestBandwidthUpdate(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1858,11 +2620,63 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="operation">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="request">
+          <c>NetworkRequest</c> describing this request.</param>
+        <param name="operation">Action to perform when the network is available (corresponds
+                             to the <c>NetworkCallback#onAvailable</c> call.  Typically
+                             comes from <c>PendingIntent#getBroadcast</c>. Cannot be null.</param>
+        <summary>Request a network to satisfy a set of <c>NetworkCapabilities</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Request a network to satisfy a set of <c>NetworkCapabilities</c>.
+            
+            This function behaves identically to the version that takes a NetworkCallback, but instead
+            of <c>NetworkCallback</c> a <c>PendingIntent</c> is used.  This means
+            the request may outlive the calling application and get called back when a suitable
+            network is found.</para>
+          <para>The operation is an Intent broadcast that goes to a broadcast receiver that
+            you registered with <c>Context#registerReceiver</c> or through the
+            &amp;lt;receiver&amp;gt; tag in an AndroidManifest.xml file</para>
+          <para>The operation Intent is delivered with two extras, a <c>Network</c> typed
+            extra called <c>#EXTRA_NETWORK</c> and a <c>NetworkRequest</c>
+            typed extra called <c>#EXTRA_NETWORK_REQUEST</c> containing
+            the original requests parameters.  It is important to create a new,
+            <c>NetworkCallback</c> based request before completing the processing of the
+            Intent to reserve the network or it will be released shortly after the Intent
+            is processed.</para>
+          <para>If there is already a request for this Intent registered (with the equality of
+            two Intents defined by <c>Intent#filterEquals</c>), then it will be removed and
+            replaced by this one, effectively releasing the previous <c>NetworkRequest</c>.</para>
+          <para>The request may be released normally by calling
+            <c>#releaseNetworkRequest(android.app.PendingIntent)</c>.</para>
+          <para>It is presently unsupported to request a network with either
+            <c>NetworkCapabilities#NET_CAPABILITY_VALIDATED</c> or
+            <c>NetworkCapabilities#NET_CAPABILITY_CAPTIVE_PORTAL</c>
+            as these <c>NetworkCapabilities</c> represent states that a particular
+            network may never attain, and whether a network will attain these states
+            is unknown prior to bringing up the network so the framework does not
+            know how to go about satisfying a request with these capabilities.</para>
+          <para>To avoid performance issues due to apps leaking callbacks, the system will limit the
+            number of outstanding requests to 100 per app (identified by their UID), shared with
+            all variants of this method, of <c>#registerNetworkCallback</c> as well as
+            <c>ConnectivityDiagnosticsManager#registerConnectivityDiagnosticsCallback</c>.
+            Requesting a network with this method will count toward this limit. If this limit is
+            exceeded, an exception will be thrown. To avoid hitting this issue and to conserve resources,
+            make sure to unregister the callbacks with <c>#unregisterNetworkCallback(PendingIntent)</c>
+            or <c>#releaseNetworkRequest(PendingIntent)</c>.</para>
+          <para>This method requires the caller to hold either the
+            <c>android.Manifest.permission#CHANGE_NETWORK_STATE</c> permission
+            or the ability to modify system settings as determined by
+            <c>android.provider.Settings.System#canWrite</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#requestNetwork(android.net.NetworkRequest,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.requestNetwork(android.net.NetworkRequest, android.app.PendingIntent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2056,13 +2870,35 @@
       </Parameters>
       <Docs>
         <param name="networkType">the type of the network over which traffic to the specified
- host is to be routed</param>
+            host is to be routed</param>
         <param name="hostAddress">the IP address of the host to which the route is desired</param>
         <summary>Ensure that a network route exists to deliver traffic to the specified
- host via the specified network interface.</summary>
-        <returns>To be added.</returns>
+            host via the specified network interface.</summary>
+        <returns>
+          <c>true</c> on success, <c>false</c> on failure</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Ensure that a network route exists to deliver traffic to the specified
+            host via the specified network interface. An attempt to add a route that
+            already exists is ignored, but treated as successful.</para>
+          <para>This method requires the caller to hold either the
+            <c>android.Manifest.permission#CHANGE_NETWORK_STATE</c> permission
+            or the ability to modify system settings as determined by
+            <c>android.provider.Settings.System#canWrite</c>.</para>
+          <para>This member is deprecated. Deprecated in favor of the
+                        <c>#requestNetwork(NetworkRequest, NetworkCallback)</c>,
+                        <c>#bindProcessToNetwork</c> and <c>Network#getSocketFactory</c> API.
+                        In <c>VERSION_CODES#M</c>, and above, this method is unsupported and will
+                        throw <c>UnsupportedOperationException</c> if called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#requestRouteToHost(int,%20int)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.requestRouteToHost(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -2125,10 +2961,25 @@
         <ReturnType>Android.Net.RestrictBackgroundStatus</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Determines if the calling application is subject to metered network restrictions while
+            running on background.</summary>
+        <value>
+          <c>#RESTRICT_BACKGROUND_STATUS_DISABLED</c>,
+            <c>#RESTRICT_BACKGROUND_STATUS_ENABLED</c>,
+            or <c>#RESTRICT_BACKGROUND_STATUS_WHITELISTED</c></value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Determines if the calling application is subject to metered network restrictions while
+            running on background.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#getRestrictBackgroundStatus()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.getRestrictBackgroundStatus()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2161,9 +3012,21 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Device is not restricting metered network activity while application is running on
+            background.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Device is not restricting metered network activity while application is running on
+            background.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#RESTRICT_BACKGROUND_STATUS_DISABLED" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.RESTRICT_BACKGROUND_STATUS_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2196,9 +3059,21 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Device is restricting metered network activity while application is running on background.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Device is restricting metered network activity while application is running on background.</para>
+          <para>In this state, application should not try to use the network while running on background,
+            because it would be denied.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#RESTRICT_BACKGROUND_STATUS_ENABLED" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2231,9 +3106,23 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Device is restricting metered network activity while application is running on background,
+            but application is allowed to bypass it.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Device is restricting metered network activity while application is running on background,
+            but application is allowed to bypass it.</para>
+          <para>In this state, application should take action to mitigate metered network access.
+            For example, a music streaming application should switch to a low-bandwidth bitrate.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#RESTRICT_BACKGROUND_STATUS_WHITELISTED" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.RESTRICT_BACKGROUND_STATUS_WHITELISTED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2264,12 +3153,37 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">The <see cref="T:Android.Net.Network" /> to bind the current process to, or <c>null</c> to clear
-                the current binding.</param>
+        <param name="network">The <c>Network</c> to bind the current process to, or <c>null</c> to clear
+                           the current binding.</param>
         <summary>Binds the current process to <c>network</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>
+          <c>true</c> on success, <c>false</c> if the <c>Network</c> is no longer valid.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Binds the current process to <c>network</c>.  All Sockets created in the future
+            (and not explicitly bound via a bound SocketFactory from
+            <c>Network#getSocketFactory() Network.getSocketFactory()</c>) will be bound to
+            <c>network</c>.  All host name resolutions will be limited to <c>network</c> as well.
+            Note that if <c>network</c> ever disconnects, all Sockets created in this way will cease to
+            work and all host name resolutions will fail.  This is by design so an application doesn't
+            accidentally use Sockets it thinks are still bound to a particular <c>Network</c>.
+            To clear binding pass <c>null</c> for <c>network</c>.  Using individually bound
+            Sockets created by Network.getSocketFactory().createSocket() and
+            performing network-specific host name resolutions via
+            <c>Network#getAllByName Network.getAllByName</c> is preferred to calling
+            <c>setProcessDefaultNetwork</c>.</para>
+          <para>This member is deprecated. This function can throw <c>IllegalStateException</c>.  Use
+                        <c>#bindProcessToNetwork</c> instead.  <c>bindProcessToNetwork</c>
+                        is a direct replacement.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#setProcessDefaultNetwork(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.setProcessDefaultNetwork(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2311,10 +3225,33 @@
         <param name="networkType">specifies which network the request pertains to</param>
         <param name="feature">the name of the feature to be used</param>
         <summary>Tells the underlying networking system that the caller wants to
- begin using the named feature.</summary>
-        <returns>To be added.</returns>
+            begin using the named feature.</summary>
+        <returns>an integer value representing the outcome of the request.
+            The interpretation of this value is specific to each networking
+            implementation+feature combination, except that the value <c>-1</c>
+            always indicates failure.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tells the underlying networking system that the caller wants to
+            begin using the named feature. The interpretation of <c>feature</c>
+            is completely up to each networking implementation.</para>
+          <para>This method requires the caller to hold either the
+            <c>android.Manifest.permission#CHANGE_NETWORK_STATE</c> permission
+            or the ability to modify system settings as determined by
+            <c>android.provider.Settings.System#canWrite</c>.</para>
+          <para>This member is deprecated. Deprecated in favor of the cleaner
+                        <c>#requestNetwork(NetworkRequest, NetworkCallback)</c> API.
+                        In <c>VERSION_CODES#M</c>, and above, this method is unsupported and will
+                        throw <c>UnsupportedOperationException</c> if called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#startUsingNetworkFeature(int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.startUsingNetworkFeature(int, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -2357,10 +3294,33 @@
         <param name="networkType">specifies which network the request pertains to</param>
         <param name="feature">the name of the feature that is no longer needed</param>
         <summary>Tells the underlying networking system that the caller is finished
- using the named feature.</summary>
-        <returns>To be added.</returns>
+            using the named feature.</summary>
+        <returns>an integer value representing the outcome of the request.
+            The interpretation of this value is specific to each networking
+            implementation+feature combination, except that the value <c>-1</c>
+            always indicates failure.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tells the underlying networking system that the caller is finished
+            using the named feature. The interpretation of <c>feature</c>
+            is completely up to each networking implementation.</para>
+          <para>This method requires the caller to hold either the
+            <c>android.Manifest.permission#CHANGE_NETWORK_STATE</c> permission
+            or the ability to modify system settings as determined by
+            <c>android.provider.Settings.System#canWrite</c>.</para>
+          <para>This member is deprecated. Deprecated in favor of the cleaner
+                        <c>#unregisterNetworkCallback(NetworkCallback)</c> API.
+                        In <c>VERSION_CODES#M</c>, and above, this method is unsupported and will
+                        throw <c>UnsupportedOperationException</c> if called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#stopUsingNetworkFeature(int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.stopUsingNetworkFeature(int, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -2454,10 +3414,25 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="operation">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="operation">A PendingIntent equal (as defined by <c>Intent#filterEquals</c>) to the
+                             PendingIntent passed to
+                             <c>#registerNetworkCallback(NetworkRequest, android.app.PendingIntent)</c>.
+                             Cannot be null.</param>
+        <summary>Unregisters a callback previously registered via
+            <c>#registerNetworkCallback(NetworkRequest, android.app.PendingIntent)</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Unregisters a callback previously registered via
+            <c>#registerNetworkCallback(NetworkRequest, android.app.PendingIntent)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager#unregisterNetworkCallback(android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.unregisterNetworkCallback(android.app.PendingIntent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

@@ -48,34 +48,54 @@
       <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <param name="&lt;T&gt;&lt;T&gt;">the type of the class modeled by this <c>Class</c>
             object.  For example, the type of <c>String.class</c> is <c>Class&lt;String&gt;</c>.  Use <c>Class&lt;?&gt;</c> if the class being modeled is
             unknown.</param>
-    <summary>Instances of the class <c>Class</c> represent classes and interfaces
-            in a running Java application.</summary>
+    <summary>Instances of the class <c>Class</c> represent classes and
+            interfaces in a running Java application.</summary>
     <remarks>
-      <para>Instances of the class <c>Class</c> represent classes and interfaces
-            in a running Java application. An enum type is a kind of class and an
-            annotation type is a kind of interface. Every array also
-            belongs to a class that is reflected as a <c>Class</c> object
-            that is shared by all arrays with the same element type and number
-            of dimensions.  The primitive Java types (<c>boolean</c>,
-            <c>byte</c>, <c>char</c>, <c>short</c>,
-            <c>int</c>, <c>long</c>, <c>float</c>, and
-            <c>double</c>), and the keyword <c>void</c> are also
-            represented as <c>Class</c> objects.</para>
+      <para>Instances of the class <c>Class</c> represent classes and
+            interfaces in a running Java application. An enum class and a record
+            class are kinds of class; an annotation interface is a kind of
+            interface. Every array also belongs to a class that is reflected as
+            a <c>Class</c> object that is shared by all arrays with the same
+            element type and number of dimensions.  The primitive Java types
+            (<c>boolean</c>, <c>byte</c>, <c>char</c>, <c>short</c>, <c>int</c>, <c>long</c>, <c>float</c>, and <c>double</c>), and the
+            keyword <c>void</c> are also represented as <c>Class</c> objects.</para>
       <para>
         <c>Class</c> has no public constructor. Instead a <c>Class</c>
-            object is constructed automatically by the Java Virtual Machine
-            when a class loader invokes one of the
-            <c>ClassLoader#defineClass(String,byte[], int,int) defineClass</c> methods
-            and passes the bytes of a <c>class</c> file.</para>
+            object is constructed automatically by the Java Virtual Machine when
+            a class is derived from the bytes of a <c>class</c> file through
+            the invocation of one of the following methods:
+            &lt;ul&gt;
+            &lt;li&gt; <c>ClassLoader#defineClass(String, byte[], int, int) ClassLoader::defineClass</c>&lt;/ul&gt;</para>
       <para>The methods of class <c>Class</c> expose many characteristics of a
             class or interface. Most characteristics are derived from the <c>class</c>
             file that the class loader passed to the Java Virtual Machine. A few
             characteristics are determined by the class loading environment at run time.</para>
+      <para>The following example uses a <c>Class</c> object to print the
+            class name of an object:
+            
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">void printClassName(Object obj) {
+                    System.out.println("The class of " + obj +
+                                       " is " + obj.getClass().getName());
+                }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            It is also possible to get the <c>Class</c> object for a named
+            class or interface (or for <c>void</c>) using a <i>class literal</i>.
+            For example:
+            
+            &lt;blockquote&gt;
+                <c>System.out.println("The name of class Foo is: "+Foo.class.getName());</c>&lt;/blockquote&gt;</para>
       <para>Some methods of class <c>Class</c> expose whether the declaration of
             a class or interface in Java source code was &lt;em&gt;enclosed&lt;/em&gt; within
             another declaration. Other methods describe how a class or interface
@@ -92,23 +112,6 @@
             will typically record a top-level class as the host of a nest where the
             other members are the classes and interfaces whose declarations are
             enclosed within the top-level class declaration.</para>
-      <para>The following example uses a <c>Class</c> object to print the
-            class name of an object:
-            
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">void printClassName(Object obj) {
-                    System.out.println("The class of " + obj +
-                                       " is " + obj.getClass().getName());
-                }
-            </code>
-      <para>&lt;/blockquote&gt;</para>
-      <para>It is also possible to get the <c>Class</c> object for a named
-            type (or for void) using a class literal.  See Section 15.8.2 of
-            &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.
-            For example:
-            
-            &lt;blockquote&gt;
-                <c>System.out.println("The name of class Foo is: "+Foo.class.getName());</c>&lt;/blockquote&gt;</para>
       <para>Some methods of class <c>Class</c> expose whether the declaration of
             a class or interface in Java source code was &lt;em&gt;enclosed&lt;/em&gt; within
             another declaration. Other methods describe how a class or interface
@@ -215,8 +218,8 @@
         <Parameter Name="clazz" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="&lt;U&gt;&lt;U&gt;">the type to cast this class object to</param>
-        <param name="clazz">the class of the type to cast this class object to</param>
+        <param name="&lt;U&gt;&lt;U&gt;">the type to cast this <c>Class</c> object to</param>
+        <param name="clazz">the class of the type to cast this <c>Class</c> object to</param>
         <summary>Casts this <c>Class</c> object to represent a subclass of the class
             represented by the specified class object.</summary>
         <returns>this <c>Class</c> object, cast to represent a subclass of
@@ -225,7 +228,7 @@
           <para>Casts this <c>Class</c> object to represent a subclass of the class
             represented by the specified class object.  Checks that the cast
             is valid, and throws a <c>ClassCastException</c> if it is not.  If
-            this method succeeds, it always returns a reference to this class object.</para>
+            this method succeeds, it always returns a reference to this <c>Class</c> object.</para>
           <para>This method is useful when a client needs to "narrow" the type of
             a <c>Class</c> object to pass it to an API that restricts the
             <c>Class</c> objects that it is willing to accept.  A cast would
@@ -258,6 +261,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getCanonicalName", "()Ljava/lang/String;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCanonicalName", "()Ljava/lang/String;", "")&gt;]</AttributeName>
         </Attribute>
@@ -267,15 +274,17 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the canonical name of the underlying class as
-            defined by the Java Language Specification.</summary>
+            defined by &lt;cite&gt;The Java Language Specification&lt;/cite&gt;.</summary>
         <value>the canonical name of the underlying class if it exists, and
             <c>null</c> otherwise.</value>
         <remarks>
           <para>Returns the canonical name of the underlying class as
-            defined by the Java Language Specification.  Returns null if
-            the underlying class does not have a canonical name (i.e., if
-            it is a local or anonymous class or an array whose component
-            type does not have a canonical name).</para>
+            defined by &lt;cite&gt;The Java Language Specification&lt;/cite&gt;.
+            Returns <c>null</c> if the underlying class does not have a canonical
+            name. Classes without canonical names include:
+            &lt;ul&gt;
+            &lt;li&gt;a #isLocalClass() local class&lt;li&gt;a #isAnonymousClass() anonymous class&lt;li&gt;an array whose component type does not have a canonical name&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -347,7 +356,8 @@
       <Implements>
         <InterfaceMember>T:Java.Lang.Invoke.ITypeDescriptor.IOfField</InterfaceMember>
         <InterfaceMember>F:Java.Lang.Reflect.IType._members</InterfaceMember>
-        <InterfaceMember>F:Java.Lang.Reflect.IType.cb_getTypeName</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.Reflect.IType.cb_getTypeName</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.Reflect.IType.cb_getTypeName_GetTypeName_Ljava_lang_String_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -375,6 +385,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getClassLoader", "()Ljava/lang/ClassLoader;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getClassLoader", "()Ljava/lang/ClassLoader;", "")&gt;]</AttributeName>
         </Attribute>
@@ -385,13 +399,13 @@
       <Docs>
         <summary>Returns the class loader for the class.</summary>
         <value>the class loader that loaded the class or interface
-                     represented by this object.</value>
+                     represented by this <c>Class</c> object.</value>
         <remarks>
           <para>Returns the class loader for the class.  Some implementations may use
             null to represent the bootstrap class loader. This method will return
             null in such implementations if this class was loaded by the bootstrap
             class loader.</para>
-          <para>If this object
+          <para>If this <c>Class</c> object
             represents a primitive type or void, null is returned.</para>
           <para>
             <format type="text/html">
@@ -418,6 +432,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getComponentType", "()Ljava/lang/Class;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getComponentType", "()Ljava/lang/Class;", "")&gt;]</AttributeName>
@@ -461,6 +479,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getDeclaringClass", "()Ljava/lang/Class;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDeclaringClass", "()Ljava/lang/Class;", "")&gt;]</AttributeName>
@@ -582,14 +604,6 @@
             otherwise, if this class is not a system class (i.e., it has a
             class loader) its class loader's default assertion status is returned;
             otherwise, the system class default assertion status is returned.</para>
-          <para>Few programmers will have any need for this method; it is provided
-            for the benefit of the JRE itself.  (It allows a class to determine at
-            the time that it is initialized whether assertions should be enabled.)
-            Note that this method is not guaranteed to return the actual
-            assertion status that was (or will be) associated with the specified
-            class when it was (or will be) initialized.
-            
-            Android-note: AssertionStatuses are unsupported. This method will always return false.</para>
           <para>Added in 1.4.</para>
           <para>
             <format type="text/html">
@@ -616,6 +630,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getEnclosingClass", "()Ljava/lang/Class;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getEnclosingClass", "()Ljava/lang/Class;", "")&gt;]</AttributeName>
@@ -659,6 +677,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getEnclosingConstructor", "()Ljava/lang/reflect/Constructor;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getEnclosingConstructor", "()Ljava/lang/reflect/Constructor;", "")&gt;]</AttributeName>
         </Attribute>
@@ -679,8 +701,8 @@
             the immediately enclosing constructor of the underlying
             class. Returns <c>null</c> otherwise.  In particular, this
             method returns <c>null</c> if the underlying class is a local
-            or anonymous class immediately enclosed by a type declaration,
-            instance initializer or static initializer.</para>
+            or anonymous class immediately enclosed by a class or
+            interface declaration, instance initializer or static initializer.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -708,6 +730,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getEnclosingMethod", "()Ljava/lang/reflect/Method;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getEnclosingMethod", "()Ljava/lang/reflect/Method;", "")&gt;]</AttributeName>
         </Attribute>
@@ -728,8 +754,8 @@
             <c>null</c> otherwise.
             
             In particular, this method returns <c>null</c> if the underlying
-            class is a local or anonymous class immediately enclosed by a type
-            declaration, instance initializer or static initializer.</para>
+            class is a local or anonymous class immediately enclosed by a class or
+            interface declaration, instance initializer or static initializer.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -832,12 +858,19 @@
       <Parameters>
         <Parameter Name="name" Type="System.String" />
         <Parameter Name="initialize" Type="System.Boolean" />
-        <Parameter Name="loader" Type="Java.Lang.ClassLoader" />
+        <Parameter Name="loader" Type="Java.Lang.ClassLoader">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">fully qualified name of the desired class</param>
-        <param name="initialize">if <c>true</c> the class will be initialized.
-                              See Section 12.4 of &lt;em&gt;The Java Language Specification&lt;/em&gt;.</param>
+        <param name="initialize">if <c>true</c> the class will be initialized
+                              (which implies linking). See Section {</param>
         <param name="loader">class loader from which the class must be loaded</param>
         <summary>Returns the <c>Class</c> object associated with the class or
             interface with the given string name, using the given class loader.</summary>
@@ -847,7 +880,7 @@
             interface with the given string name, using the given class loader.
             Given the fully qualified name for a class or interface (in the same
             format returned by <c>getName</c>) this method attempts to
-            locate, load, and link the class or interface.  The specified class
+            locate and load the class or interface.  The specified class
             loader is used to load the class or interface.  If the parameter
             <c>loader</c> is null, the class is loaded through the bootstrap
             class loader.  The class is initialized only if the
@@ -870,11 +903,8 @@
             &lt;blockquote&gt;
              <c>Class.forName("Foo", true, this.getClass().getClassLoader())</c>&lt;/blockquote&gt;
             
-            Note that this method throws errors related to loading, linking or
-            initializing as specified in Sections 12.2, 12.3 and 12.4 of &lt;em&gt;The
-            Java Language Specification&lt;/em&gt;.
-            Note that this method does not check whether the requested class
-            is accessible to its caller.</para>
+            Note that this method throws errors related to loading, linking
+            or initializing as specified in Sections {</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -932,6 +962,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getGenericSuperclass", "()Ljava/lang/reflect/Type;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getGenericSuperclass", "()Ljava/lang/reflect/Type;", "")&gt;]</AttributeName>
         </Attribute>
@@ -942,22 +976,22 @@
       <Docs>
         <summary>Returns the <c>Type</c> representing the direct superclass of
             the entity (class, interface, primitive type or void) represented by
-            this <c>Class</c>.</summary>
-        <value>the direct superclass of the class represented by this object</value>
+            this <c>Class</c> object.</summary>
+        <value>the direct superclass of the class represented by this <c>Class</c> object</value>
         <remarks>
           <para>Returns the <c>Type</c> representing the direct superclass of
             the entity (class, interface, primitive type or void) represented by
-            this <c>Class</c>.</para>
+            this <c>Class</c> object.</para>
           <para>If the superclass is a parameterized type, the <c>Type</c>
             object returned must accurately reflect the actual type
-            parameters used in the source code. The parameterized type
+            arguments used in the source code. The parameterized type
             representing the superclass is created if it had not been
             created before. See the declaration of <c>java.lang.reflect.ParameterizedType ParameterizedType</c> for the
             semantics of the creation process for parameterized types.  If
-            this <c>Class</c> represents either the <c>Object</c>
+            this <c>Class</c> object represents either the <c>Object</c>
             class, an interface, a primitive type, or void, then null is
-            returned.  If this object represents an array class then the
-            <c>Class</c> object representing the <c>Object</c> class is
+            returned.  If this <c>Class</c> object represents an array class
+            then the <c>Class</c> object representing the <c>Object</c> class is
             returned.</para>
           <para>Added in 1.5.</para>
           <para>
@@ -999,15 +1033,24 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="annotationClass" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
         <param name="annotationClass">To be added.</param>
-        <summary>Added in 1.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
+          <para>Note that any annotation returned by this method is a
+            declaration annotation.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -1046,9 +1089,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Added in 1.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
+          <para>Note that any annotations returned by this method are
+            declaration annotations.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -1100,9 +1146,12 @@
       </Parameters>
       <Docs>
         <param name="annotationClass">To be added.</param>
-        <summary>Added in 1.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
+          <para>Note that any annotations returned by this method are
+            declaration annotations.</para>
           <para>Added in 1.8.</para>
           <para>
             <format type="text/html">
@@ -1194,6 +1243,10 @@
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
             </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
@@ -1249,15 +1302,7 @@
             all the public constructors of the class represented by this
             <c>Class</c> object.  An array of length 0 is returned if the
             class has no public constructors, or if the class is an array class, or
-            if the class reflects a primitive type or void.
-            
-            Note that while this method returns an array of <c>Constructor&lt;T&gt;</c> objects (that is an array of constructors from
-            this class), the return type of this method is <c>Constructor&lt;?&gt;[]</c> and &lt;em&gt;not&lt;/em&gt; <c>Constructor&lt;T&gt;[]</c> as
-            might be expected.  This less informative return type is
-            necessary since after being returned from this method, the
-            array could be modified to hold <c>Constructor</c> objects for
-            different classes, which would violate the type guarantees of
-            <c>Constructor&lt;T&gt;[]</c>.</para>
+            if the class reflects a primitive type or void.</para>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -1303,16 +1348,25 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="annotationClass" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
         <param name="annotationClass">To be added.</param>
-        <summary>Added in 1.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Added in 1.8.</para>
+          <para>To be added</para>
+          <para>Note that any annotation returned by this method is a
+            declaration annotation.</para>
+          <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/Class#getDeclaredAnnotation(java.lang.Class%3CA%3E)" title="Reference documentation">Java documentation for <code>java.lang.Class.getDeclaredAnnotation(java.lang.Class&lt;A&gt;)</code>.</a>
@@ -1350,9 +1404,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Added in 1.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
+          <para>Note that any annotations returned by this method are
+            declaration annotations.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -1404,9 +1461,12 @@
       </Parameters>
       <Docs>
         <param name="annotationClass">To be added.</param>
-        <summary>Added in 1.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
+          <para>Note that any annotations returned by this method are
+            declaration annotations.</para>
           <para>Added in 1.8.</para>
           <para>
             <format type="text/html">
@@ -1497,6 +1557,10 @@
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
             </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
@@ -1557,7 +1621,8 @@
             This method returns an array of length 0 if this <c>Class</c>
             object represents an interface, a primitive type, an array class, or
             void.</para>
-          <para>See &lt;em&gt;The Java Language Specification&lt;/em&gt;, section 8.2.</para>
+          <para>See &lt;cite&gt;The Java Language Specification&lt;/cite&gt;,
+            section {</para>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -1707,6 +1772,10 @@
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
             </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
@@ -1761,14 +1830,16 @@
         <remarks>
           <para>Returns an array containing <c>Method</c> objects reflecting all the
             declared methods of the class or interface represented by this <c>Class</c> object, including public, protected, default (package)
-            access, and private methods, but excluding inherited methods.</para>
-          <para>If this <c>Class</c> object represents a type that has multiple
-            declared methods with the same name and parameter types, but different
-            return types, then the returned array has a <c>Method</c> object for
-            each such method.</para>
-          <para>If this <c>Class</c> object represents a type that has a class
-            initialization method <c>&lt;clinit&gt;</c>, then the returned array does
-            &lt;em&gt;not&lt;/em&gt; have a corresponding <c>Method</c> object.</para>
+            access, and private methods, but excluding inherited methods.
+            The declared methods may include methods &lt;em&gt;not&lt;/em&gt; in the
+            source of the class or interface, including Method#isBridge bridge methods and other Executable#isSynthetic synthetic methods added by compilers.</para>
+          <para>If this <c>Class</c> object represents a class or interface that
+            has multiple declared methods with the same name and parameter types,
+            but different return types, then the returned array has a <c>Method</c>
+            object for each such method.</para>
+          <para>If this <c>Class</c> object represents a class or interface that
+            has a class initialization method <c>&lt;clinit&gt;</c>, then the returned
+            array does &lt;em&gt;not&lt;/em&gt; have a corresponding <c>Method</c> object.</para>
           <para>If this <c>Class</c> object represents a class or interface with no
             declared methods, then the returned array has length 0.</para>
           <para>If this <c>Class</c> object represents an array type, a primitive
@@ -1809,18 +1880,24 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Object[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
         <summary>Returns the elements of this enum class or null if this
-            Class object does not represent an enum type.</summary>
+            Class object does not represent an enum class.</summary>
         <returns>an array containing the values comprising the enum class
-                represented by this Class object in the order they're
-                declared, or null if this Class object does not
-                represent an enum type</returns>
+                represented by this <c>Class</c> object in the order they're
+                declared, or null if this <c>Class</c> object does not
+                represent an enum class</returns>
         <remarks>
           <para>Returns the elements of this enum class or null if this
-            Class object does not represent an enum type.</para>
+            Class object does not represent an enum class.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -1871,7 +1948,7 @@
             object. The <c>name</c> parameter is a <c>String</c> specifying the
             simple name of the desired field.</para>
           <para>The field to be reflected is determined by the algorithm that
-            follows.  Let C be the class or interface represented by this object:
+            follows.  Let C be the class or interface represented by this <c>Class</c> object:
             
             &lt;OL&gt;
             &lt;LI&gt; If C declares a public field with the name specified, that is the
@@ -1985,33 +2062,33 @@
       <Docs>
         <summary>Returns the <c>Type</c>s representing the interfaces
             directly implemented by the class or interface represented by
-            this object.</summary>
+            this <c>Class</c> object.</summary>
         <returns>an array of interfaces directly implemented by this class</returns>
         <remarks>
           <para>Returns the <c>Type</c>s representing the interfaces
             directly implemented by the class or interface represented by
-            this object.</para>
+            this <c>Class</c> object.</para>
           <para>If a superinterface is a parameterized type, the
             <c>Type</c> object returned for it must accurately reflect
-            the actual type parameters used in the source code. The
+            the actual type arguments used in the source code. The
             parameterized type representing each superinterface is created
             if it had not been created before. See the declaration of
             <c>java.lang.reflect.ParameterizedType ParameterizedType</c>
             for the semantics of the creation process for parameterized
             types.</para>
-          <para>If this object represents a class, the return value is an array
+          <para>If this <c>Class</c> object represents a class, the return value is an array
             containing objects representing all interfaces directly implemented by
             the class.  The order of the interface objects in the array corresponds
             to the order of the interface names in the <c>implements</c> clause of
-            the declaration of the class represented by this object.</para>
-          <para>If this object represents an interface, the array contains objects
+            the declaration of the class represented by this <c>Class</c> object.</para>
+          <para>If this <c>Class</c> object represents an interface, the array contains objects
             representing all interfaces directly extended by the interface.  The
             order of the interface objects in the array corresponds to the order of
             the interface names in the <c>extends</c> clause of the declaration of
-            the interface represented by this object.</para>
-          <para>If this object represents a class or interface that implements no
+            the interface represented by this <c>Class</c> object.</para>
+          <para>If this <c>Class</c> object represents a class or interface that implements no
             interfaces, the method returns an array of length 0.</para>
-          <para>If this object represents a primitive type or void, the method
+          <para>If this <c>Class</c> object represents a primitive type or void, the method
             returns an array of length 0.</para>
           <para>If this <c>Class</c> object represents an array type, the
             interfaces <c>Cloneable</c> and <c>java.io.Serializable</c> are
@@ -2053,16 +2130,16 @@
       <Parameters />
       <Docs>
         <summary>Returns the interfaces directly implemented by the class or interface
-            represented by this object.</summary>
+            represented by this <c>Class</c> object.</summary>
         <returns>an array of interfaces directly implemented by this class</returns>
         <remarks>
           <para>Returns the interfaces directly implemented by the class or interface
-            represented by this object.</para>
-          <para>If this object represents a class, the return value is an array
+            represented by this <c>Class</c> object.</para>
+          <para>If this <c>Class</c> object represents a class, the return value is an array
             containing objects representing all interfaces directly implemented by
             the class.  The order of the interface objects in the array corresponds
             to the order of the interface names in the <c>implements</c> clause of
-            the declaration of the class represented by this object.  For example,
+            the declaration of the class represented by this <c>Class</c> object.  For example,
             given the declaration:
             &lt;blockquote&gt;
             <c>class Shimmer implements FloorWax, DessertTopping { ...</c>}&lt;/blockquote&gt;
@@ -2076,14 +2153,14 @@
             <c>s.getClass().getInterfaces()[1]</c>&lt;/blockquote&gt;
             is the <c>Class</c> object that represents interface
             <c>DessertTopping</c>.</para>
-          <para>If this object represents an interface, the array contains objects
+          <para>If this <c>Class</c> object represents an interface, the array contains objects
             representing all interfaces directly extended by the interface.  The
             order of the interface objects in the array corresponds to the order of
             the interface names in the <c>extends</c> clause of the declaration of
-            the interface represented by this object.</para>
-          <para>If this object represents a class or interface that implements no
+            the interface represented by this <c>Class</c> object.</para>
+          <para>If this <c>Class</c> object represents a class or interface that implements no
             interfaces, the method returns an array of length 0.</para>
-          <para>If this object represents a primitive type or void, the method
+          <para>If this <c>Class</c> object represents a primitive type or void, the method
             returns an array of length 0.</para>
           <para>If this <c>Class</c> object represents an array type, the
             interfaces <c>Cloneable</c> and <c>java.io.Serializable</c> are
@@ -2128,6 +2205,10 @@
             <Attribute>
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -2332,6 +2413,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Class[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -2397,6 +2484,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Reflect.RecordComponent[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -2447,6 +2540,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Net.URL</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -2461,8 +2560,9 @@
           <para>The rules for
             searching resources associated with a given class are implemented by the
             defining ClassLoader class loader of the class.  This method
-            delegates to this object's class loader. If this object was loaded by
-            the bootstrap class loader, the method delegates to <c>ClassLoader#getSystemResource</c>.</para>
+            delegates to this <c>Class</c> object's class loader.
+            If this <c>Class</c> object was loaded by the bootstrap class loader,
+            the method delegates to <c>ClassLoader#getSystemResource</c>.</para>
           <para>Before delegation, an absolute resource name is constructed from the
             given resource name using this algorithm:
             
@@ -2515,6 +2615,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.IO.Stream</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -2529,8 +2635,9 @@
           <para>The rules for
             searching resources associated with a given class are implemented by the
             defining ClassLoader class loader of the class.  This method
-            delegates to this object's class loader.  If this object was loaded by
-            the bootstrap class loader, the method delegates to <c>ClassLoader#getSystemResourceAsStream</c>.</para>
+            delegates to this <c>Class</c> object's class loader.
+            If this <c>Class</c> object was loaded by the bootstrap class loader,
+            the method delegates to <c>ClassLoader#getSystemResourceAsStream</c>.</para>
           <para>Before delegation, an absolute resource name is constructed from the
             given resource name using this algorithm:
             
@@ -2583,12 +2690,18 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Object[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
         <summary>Gets the signers of this class.</summary>
         <returns>the signers of this class, or null if there are no signers.  In
-                     particular, this method returns null if this object represents
+                     particular, this method returns null if this <c>Class</c> object represents
                      a primitive type or void.</returns>
         <remarks>
           <para>Gets the signers of this class.</para>
@@ -2724,14 +2837,14 @@
       </ReturnValue>
       <Docs>
         <summary>Returns true if this <c>Class</c> object represents an annotation
-            type.</summary>
+            interface.</summary>
         <value>
-          <c>true</c> if this class object represents an annotation
-                 type; <c>false</c> otherwise</value>
+          <c>true</c> if this <c>Class</c> object represents an annotation
+                 interface; <c>false</c> otherwise</value>
         <remarks>
           <para>Returns true if this <c>Class</c> object represents an annotation
-            type.  Note that if this method returns true, <c>#isInterface()</c>
-            would also return true, as all annotation types are also interfaces.</para>
+            interface.  Note that if this method returns true, <c>#isInterface()</c>
+            would also return true, as all annotation interfaces are also interfaces.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -2859,7 +2972,7 @@
       <Docs>
         <summary>Determines if this <c>Class</c> object represents an array class.</summary>
         <value>
-          <c>true</c> if this object represents an array class;
+          <c>true</c> if this <c>Class</c> object represents an array class;
                      <c>false</c> otherwise.</value>
         <remarks>
           <para>Determines if this <c>Class</c> object represents an array class.</para>
@@ -2907,7 +3020,7 @@
             superinterface of, the class or interface represented by the specified
             <c>Class</c> parameter.</summary>
         <returns>the <c>boolean</c> value indicating whether objects of the
-            type <c>cls</c> can be assigned to objects of this class</returns>
+                       type <c>cls</c> can be assigned to objects of this class</returns>
         <remarks>
           <para>Determines if the class or interface represented by this
             <c>Class</c> object is either the same as, or is a superclass or
@@ -2921,8 +3034,8 @@
           <para>Specifically, this method tests whether the type represented by the
             specified <c>Class</c> parameter can be converted to the type
             represented by this <c>Class</c> object via an identity conversion
-            or via a widening reference conversion. See &lt;em&gt;The Java Language
-            Specification&lt;/em&gt;, sections 5.1.1 and 5.1.4 , for details.</para>
+            or via a widening reference conversion. See &lt;cite&gt;The Java Language
+            Specification&lt;/cite&gt;, sections {</para>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -2963,7 +3076,16 @@
                 source code</value>
         <remarks>
           <para>Returns true if and only if this class was declared as an enum in the
-            source code.</para>
+            source code.
+            
+            Note that <c>java.lang.Enum</c> is not itself an enum class.
+            
+            Also note that if an enum constant is declared with a class body,
+            the class of that enum constant object is an anonymous class
+            and &lt;em&gt;not&lt;/em&gt; the class of the declaring enum class. The
+            <c>Enum#getDeclaringClass</c> method of an enum constant can
+            be used to get the class of the enum class declaring the
+            constant.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -3064,13 +3186,13 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Determines if the specified <c>Class</c> object represents an
+        <summary>Determines if this <c>Class</c> object represents an
             interface type.</summary>
         <value>
-          <c>true</c> if this object represents an interface;
+          <c>true</c> if this <c>Class</c> object represents an interface;
                      <c>false</c> otherwise.</value>
         <remarks>
-          <para>Determines if the specified <c>Class</c> object represents an
+          <para>Determines if this <c>Class</c> object represents an
             interface type.</para>
           <para>
             <format type="text/html">
@@ -3393,14 +3515,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns <c>true</c> if this class is a synthetic class;
-            returns <c>false</c> otherwise.</summary>
+        <summary>{</summary>
         <value>
-          <c>true</c> if and only if this class is a synthetic class as
-                    defined by the Java Language Specification.</value>
+          <c>true</c> if and only if this class has the synthetic modifier
+            bit set}</value>
         <remarks>
-          <para>Returns <c>true</c> if this class is a synthetic class;
-            returns <c>false</c> otherwise.</para>
+          <para>{</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -3506,16 +3626,15 @@
           <para>If the underlying class is an array class, then its
             <c>public</c>, <c>private</c> and <c>protected</c>
             modifiers are the same as those of its component type.  If this
-            <c>Class</c> represents a primitive type or void, its
+            <c>Class</c> object represents a primitive type or void, its
             <c>public</c> modifier is always <c>true</c>, and its
             <c>protected</c> and <c>private</c> modifiers are always
-            <c>false</c>. If this object represents an array class, a
+            <c>false</c>. If this <c>Class</c> object represents an array class, a
             primitive type or void, then its <c>final</c> modifier is always
             <c>true</c> and its interface modifier is always
             <c>false</c>. The values of its other modifiers are not determined
             by this specification.</para>
-          <para>The modifier encodings are defined in &lt;em&gt;The Java Virtual Machine
-            Specification&lt;/em&gt;, table 4.1.</para>
+          <para>The modifier encodings are defined in section {</para>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -3552,25 +3671,18 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the  name of the entity (class, interface, array class,
-            primitive type, or void) represented by this <c>Class</c> object,
-            as a <c>String</c>.</summary>
-        <value>the name of the class or interface
-                     represented by this object.</value>
+            primitive type, or void) represented by this <c>Class</c> object.</summary>
+        <value>the name of the class, interface, or other entity
+                     represented by this <c>Class</c> object.</value>
         <remarks>
           <para>Returns the  name of the entity (class, interface, array class,
-            primitive type, or void) represented by this <c>Class</c> object,
-            as a <c>String</c>.</para>
-          <para>If this class object represents a reference type that is not an
-            array type then the binary name of the class is returned, as specified
-            by
-            &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.</para>
-          <para>If this class object represents a primitive type or void, then the
-            name returned is a <c>String</c> equal to the Java language
-            keyword corresponding to the primitive type or void.</para>
-          <para>If this class object represents a class of arrays, then the internal
-            form of the name consists of the name of the element type preceded by
-            one or more '<c>[</c>' characters representing the depth of the array
-            nesting.  The encoding of element type names is as follows:
+            primitive type, or void) represented by this <c>Class</c> object.</para>
+          <para>If this <c>Class</c> object represents a class or interface,
+            not an array class, then:</para>
+          <para>If this <c>Class</c> object represents an array class, then
+            the result is a string consisting of one or more '<c>[</c>' characters
+            representing the depth of the array nesting, followed by the element
+            type as encoded using the following table:
             
             &lt;blockquote&gt;&lt;table class="striped"&gt;
             &lt;caption style="display:none"&gt;Element types and encodings&lt;/caption&gt;
@@ -3578,20 +3690,11 @@
             &lt;tr&gt;&lt;th scope="col"&gt; Element Type &lt;th scope="col"&gt; Encoding
             &lt;/thead&gt;
             &lt;tbody style="text-align:left"&gt;
-            &lt;tr&gt;&lt;th scope="row"&gt; boolean      &lt;td style="text-align:center"&gt; Z
-            &lt;tr&gt;&lt;th scope="row"&gt; byte         &lt;td style="text-align:center"&gt; B
-            &lt;tr&gt;&lt;th scope="row"&gt; char         &lt;td style="text-align:center"&gt; C
-            &lt;tr&gt;&lt;th scope="row"&gt; class or interface
-                                              &lt;td style="text-align:center"&gt; L<i>classname</i>;
-            &lt;tr&gt;&lt;th scope="row"&gt; double       &lt;td style="text-align:center"&gt; D
-            &lt;tr&gt;&lt;th scope="row"&gt; float        &lt;td style="text-align:center"&gt; F
-            &lt;tr&gt;&lt;th scope="row"&gt; int          &lt;td style="text-align:center"&gt; I
-            &lt;tr&gt;&lt;th scope="row"&gt; long         &lt;td style="text-align:center"&gt; J
-            &lt;tr&gt;&lt;th scope="row"&gt; short        &lt;td style="text-align:center"&gt; S
-            &lt;/tbody&gt;
+            &lt;tr&gt;&lt;th scope="row"&gt; <c>boolean</c>&lt;td style="text-align:center"&gt; <c>Z</c>&lt;tr&gt;&lt;th scope="row"&gt; <c>byte</c>&lt;td style="text-align:center"&gt; <c>B</c>&lt;tr&gt;&lt;th scope="row"&gt; <c>char</c>&lt;td style="text-align:center"&gt; <c>C</c>&lt;tr&gt;&lt;th scope="row"&gt; class or interface with binary name<i>N</i>&lt;td style="text-align:center"&gt; <c>L</c>&lt;em&gt;N&lt;/em&gt;<c>;</c>&lt;tr&gt;&lt;th scope="row"&gt; <c>double</c>&lt;td style="text-align:center"&gt; <c>D</c>&lt;tr&gt;&lt;th scope="row"&gt; <c>float</c>&lt;td style="text-align:center"&gt; <c>F</c>&lt;tr&gt;&lt;th scope="row"&gt; <c>int</c>&lt;td style="text-align:center"&gt; <c>I</c>&lt;tr&gt;&lt;th scope="row"&gt; <c>long</c>&lt;td style="text-align:center"&gt; <c>J</c>&lt;tr&gt;&lt;th scope="row"&gt; <c>short</c>&lt;td style="text-align:center"&gt; <c>S</c>&lt;/tbody&gt;
             &lt;/table&gt;&lt;/blockquote&gt;</para>
-          <para>The class or interface name <i>classname</i> is the binary name of
-            the class specified above.</para>
+          <para>If this <c>Class</c> object represents a primitive type or <c>void</c>,
+            then the result is a string with the same spelling as the Java language
+            keyword which corresponds to the primitive type or <c>void</c>.</para>
           <para>Examples:
             &lt;blockquote&gt;</para>
           <code lang="text/java">String.class.getName()
@@ -3756,7 +3859,8 @@
       <Implements>
         <InterfaceMember>T:Java.Lang.Invoke.ITypeDescriptor.IOfField</InterfaceMember>
         <InterfaceMember>F:Java.Lang.Reflect.IType._members</InterfaceMember>
-        <InterfaceMember>F:Java.Lang.Reflect.IType.cb_getTypeName</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.Reflect.IType.cb_getTypeName</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.Reflect.IType.cb_getTypeName_GetTypeName_Ljava_lang_String_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3783,6 +3887,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getPackage", "()Ljava/lang/Package;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPackage", "()Ljava/lang/Package;", "")&gt;]</AttributeName>
@@ -3879,6 +3987,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getProtectionDomain", "()Ljava/security/ProtectionDomain;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getProtectionDomain", "()Ljava/security/ProtectionDomain;", "")&gt;]</AttributeName>
         </Attribute>
@@ -3936,11 +4048,14 @@
         <value>the simple name of the underlying class</value>
         <remarks>
           <para>Returns the simple name of the underlying class as given in the
-            source code. Returns an empty string if the underlying class is
-            anonymous.</para>
-          <para>The simple name of an array is the simple name of the
+            source code. An empty string is returned if the underlying class is
+            #isAnonymousClass() anonymous.
+            A #isSynthetic() synthetic class, one not present
+            in source code, can have a non-empty name including special
+            characters, such as "<c>$</c>".</para>
+          <para>The simple name of an #isArray() array class is the simple name of the
             component type with "[]" appended.  In particular the simple
-            name of an array whose component type is anonymous is "[]".</para>
+            name of an array class whose component type is anonymous is "[]".</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -3965,7 +4080,8 @@
       <Implements>
         <InterfaceMember>T:Java.Lang.Invoke.ITypeDescriptor.IOfField</InterfaceMember>
         <InterfaceMember>F:Java.Lang.Reflect.IType._members</InterfaceMember>
-        <InterfaceMember>F:Java.Lang.Reflect.IType.cb_getTypeName</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.Reflect.IType.cb_getTypeName</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.Reflect.IType.cb_getTypeName_GetTypeName_Ljava_lang_String_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3993,6 +4109,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getSuperclass", "()Ljava/lang/Class;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSuperclass", "()Ljava/lang/Class;", "")&gt;]</AttributeName>
         </Attribute>
@@ -4004,14 +4124,14 @@
         <summary>Returns the <c>Class</c> representing the direct superclass of the
             entity (class, interface, primitive type or void) represented by
             this <c>Class</c>.</summary>
-        <value>the direct superclass of the class represented by this object</value>
+        <value>the direct superclass of the class represented by this <c>Class</c> object</value>
         <remarks>
           <para>Returns the <c>Class</c> representing the direct superclass of the
             entity (class, interface, primitive type or void) represented by
             this <c>Class</c>.  If this <c>Class</c> represents either the
             <c>Object</c> class, an interface, a primitive type, or void, then
-            null is returned.  If this object represents an array class then the
-            <c>Class</c> object representing the <c>Object</c> class is
+            null is returned.  If this <c>Class</c> object represents an array class
+            then the <c>Class</c> object representing the <c>Object</c> class is
             returned.</para>
           <para>
             <format type="text/html">
@@ -4124,10 +4244,11 @@
             
             The string is formatted as a list of type modifiers, if any,
             followed by the kind of type (empty string for primitive types
-            and <c>class</c>, <c>enum</c>, <c>interface</c>, or
-            <c>&amp;#64;</c><c>interface</c>, as appropriate), followed
+            and <c>class</c>, <c>enum</c>, <c>interface</c>,
+            <c>@interface</c>, or <c>record</c> as appropriate), followed
             by the type's name, followed by an angle-bracketed
-            comma-separated list of the type's type parameters, if any.
+            comma-separated list of the type's type parameters, if any,
+            including informative bounds on the type parameters, if any.
             
             A space is used to separate modifiers from one another and to
             separate any modifiers from the kind of type. The modifiers
@@ -4184,10 +4305,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return an informative string for the name of this type.</summary>
-        <value>an informative string for the name of this type</value>
+        <summary>Return an informative string for the name of this class or interface.</summary>
+        <value>an informative string for the name of this class or interface</value>
         <remarks>
-          <para>Return an informative string for the name of this type.</para>
+          <para>Return an informative string for the name of this class or interface.</para>
           <para>Added in 1.8.</para>
           <para>
             <format type="text/html">

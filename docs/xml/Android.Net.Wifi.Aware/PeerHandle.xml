@@ -17,19 +17,42 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/aware/PeerHandle", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Opaque object used to represent a Wi-Fi Aware peer.</summary>
     <remarks>
+      <para>Opaque object used to represent a Wi-Fi Aware peer. Obtained from discovery sessions in
+            <c>DiscoverySessionCallback#onServiceDiscovered(PeerHandle, byte[], java.util.List)</c> or
+            received messages in <c>DiscoverySessionCallback#onMessageReceived(PeerHandle, byte[])</c>, and
+            used when sending messages e,g, <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c>,
+            or when configuring a network link to a peer, e.g.
+            <c>DiscoverySession#createNetworkSpecifierOpen(PeerHandle)</c> or
+            <c>DiscoverySession#createNetworkSpecifierPassphrase(PeerHandle, String)</c>.</para>
+      <para>Note that while a <c>PeerHandle</c> can be used to track a particular peer (i.e. you can compare
+            the values received from subsequent messages) - it is good practice not to rely on it. Instead
+            use an application level peer identifier encoded in the message,
+            <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c>, and/or in the Publish
+            configuration's service-specific information field,
+            <c>PublishConfig.Builder#setServiceSpecificInfo(byte[])</c>, or match filter,
+            <c>PublishConfig.Builder#setMatchFilter(java.util.List)</c>.</para>
+      <para>A parcelable handle object is available with <c>ParcelablePeerHandle</c>.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/aware/PeerHandle" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/aware/PeerHandle" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.PeerHandle</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>

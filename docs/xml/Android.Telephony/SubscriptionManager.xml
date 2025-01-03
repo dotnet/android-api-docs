@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/telephony/SubscriptionManager", ApiSince=22, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android22.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android22.0")&gt;]</AttributeName>
     </Attribute>
@@ -72,6 +76,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
@@ -447,6 +455,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android22.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android22.0")&gt;]</AttributeName>
         </Attribute>
@@ -464,24 +476,16 @@
       </ReturnValue>
       <Docs>
         <summary>Get the SubscriptionInfo(s) of the currently active SIM(s).</summary>
-        <value>Sorted list of the currently <c>SubscriptionInfo</c> records available on the device.
-            &lt;ul&gt;
-            &lt;li&gt;
-            If null is returned the current state is unknown but if a <c>OnSubscriptionsChangedListener</c>
-            has been registered <c>OnSubscriptionsChangedListener#onSubscriptionsChanged</c> will be
-            invoked in the future.
-            &lt;/li&gt;
-            &lt;li&gt;
-            If the list is empty then there are no <c>SubscriptionInfo</c> records currently available.
-            &lt;/li&gt;
-            &lt;li&gt;
-            if the list is non-empty the list is sorted by <c>SubscriptionInfo#getSimSlotIndex</c>
-            then by <c>SubscriptionInfo#getSubscriptionId</c>.
-            &lt;/li&gt;
-            &lt;/ul&gt;</value>
+        <value>a list of the active <c>SubscriptionInfo</c> that is visible to the caller. If
+                    an empty list or null is returned, then there are no active subscriptions that
+                    are visible to the caller. If the number of active subscriptions available to
+                    any caller changes, then this change will be indicated by
+                    <c>OnSubscriptionsChangedListener#onSubscriptionsChanged</c>.</value>
         <remarks>
-          <para>Get the SubscriptionInfo(s) of the currently active SIM(s). The records will be sorted
-            by <c>SubscriptionInfo#getSimSlotIndex</c> then by <c>SubscriptionInfo#getSubscriptionId</c>.</para>
+          <para>Get the SubscriptionInfo(s) of the currently active SIM(s).</para>
+          <para>Returned records will be sorted by <c>SubscriptionInfo#getSimSlotIndex</c> then by
+            <c>SubscriptionInfo#getSubscriptionId</c>. Beginning with Android SDK 35, this method will
+            never return null.</para>
           <para>Requires Permission: <c>android.Manifest.permission#READ_PHONE_STATE READ_PHONE_STATE</c>
             or that the calling app has carrier privileges (see
             <c>TelephonyManager#hasCarrierPrivileges</c>).</para>
@@ -1798,7 +1802,7 @@
             <c>android.telephony.PhoneNumberUtils#formatNumberToE164(String, String)</c>.</para>
           <para>Note the assumption is that one subscription (which usually means one SIM) has
             only one phone number. The multiple sources backup each other so hopefully at least one
-            is availavle. For example, for a carrier that doesn't typically set phone numbers
+            is available. For example, for a carrier that doesn't typically set phone numbers
             on <c>#PHONE_NUMBER_SOURCE_UICC UICC</c>, the source <c>#PHONE_NUMBER_SOURCE_IMS IMS</c>
             may provide one. Or, a carrier may decide to provide the phone number via source
             <c>#PHONE_NUMBER_SOURCE_CARRIER carrier</c> if neither source UICC nor IMS is available.</para>
@@ -2198,7 +2202,8 @@
         <returns>
           <c>true</c> if the supplied subscription ID corresponds to an active subscription;
             <c>false</c> if it does not correspond to an active subscription; or throw a
-            SecurityException if the caller hasn't got the right permission.</returns>
+            SecurityException if the caller hasn't got the right permission.
+            i</returns>
         <remarks>
           <para>Checks if the supplied subscription ID corresponds to a subscription which is actively in
             use on the device. An active subscription ID is a valid and usable subscription ID.</para>
@@ -2582,7 +2587,7 @@
         <remarks>
           <para>A source of phone number: the EF-MSISDN (see 3GPP TS 31.102),
             or EF-MDN for CDMA (see 3GPP2 C.P0065-B), from UICC application.</para>
-          <para>The availability and a of the number depends on the carrier.
+          <para>The availability and accuracy of the number depends on the carrier.
             The number may be updated by over-the-air update to UICC applications
             from the carrier, or by other means with physical access to the SIM.</para>
           <para>
@@ -2729,6 +2734,157 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/SubscriptionManager#removeSubscriptionsFromGroup(java.util.List%3Cjava.lang.Integer%3E,%20android.os.ParcelUuid)" title="Reference documentation">Java documentation for <code>android.telephony.SubscriptionManager.removeSubscriptionsFromGroup(java.util.List&lt;java.lang.Integer&gt;, android.os.ParcelUuid)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ServiceCapabilityData">
+      <MemberSignature Language="C#" Value="public const Android.Telephony.ServiceCapabilityType ServiceCapabilityData = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Telephony.ServiceCapabilityType ServiceCapabilityData = (3)" />
+      <MemberSignature Language="DocId" Value="F:Android.Telephony.SubscriptionManager.ServiceCapabilityData" />
+      <MemberSignature Language="F#" Value="val mutable ServiceCapabilityData : Android.Telephony.ServiceCapabilityType" Usage="Android.Telephony.SubscriptionManager.ServiceCapabilityData" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("SERVICE_CAPABILITY_DATA", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SERVICE_CAPABILITY_DATA", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Telephony.ServiceCapabilityType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Telephony.ServiceCapabilityType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Telephony.ServiceCapabilityType</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>Represents a value indicating the data calling capabilities of a subscription.</summary>
+        <remarks>
+          <para>Represents a value indicating the data calling capabilities of a subscription.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telephony/SubscriptionManager#SERVICE_CAPABILITY_DATA" title="Reference documentation">Java documentation for <code>android.telephony.SubscriptionManager.SERVICE_CAPABILITY_DATA</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ServiceCapabilitySms">
+      <MemberSignature Language="C#" Value="public const Android.Telephony.ServiceCapabilityType ServiceCapabilitySms = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Telephony.ServiceCapabilityType ServiceCapabilitySms = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Telephony.SubscriptionManager.ServiceCapabilitySms" />
+      <MemberSignature Language="F#" Value="val mutable ServiceCapabilitySms : Android.Telephony.ServiceCapabilityType" Usage="Android.Telephony.SubscriptionManager.ServiceCapabilitySms" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("SERVICE_CAPABILITY_SMS", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SERVICE_CAPABILITY_SMS", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Telephony.ServiceCapabilityType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Telephony.ServiceCapabilityType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Telephony.ServiceCapabilityType</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Represents a value indicating the SMS capabilities of a subscription.</summary>
+        <remarks>
+          <para>Represents a value indicating the SMS capabilities of a subscription.</para>
+          <para>This value identifies whether the subscription supports various sms services.
+            These services can include circuit-switched (CS) SMS, packet-switched (PS) IMS (IP
+            Multimedia Subsystem) SMS, and over-the-top (OTT) SMS options.</para>
+          <para>Note: The availability of emergency SMS services is not solely dependent on this
+            sms capability. Emergency services may be accessible even if the subscription lacks
+            standard sms capabilities. However, the device's ability to support emergency sms
+            can be influenced by its inherent sms capabilities, as determined by
+            <c>TelephonyManager#isDeviceSmsCapable()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telephony/SubscriptionManager#SERVICE_CAPABILITY_SMS" title="Reference documentation">Java documentation for <code>android.telephony.SubscriptionManager.SERVICE_CAPABILITY_SMS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ServiceCapabilityVoice">
+      <MemberSignature Language="C#" Value="public const Android.Telephony.ServiceCapabilityType ServiceCapabilityVoice = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Telephony.ServiceCapabilityType ServiceCapabilityVoice = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Telephony.SubscriptionManager.ServiceCapabilityVoice" />
+      <MemberSignature Language="F#" Value="val mutable ServiceCapabilityVoice : Android.Telephony.ServiceCapabilityType" Usage="Android.Telephony.SubscriptionManager.ServiceCapabilityVoice" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("SERVICE_CAPABILITY_VOICE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SERVICE_CAPABILITY_VOICE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Telephony.ServiceCapabilityType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Telephony.ServiceCapabilityType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Telephony.ServiceCapabilityType</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Represents a value indicating the voice calling capabilities of a subscription.</summary>
+        <remarks>
+          <para>Represents a value indicating the voice calling capabilities of a subscription.</para>
+          <para>This value identifies whether the subscription supports various voice calling services.
+            These services can include circuit-switched (CS) calling, packet-switched (PS) IMS (IP
+            Multimedia Subsystem) calling, and over-the-top (OTT) calling options.</para>
+          <para>Note: The availability of emergency calling services is not solely dependent on this
+            voice capability. Emergency services may be accessible even if the subscription lacks
+            standard voice capabilities. However, the device's ability to support emergency calls
+            can be influenced by its inherent voice capabilities, as determined by
+            <c>TelephonyManager#isDeviceVoiceCapable()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telephony/SubscriptionManager#SERVICE_CAPABILITY_VOICE" title="Reference documentation">Java documentation for <code>android.telephony.SubscriptionManager.SERVICE_CAPABILITY_VOICE</code>.</a>
             </format>
           </para>
           <para>

@@ -33,6 +33,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothLeAudio", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -40,6 +44,11 @@
   <Docs>
     <summary>This class provides the public APIs to control the LeAudio profile.</summary>
     <remarks>
+      <para>This class provides the public APIs to control the LeAudio profile.</para>
+      <para>BluetoothLeAudio is a proxy object for controlling the Bluetooth LE Audio Service via IPC. Use
+            <c>BluetoothAdapter#getProfileProxy</c> to get the BluetoothLeAudio proxy object.</para>
+      <para>Android only supports one set of connected Bluetooth LeAudio device at a time. Each method is
+            protected with its appropriate permission.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio</code>.</a>
@@ -86,9 +95,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Intent used to broadcast the change in connection state of the LeAudio
-            profile.</summary>
+        <summary>Intent used to broadcast the change in connection state of the LeAudio profile.</summary>
         <remarks>
+          <para>Intent used to broadcast the change in connection state of the LeAudio profile. Please note
+            that in the binaural case, there will be two different LE devices for the left and right side
+            and each device will have their own connection state changes.</para>
+          <para>This intent will have 3 extras:
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>#EXTRA_STATE</c> - The current state of the profile.
+              &lt;li&gt;<c>#EXTRA_PREVIOUS_STATE</c>- The previous state of the profile.
+              &lt;li&gt;<c>BluetoothDevice#EXTRA_DEVICE</c> - The remote device.
+            &lt;/ul&gt;</para>
+          <para>
+            <c>#EXTRA_STATE</c> or <c>#EXTRA_PREVIOUS_STATE</c> can be any of <c>#STATE_DISCONNECTED</c>, <c>#STATE_CONNECTING</c>, <c>#STATE_CONNECTED</c>, <c>#STATE_DISCONNECTING</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio#ACTION_LE_AUDIO_CONNECTION_STATE_CHANGED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio.ACTION_LE_AUDIO_CONNECTION_STATE_CHANGED</code>.</a>
@@ -179,6 +199,7 @@
         <summary>To be added</summary>
         <value>To be added.</value>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio#getConnectedDevices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio.getConnectedDevices()</code>.</a>
@@ -223,10 +244,31 @@
         <Parameter Name="groupId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="groupId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="groupId">The group id.</param>
+        <summary>Get Lead device for the group.</summary>
+        <returns>group lead device.</returns>
+        <remarks>
+          <para>Get Lead device for the group.</para>
+          <para>Lead device is the device that can be used as an active device in the system. Active
+            devices points to the Audio Device for the Le Audio group. This method returns the Lead
+            devices for the connected LE Audio group and this device should be used in the
+            setActiveDevice() method by other parts of the system, which wants to set to active a
+            particular Le Audio group.</para>
+          <para>Note: getActiveDevice() returns the Lead device for the currently active LE Audio group.
+            Note: When Lead device gets disconnected while Le Audio group is active and has more devices
+            in the group, then Lead device will not change. If Lead device gets disconnected, for the Le
+            Audio group which is not active, a new Lead device will be chosen</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio#getConnectedGroupLeadDevice(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio.getConnectedGroupLeadDevice(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetConnectionState">
@@ -267,6 +309,7 @@
         <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio#getConnectionState(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio.getConnectionState(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -325,6 +368,7 @@
         <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio#getDevicesMatchingConnectionStates(int[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio.getDevicesMatchingConnectionStates(int[])</code>.</a>
@@ -369,10 +413,24 @@
         <Parameter Name="device" Type="Android.Bluetooth.BluetoothDevice" />
       </Parameters>
       <Docs>
-        <param name="device">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="device">LE Audio capable device</param>
+        <summary>Get device group id.</summary>
+        <returns>group id that this device currently belongs to, <c>#GROUP_ID_INVALID</c> when this
+                device does not belong to any group</returns>
+        <remarks>
+          <para>Get device group id. Devices with same group id belong to same group (i.e left and right
+            earbud)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio#getGroupId(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio.getGroupId(android.bluetooth.BluetoothDevice)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GroupIdInvalid">
@@ -405,8 +463,20 @@
       </ReturnValue>
       <MemberValue>-1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>This represents an invalid group ID.</summary>
+        <remarks>
+          <para>This represents an invalid group ID.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothLeAudio#GROUP_ID_INVALID" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothLeAudio.GROUP_ID_INVALID</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

@@ -16,16 +16,39 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/wifi/WifiManager$WifiLock", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/WifiManager$WifiLock", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
     <summary>Allows an application to keep the Wi-Fi radio awake.</summary>
     <remarks>
+      <para>Allows an application to keep the Wi-Fi radio awake.
+            Normally the Wi-Fi radio may turn off when the user has not used the device in a while.
+            Acquiring a WifiLock will keep the radio on until the lock is released.  Multiple
+            applications may hold WifiLocks, and the radio will only be allowed to turn off when no
+            WifiLocks are held in any application.</para>
+      <para>Before using a WifiLock, consider carefully if your application requires Wi-Fi access, or
+            could function over a mobile network, if available.  A program that needs to download large
+            files should hold a WifiLock to ensure that the download will complete, but a program whose
+            network usage is occasional or low-bandwidth should not hold a WifiLock to avoid adversely
+            affecting battery life.</para>
+      <para>Note that WifiLocks cannot override the user-level "Wi-Fi Enabled" setting, nor Airplane
+            Mode.  They simply keep the radio from turning off when Wi-Fi is already on but the device
+            is idle.</para>
+      <para>Any application using a WifiLock must request the <c>android.permission.WAKE_LOCK</c>
+            permission in an <c>&lt;uses-permission&gt;</c> element of the application's manifest.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/WifiManager$WifiLock" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.WifiLock</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
     <since version="Added in API level 1" />
   </Docs>
@@ -74,9 +97,27 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Locks the Wi-Fi radio on until <see cref="M:Android.Net.Wifi.WifiManager.WifiLock.Release" /> is called.</summary>
+        <summary>Locks the Wi-Fi radio on until <c>#release</c> is called.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Locks the Wi-Fi radio on until <c>#release</c> is called.
+            
+            If this WifiLock is reference-counted, each call to <c>acquire</c> will increment the
+            reference count, and the radio will remain locked as long as the reference count is
+            above zero.
+            
+            If this WifiLock is not reference-counted, the first call to <c>acquire</c> will lock
+            the radio, but subsequent calls will be ignored.  Only one call to <c>#release</c>
+            will be required, regardless of the number of times that <c>acquire</c> is called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock#acquire()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.WifiLock.acquire()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -102,9 +143,19 @@
       </ReturnValue>
       <Docs>
         <summary>Checks whether this WifiLock is currently held.</summary>
-        <value>To be added.</value>
+        <value>true if this WifiLock is held, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Checks whether this WifiLock is currently held.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock#isHeld()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.WifiLock.isHeld()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -163,7 +214,26 @@
       <Docs>
         <summary>Unlocks the Wi-Fi radio, allowing it to turn off when the device is idle.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Unlocks the Wi-Fi radio, allowing it to turn off when the device is idle.
+            
+            If this WifiLock is reference-counted, each call to <c>release</c> will decrement the
+            reference count, and the radio will be unlocked only when the reference count reaches
+            zero.  If the reference count goes below zero (that is, if <c>release</c> is called
+            a greater number of times than <c>#acquire</c>), an exception is thrown.
+            
+            If this WifiLock is not reference-counted, the first call to <c>release</c> (after
+            the radio was locked using <c>#acquire</c>) will unlock the radio, and subsequent
+            calls will be ignored.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock#release()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.WifiLock.release()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -191,11 +261,26 @@
         <Parameter Name="refCounted" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="refCounted">true if this WifiLock should keep a reference count
-</param>
+        <param name="refCounted">true if this WifiLock should keep a reference count</param>
         <summary>Controls whether this is a reference-counted or non-reference-counted WifiLock.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Controls whether this is a reference-counted or non-reference-counted WifiLock.
+            
+            Reference-counted WifiLocks keep track of the number of calls to <c>#acquire</c> and
+            <c>#release</c>, and only allow the radio to sleep when every call to <c>#acquire</c>
+            has been balanced with a call to <c>#release</c>.  Non-reference-counted WifiLocks
+            lock the radio whenever <c>#acquire</c> is called and it is unlocked, and unlock the
+            radio whenever <c>#release</c> is called and it is locked.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock#setReferenceCounted(boolean)" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.WifiLock.setReferenceCounted(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>

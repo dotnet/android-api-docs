@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/appsearch/SearchResults", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -37,6 +41,13 @@
   <Docs>
     <summary>Encapsulates results of a search operation.</summary>
     <remarks>
+      <para>Encapsulates results of a search operation.</para>
+      <para>Each <c>AppSearchSession#search</c> operation returns a list of <c>SearchResult</c> objects,
+            referred to as a "page", limited by the size configured by <c>SearchSpec.Builder#setResultCountPerPage</c>.</para>
+      <para>To fetch a page of results, call <c>#getNextPage</c>.</para>
+      <para>All instances of <c>SearchResults</c> must call <c>SearchResults#close()</c> after the
+            results are fetched.</para>
+      <para>This class is not thread safe.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/SearchResults" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResults</code>.</a>
@@ -135,6 +146,10 @@
         <param name="callback">Callback to receive the pending result of performing this operation.</param>
         <summary>Retrieves the next page of <c>SearchResult</c> objects.</summary>
         <remarks>
+          <para>Retrieves the next page of <c>SearchResult</c> objects.</para>
+          <para>The page size is configured by <c>SearchSpec.Builder#setResultCountPerPage</c>.</para>
+          <para>Continue calling this method to access results until it returns an empty list, signifying
+            there are no more results.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SearchResults#getNextPage(java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Cjava.util.List%3Candroid.app.appsearch.SearchResult%3E%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResults.getNextPage(java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;java.util.List&lt;android.app.appsearch.SearchResult&gt;&gt;&gt;)</code>.</a>

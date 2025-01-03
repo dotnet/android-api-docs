@@ -17,19 +17,50 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/UnicodeSetIterator", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>UnicodeSetIterator iterates over the contents of a UnicodeSet.</summary>
     <remarks>
+      <para>UnicodeSetIterator iterates over the contents of a UnicodeSet.  It
+            iterates over either code points or code point ranges.  After all
+            code points or ranges have been returned, it returns the
+            multicharacter strings of the UnicodeSet, if any.</para>
+      <para>This class is not intended for public subclassing.</para>
+      <para>To iterate over code points and multicharacter strings,
+            use a loop like this:</para>
+      <code lang="text/java">for (UnicodeSetIterator it = new UnicodeSetIterator(set); it.next();) {
+              processString(it.getString());
+            }
+            </code>
+      <para>To iterate over code point ranges, use a loop like this:</para>
+      <code lang="text/java">for (UnicodeSetIterator it = new UnicodeSetIterator(set); it.nextRange();) {
+              if (it.codepoint != UnicodeSetIterator.IS_STRING) {
+                processCodepointRange(it.codepoint, it.codepointEnd);
+              } else {
+                processString(it.getString());
+              }
+            }
+            </code>
+      <para>To iterate over only the strings, start with <c>new UnicodeSetIterator(set).skipToStrings()</c>.</para>
+      <para>&lt;b&gt;Warning: &lt;/b&gt;For speed, UnicodeSet iteration does not check for concurrent modification.
+            Do not alter the UnicodeSet while iterating.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -54,9 +85,21 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Create an iterator over nothing.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create an iterator over nothing.  <c>next()</c> and
+            <c>nextRange()</c> return false. This is a convenience
+            constructor allowing the target to be set later.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#UnicodeSetIterator()" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.UnicodeSetIterator()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -84,10 +127,20 @@
         <Parameter Name="set" Type="Android.Icu.Text.UnicodeSet" />
       </Parameters>
       <Docs>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="set">set to iterate over</param>
+        <summary>Create an iterator over the given set.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create an iterator over the given set.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#UnicodeSetIterator(android.icu.text.UnicodeSet)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.UnicodeSetIterator(android.icu.text.UnicodeSet)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -138,10 +191,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Current code point, or the special value <c>IS_STRING</c>, if
+            the iterator points to a string.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Current code point, or the special value <c>IS_STRING</c>, if
+            the iterator points to a string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#codepoint" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.codepoint</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -169,10 +234,27 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>When iterating over ranges using <c>nextRange()</c>,
+            <c>codepointEnd</c> contains the inclusive end of the
+            iteration range, if <c>codepoint != IS_STRING</c>.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>When iterating over ranges using <c>nextRange()</c>,
+            <c>codepointEnd</c> contains the inclusive end of the
+            iteration range, if <c>codepoint != IS_STRING</c>.  If
+            iterating over code points using <c>next()</c>, or if
+            <c>codepoint == IS_STRING</c>, then the value of
+            <c>codepointEnd</c> is undefined.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#codepointEnd" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.codepointEnd</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -200,10 +282,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Value of <c>codepoint</c> if the iterator points to a string.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Value of <c>codepoint</c> if the iterator points to a string.
+            If <c>codepoint == IS_STRING</c>, then examine
+            <c>string</c> for the current iteration result.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#IS_STRING" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.IS_STRING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -263,10 +357,35 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the next element in the set, either a single code point
+            or a string.</summary>
+        <returns>true if there was another element in the set and this
+            object contains the element.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the next element in the set, either a single code point
+            or a string.  If there are no more elements in the set, return
+            false.  If <c>codepoint == IS_STRING</c>, the value is a
+            string in the <c>string</c> field.  Otherwise the value is a
+            single code point in the <c>codepoint</c> field.</para>
+          <para>The order of iteration is all code points in sorted order,
+            followed by all strings sorted order.  <c>codepointEnd</c> is
+            undefined after calling this method.  <c>string</c> is
+            undefined unless <c>codepoint == IS_STRING</c>.  Do not mix
+            calls to <c>next()</c> and <c>nextRange()</c> without
+            calling <c>reset()</c> between them.  The results of doing so
+            are undefined.</para>
+          <para>&lt;b&gt;Warning: &lt;/b&gt;For speed, UnicodeSet iteration does not check for concurrent modification.
+            Do not alter the UnicodeSet while iterating.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#next()" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.next()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -295,10 +414,34 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the next element in the set, either a code point range
+            or a string.</summary>
+        <returns>true if there was another element in the set and this
+            object contains the element.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the next element in the set, either a code point range
+            or a string.  If there are no more elements in the set, return
+            false.  If <c>codepoint == IS_STRING</c>, the value is a
+            string in the <c>string</c> field.  Otherwise the value is a
+            range of one or more code points from <c>codepoint</c> to
+            <c>codepointeEnd</c> inclusive.</para>
+          <para>The order of iteration is all code points ranges in sorted
+            order, followed by all strings sorted order.  Ranges are
+            disjoint and non-contiguous.  <c>string</c> is undefined
+            unless <c>codepoint == IS_STRING</c>.  Do not mix calls to
+            <c>next()</c> and <c>nextRange()</c> without calling
+            <c>reset()</c> between them.  The results of doing so are
+            undefined.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#nextRange()" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.nextRange()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -327,9 +470,19 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Resets this iterator to the start of the set.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Resets this iterator to the start of the set.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#reset()" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.reset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -360,10 +513,23 @@
         <Parameter Name="uset" Type="Android.Icu.Text.UnicodeSet" />
       </Parameters>
       <Docs>
-        <param name="uset">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="uset">the set to iterate over.</param>
+        <summary>Sets this iterator to visit the elements of the given set and
+            resets it to the start of that set.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets this iterator to visit the elements of the given set and
+            resets it to the start of that set.  The iterator is valid only
+            so long as <c>set</c> is valid.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#reset(android.icu.text.UnicodeSet)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.reset(android.icu.text.UnicodeSet)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -392,9 +558,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Skips over the remaining code points/ranges, if any.</summary>
+        <returns>this</returns>
+        <remarks>
+          <para>Skips over the remaining code points/ranges, if any.
+            A following call to next() or nextRange() will yield a string, if there is one.
+            No-op if next() would return false, or if it would yield a string anyway.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#skipToStrings()" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.skipToStrings()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="String">
@@ -409,6 +589,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
         </Attribute>
@@ -421,10 +605,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Gets the current string from the iterator.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the current string from the iterator. Only use after calling next(), not nextRange().</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetIterator#getString()" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetIterator.getString()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

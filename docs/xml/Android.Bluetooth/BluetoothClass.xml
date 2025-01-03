@@ -29,11 +29,33 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/bluetooth/BluetoothClass", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothClass", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="5">
-    <summary>Represents a Bluetooth class, which describes general characteristics
-            and capabilities of a device.</summary>
+    <summary>Represents a Bluetooth class, which describes general characteristics and capabilities of a
+            device.</summary>
     <remarks>
+      <para>Represents a Bluetooth class, which describes general characteristics and capabilities of a
+            device. For example, a Bluetooth class will specify the general device type such as a phone, a
+            computer, or headset, and whether it's capable of services such as audio or telephony.</para>
+      <para>Every Bluetooth class is composed of zero or more service classes, and exactly one device
+            class. The device class is further broken down into major and minor device class components.</para>
+      <para>
+        <c>BluetoothClass</c> is useful as a hint to roughly describe a device (for example to show
+            an icon in the UI), but does not reliably describe which Bluetooth profiles or services are
+            actually supported by a device. Accurate service discovery is done through SDP requests, which
+            are automatically performed when creating an RFCOMM socket with <c>BluetoothDevice#createRfcommSocketToServiceRecord</c> and <c>BluetoothAdapter#listenUsingRfcommWithServiceRecord</c></para>
+      <para>Use <c>BluetoothDevice#getBluetoothClass</c> to retrieve the class for a remote device.
+            &lt;!--
+            The Bluetooth class is a 32 bit field. The format of these bits is defined at
+            http://www.bluetooth.org/Technical/AssignedNumbers/baseband.htm
+            (login required). This class contains that 32 bit field, and provides
+            constants and methods to determine which Service Class(es) and Device Class
+            are encoded in that field.
+            --&gt;</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothClass" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothClass</code>.</a>
@@ -62,6 +84,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("CREATOR")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -130,10 +156,11 @@
         <ReturnType>Android.Bluetooth.DeviceClass</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return the (major and minor) device class component of this
-            <c>BluetoothClass</c>.</summary>
+        <summary>Return the (major and minor) device class component of this <c>BluetoothClass</c>.</summary>
         <value>device class component</value>
         <remarks>
+          <para>Return the (major and minor) device class component of this <c>BluetoothClass</c>.</para>
+          <para>Values returned from this function can be compared with the public constants in <c>BluetoothClass.Device</c> to determine which device class is encoded in this Bluetooth class.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothClass#getDeviceClass()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothClass.getDeviceClass()</code>.</a>
@@ -175,10 +202,24 @@
         <Parameter Name="profile" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="profile">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="profile">the profile to be checked</param>
+        <summary>Check class bits for possible bluetooth profile support.</summary>
+        <returns>whether this device supports specified profile</returns>
+        <remarks>
+          <para>Check class bits for possible bluetooth profile support. This is a simple heuristic that
+            tries to guess if a device with the given class bits might support specified profile. It is
+            not accurate for all devices. It tries to err on the side of false positives.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothClass#doesClassMatch(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothClass.doesClassMatch(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HasService">
@@ -212,10 +253,12 @@
       </Parameters>
       <Docs>
         <param name="service">valid service class</param>
-        <summary>Return true if the specified service class is supported by this
-            <c>BluetoothClass</c>.</summary>
+        <summary>Return true if the specified service class is supported by this <c>BluetoothClass</c>.</summary>
         <returns>true if the service class is supported</returns>
         <remarks>
+          <para>Return true if the specified service class is supported by this <c>BluetoothClass</c>.</para>
+          <para>Valid service classes are the public constants in <c>BluetoothClass.Service</c>. For
+            example, <c>BluetoothClass.Service#AUDIO</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothClass#hasService(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothClass.hasService(int)</code>.</a>
@@ -287,6 +330,9 @@
         <summary>Return the major device class component of this <c>BluetoothClass</c>.</summary>
         <value>major device class component</value>
         <remarks>
+          <para>Return the major device class component of this <c>BluetoothClass</c>.</para>
+          <para>Values returned from this function can be compared with the public constants in <c>BluetoothClass.Device.Major</c> to determine which major class is encoded in this Bluetooth
+            class.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothClass#getMajorDeviceClass()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothClass.getMajorDeviceClass()</code>.</a>

@@ -1,8 +1,11 @@
 <Type Name="LinkedHashSet" FullName="Java.Util.LinkedHashSet">
-  <TypeSignature Language="C#" Value="public class LinkedHashSet : Java.Util.HashSet, IDisposable, Java.Interop.IJavaPeerable" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit LinkedHashSet extends Java.Util.HashSet implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class Java.Lang.ICloneable, class Java.Lang.IIterable, class Java.Util.ICollection, class Java.Util.ISet, class System.IDisposable" />
+  <TypeSignature Language="C#" Value="public class LinkedHashSet : Java.Util.HashSet, IDisposable, Java.Interop.IJavaPeerable" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit LinkedHashSet extends Java.Util.HashSet implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class Java.Lang.ICloneable, class Java.Lang.IIterable, class Java.Util.ICollection, class Java.Util.ISet, class System.IDisposable" FrameworkAlternate="net-android-34.0" />
   <TypeSignature Language="DocId" Value="T:Java.Util.LinkedHashSet" />
-  <TypeSignature Language="F#" Value="type LinkedHashSet = class&#xA;    inherit HashSet&#xA;    interface ISerializable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface ICloneable&#xA;    interface ISet&#xA;    interface ICollection&#xA;    interface IIterable" />
+  <TypeSignature Language="F#" Value="type LinkedHashSet = class&#xA;    inherit HashSet&#xA;    interface ISerializable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface ICloneable&#xA;    interface ISet&#xA;    interface ICollection&#xA;    interface IIterable" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="C#" Value="public class LinkedHashSet : Java.Util.HashSet, IDisposable, Java.Interop.IJavaPeerable, Java.Util.ISequencedSet" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit LinkedHashSet extends Java.Util.HashSet implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class Java.Lang.ICloneable, class Java.Lang.IIterable, class Java.Util.ICollection, class Java.Util.ISequencedCollection, class Java.Util.ISequencedSet, class Java.Util.ISet, class System.IDisposable" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="F#" Value="type LinkedHashSet = class&#xA;    inherit HashSet&#xA;    interface ISerializable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface ICloneable&#xA;    interface ISequencedSet&#xA;    interface ISequencedCollection&#xA;    interface ICollection&#xA;    interface IIterable&#xA;    interface ISet" FrameworkAlternate="net-android-35.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -35,6 +38,12 @@
     <Interface>
       <InterfaceName>System.IDisposable</InterfaceName>
     </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Java.Util.ISequencedCollection</InterfaceName>
+    </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Java.Util.ISequencedSet</InterfaceName>
+    </Interface>
   </Interfaces>
   <Attributes>
     <Attribute>
@@ -45,22 +54,30 @@
       <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "E" })]</AttributeName>
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "E" })&gt;]</AttributeName>
     </Attribute>
+    <Attribute FrameworkAlternate="net-android-35.0">
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <param name="&lt;E&gt;&lt;E&gt;">the type of elements maintained by this set</param>
     <summary>Hash table and linked list implementation of the <c>Set</c> interface,
-            with predictable iteration order.</summary>
+            with well-defined encounter order.</summary>
     <remarks>
       <para>Hash table and linked list implementation of the <c>Set</c> interface,
-            with predictable iteration order.  This implementation differs from
+            with well-defined encounter order.  This implementation differs from
             <c>HashSet</c> in that it maintains a doubly-linked list running through
-            all of its entries.  This linked list defines the iteration ordering,
-            which is the order in which elements were inserted into the set
-            (<i>insertion-order</i>).  Note that insertion order is <i>not</i> affected
-            if an element is <i>re-inserted</i> into the set.  (An element <c>e</c>
-            is reinserted into a set <c>s</c> if <c>s.add(e)</c> is invoked when
-            <c>s.contains(e)</c> would return <c>true</c> immediately prior to
-            the invocation.)</para>
+            all of its entries.  This linked list defines the encounter order (iteration
+            order), which is the order in which elements were inserted into the set
+            (<i>insertion-order</i>). The least recently inserted element (the eldest) is
+            first, and the youngest element is last. Note that encounter order is <i>not</i> affected
+            if an element is <i>re-inserted</i> into the set with the <c>add</c> method.
+            (An element <c>e</c> is reinserted into a set <c>s</c> if <c>s.add(e)</c> is
+            invoked when <c>s.contains(e)</c> would return <c>true</c> immediately prior to
+            the invocation.) The reverse-ordered view of this set is in the opposite order, with
+            the youngest element appearing first and the eldest element appearing last. The encounter
+            order of elements already in the set can be changed by using the
+            <c>#addFirst addFirst</c> and <c>#addLast addLast</c> methods.</para>
       <para>This implementation spares its clients from the unspecified, generally
             chaotic ordering provided by <c>HashSet</c>, without incurring the
             increased cost associated with <c>TreeSet</c>.  It can be used to
@@ -76,8 +93,8 @@
             copies it, and later returns results whose order is determined by that of
             the copy.  (Clients generally appreciate having things returned in the same
             order they were presented.)</para>
-      <para>This class provides all of the optional <c>Set</c> operations, and
-            permits null elements.  Like <c>HashSet</c>, it provides constant-time
+      <para>This class provides all of the optional <c>Set</c> and <c>SequencedSet</c>
+            operations, and it permits null elements. Like <c>HashSet</c>, it provides constant-time
             performance for the basic operations (<c>add</c>, <c>contains</c> and
             <c>remove</c>), assuming the hash function disperses elements
             properly among the buckets.  Performance is likely to be just slightly
@@ -318,6 +335,148 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="AddFirst">
+      <MemberSignature Language="C#" Value="public virtual void AddFirst (Java.Lang.Object? e);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void AddFirst(class Java.Lang.Object e) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashSet.AddFirst(Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member AddFirst : Java.Lang.Object -&gt; unit&#xA;override this.AddFirst : Java.Lang.Object -&gt; unit" Usage="linkedHashSet.AddFirst e" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedCollection.AddFirst(Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("addFirst", "(Ljava/lang/Object;)V", "GetAddFirst_Ljava_lang_Object_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addFirst", "(Ljava/lang/Object;)V", "GetAddFirst_Ljava_lang_Object_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="e" Type="Java.Lang.Object" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="e">To be added.</param>
+        <summary>To be added</summary>
+        <remarks>
+          <para>To be added</para>
+          <para>If this set already contains the element, it is relocated if necessary so that it is
+            first in encounter order.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#addFirst(E)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.addFirst(E)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AddLast">
+      <MemberSignature Language="C#" Value="public virtual void AddLast (Java.Lang.Object? e);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void AddLast(class Java.Lang.Object e) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashSet.AddLast(Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member AddLast : Java.Lang.Object -&gt; unit&#xA;override this.AddLast : Java.Lang.Object -&gt; unit" Usage="linkedHashSet.AddLast e" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedCollection.AddLast(Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("addLast", "(Ljava/lang/Object;)V", "GetAddLast_Ljava_lang_Object_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addLast", "(Ljava/lang/Object;)V", "GetAddLast_Ljava_lang_Object_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="e" Type="Java.Lang.Object" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="e">To be added.</param>
+        <summary>To be added</summary>
+        <remarks>
+          <para>To be added</para>
+          <para>If this set already contains the element, it is relocated if necessary so that it is
+            last in encounter order.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#addLast(E)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.addLast(E)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="First">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? First { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.Object First" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.LinkedHashSet.First" />
+      <MemberSignature Language="F#" Value="member this.First : Java.Lang.Object" Usage="Java.Util.LinkedHashSet.First" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getFirst", "()Ljava/lang/Object;", "GetGetFirstHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getFirst", "()Ljava/lang/Object;", "GetGetFirstHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>To be added</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#getFirst()" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.getFirst()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -340,6 +499,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -349,6 +512,242 @@
         <value>To be added.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Last">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? Last { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.Object Last" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.LinkedHashSet.Last" />
+      <MemberSignature Language="F#" Value="member this.Last : Java.Lang.Object" Usage="Java.Util.LinkedHashSet.Last" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLast", "()Ljava/lang/Object;", "GetGetLastHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLast", "()Ljava/lang/Object;", "GetGetLastHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>To be added</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#getLast()" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.getLast()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NewLinkedHashSet">
+      <MemberSignature Language="C#" Value="public static Java.Util.LinkedHashSet? NewLinkedHashSet (int numElements);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.LinkedHashSet NewLinkedHashSet(int32 numElements) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashSet.NewLinkedHashSet(System.Int32)" />
+      <MemberSignature Language="F#" Value="static member NewLinkedHashSet : int -&gt; Java.Util.LinkedHashSet" Usage="Java.Util.LinkedHashSet.NewLinkedHashSet numElements" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("newLinkedHashSet", "(I)Ljava/util/LinkedHashSet;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("newLinkedHashSet", "(I)Ljava/util/LinkedHashSet;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.LinkedHashSet</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="numElements" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="numElements">the expected number of elements</param>
+        <param name="&lt;T&gt;&lt;T&gt;">the type of elements maintained by the new set</param>
+        <summary>Creates a new, empty LinkedHashSet suitable for the expected number of elements.</summary>
+        <returns>the newly created set</returns>
+        <remarks>
+          <para>Creates a new, empty LinkedHashSet suitable for the expected number of elements.
+            The returned set uses the default load factor of 0.75, and its initial capacity is
+            generally large enough so that the expected number of elements can be added
+            without resizing the set.</para>
+          <para>Added in 19.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#newLinkedHashSet(int)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.newLinkedHashSet(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveFirst">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? RemoveFirst ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object RemoveFirst() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashSet.RemoveFirst" />
+      <MemberSignature Language="F#" Value="abstract member RemoveFirst : unit -&gt; Java.Lang.Object&#xA;override this.RemoveFirst : unit -&gt; Java.Lang.Object" Usage="linkedHashSet.RemoveFirst " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedCollection.RemoveFirst</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("removeFirst", "()Ljava/lang/Object;", "GetRemoveFirstHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeFirst", "()Ljava/lang/Object;", "GetRemoveFirstHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>To be added</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#removeFirst()" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.removeFirst()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveLast">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? RemoveLast ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object RemoveLast() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashSet.RemoveLast" />
+      <MemberSignature Language="F#" Value="abstract member RemoveLast : unit -&gt; Java.Lang.Object&#xA;override this.RemoveLast : unit -&gt; Java.Lang.Object" Usage="linkedHashSet.RemoveLast " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedCollection.RemoveLast</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("removeLast", "()Ljava/lang/Object;", "GetRemoveLastHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeLast", "()Ljava/lang/Object;", "GetRemoveLastHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>To be added</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#removeLast()" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.removeLast()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Reversed">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.ISequencedCollection? Reversed ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.ISequencedCollection Reversed() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashSet.Reversed" />
+      <MemberSignature Language="F#" Value="abstract member Reversed : unit -&gt; Java.Util.ISequencedCollection&#xA;override this.Reversed : unit -&gt; Java.Util.ISequencedCollection" Usage="linkedHashSet.Reversed " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedCollection.Reversed</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("reversed", "()Ljava/util/SequencedSet;", "GetReversedHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reversed", "()Ljava/util/SequencedSet;", "GetReversedHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.ISequencedCollection</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added</summary>
+        <returns>To be added</returns>
+        <remarks>
+          <para>To be added</para>
+          <para>Modifications to the reversed view are permitted and will be propagated to this set.
+            In addition, modifications to this set will be visible in the reversed view.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashSet#reversed()" title="Reference documentation">Java documentation for <code>java.util.LinkedHashSet.reversed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -401,6 +800,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

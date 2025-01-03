@@ -17,19 +17,54 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/UnicodeSetSpanner", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>A helper class used to count, replace, and trim CharSequences based on UnicodeSet matches.</summary>
     <remarks>
+      <para>A helper class used to count, replace, and trim CharSequences based on UnicodeSet matches.
+            An instance is immutable (and thus thread-safe) iff the source UnicodeSet is frozen.</para>
+      <para>&lt;b&gt;Note:&lt;/b&gt; The counting, deletion, and replacement depend on alternating a <c>SpanCondition</c> with
+            its inverse. That is, the code spans, then spans for the inverse, then spans, and so on.
+            For the inverse, the following mapping is used:
+            &lt;ul&gt;
+            &lt;li&gt;<c>UnicodeSet.SpanCondition#SIMPLE</c> → <c>UnicodeSet.SpanCondition#NOT_CONTAINED</c>&lt;/li&gt;
+            &lt;li&gt;<c>UnicodeSet.SpanCondition#CONTAINED</c> → <c>UnicodeSet.SpanCondition#NOT_CONTAINED</c>&lt;/li&gt;
+            &lt;li&gt;<c>UnicodeSet.SpanCondition#NOT_CONTAINED</c> → <c>UnicodeSet.SpanCondition#SIMPLE</c>&lt;/li&gt;
+            &lt;/ul&gt;
+            These are actually not complete inverses. However, the alternating works because there are no gaps.
+            For example, with [a{ab}{bc}], you get the following behavior when scanning forward:
+            
+            &lt;table border="1"&gt;
+            &lt;tr&gt;&lt;th&gt;SIMPLE&lt;/th&gt;&lt;td&gt;xxx[ab]cyyy&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;th&gt;CONTAINED&lt;/th&gt;&lt;td&gt;xxx[abc]yyy&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;th&gt;NOT_CONTAINED&lt;/th&gt;&lt;td&gt;[xxx]ab[cyyy]&lt;/td&gt;&lt;/tr&gt;
+            &lt;/table&gt;</para>
+      <para>So here is what happens when you alternate:
+            
+            &lt;table border="1"&gt;
+            &lt;tr&gt;&lt;th&gt;start&lt;/th&gt;&lt;td&gt;|xxxabcyyy&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;th&gt;NOT_CONTAINED&lt;/th&gt;&lt;td&gt;xxx|abcyyy&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;th&gt;CONTAINED&lt;/th&gt;&lt;td&gt;xxxabc|yyy&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;th&gt;NOT_CONTAINED&lt;/th&gt;&lt;td&gt;xxxabcyyy|&lt;/td&gt;&lt;/tr&gt;
+            &lt;/table&gt;</para>
+      <para>The entire string is traversed.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -57,10 +92,21 @@
         <Parameter Name="source" Type="Android.Icu.Text.UnicodeSet" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="source">the original UnicodeSet</param>
+        <summary>Create a spanner from a UnicodeSet.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create a spanner from a UnicodeSet. For speed and safety, the UnicodeSet should be frozen. However, this class
+            can be used with a non-frozen version to avoid the cost of freezing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#UnicodeSetSpanner(android.icu.text.UnicodeSet)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.UnicodeSetSpanner(android.icu.text.UnicodeSet)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -114,11 +160,24 @@
         <Parameter Name="sequence" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">the sequence to count characters in</param>
+        <summary>Returns the number of matching characters found in a character sequence, 
+            counting by CountMethod.</summary>
+        <returns>the count. Zero if there are none.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the number of matching characters found in a character sequence, 
+            counting by CountMethod.MIN_ELEMENTS using SpanCondition.SIMPLE.
+            The code alternates spans; see the class doc for <c>UnicodeSetSpanner</c> for a note about boundary conditions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#countIn(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.countIn(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -145,11 +204,24 @@
         <Parameter Name="sequence" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">the sequence to count characters in</param>
+        <summary>Returns the number of matching characters found in a character sequence, 
+            counting by CountMethod.</summary>
+        <returns>the count. Zero if there are none.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the number of matching characters found in a character sequence, 
+            counting by CountMethod.MIN_ELEMENTS using SpanCondition.SIMPLE.
+            The code alternates spans; see the class doc for <c>UnicodeSetSpanner</c> for a note about boundary conditions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#countIn(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.countIn(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -324,11 +396,22 @@
         <Parameter Name="sequence" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">charsequence to replace matching spans in.</param>
+        <summary>Delete all the matching spans in sequence, using SpanCondition.</summary>
+        <returns>modified string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Delete all the matching spans in sequence, using SpanCondition.SIMPLE
+            The code alternates spans; see the class doc for <c>UnicodeSetSpanner</c> for a note about boundary conditions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#deleteFrom(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.deleteFrom(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -355,11 +438,22 @@
         <Parameter Name="sequence" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">charsequence to replace matching spans in.</param>
+        <summary>Delete all the matching spans in sequence, using SpanCondition.</summary>
+        <returns>modified string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Delete all the matching spans in sequence, using SpanCondition.SIMPLE
+            The code alternates spans; see the class doc for <c>UnicodeSetSpanner</c> for a note about boundary conditions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#deleteFrom(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.deleteFrom(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -452,6 +546,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -492,12 +590,25 @@
         <Parameter Name="replacement" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <param name="replacement">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">charsequence to replace matching spans in.</param>
+        <param name="replacement">replacement sequence. To delete, use ""</param>
+        <summary>Replace all matching spans in sequence by the replacement,
+            counting by CountMethod.</summary>
+        <returns>modified string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Replace all matching spans in sequence by the replacement,
+            counting by CountMethod.MIN_ELEMENTS using SpanCondition.SIMPLE.
+            The code alternates spans; see the class doc for <c>UnicodeSetSpanner</c> for a note about boundary conditions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#replaceFrom(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.replaceFrom(java.lang.CharSequence, java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -525,12 +636,25 @@
         <Parameter Name="replacement" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <param name="replacement">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">charsequence to replace matching spans in.</param>
+        <param name="replacement">replacement sequence. To delete, use ""</param>
+        <summary>Replace all matching spans in sequence by the replacement,
+            counting by CountMethod.</summary>
+        <returns>modified string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Replace all matching spans in sequence by the replacement,
+            counting by CountMethod.MIN_ELEMENTS using SpanCondition.SIMPLE.
+            The code alternates spans; see the class doc for <c>UnicodeSetSpanner</c> for a note about boundary conditions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#replaceFrom(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.replaceFrom(java.lang.CharSequence, java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -736,6 +860,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -771,11 +899,27 @@
         <Parameter Name="sequence" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">the sequence to trim</param>
+        <summary>Returns a trimmed sequence (using CharSequence.</summary>
+        <returns>a subsequence</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a trimmed sequence (using CharSequence.subsequence()), that omits matching elements at the start and
+            end of the string, using TrimOption.BOTH and SpanCondition.SIMPLE. For example:</para>
+          <code lang="text/java">{@code
+            
+              new UnicodeSet("[ab]").trim("abacatbab")}
+            </code>
+          <para>... returns <c>"cat"</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#trim(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.trim(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -874,11 +1018,27 @@
         <Parameter Name="sequence" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="sequence">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sequence">the sequence to trim</param>
+        <summary>Returns a trimmed sequence (using CharSequence.</summary>
+        <returns>a subsequence</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a trimmed sequence (using CharSequence.subsequence()), that omits matching elements at the start and
+            end of the string, using TrimOption.BOTH and SpanCondition.SIMPLE. For example:</para>
+          <code lang="text/java">{@code
+            
+              new UnicodeSet("[ab]").trim("abacatbab")}
+            </code>
+          <para>... returns <c>"cat"</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#trim(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.trim(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -982,10 +1142,20 @@
         <ReturnType>Android.Icu.Text.UnicodeSet</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the UnicodeSet used for processing.</summary>
+        <value>the construction set.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the UnicodeSet used for processing. It is frozen iff the original was.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSetSpanner#getUnicodeSet()" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSetSpanner.getUnicodeSet()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

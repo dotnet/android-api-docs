@@ -30,19 +30,70 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/TimeZoneNames", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>TimeZoneNames</c> is an abstract class representing the time zone display name data model defined
+            by <see href="http://www.unicode.org/reports/tr35/">UTS#35 Unicode Locale Data Markup Language (LDML)</see>.</summary>
     <remarks>
       <para>
+        <c>TimeZoneNames</c> is an abstract class representing the time zone display name data model defined
+            by <see href="http://www.unicode.org/reports/tr35/">UTS#35 Unicode Locale Data Markup Language (LDML)</see>.
+            The model defines meta zone, which is used for storing a set of display names. A meta zone can be shared
+            by multiple time zones. Also a time zone may have multiple meta zone historic mappings.</para>
+      <para>For example, people in the United States refer the zone used by the east part of North America as "Eastern Time".
+            The tz database contains multiple time zones "America/New_York", "America/Detroit", "America/Montreal" and some
+            others that belong to "Eastern Time". However, assigning different display names to these time zones does not make
+            much sense for most of people.</para>
+      <para>In <see href="http://cldr.unicode.org/">CLDR</see> (which uses LDML for representing locale data), the display name
+            "Eastern Time" is stored as long generic display name of a meta zone identified by the ID "America_Eastern".
+            Then, there is another table maintaining the historic mapping to meta zones for each time zone. The time zones in
+            the above example ("America/New_York", "America/Detroit"...) are mapped to the meta zone "America_Eastern".</para>
+      <para>Sometimes, a time zone is mapped to a different time zone in the past. For example, "America/Indiana/Knox"
+            had been moving "Eastern Time" and "Central Time" back and forth. Therefore, it is necessary that time zone
+            to meta zones mapping data are stored by date range.</para>
+      <para>&lt;b&gt;Note:&lt;/b&gt;</para>
+      <para>
+        <c>TimeZoneFormat</c> assumes an instance of <c>TimeZoneNames</c> is immutable. If you want to provide
+            your own <c>TimeZoneNames</c> implementation and use it with <c>TimeZoneFormat</c>, you must follow
+            the contract.</para>
+      <para>The methods in this class assume that time zone IDs are already canonicalized. For example, you may not get proper
+            result returned by a method with time zone ID "America/Indiana/Indianapolis", because it's not a canonical time zone
+            ID (the canonical time zone ID for the time zone is "America/Indianapolis". See
+            <c>TimeZone#getCanonicalID(String)</c> about ICU canonical time zone IDs.</para>
+      <para>In CLDR, most of time zone display names except location names are provided through meta zones. But a time zone may
+            have a specific name that is not shared with other time zones.
+            
+            For example, time zone "Europe/London" has English long name for standard time "Greenwich Mean Time", which is also
+            shared with other time zones. However, the long name for daylight saving time is "British Summer Time", which is only
+            used for "Europe/London".</para>
+      <para>
+        <c>#getTimeZoneDisplayName(String, NameType)</c> is designed for accessing a name only used by a single time zone.
+            But is not necessarily mean that a subclass implementation use the same model with CLDR. A subclass implementation
+            may provide time zone names only through <c>#getTimeZoneDisplayName(String, NameType)</c>, or only through
+            <c>#getMetaZoneDisplayName(String, NameType)</c>, or both.</para>
+      <para>The default <c>TimeZoneNames</c> implementation returned by <c>#getInstance(ULocale)</c> uses the locale data
+            imported from CLDR. In CLDR, set of meta zone IDs and mappings between zone IDs and meta zone IDs are shared by all
+            locales. Therefore, the behavior of <c>#getAvailableMetaZoneIDs()</c>, <c>#getAvailableMetaZoneIDs(String)</c>,
+            <c>#getMetaZoneID(String, long)</c>, and <c>#getReferenceZoneID(String, String)</c> won't be changed no matter
+            what locale is used for getting an instance of <c>TimeZoneNames</c>.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -80,6 +131,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getAvailableMetaZoneIDs", "()Ljava/util/Set;", "GetGetAvailableMetaZoneIDsHandler", ApiSince=24)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAvailableMetaZoneIDs", "()Ljava/util/Set;", "GetGetAvailableMetaZoneIDsHandler", ApiSince=24)&gt;]</AttributeName>
@@ -122,16 +177,32 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="tzID" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tzID">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="tzID">The canonical time zone ID.</param>
+        <summary>Returns an immutable set of all available meta zone IDs used by the given time zone.</summary>
+        <returns>An immutable set of all available meta zone IDs used by the given time zone.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns an immutable set of all available meta zone IDs used by the given time zone.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames#getAvailableMetaZoneIDs(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames.getAvailableMetaZoneIDs(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -201,11 +272,32 @@
         <Parameter Name="tzID" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tzID">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="tzID">The canonical time zone ID</param>
+        <summary>Returns the exemplar location name for the given time zone.</summary>
+        <returns>The exemplar location name for the given time zone, or null when a localized location name is not
+                    available and the fallback logic described above cannot extract location from the ID.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the exemplar location name for the given time zone. When this object does not have a localized location
+            name, the default implementation may still returns a programmatically generated name with the logic described
+            below.
+            &lt;ol&gt;
+            &lt;li&gt;Check if the ID contains "/". If not, return null.
+            &lt;li&gt;Check if the ID does not start with "Etc/" or "SystemV/". If it does, return null.
+            &lt;li&gt;Extract a substring after the last occurrence of "/".
+            &lt;li&gt;Replace "_" with " ".
+            &lt;/ol&gt;
+            For example, "New York" is returned for the time zone ID "America/New_York" when this object does not have the
+            localized location name.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames#getExemplarLocationName(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames.getExemplarLocationName(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -236,11 +328,21 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">The locale.</param>
+        <summary>Returns an instance of <c>TimeZoneNames</c> for the specified locale.</summary>
+        <returns>An instance of <c>TimeZoneNames</c></returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns an instance of <c>TimeZoneNames</c> for the specified locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames#getInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames.getInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -271,11 +373,23 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">The <c>java.util.Locale</c>.</param>
+        <summary>Returns an instance of <c>TimeZoneNames</c> for the specified
+            <c>java.util.Locale</c>.</summary>
+        <returns>An instance of <c>TimeZoneDisplayNames</c></returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns an instance of <c>TimeZoneNames</c> for the specified
+            <c>java.util.Locale</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames#getInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames.getInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -344,12 +458,24 @@
         <Parameter Name="date" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="tzID">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="tzID">The canonical time zone ID.</param>
+        <param name="date">The date.</param>
+        <summary>Returns the meta zone ID for the given canonical time zone ID at the given date.</summary>
+        <returns>The meta zone ID for the given time zone ID at the given date. If the time zone does not have a
+                    corresponding meta zone at the given date or the implementation does not support meta zones, null is
+                    returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the meta zone ID for the given canonical time zone ID at the given date.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames#getMetaZoneID(java.lang.String,%20long)" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames.getMetaZoneID(java.lang.String, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -381,12 +507,27 @@
         <Parameter Name="region" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="mzID">To be added.</param>
-        <param name="region">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mzID">The meta zone ID.</param>
+        <param name="region">The region.</param>
+        <summary>Returns the reference zone ID for the given meta zone ID for the region.</summary>
+        <returns>The reference zone ID ("golden zone" in the LDML specification) for the given time zone ID for the
+                    region. If the meta zone is unknown or the implementation does not support meta zones, null is returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the reference zone ID for the given meta zone ID for the region.</para>
+          <para>Note: Each meta zone must have a reference zone associated with a special region "001" (world).
+            Some meta zones may have region specific reference zone IDs other than the special region
+            "001". When a meta zone does not have any region specific reference zone IDs, this method
+            return the reference zone ID for the special region "001" (world).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames#getReferenceZoneID(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames.getReferenceZoneID(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -455,10 +596,28 @@
       </Parameters>
       <Docs>
         <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Returns an instance of <c>TimeZoneNames</c> containing only short specific
+            zone names (<c>NameType#SHORT_STANDARD</c> and <c>NameType#SHORT_DAYLIGHT</c>),
+            compatible with the IANA tz database's zone abbreviations (not localized).</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns an instance of <c>TimeZoneNames</c> containing only short specific
+            zone names (<c>NameType#SHORT_STANDARD</c> and <c>NameType#SHORT_DAYLIGHT</c>),
+            compatible with the IANA tz database's zone abbreviations (not localized).
+            &lt;br&gt;
+            Note: The input locale is used for resolving ambiguous names (e.g. "IST" is parsed
+            as Israel Standard Time for Israel, while it is parsed as India Standard Time for
+            all other regions). The zone names returned by this instance are not localized.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/TimeZoneNames#getTZDBInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.TimeZoneNames.getTZDBInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -483,6 +642,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -545,6 +708,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

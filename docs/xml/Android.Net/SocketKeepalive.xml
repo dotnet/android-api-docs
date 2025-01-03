@@ -30,13 +30,48 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/SocketKeepalive", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Allows applications to request that the system periodically send specific packets on their
+            behalf, using hardware offload to save battery power.</summary>
+    <remarks>
+      <para>Allows applications to request that the system periodically send specific packets on their
+            behalf, using hardware offload to save battery power.
+            
+            To request that the system send keepalives, call one of the methods that return a
+            <c>SocketKeepalive</c> object, such as <c>ConnectivityManager#createSocketKeepalive</c>,
+            passing in a non-null callback. If the <c>SocketKeepalive</c> is successfully
+            started, the callback's <c>onStarted</c> method will be called. If an error occurs,
+            <c>onError</c> will be called, specifying one of the <c>ERROR_*</c> constants in this
+            class.
+            
+            To stop an existing keepalive, call <c>SocketKeepalive#stop</c>. The system will call
+            <c>SocketKeepalive.Callback#onStopped</c> if the operation was successful or
+            <c>SocketKeepalive.Callback#onError</c> if an error occurred.
+            
+            For cellular, the device MUST support at least 1 keepalive slot.
+            
+            For WiFi, the device SHOULD support keepalive offload. If it does not, it MUST reply with
+            <c>SocketKeepalive.Callback#onError</c> with <c>ERROR_UNSUPPORTED</c> to any keepalive offload
+            request. If it does, it MUST support at least 3 concurrent keepalive slots.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/SocketKeepalive" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -88,8 +123,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Deactivate this <c>SocketKeepalive</c> and free allocated resources.</summary>
+        <remarks>
+          <para>Deactivate this <c>SocketKeepalive</c> and free allocated resources. The instance won't be
+            usable again if <c>close()</c> is called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#close()" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.close()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorHardwareError">
@@ -121,8 +169,20 @@
       </ReturnValue>
       <MemberValue>-31</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>There was a hardware error.</summary>
+        <remarks>
+          <para>There was a hardware error.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_HARDWARE_ERROR" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_HARDWARE_ERROR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorInsufficientResources">
@@ -154,8 +214,20 @@
       </ReturnValue>
       <MemberValue>-32</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Resources are insufficient (e.</summary>
+        <remarks>
+          <para>Resources are insufficient (e.g. all hardware slots are in use).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_INSUFFICIENT_RESOURCES" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_INSUFFICIENT_RESOURCES</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorInvalidInterval">
@@ -187,8 +259,20 @@
       </ReturnValue>
       <MemberValue>-24</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The interval is invalid (e.</summary>
+        <remarks>
+          <para>The interval is invalid (e.g. too short).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_INVALID_INTERVAL" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_INVALID_INTERVAL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorInvalidIpAddress">
@@ -220,8 +304,22 @@
       </ReturnValue>
       <MemberValue>-21</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The invalid IP addresses.</summary>
+        <remarks>
+          <para>The invalid IP addresses. Indicates the specified IP addresses are invalid.
+            For example, the specified source IP address is not configured on the
+            specified <c>Network</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_INVALID_IP_ADDRESS" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_INVALID_IP_ADDRESS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorInvalidLength">
@@ -253,8 +351,20 @@
       </ReturnValue>
       <MemberValue>-23</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The length is invalid (e.</summary>
+        <remarks>
+          <para>The length is invalid (e.g. too long).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_INVALID_LENGTH" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_INVALID_LENGTH</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorInvalidNetwork">
@@ -286,8 +396,20 @@
       </ReturnValue>
       <MemberValue>-20</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The invalid network.</summary>
+        <remarks>
+          <para>The invalid network. It indicates the specified <c>Network</c> is not connected.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_INVALID_NETWORK" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_INVALID_NETWORK</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorInvalidPort">
@@ -319,8 +441,20 @@
       </ReturnValue>
       <MemberValue>-22</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The port is invalid.</summary>
+        <remarks>
+          <para>The port is invalid.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_INVALID_PORT" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_INVALID_PORT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorInvalidSocket">
@@ -352,8 +486,20 @@
       </ReturnValue>
       <MemberValue>-25</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The socket is invalid.</summary>
+        <remarks>
+          <para>The socket is invalid.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_INVALID_SOCKET" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_INVALID_SOCKET</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorSocketNotIdle">
@@ -385,8 +531,20 @@
       </ReturnValue>
       <MemberValue>-26</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The socket is not idle.</summary>
+        <remarks>
+          <para>The socket is not idle.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_SOCKET_NOT_IDLE" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_SOCKET_NOT_IDLE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ErrorUnsupported">
@@ -418,8 +576,20 @@
       </ReturnValue>
       <MemberValue>-30</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The request is unsupported.</summary>
+        <remarks>
+          <para>The request is unsupported.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#ERROR_UNSUPPORTED" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.ERROR_UNSUPPORTED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -481,9 +651,31 @@
         <Parameter Name="intervalSec" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="intervalSec">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="intervalSec">The target interval in seconds between keepalive packet transmissions.
+                               The interval should be between 10 seconds and 3600 seconds, otherwise
+                               <c>#ERROR_INVALID_INTERVAL</c> will be returned.</param>
+        <summary>Request that keepalive be started with the given <c>intervalSec</c>.</summary>
+        <remarks>
+          <para>Request that keepalive be started with the given <c>intervalSec</c>.
+            
+            See <c>SocketKeepalive</c>. If the remote binder dies, or the binder call throws an
+            exception when invoking start or stop of the <c>SocketKeepalive</c>, a
+            <c>RuntimeException</c> caused by a <c>RemoteException</c> will be thrown into the
+            <c>Executor</c>. This is typically not important to catch because the remote party is
+            the system, so if it is not in shape to communicate through binder the system is going
+            down anyway. If the caller still cares, it can use a custom <c>Executor</c> to catch the
+            <c>RuntimeException</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#start(int)" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.start(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Stop">
@@ -511,8 +703,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Requests that keepalive be stopped.</summary>
+        <remarks>
+          <para>Requests that keepalive be stopped. The application must wait for <c>Callback#onStopped</c>
+            before using the object. See <c>SocketKeepalive</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/SocketKeepalive#stop()" title="Reference documentation">Java documentation for <code>android.net.SocketKeepalive.stop()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

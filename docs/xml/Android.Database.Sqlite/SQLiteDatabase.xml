@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/database/sqlite/SQLiteDatabase", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/database/sqlite/SQLiteDatabase", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>Exposes methods to manage a SQLite database.</summary>
@@ -172,6 +176,64 @@
         <since version="Added in API level 11" />
       </Docs>
     </Member>
+    <Member MemberName="BeginTransactionReadOnly">
+      <MemberSignature Language="C#" Value="public virtual void BeginTransactionReadOnly ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void BeginTransactionReadOnly() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.BeginTransactionReadOnly" />
+      <MemberSignature Language="F#" Value="abstract member BeginTransactionReadOnly : unit -&gt; unit&#xA;override this.BeginTransactionReadOnly : unit -&gt; unit" Usage="sQLiteDatabase.BeginTransactionReadOnly " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("beginTransactionReadOnly", "()V", "GetBeginTransactionReadOnlyHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("beginTransactionReadOnly", "()V", "GetBeginTransactionReadOnlyHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Begins a transaction in DEFERRED mode, with the android-specific constraint that the
+            transaction is read-only.</summary>
+        <remarks>
+          <para>Begins a transaction in DEFERRED mode, with the android-specific constraint that the
+            transaction is read-only. The database may not be modified inside a read-only transaction.</para>
+          <para>Read-only transactions may run concurrently with other read-only transactions, and if the
+            database is in WAL mode, they may also run concurrently with IMMEDIATE or EXCLUSIVE
+            transactions.</para>
+          <para>Transactions can be nested.  However, the behavior of the transaction is not altered by
+            nested transactions.  A nested transaction may be any of the three transaction types but if
+            the outermost type is read-only then nested transactions remain read-only, regardless of how
+            they are started.</para>
+          <para>Here is the standard idiom for read-only transactions:</para>
+          <code lang="text/java">db.beginTransactionReadOnly();
+              try {
+                ...
+              } finally {
+                db.endTransaction();
+              }
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#beginTransactionReadOnly()" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteDatabase.beginTransactionReadOnly()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="BeginTransactionWithListener">
       <MemberSignature Language="C#" Value="public virtual void BeginTransactionWithListener (Android.Database.Sqlite.ISQLiteTransactionListener? transactionListener);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void BeginTransactionWithListener(class Android.Database.Sqlite.ISQLiteTransactionListener transactionListener) cil managed" />
@@ -284,6 +346,63 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
+      </Docs>
+    </Member>
+    <Member MemberName="BeginTransactionWithListenerReadOnly">
+      <MemberSignature Language="C#" Value="public virtual void BeginTransactionWithListenerReadOnly (Android.Database.Sqlite.ISQLiteTransactionListener? transactionListener);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void BeginTransactionWithListenerReadOnly(class Android.Database.Sqlite.ISQLiteTransactionListener transactionListener) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.BeginTransactionWithListenerReadOnly(Android.Database.Sqlite.ISQLiteTransactionListener)" />
+      <MemberSignature Language="F#" Value="abstract member BeginTransactionWithListenerReadOnly : Android.Database.Sqlite.ISQLiteTransactionListener -&gt; unit&#xA;override this.BeginTransactionWithListenerReadOnly : Android.Database.Sqlite.ISQLiteTransactionListener -&gt; unit" Usage="sQLiteDatabase.BeginTransactionWithListenerReadOnly transactionListener" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("beginTransactionWithListenerReadOnly", "(Landroid/database/sqlite/SQLiteTransactionListener;)V", "GetBeginTransactionWithListenerReadOnly_Landroid_database_sqlite_SQLiteTransactionListener_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("beginTransactionWithListenerReadOnly", "(Landroid/database/sqlite/SQLiteTransactionListener;)V", "GetBeginTransactionWithListenerReadOnly_Landroid_database_sqlite_SQLiteTransactionListener_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="transactionListener" Type="Android.Database.Sqlite.ISQLiteTransactionListener" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="transactionListener">To be added.</param>
+        <summary>Begins a transaction in read-only mode with a <c>SQLiteTransactionListener</c> listener.</summary>
+        <remarks>
+          <para>Begins a transaction in read-only mode with a <c>SQLiteTransactionListener</c> listener.
+            The database may not be updated inside a read-only transaction.</para>
+          <para>Transactions can be nested.  However, the behavior of the transaction is not altered by
+            nested transactions.  A nested transaction may be any of the three transaction types but if
+            the outermost type is read-only then nested transactions remain read-only, regardless of how
+            they are started.</para>
+          <para>Here is the standard idiom for read-only transactions:</para>
+          <code lang="text/java">db.beginTransactionWightListenerReadOnly(listener);
+              try {
+                ...
+              } finally {
+                db.endTransaction();
+              }
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#beginTransactionWithListenerReadOnly(android.database.sqlite.SQLiteTransactionListener)" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteDatabase.beginTransactionWithListenerReadOnly(android.database.sqlite.SQLiteTransactionListener)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Close">
@@ -666,7 +785,14 @@
         <ReturnType>Android.Database.Sqlite.SQLiteDatabase</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="factory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
+        <Parameter Name="factory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="factory">an optional factory class that is called to instantiate a
@@ -732,11 +858,59 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="CreateRawStatement">
+      <MemberSignature Language="C#" Value="public virtual Android.Database.Sqlite.SQLiteRawStatement CreateRawStatement (string sql);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.Sqlite.SQLiteRawStatement CreateRawStatement(string sql) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.CreateRawStatement(System.String)" />
+      <MemberSignature Language="F#" Value="abstract member CreateRawStatement : string -&gt; Android.Database.Sqlite.SQLiteRawStatement&#xA;override this.CreateRawStatement : string -&gt; Android.Database.Sqlite.SQLiteRawStatement" Usage="sQLiteDatabase.CreateRawStatement sql" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("createRawStatement", "(Ljava/lang/String;)Landroid/database/sqlite/SQLiteRawStatement;", "GetCreateRawStatement_Ljava_lang_String_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("createRawStatement", "(Ljava/lang/String;)Landroid/database/sqlite/SQLiteRawStatement;", "GetCreateRawStatement_Ljava_lang_String_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Database.Sqlite.SQLiteRawStatement</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="sql" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="sql">The SQL string to be compiled into a prepared statement.</param>
+        <summary>Return a <c>SQLiteRawStatement</c> connected to the database.</summary>
+        <returns>A <c>SQLiteRawStatement</c> holding the compiled SQL.</returns>
+        <remarks>
+          <para>Return a <c>SQLiteRawStatement</c> connected to the database.  A transaction must be in
+            progress or an exception will be thrown.  The resulting object will be closed automatically
+            when the current transaction closes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#createRawStatement(java.lang.String)" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteDatabase.createRawStatement(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Delete">
-      <MemberSignature Language="C#" Value="public virtual int Delete (string? table, string? whereClause, string[]? whereArgs);" />
+      <MemberSignature Language="C#" Value="public virtual int Delete (string? table, string? whereClause, string[]? whereArgs);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Delete(string table, string whereClause, string[] whereArgs) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Delete(System.String,System.String,System.String[])" />
       <MemberSignature Language="F#" Value="abstract member Delete : string * string * string[] -&gt; int&#xA;override this.Delete : string * string * string[] -&gt; int" Usage="sQLiteDatabase.Delete (table, whereClause, whereArgs)" />
+      <MemberSignature Language="C#" Value="public virtual int Delete (string table, string? whereClause, string[]? whereArgs);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -753,8 +927,22 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="table" Type="System.String" />
-        <Parameter Name="whereClause" Type="System.String" />
-        <Parameter Name="whereArgs" Type="System.String[]" />
+        <Parameter Name="whereClause" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="whereArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="table">the table to delete from</param>
@@ -762,7 +950,8 @@
                        Passing null will delete all rows.</param>
         <param name="whereArgs">You may include ?s in the where clause, which
                        will be replaced by the values from whereArgs. The values
-                       will be bound as Strings.</param>
+                       will be bound as Strings. If whereClause is null or does not
+                       contain ?s then whereArgs may be null.</param>
         <summary>Convenience method for deleting rows in the database.</summary>
         <returns>the number of rows affected if a whereClause is passed in, 0
                     otherwise. To remove all rows and get a count pass "1" as the
@@ -1026,7 +1215,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="sql" Type="System.String" />
-        <Parameter Name="bindArgs" Type="Java.Lang.Object[]" />
+        <Parameter Name="bindArgs" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="sql">The SQL statement to be executed. Multiple statements
@@ -1113,10 +1309,11 @@
       </Docs>
     </Member>
     <Member MemberName="ExecSQL">
-      <MemberSignature Language="C#" Value="public virtual void ExecSQL (string? sql, Java.Lang.Object[]? bindArgs);" />
+      <MemberSignature Language="C#" Value="public virtual void ExecSQL (string? sql, Java.Lang.Object[]? bindArgs);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ExecSQL(string sql, class Java.Lang.Object[] bindArgs) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.ExecSQL(System.String,Java.Lang.Object[])" />
       <MemberSignature Language="F#" Value="abstract member ExecSQL : string * Java.Lang.Object[] -&gt; unit&#xA;override this.ExecSQL : string * Java.Lang.Object[] -&gt; unit" Usage="sQLiteDatabase.ExecSQL (sql, bindArgs)" />
+      <MemberSignature Language="C#" Value="public virtual void ExecSQL (string sql, Java.Lang.Object[] bindArgs);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1133,7 +1330,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="sql" Type="System.String" />
-        <Parameter Name="bindArgs" Type="Java.Lang.Object[]" />
+        <Parameter Name="bindArgs" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-34.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="sql">the SQL statement to be executed. Multiple statements separated by semicolons are
@@ -1233,10 +1437,11 @@
       </Docs>
     </Member>
     <Member MemberName="Insert">
-      <MemberSignature Language="C#" Value="public virtual long Insert (string? table, string? nullColumnHack, Android.Content.ContentValues? values);" />
+      <MemberSignature Language="C#" Value="public virtual long Insert (string? table, string? nullColumnHack, Android.Content.ContentValues? values);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Insert(string table, string nullColumnHack, class Android.Content.ContentValues values) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Insert(System.String,System.String,Android.Content.ContentValues)" />
       <MemberSignature Language="F#" Value="abstract member Insert : string * string * Android.Content.ContentValues -&gt; int64&#xA;override this.Insert : string * string * Android.Content.ContentValues -&gt; int64" Usage="sQLiteDatabase.Insert (table, nullColumnHack, values)" />
+      <MemberSignature Language="C#" Value="public virtual long Insert (string table, string? nullColumnHack, Android.Content.ContentValues? values);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1252,7 +1457,14 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="nullColumnHack" Type="System.String" />
         <Parameter Name="values" Type="Android.Content.ContentValues" />
       </Parameters>
@@ -1287,10 +1499,11 @@
       </Docs>
     </Member>
     <Member MemberName="InsertOrThrow">
-      <MemberSignature Language="C#" Value="public virtual long InsertOrThrow (string? table, string? nullColumnHack, Android.Content.ContentValues? values);" />
+      <MemberSignature Language="C#" Value="public virtual long InsertOrThrow (string? table, string? nullColumnHack, Android.Content.ContentValues? values);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 InsertOrThrow(string table, string nullColumnHack, class Android.Content.ContentValues values) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.InsertOrThrow(System.String,System.String,Android.Content.ContentValues)" />
       <MemberSignature Language="F#" Value="abstract member InsertOrThrow : string * string * Android.Content.ContentValues -&gt; int64&#xA;override this.InsertOrThrow : string * string * Android.Content.ContentValues -&gt; int64" Usage="sQLiteDatabase.InsertOrThrow (table, nullColumnHack, values)" />
+      <MemberSignature Language="C#" Value="public virtual long InsertOrThrow (string table, string? nullColumnHack, Android.Content.ContentValues? values);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1306,7 +1519,14 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="nullColumnHack" Type="System.String" />
         <Parameter Name="values" Type="Android.Content.ContentValues" />
       </Parameters>
@@ -1342,10 +1562,11 @@
       </Docs>
     </Member>
     <Member MemberName="InsertWithOnConflict">
-      <MemberSignature Language="C#" Value="public virtual long InsertWithOnConflict (string? table, string? nullColumnHack, Android.Content.ContentValues? initialValues, Android.Database.Sqlite.Conflict conflictAlgorithm);" />
+      <MemberSignature Language="C#" Value="public virtual long InsertWithOnConflict (string? table, string? nullColumnHack, Android.Content.ContentValues? initialValues, Android.Database.Sqlite.Conflict conflictAlgorithm);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 InsertWithOnConflict(string table, string nullColumnHack, class Android.Content.ContentValues initialValues, valuetype Android.Database.Sqlite.Conflict conflictAlgorithm) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.InsertWithOnConflict(System.String,System.String,Android.Content.ContentValues,Android.Database.Sqlite.Conflict)" />
       <MemberSignature Language="F#" Value="abstract member InsertWithOnConflict : string * string * Android.Content.ContentValues * Android.Database.Sqlite.Conflict -&gt; int64&#xA;override this.InsertWithOnConflict : string * string * Android.Content.ContentValues * Android.Database.Sqlite.Conflict -&gt; int64" Usage="sQLiteDatabase.InsertWithOnConflict (table, nullColumnHack, initialValues, conflictAlgorithm)" />
+      <MemberSignature Language="C#" Value="public virtual long InsertWithOnConflict (string table, string? nullColumnHack, Android.Content.ContentValues? initialValues, Android.Database.Sqlite.Conflict conflictAlgorithm);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1361,7 +1582,14 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="nullColumnHack" Type="System.String" />
         <Parameter Name="initialValues" Type="Android.Content.ContentValues" />
         <Parameter Name="conflictAlgorithm" Type="Android.Database.Sqlite.Conflict">
@@ -1712,6 +1940,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -1738,6 +1970,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("JOURNAL_MODE_DELETE", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("JOURNAL_MODE_DELETE", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
@@ -1781,6 +2017,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("JOURNAL_MODE_MEMORY", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("JOURNAL_MODE_MEMORY", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
@@ -1826,6 +2066,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("JOURNAL_MODE_OFF", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("JOURNAL_MODE_OFF", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
@@ -1873,6 +2117,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("JOURNAL_MODE_PERSIST", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("JOURNAL_MODE_PERSIST", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
@@ -1922,6 +2170,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("JOURNAL_MODE_TRUNCATE", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("JOURNAL_MODE_TRUNCATE", ApiSince=33)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
@@ -1967,6 +2219,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("JOURNAL_MODE_WAL", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("JOURNAL_MODE_WAL", ApiSince=33)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
@@ -1995,6 +2251,95 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#JOURNAL_MODE_WAL" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteDatabase.JOURNAL_MODE_WAL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="LastChangedRowCount">
+      <MemberSignature Language="C#" Value="public virtual long LastChangedRowCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 LastChangedRowCount" />
+      <MemberSignature Language="DocId" Value="P:Android.Database.Sqlite.SQLiteDatabase.LastChangedRowCount" />
+      <MemberSignature Language="F#" Value="member this.LastChangedRowCount : int64" Usage="Android.Database.Sqlite.SQLiteDatabase.LastChangedRowCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLastChangedRowCount", "()J", "GetGetLastChangedRowCountHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLastChangedRowCount", "()J", "GetGetLastChangedRowCountHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return the number of database rows that were inserted, updated, or deleted by the most recent
+            SQL statement within the current transaction.</summary>
+        <value>The number of rows changed by the most recent sql statement</value>
+        <remarks>
+          <para>Return the number of database rows that were inserted, updated, or deleted by the most recent
+            SQL statement within the current transaction.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#getLastChangedRowCount()" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteDatabase.getLastChangedRowCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="LastInsertRowId">
+      <MemberSignature Language="C#" Value="public virtual long LastInsertRowId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 LastInsertRowId" />
+      <MemberSignature Language="DocId" Value="P:Android.Database.Sqlite.SQLiteDatabase.LastInsertRowId" />
+      <MemberSignature Language="F#" Value="member this.LastInsertRowId : int64" Usage="Android.Database.Sqlite.SQLiteDatabase.LastInsertRowId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getLastInsertRowId", "()J", "GetGetLastInsertRowIdHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLastInsertRowId", "()J", "GetGetLastInsertRowIdHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return the "rowid" of the last row to be inserted on the current connection.</summary>
+        <value>The ROWID of the last row to be inserted under this connection.</value>
+        <remarks>
+          <para>Return the "rowid" of the last row to be inserted on the current connection. This method must
+            only be called when inside a transaction. <c>IllegalStateException</c> is thrown if the
+            method is called outside a transaction. If the function is called before any inserts in the
+            current transaction, the value returned will be from a previous transaction, which may be
+            from a different thread. If no inserts have occurred on the current connection, the function
+            returns 0. See the SQLite documentation for the specific details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#getLastInsertRowId()" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteDatabase.getLastInsertRowId()</code>.</a>
             </format>
           </para>
           <para>
@@ -2282,6 +2627,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Database.Sqlite.SQLiteDatabase</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="path" Type="Java.IO.File" />
@@ -2328,7 +2679,14 @@
         <ReturnType>Android.Database.Sqlite.SQLiteDatabase</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="path" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="factory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
         <Parameter Name="flags" Type="Android.Database.Sqlite.DatabaseOpenFlags">
           <Attributes>
@@ -2385,7 +2743,14 @@
         <ReturnType>Android.Database.Sqlite.SQLiteDatabase</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="path" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="factory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
         <Parameter Name="flags" Type="Android.Database.Sqlite.DatabaseOpenFlags">
           <Attributes>
@@ -2445,7 +2810,14 @@
         <ReturnType>Android.Database.Sqlite.SQLiteDatabase</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="file" Type="Java.IO.File" />
+        <Parameter Name="file" Type="Java.IO.File">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="factory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
       </Parameters>
       <Docs>
@@ -2488,7 +2860,14 @@
         <ReturnType>Android.Database.Sqlite.SQLiteDatabase</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="path" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="factory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
       </Parameters>
       <Docs>
@@ -2531,7 +2910,14 @@
         <ReturnType>Android.Database.Sqlite.SQLiteDatabase</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="path" Type="System.String" />
+        <Parameter Name="path" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="factory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
         <Parameter Name="errorHandler" Type="Android.Database.IDatabaseErrorHandler" />
       </Parameters>
@@ -2624,6 +3010,10 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getPath", "()Ljava/lang/String;", "GetGetPathHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPath", "()Ljava/lang/String;", "GetGetPathHandler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -2648,10 +3038,11 @@
       </Docs>
     </Member>
     <Member MemberName="Query">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor Query(string table, string[] columns, string selection, string[] selectionArgs, string groupBy, string having, string orderBy) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Query(System.String,System.String[],System.String,System.String[],System.String,System.String,System.String)" />
       <MemberSignature Language="F#" Value="abstract member Query : string * string[] * string * string[] * string * string * string -&gt; Android.Database.ICursor&#xA;override this.Query : string * string[] * string * string[] * string * string * string -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.Query (table, columns, selection, selectionArgs, groupBy, having, orderBy)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor Query (string table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2667,10 +3058,31 @@
         <ReturnType>Android.Database.ICursor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
-        <Parameter Name="columns" Type="System.String[]" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="columns" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="groupBy" Type="System.String" />
         <Parameter Name="having" Type="System.String" />
         <Parameter Name="orderBy" Type="System.String" />
@@ -2684,8 +3096,10 @@
                        SQL WHERE clause (excluding the WHERE itself). Passing null
                        will return all rows for the given table.</param>
         <param name="selectionArgs">You may include ?s in selection, which will be
-                    replaced by the values from selectionArgs, in order that they
-                    appear in the selection. The values will be bound as Strings.</param>
+                    replaced by the values from selectionArgs, in the order that they
+                    appear in the selection. The values will be bound as Strings.
+                    If selection is null or does not contain ?s then selectionArgs
+                    may be null.</param>
         <param name="groupBy">A filter declaring how to group rows, formatted as an SQL
                        GROUP BY clause (excluding the GROUP BY itself). Passing null
                        will cause the rows to not be grouped.</param>
@@ -2718,10 +3132,11 @@
       </Docs>
     </Member>
     <Member MemberName="Query">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor Query(string table, string[] columns, string selection, string[] selectionArgs, string groupBy, string having, string orderBy, string limit) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Query(System.String,System.String[],System.String,System.String[],System.String,System.String,System.String,System.String)" />
       <MemberSignature Language="F#" Value="abstract member Query : string * string[] * string * string[] * string * string * string * string -&gt; Android.Database.ICursor&#xA;override this.Query : string * string[] * string * string[] * string * string * string * string -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.Query (table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor Query (string table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2737,10 +3152,31 @@
         <ReturnType>Android.Database.ICursor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
-        <Parameter Name="columns" Type="System.String[]" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="columns" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="groupBy" Type="System.String" />
         <Parameter Name="having" Type="System.String" />
         <Parameter Name="orderBy" Type="System.String" />
@@ -2755,8 +3191,10 @@
                        SQL WHERE clause (excluding the WHERE itself). Passing null
                        will return all rows for the given table.</param>
         <param name="selectionArgs">You may include ?s in selection, which will be
-                    replaced by the values from selectionArgs, in order that they
-                    appear in the selection. The values will be bound as Strings.</param>
+                    replaced by the values from selectionArgs, in the order that they
+                    appear in the selection. The values will be bound as Strings.
+                    If selection is null or does not contain ?s then selectionArgs
+                    may be null.</param>
         <param name="groupBy">A filter declaring how to group rows, formatted as an SQL
                        GROUP BY clause (excluding the GROUP BY itself). Passing null
                        will cause the rows to not be grouped.</param>
@@ -2791,10 +3229,11 @@
       </Docs>
     </Member>
     <Member MemberName="Query">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor Query(bool distinct, string table, string[] columns, string selection, string[] selectionArgs, string groupBy, string having, string orderBy, string limit) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Query(System.Boolean,System.String,System.String[],System.String,System.String[],System.String,System.String,System.String,System.String)" />
       <MemberSignature Language="F#" Value="abstract member Query : bool * string * string[] * string * string[] * string * string * string * string -&gt; Android.Database.ICursor&#xA;override this.Query : bool * string * string[] * string * string[] * string * string * string * string -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.Query (distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor Query (bool distinct, string table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2811,10 +3250,31 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="distinct" Type="System.Boolean" />
-        <Parameter Name="table" Type="System.String" />
-        <Parameter Name="columns" Type="System.String[]" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="columns" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="groupBy" Type="System.String" />
         <Parameter Name="having" Type="System.String" />
         <Parameter Name="orderBy" Type="System.String" />
@@ -2830,8 +3290,10 @@
                        SQL WHERE clause (excluding the WHERE itself). Passing null
                        will return all rows for the given table.</param>
         <param name="selectionArgs">You may include ?s in selection, which will be
-                    replaced by the values from selectionArgs, in order that they
-                    appear in the selection. The values will be bound as Strings.</param>
+                    replaced by the values from selectionArgs, in the order that they
+                    appear in the selection. The values will be bound as Strings.
+                    If selection is null or does not contain ?s then selectionArgs
+                    may be null.</param>
         <param name="groupBy">A filter declaring how to group rows, formatted as an SQL
                        GROUP BY clause (excluding the GROUP BY itself). Passing null
                        will cause the rows to not be grouped.</param>
@@ -2866,10 +3328,11 @@
       </Docs>
     </Member>
     <Member MemberName="Query">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit, Android.OS.CancellationSignal? cancellationSignal);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? Query (bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor Query(bool distinct, string table, string[] columns, string selection, string[] selectionArgs, string groupBy, string having, string orderBy, string limit, class Android.OS.CancellationSignal cancellationSignal) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Query(System.Boolean,System.String,System.String[],System.String,System.String[],System.String,System.String,System.String,System.String,Android.OS.CancellationSignal)" />
       <MemberSignature Language="F#" Value="abstract member Query : bool * string * string[] * string * string[] * string * string * string * string * Android.OS.CancellationSignal -&gt; Android.Database.ICursor&#xA;override this.Query : bool * string * string[] * string * string[] * string * string * string * string * Android.OS.CancellationSignal -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.Query (distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit, cancellationSignal)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor Query (bool distinct, string table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2886,10 +3349,31 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="distinct" Type="System.Boolean" />
-        <Parameter Name="table" Type="System.String" />
-        <Parameter Name="columns" Type="System.String[]" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="columns" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="groupBy" Type="System.String" />
         <Parameter Name="having" Type="System.String" />
         <Parameter Name="orderBy" Type="System.String" />
@@ -2906,8 +3390,10 @@
                        SQL WHERE clause (excluding the WHERE itself). Passing null
                        will return all rows for the given table.</param>
         <param name="selectionArgs">You may include ?s in selection, which will be
-                    replaced by the values from selectionArgs, in order that they
-                    appear in the selection. The values will be bound as Strings.</param>
+                    replaced by the values from selectionArgs, in the order that they
+                    appear in the selection. The values will be bound as Strings.
+                    If selection is null or does not contain ?s then selectionArgs
+                    may be null.</param>
         <param name="groupBy">A filter declaring how to group rows, formatted as an SQL
                        GROUP BY clause (excluding the GROUP BY itself). Passing null
                        will cause the rows to not be grouped.</param>
@@ -2945,10 +3431,11 @@
       </Docs>
     </Member>
     <Member MemberName="QueryWithFactory">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? QueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? QueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor QueryWithFactory(class Android.Database.Sqlite.SQLiteDatabase/ICursorFactory cursorFactory, bool distinct, string table, string[] columns, string selection, string[] selectionArgs, string groupBy, string having, string orderBy, string limit) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.QueryWithFactory(Android.Database.Sqlite.SQLiteDatabase.ICursorFactory,System.Boolean,System.String,System.String[],System.String,System.String[],System.String,System.String,System.String,System.String)" />
       <MemberSignature Language="F#" Value="abstract member QueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * bool * string * string[] * string * string[] * string * string * string * string -&gt; Android.Database.ICursor&#xA;override this.QueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * bool * string * string[] * string * string[] * string * string * string * string -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.QueryWithFactory (cursorFactory, distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor QueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, bool distinct, string table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2966,10 +3453,31 @@
       <Parameters>
         <Parameter Name="cursorFactory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
         <Parameter Name="distinct" Type="System.Boolean" />
-        <Parameter Name="table" Type="System.String" />
-        <Parameter Name="columns" Type="System.String[]" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="columns" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="groupBy" Type="System.String" />
         <Parameter Name="having" Type="System.String" />
         <Parameter Name="orderBy" Type="System.String" />
@@ -3021,10 +3529,11 @@
       </Docs>
     </Member>
     <Member MemberName="QueryWithFactory">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? QueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit, Android.OS.CancellationSignal? cancellationSignal);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? QueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, bool distinct, string? table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor QueryWithFactory(class Android.Database.Sqlite.SQLiteDatabase/ICursorFactory cursorFactory, bool distinct, string table, string[] columns, string selection, string[] selectionArgs, string groupBy, string having, string orderBy, string limit, class Android.OS.CancellationSignal cancellationSignal) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.QueryWithFactory(Android.Database.Sqlite.SQLiteDatabase.ICursorFactory,System.Boolean,System.String,System.String[],System.String,System.String[],System.String,System.String,System.String,System.String,Android.OS.CancellationSignal)" />
       <MemberSignature Language="F#" Value="abstract member QueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * bool * string * string[] * string * string[] * string * string * string * string * Android.OS.CancellationSignal -&gt; Android.Database.ICursor&#xA;override this.QueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * bool * string * string[] * string * string[] * string * string * string * string * Android.OS.CancellationSignal -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.QueryWithFactory (cursorFactory, distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit, cancellationSignal)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor QueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, bool distinct, string table, string[]? columns, string? selection, string[]? selectionArgs, string? groupBy, string? having, string? orderBy, string? limit, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3042,10 +3551,31 @@
       <Parameters>
         <Parameter Name="cursorFactory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
         <Parameter Name="distinct" Type="System.Boolean" />
-        <Parameter Name="table" Type="System.String" />
-        <Parameter Name="columns" Type="System.String[]" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="columns" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="groupBy" Type="System.String" />
         <Parameter Name="having" Type="System.String" />
         <Parameter Name="orderBy" Type="System.String" />
@@ -3101,10 +3631,11 @@
       </Docs>
     </Member>
     <Member MemberName="RawQuery">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQuery (string? sql, string[]? selectionArgs);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQuery (string? sql, string[]? selectionArgs);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor RawQuery(string sql, string[] selectionArgs) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.RawQuery(System.String,System.String[])" />
       <MemberSignature Language="F#" Value="abstract member RawQuery : string * string[] -&gt; Android.Database.ICursor&#xA;override this.RawQuery : string * string[] -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.RawQuery (sql, selectionArgs)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor RawQuery (string sql, string[]? selectionArgs);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3121,13 +3652,21 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="sql" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="sql">the SQL query. The SQL string must not be ; terminated</param>
         <param name="selectionArgs">You may include ?s in where clause in the query,
                 which will be replaced by the values from selectionArgs. The
-                values will be bound as Strings.</param>
+                values will be bound as Strings. If selection is null or does not contain ?s then
+                selectionArgs may be null.</param>
         <summary>Runs the provided SQL and returns a <c>Cursor</c> over the result set.</summary>
         <returns>A <c>Cursor</c> object, which is positioned before the first entry. Note that
             <c>Cursor</c>s are not synchronized, see the documentation for more details.</returns>
@@ -3148,10 +3687,11 @@
       </Docs>
     </Member>
     <Member MemberName="RawQuery">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQuery (string? sql, string[]? selectionArgs, Android.OS.CancellationSignal? cancellationSignal);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQuery (string? sql, string[]? selectionArgs, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor RawQuery(string sql, string[] selectionArgs, class Android.OS.CancellationSignal cancellationSignal) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.RawQuery(System.String,System.String[],Android.OS.CancellationSignal)" />
       <MemberSignature Language="F#" Value="abstract member RawQuery : string * string[] * Android.OS.CancellationSignal -&gt; Android.Database.ICursor&#xA;override this.RawQuery : string * string[] * Android.OS.CancellationSignal -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.RawQuery (sql, selectionArgs, cancellationSignal)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor RawQuery (string sql, string[]? selectionArgs, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3168,14 +3708,29 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="sql" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
-        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="sql">the SQL query. The SQL string must not be ; terminated</param>
         <param name="selectionArgs">You may include ?s in where clause in the query,
                 which will be replaced by the values from selectionArgs. The
-                values will be bound as Strings.</param>
+                values will be bound as Strings. If selection is null or does not contain ?s then
+                selectionArgs may be null.</param>
         <param name="cancellationSignal">A signal to cancel the operation in progress, or null if none.
             If the operation is canceled, then <c>OperationCanceledException</c> will be thrown
             when the query is executed.</param>
@@ -3199,10 +3754,11 @@
       </Docs>
     </Member>
     <Member MemberName="RawQueryWithFactory">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, string? sql, string[]? selectionArgs, string? editTable);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, string? sql, string[]? selectionArgs, string? editTable);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor RawQueryWithFactory(class Android.Database.Sqlite.SQLiteDatabase/ICursorFactory cursorFactory, string sql, string[] selectionArgs, string editTable) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.RawQueryWithFactory(Android.Database.Sqlite.SQLiteDatabase.ICursorFactory,System.String,System.String[],System.String)" />
       <MemberSignature Language="F#" Value="abstract member RawQueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * string * string[] * string -&gt; Android.Database.ICursor&#xA;override this.RawQueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * string * string[] * string -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.RawQueryWithFactory (cursorFactory, sql, selectionArgs, editTable)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor RawQueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, string sql, string[]? selectionArgs, string editTable);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3218,9 +3774,23 @@
         <ReturnType>Android.Database.ICursor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="cursorFactory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
+        <Parameter Name="cursorFactory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sql" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="editTable" Type="System.String" />
       </Parameters>
       <Docs>
@@ -3249,10 +3819,11 @@
       </Docs>
     </Member>
     <Member MemberName="RawQueryWithFactory">
-      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, string? sql, string[]? selectionArgs, string? editTable, Android.OS.CancellationSignal? cancellationSignal);" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor? RawQueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, string? sql, string[]? selectionArgs, string? editTable, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Database.ICursor RawQueryWithFactory(class Android.Database.Sqlite.SQLiteDatabase/ICursorFactory cursorFactory, string sql, string[] selectionArgs, string editTable, class Android.OS.CancellationSignal cancellationSignal) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.RawQueryWithFactory(Android.Database.Sqlite.SQLiteDatabase.ICursorFactory,System.String,System.String[],System.String,Android.OS.CancellationSignal)" />
       <MemberSignature Language="F#" Value="abstract member RawQueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * string * string[] * string * Android.OS.CancellationSignal -&gt; Android.Database.ICursor&#xA;override this.RawQueryWithFactory : Android.Database.Sqlite.SQLiteDatabase.ICursorFactory * string * string[] * string * Android.OS.CancellationSignal -&gt; Android.Database.ICursor" Usage="sQLiteDatabase.RawQueryWithFactory (cursorFactory, sql, selectionArgs, editTable, cancellationSignal)" />
+      <MemberSignature Language="C#" Value="public virtual Android.Database.ICursor RawQueryWithFactory (Android.Database.Sqlite.SQLiteDatabase.ICursorFactory? cursorFactory, string sql, string[]? selectionArgs, string editTable, Android.OS.CancellationSignal? cancellationSignal);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3268,11 +3839,32 @@
         <ReturnType>Android.Database.ICursor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="cursorFactory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory" />
+        <Parameter Name="cursorFactory" Type="Android.Database.Sqlite.SQLiteDatabase+ICursorFactory">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sql" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="editTable" Type="System.String" />
-        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="cursorFactory">the cursor factory to use, or null for the default factory</param>
@@ -3344,10 +3936,11 @@
       </Docs>
     </Member>
     <Member MemberName="Replace">
-      <MemberSignature Language="C#" Value="public virtual long Replace (string? table, string? nullColumnHack, Android.Content.ContentValues? initialValues);" />
+      <MemberSignature Language="C#" Value="public virtual long Replace (string? table, string? nullColumnHack, Android.Content.ContentValues? initialValues);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 Replace(string table, string nullColumnHack, class Android.Content.ContentValues initialValues) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Replace(System.String,System.String,Android.Content.ContentValues)" />
       <MemberSignature Language="F#" Value="abstract member Replace : string * string * Android.Content.ContentValues -&gt; int64&#xA;override this.Replace : string * string * Android.Content.ContentValues -&gt; int64" Usage="sQLiteDatabase.Replace (table, nullColumnHack, initialValues)" />
+      <MemberSignature Language="C#" Value="public virtual long Replace (string table, string? nullColumnHack, Android.Content.ContentValues? initialValues);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3363,7 +3956,14 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="nullColumnHack" Type="System.String" />
         <Parameter Name="initialValues" Type="Android.Content.ContentValues" />
       </Parameters>
@@ -3398,10 +3998,11 @@
       </Docs>
     </Member>
     <Member MemberName="ReplaceOrThrow">
-      <MemberSignature Language="C#" Value="public virtual long ReplaceOrThrow (string? table, string? nullColumnHack, Android.Content.ContentValues? initialValues);" />
+      <MemberSignature Language="C#" Value="public virtual long ReplaceOrThrow (string? table, string? nullColumnHack, Android.Content.ContentValues? initialValues);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 ReplaceOrThrow(string table, string nullColumnHack, class Android.Content.ContentValues initialValues) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.ReplaceOrThrow(System.String,System.String,Android.Content.ContentValues)" />
       <MemberSignature Language="F#" Value="abstract member ReplaceOrThrow : string * string * Android.Content.ContentValues -&gt; int64&#xA;override this.ReplaceOrThrow : string * string * Android.Content.ContentValues -&gt; int64" Usage="sQLiteDatabase.ReplaceOrThrow (table, nullColumnHack, initialValues)" />
+      <MemberSignature Language="C#" Value="public virtual long ReplaceOrThrow (string table, string? nullColumnHack, Android.Content.ContentValues? initialValues);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3417,7 +4018,14 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="nullColumnHack" Type="System.String" />
         <Parameter Name="initialValues" Type="Android.Content.ContentValues" />
       </Parameters>
@@ -3934,6 +4542,10 @@
           <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getSyncedTables", "()Ljava/util/Map;", "GetGetSyncedTablesHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSyncedTables", "()Ljava/util/Map;", "GetGetSyncedTablesHandler")&gt;]</AttributeName>
         </Attribute>
@@ -3975,6 +4587,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("SYNC_MODE_EXTRA", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("SYNC_MODE_EXTRA", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
@@ -4025,6 +4641,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("SYNC_MODE_FULL", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("SYNC_MODE_FULL", ApiSince=33)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
@@ -4072,6 +4692,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("SYNC_MODE_NORMAL", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("SYNC_MODE_NORMAL", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
@@ -4130,6 +4754,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("SYNC_MODE_OFF", ApiSince=33)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("SYNC_MODE_OFF", ApiSince=33)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
@@ -4213,6 +4841,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -4225,11 +4857,69 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="TotalChangedRowCount">
+      <MemberSignature Language="C#" Value="public virtual long TotalChangedRowCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 TotalChangedRowCount" />
+      <MemberSignature Language="DocId" Value="P:Android.Database.Sqlite.SQLiteDatabase.TotalChangedRowCount" />
+      <MemberSignature Language="F#" Value="member this.TotalChangedRowCount : int64" Usage="Android.Database.Sqlite.SQLiteDatabase.TotalChangedRowCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTotalChangedRowCount", "()J", "GetGetTotalChangedRowCountHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTotalChangedRowCount", "()J", "GetGetTotalChangedRowCountHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return the total number of database rows that have been inserted, updated, or deleted on
+            the current connection since it was created.</summary>
+        <value>The number of rows changed on the current connection.</value>
+        <remarks>
+          <para>Return the total number of database rows that have been inserted, updated, or deleted on
+            the current connection since it was created.  Due to Android's internal management of
+            SQLite connections, the value may, or may not, include changes made in earlier
+            transactions. Best practice is to compare values returned within a single transaction.
+            
+            <c>&lt;pre&gt;
+               database.beginTransaction();
+               try {
+                   long initialValue = database.getTotalChangedRowCount();
+                   // Execute SQL statements
+                   long changedRows = database.getTotalChangedRowCount() - initialValue;
+                   // changedRows counts the total number of rows updated in the transaction.
+               } finally {
+                   database.endTransaction();
+               }
+            &lt;/pre&gt;</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase#getTotalChangedRowCount()" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteDatabase.getTotalChangedRowCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Update">
-      <MemberSignature Language="C#" Value="public virtual int Update (string? table, Android.Content.ContentValues? values, string? whereClause, string[]? whereArgs);" />
+      <MemberSignature Language="C#" Value="public virtual int Update (string? table, Android.Content.ContentValues? values, string? whereClause, string[]? whereArgs);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Update(string table, class Android.Content.ContentValues values, string whereClause, string[] whereArgs) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.Update(System.String,Android.Content.ContentValues,System.String,System.String[])" />
       <MemberSignature Language="F#" Value="abstract member Update : string * Android.Content.ContentValues * string * string[] -&gt; int&#xA;override this.Update : string * Android.Content.ContentValues * string * string[] -&gt; int" Usage="sQLiteDatabase.Update (table, values, whereClause, whereArgs)" />
+      <MemberSignature Language="C#" Value="public virtual int Update (string table, Android.Content.ContentValues? values, string? whereClause, string[]? whereArgs);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -4245,10 +4935,24 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="values" Type="Android.Content.ContentValues" />
         <Parameter Name="whereClause" Type="System.String" />
-        <Parameter Name="whereArgs" Type="System.String[]" />
+        <Parameter Name="whereArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="table">the table to update in</param>
@@ -4258,7 +4962,8 @@
                        Passing null will update all rows.</param>
         <param name="whereArgs">You may include ?s in the where clause, which
                        will be replaced by the values from whereArgs. The values
-                       will be bound as Strings.</param>
+                       will be bound as Strings. If whereClause is null or does not
+                       contain ?s then whereArgs may be null.</param>
         <summary>Convenience method for updating rows in the database.</summary>
         <returns>the number of rows affected</returns>
         <remarks>
@@ -4278,10 +4983,11 @@
       </Docs>
     </Member>
     <Member MemberName="UpdateWithOnConflict">
-      <MemberSignature Language="C#" Value="public virtual int UpdateWithOnConflict (string? table, Android.Content.ContentValues? values, string? whereClause, string[]? whereArgs, Android.Database.Sqlite.Conflict conflictAlgorithm);" />
+      <MemberSignature Language="C#" Value="public virtual int UpdateWithOnConflict (string? table, Android.Content.ContentValues? values, string? whereClause, string[]? whereArgs, Android.Database.Sqlite.Conflict conflictAlgorithm);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 UpdateWithOnConflict(string table, class Android.Content.ContentValues values, string whereClause, string[] whereArgs, valuetype Android.Database.Sqlite.Conflict conflictAlgorithm) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Database.Sqlite.SQLiteDatabase.UpdateWithOnConflict(System.String,Android.Content.ContentValues,System.String,System.String[],Android.Database.Sqlite.Conflict)" />
       <MemberSignature Language="F#" Value="abstract member UpdateWithOnConflict : string * Android.Content.ContentValues * string * string[] * Android.Database.Sqlite.Conflict -&gt; int&#xA;override this.UpdateWithOnConflict : string * Android.Content.ContentValues * string * string[] * Android.Database.Sqlite.Conflict -&gt; int" Usage="sQLiteDatabase.UpdateWithOnConflict (table, values, whereClause, whereArgs, conflictAlgorithm)" />
+      <MemberSignature Language="C#" Value="public virtual int UpdateWithOnConflict (string table, Android.Content.ContentValues? values, string? whereClause, string[]? whereArgs, Android.Database.Sqlite.Conflict conflictAlgorithm);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -4297,10 +5003,24 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="table" Type="System.String" />
+        <Parameter Name="table" Type="System.String">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="values" Type="Android.Content.ContentValues" />
         <Parameter Name="whereClause" Type="System.String" />
-        <Parameter Name="whereArgs" Type="System.String[]" />
+        <Parameter Name="whereArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="conflictAlgorithm" Type="Android.Database.Sqlite.Conflict">
           <Attributes>
             <Attribute>
@@ -4318,7 +5038,8 @@
                        Passing null will update all rows.</param>
         <param name="whereArgs">You may include ?s in the where clause, which
                        will be replaced by the values from whereArgs. The values
-                       will be bound as Strings.</param>
+                       will be bound as Strings. If whereClause is null or does not
+                       contain ?s then whereArgs may be null.</param>
         <param name="conflictAlgorithm">for update conflict resolver</param>
         <summary>Convenience method for updating rows in the database.</summary>
         <returns>the number of rows affected</returns>
@@ -4363,7 +5084,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="sql" Type="System.String" />
-        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="sql">SQL to be validated</param>

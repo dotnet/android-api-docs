@@ -32,6 +32,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/content/Intent", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/content/Intent", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>An intent is an abstract description of an operation to be performed.</summary>
@@ -853,6 +857,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getAction", "()Ljava/lang/String;", "GetGetActionHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAction", "()Ljava/lang/String;", "GetGetActionHandler")&gt;]</AttributeName>
         </Attribute>
@@ -1619,6 +1627,10 @@
           <para>Note: this Intent &lt;strong&gt;cannot&lt;/strong&gt; be used to call emergency
             numbers.  Applications can &lt;strong&gt;dial&lt;/strong&gt; emergency numbers using
             <c>#ACTION_DIAL</c>, however.</para>
+          <para>Note: This Intent can only be used to dial call forwarding MMI codes if the application
+            using this intent is set as the default or system dialer. The system will treat any other
+            application using this Intent for the purpose of dialing call forwarding MMI codes as if the
+            <c>#ACTION_DIAL</c> Intent was used instead.</para>
           <para>Note: An app filling the <c>android.app.role.RoleManager#ROLE_DIALER</c> role should use
             <c>android.telecom.TelecomManager#placeCall(Uri, Bundle)</c> to place calls rather than
             relying on this intent.</para>
@@ -4655,7 +4667,11 @@
           <para>&lt;ul&gt;
               &lt;li&gt;&lt;em&gt;<c>android.content.Intent#EXTRA_PHONE_NUMBER</c>&lt;/em&gt; -
                   the phone number originally intended to be dialed.&lt;/li&gt;
-            &lt;/ul&gt;</para>
+            &lt;/ul&gt;
+            &lt;p class="note"&gt;Starting in Android 15, this broadcast is no longer sent as an ordered
+            broadcast.  The <c>resultData</c> no longer has any effect and will not determine the
+            actual routing of the call.  Further, receivers of this broadcast do not get foreground
+            priority and cannot launch background activities.&lt;/p&gt;</para>
           <para>Once the broadcast is finished, the resultData is used as the actual
             number to call.  If  <c>null</c>, no call will be placed.</para>
           <para>It is perfectly acceptable for multiple receivers to process the
@@ -4694,8 +4710,8 @@
             <c>android.telecom.CallRedirectionService</c> API.  Apps that perform call screening
             should use the <c>android.telecom.CallScreeningService</c> API.  Apps which need to be
             notified of basic call state should use
-            <c>android.telephony.PhoneStateListener#onCallStateChanged(int, String)</c> to determine
-            when a new outgoing call is placed.</para>
+            <c>android.telephony.TelephonyCallback.CallStateListener</c> to determine when a new
+            outgoing call is placed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#ACTION_NEW_OUTGOING_CALL" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_NEW_OUTGOING_CALL</code>.</a>
@@ -5341,6 +5357,9 @@
             
             &lt;p class="note"&gt;This is a protected intent that can only be sent
             by the system.</para>
+          <para>Starting in Android V, an extra timestamp
+            <c>#EXTRA_TIME</c> is included with this broadcast to indicate the exact time the package
+            was restarted, in <c>SystemClock#elapsedRealtime() elapsed realtime</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#ACTION_PACKAGE_RESTARTED" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_PACKAGE_RESTARTED</code>.</a>
@@ -5447,6 +5466,63 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#ACTION_PACKAGES_UNSUSPENDED" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_PACKAGES_UNSUSPENDED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionPackageUnstopped">
+      <MemberSignature Language="C#" Value="public const string ActionPackageUnstopped;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionPackageUnstopped" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ActionPackageUnstopped" />
+      <MemberSignature Language="F#" Value="val mutable ActionPackageUnstopped : string" Usage="Android.Content.Intent.ActionPackageUnstopped" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_PACKAGE_UNSTOPPED", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_PACKAGE_UNSTOPPED", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Broadcast Action: An application package that was previously in the stopped state has been
+            started and is no longer considered stopped.</summary>
+        <remarks>
+          <para>Broadcast Action: An application package that was previously in the stopped state has been
+            started and is no longer considered stopped.</para>
+          <para>When a package is force-stopped, the <c>#ACTION_PACKAGE_RESTARTED</c> broadcast is sent
+            and the package in the stopped state cannot self-start for any reason unless there's an
+            explicit request to start a component in the package. The <c>#ACTION_PACKAGE_UNSTOPPED</c>
+            broadcast is sent when such an explicit process start occurs and the package is taken
+            out of the stopped state. The data contains the name of the package.</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt; <c>#EXTRA_UID</c> containing the integer uid assigned to the package.
+            &lt;li&gt; <c>#EXTRA_TIME</c> containing the <c>SystemClock#elapsedRealtime()
+                     elapsed realtime</c> of when the package was unstopped.
+            &lt;/ul&gt;
+            
+            &lt;p class="note"&gt;This is a protected intent that can only be sent by the system.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#ACTION_PACKAGE_UNSTOPPED" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_PACKAGE_UNSTOPPED</code>.</a>
             </format>
           </para>
           <para>
@@ -5897,7 +5973,7 @@
             Carries an extra <c>#EXTRA_USER</c> that specifies the  <c>UserHandle</c> of the profile
             that was added.</para>
           <para>This broadcast is similar to <c>#ACTION_MANAGED_PROFILE_ADDED</c> but functions as a
-            generic broadcast for all users of type <c>android.content.pm.UserInfo#isProfile()</c>}.
+            generic broadcast for all profile users.
             It is sent in addition to the <c>#ACTION_MANAGED_PROFILE_ADDED</c> broadcast when a
             managed user is added.</para>
           <para>Only applications (for example Launchers) that need to display merged content across both
@@ -5907,6 +5983,57 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#ACTION_PROFILE_ADDED" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_PROFILE_ADDED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionProfileAvailable">
+      <MemberSignature Language="C#" Value="public const string ActionProfileAvailable;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionProfileAvailable" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ActionProfileAvailable" />
+      <MemberSignature Language="F#" Value="val mutable ActionProfileAvailable : string" Usage="Android.Content.Intent.ActionProfileAvailable" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_PROFILE_AVAILABLE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_PROFILE_AVAILABLE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Broadcast sent to the primary user when an associated profile has become available.</summary>
+        <remarks>
+          <para>Broadcast sent to the primary user when an associated profile has become available.
+            This is sent when a user disables quiet mode for the profile. Carries an extra
+            <c>#EXTRA_USER</c> that specifies the <c>UserHandle</c> of the profile. When quiet mode is
+            changed, this broadcast will carry a boolean extra <c>#EXTRA_QUIET_MODE</c> indicating the
+            new state of quiet mode. This is only sent to registered receivers, not manifest receivers.</para>
+          <para>This broadcast is similar to <c>#ACTION_MANAGED_PROFILE_AVAILABLE</c> but functions as a
+            generic broadcast for all users of type <c>android.os.UserManager#isProfile()</c>}. In
+            case of a managed profile, both <c>#ACTION_MANAGED_PROFILE_AVAILABLE</c> and
+            <c>#ACTION_PROFILE_AVAILABLE</c> broadcasts are sent.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#ACTION_PROFILE_AVAILABLE" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_PROFILE_AVAILABLE</code>.</a>
             </format>
           </para>
           <para>
@@ -5995,7 +6122,7 @@
             Carries an extra <c>#EXTRA_USER</c> that specifies the <c>UserHandle</c> of the profile
             that was removed.</para>
           <para>This broadcast is similar to <c>#ACTION_MANAGED_PROFILE_REMOVED</c> but functions as a
-            generic broadcast for all users of type <c>android.content.pm.UserInfo#isProfile()</c>}.
+            generic broadcast for all profile users.
             It is sent in addition to the <c>#ACTION_MANAGED_PROFILE_REMOVED</c> broadcast when a
             managed user is removed.</para>
           <para>Only applications (for example Launchers) that need to display merged content across both
@@ -6005,6 +6132,57 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#ACTION_PROFILE_REMOVED" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_PROFILE_REMOVED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionProfileUnavailable">
+      <MemberSignature Language="C#" Value="public const string ActionProfileUnavailable;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionProfileUnavailable" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ActionProfileUnavailable" />
+      <MemberSignature Language="F#" Value="val mutable ActionProfileUnavailable : string" Usage="Android.Content.Intent.ActionProfileUnavailable" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_PROFILE_UNAVAILABLE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_PROFILE_UNAVAILABLE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Broadcast sent to the primary user when an associated profile has become unavailable.</summary>
+        <remarks>
+          <para>Broadcast sent to the primary user when an associated profile has become unavailable.
+            This is sent when a user enables quiet mode for the profile. Carries an extra
+            <c>#EXTRA_USER</c> that specifies the <c>UserHandle</c> of the profile. When quiet mode is
+            changed, this broadcast will carry a boolean extra <c>#EXTRA_QUIET_MODE</c> indicating the
+            new state of quiet mode. This is only sent to registered receivers, not manifest receivers.</para>
+          <para>This broadcast is similar to <c>#ACTION_MANAGED_PROFILE_UNAVAILABLE</c> but functions as
+            a generic broadcast for all users of type <c>android.os.UserManager#isProfile()</c>}. In
+            case of a managed profile, both <c>#ACTION_MANAGED_PROFILE_UNAVAILABLE</c> and
+            <c>#ACTION_PROFILE_UNAVAILABLE</c> broadcasts are sent.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#ACTION_PROFILE_UNAVAILABLE" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_PROFILE_UNAVAILABLE</code>.</a>
             </format>
           </para>
           <para>
@@ -7282,6 +7460,51 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="ActionUnarchivePackage">
+      <MemberSignature Language="C#" Value="public const string ActionUnarchivePackage;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionUnarchivePackage" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ActionUnarchivePackage" />
+      <MemberSignature Language="F#" Value="val mutable ActionUnarchivePackage : string" Usage="Android.Content.Intent.ActionUnarchivePackage" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_UNARCHIVE_PACKAGE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_UNARCHIVE_PACKAGE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Broadcast Action: Sent to the responsible installer of an archived package when unarchival
+            is requested.</summary>
+        <remarks>
+          <para>Broadcast Action: Sent to the responsible installer of an archived package when unarchival
+            is requested.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#ACTION_UNARCHIVE_PACKAGE" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_UNARCHIVE_PACKAGE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ActionUninstallPackage">
       <MemberSignature Language="C#" Value="public const string ActionUninstallPackage;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string ActionUninstallPackage" />
@@ -7463,6 +7686,7 @@
             <c>#ACTION_BOOT_COMPLETED</c> is sent.  This is sent as a foreground
             broadcast, since it is part of a visible user interaction; be as quick
             as possible when handling it.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; This broadcast is not sent to the system user.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#ACTION_USER_INITIALIZE" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_USER_INITIALIZE</code>.</a>
@@ -7953,7 +8177,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="category" Type="System.String" />
+        <Parameter Name="category" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="category">The desired category.  This can be either one of the
@@ -8300,6 +8531,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getCategories", "()Ljava/util/Set;", "GetGetCategoriesHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCategories", "()Ljava/util/Set;", "GetGetCategoriesHandler")&gt;]</AttributeName>
@@ -10188,6 +10423,56 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="ChooserContentTypeAlbum">
+      <MemberSignature Language="C#" Value="public const Android.Content.IntentChooserContentType ChooserContentTypeAlbum = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Content.IntentChooserContentType ChooserContentTypeAlbum = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ChooserContentTypeAlbum" />
+      <MemberSignature Language="F#" Value="val mutable ChooserContentTypeAlbum : Android.Content.IntentChooserContentType" Usage="Android.Content.Intent.ChooserContentTypeAlbum" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CHOOSER_CONTENT_TYPE_ALBUM", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CHOOSER_CONTENT_TYPE_ALBUM", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Content.IntentChooserContentType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Content.IntentChooserContentType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Content.IntentChooserContentType</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Indicates that the content being shared with <c>#ACTION_SEND</c> represents an album
+            (e.</summary>
+        <remarks>
+          <para>Indicates that the content being shared with <c>#ACTION_SEND</c> represents an album
+            (e.g. containing photos).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#CHOOSER_CONTENT_TYPE_ALBUM" title="Reference documentation">Java documentation for <code>android.content.Intent.CHOOSER_CONTENT_TYPE_ALBUM</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ClipData">
       <MemberSignature Language="C#" Value="public virtual Android.Content.ClipData? ClipData { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Android.Content.ClipData ClipData" />
@@ -10199,6 +10484,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getClipData", "()Landroid/content/ClipData;", "GetGetClipDataHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getClipData", "()Landroid/content/ClipData;", "GetGetClipDataHandler")&gt;]</AttributeName>
@@ -10341,6 +10630,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getComponent", "()Landroid/content/ComponentName;", "GetGetComponentHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getComponent", "()Landroid/content/ComponentName;", "GetGetComponentHandler")&gt;]</AttributeName>
@@ -10615,6 +10908,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("CREATOR")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
@@ -10640,6 +10937,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getData", "()Landroid/net/Uri;", "GetGetDataHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getData", "()Landroid/net/Uri;", "GetGetDataHandler")&gt;]</AttributeName>
@@ -10683,6 +10984,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getDataString", "()Ljava/lang/String;", "GetGetDataStringHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDataString", "()Ljava/lang/String;", "GetGetDataStringHandler")&gt;]</AttributeName>
@@ -10940,6 +11245,54 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_ALTERNATE_INTENTS" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_ALTERNATE_INTENTS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraArchival">
+      <MemberSignature Language="C#" Value="public const string ExtraArchival;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraArchival" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ExtraArchival" />
+      <MemberSignature Language="F#" Value="val mutable ExtraArchival : string" Usage="Android.Content.Intent.ExtraArchival" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_ARCHIVAL", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_ARCHIVAL", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Used as a boolean extra field in <c>android.content.Intent#ACTION_PACKAGE_ADDED</c> and
+            <c>android.content.Intent#ACTION_PACKAGE_REMOVED</c> intents to indicate that
+            the package is being archived.</summary>
+        <remarks>
+          <para>Used as a boolean extra field in <c>android.content.Intent#ACTION_PACKAGE_ADDED</c> and
+            <c>android.content.Intent#ACTION_PACKAGE_REMOVED</c> intents to indicate that
+            the package is being archived. Either by removing the existing APK, or by installing
+            a package without an APK.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_ARCHIVAL" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_ARCHIVAL</code>.</a>
             </format>
           </para>
           <para>
@@ -11627,6 +11980,136 @@
         <since version="Added in API level 8" />
       </Docs>
     </Member>
+    <Member MemberName="ExtraChooserAdditionalContentUri">
+      <MemberSignature Language="C#" Value="public const string ExtraChooserAdditionalContentUri;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraChooserAdditionalContentUri" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ExtraChooserAdditionalContentUri" />
+      <MemberSignature Language="F#" Value="val mutable ExtraChooserAdditionalContentUri : string" Usage="Android.Content.Intent.ExtraChooserAdditionalContentUri" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Optional argument used to provide a <c>ContentProvider</c><c>Uri</c> to an
+            <c>#ACTION_CHOOSER</c> Intent which allows additional toggleable items to be included
+            in the sharing UI.</summary>
+        <remarks>
+          <para>Optional argument used to provide a <c>ContentProvider</c><c>Uri</c> to an
+            <c>#ACTION_CHOOSER</c> Intent which allows additional toggleable items to be included
+            in the sharing UI.</para>
+          <para>For example, this could be  used to show photos being shared in the context of the user's
+            entire photo roll, with the option to change the set of photos being shared.</para>
+          <para>When this is provided in an <c>#ACTION_CHOOSER</c> Intent with an <c>#ACTION_SEND</c> or
+            <c>#ACTION_SEND_MULTIPLE</c> target Intent, the sharesheet will query (see
+            <c>ContentProvider#query(Uri, String[], Bundle, CancellationSignal)</c>) this URI to
+            retrieve a set of additional items available for selection. The set of items returned by the
+            content provider is expected to contain all the items from the <c>#EXTRA_STREAM</c>
+            argument, in their relative order, which will be marked as selected. The URI's authority
+            must be different from any shared items URI provided in <c>#EXTRA_STREAM</c> or returned by
+            the provider.</para>
+          <para>The <c>Bundle</c> argument of the
+            <c>ContentProvider#query(Uri, String[], Bundle, CancellationSignal)</c>
+            method will contains the original intent Chooser has been launched with under the
+            <c>#EXTRA_INTENT</c> key as a context for the current sharing session. The returned
+            <c>android.database.Cursor</c> should contain
+            <c>android.service.chooser.AdditionalContentContract.Columns#URI</c> column for the item URI
+            and, optionally, <c>AdditionalContentContract.CursorExtraKeys#POSITION</c> extra that
+            specifies the cursor starting position; the item at this position is expected to match the
+            item specified by <c>#EXTRA_CHOOSER_FOCUSED_ITEM_POSITION</c>.</para>
+          <para>When the user makes a selection change,
+            <c>ContentProvider#call(String, String, Bundle)</c> method will be invoked with the "method"
+            argument set to
+            <c>android.service.chooser.AdditionalContentContract.MethodNames#ON_SELECTION_CHANGED</c>,
+            the "arg" argument set to this argument's value, and the "extras" <c>Bundle</c> argument
+            containing <c>#EXTRA_INTENT</c> key containing the original intent Chooser has been launched
+            with but with the modified target intent --Chooser will modify the target intent according to
+            the selection changes made by the user.
+            Applications may implement this method to change any of the following Chooser arguments by
+            returning new values in the result bundle:
+            <c>#EXTRA_CHOOSER_TARGETS</c>,
+            <c>#EXTRA_ALTERNATE_INTENTS</c>,
+            <c>#EXTRA_CHOOSER_CUSTOM_ACTIONS</c>,
+            <c>#EXTRA_CHOOSER_MODIFY_SHARE_ACTION</c>,
+            <c>#EXTRA_METADATA_TEXT</c>,
+            <c>#EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER</c>,
+            <c>#EXTRA_CHOOSER_RESULT_INTENT_SENDER</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraChooserContentTypeHint">
+      <MemberSignature Language="C#" Value="public const string ExtraChooserContentTypeHint;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraChooserContentTypeHint" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ExtraChooserContentTypeHint" />
+      <MemberSignature Language="F#" Value="val mutable ExtraChooserContentTypeHint : string" Usage="Android.Content.Intent.ExtraChooserContentTypeHint" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_CHOOSER_CONTENT_TYPE_HINT", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_CHOOSER_CONTENT_TYPE_HINT", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Optional integer extra to be used with <c>#ACTION_CHOOSER</c> to describe conteng being
+            shared.</summary>
+        <remarks>
+          <para>Optional integer extra to be used with <c>#ACTION_CHOOSER</c> to describe conteng being
+            shared.</para>
+          <para>If provided, sharesheets may customize their UI presentation to include a more precise
+            description of the content being shared.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_CHOOSER_CONTENT_TYPE_HINT" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ExtraChooserCustomActions">
       <MemberSignature Language="C#" Value="public const string ExtraChooserCustomActions;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraChooserCustomActions" />
@@ -11663,6 +12146,53 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_CHOOSER_CUSTOM_ACTIONS" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraChooserFocusedItemPosition">
+      <MemberSignature Language="C#" Value="public const string ExtraChooserFocusedItemPosition;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraChooserFocusedItemPosition" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ExtraChooserFocusedItemPosition" />
+      <MemberSignature Language="F#" Value="val mutable ExtraChooserFocusedItemPosition : string" Usage="Android.Content.Intent.ExtraChooserFocusedItemPosition" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_CHOOSER_FOCUSED_ITEM_POSITION", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_CHOOSER_FOCUSED_ITEM_POSITION", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Optional argument to be used with <c>#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI</c>, used in
+            combination with <c>#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI</c>.</summary>
+        <remarks>
+          <para>Optional argument to be used with <c>#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI</c>, used in
+            combination with <c>#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI</c>.
+            An integer, zero-based index into <c>#EXTRA_STREAM</c> argument indicating the item that
+            should be focused by the Chooser in preview.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_CHOOSER_FOCUSED_ITEM_POSITION" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_CHOOSER_FOCUSED_ITEM_POSITION</code>.</a>
             </format>
           </para>
           <para>
@@ -11764,6 +12294,99 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraChooserResult">
+      <MemberSignature Language="C#" Value="public const string ExtraChooserResult;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraChooserResult" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ExtraChooserResult" />
+      <MemberSignature Language="F#" Value="val mutable ExtraChooserResult : string" Usage="Android.Content.Intent.ExtraChooserResult" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_CHOOSER_RESULT", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_CHOOSER_RESULT", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>A <c>ChooserResult</c> which describes how the sharing session completed.</summary>
+        <remarks>
+          <para>A <c>ChooserResult</c> which describes how the sharing session completed.</para>
+          <para>An instance is supplied to the optional IntentSender provided to
+            <c>#createChooser(Intent, CharSequence, IntentSender)</c> when the session completes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_CHOOSER_RESULT" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_CHOOSER_RESULT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraChooserResultIntentSender">
+      <MemberSignature Language="C#" Value="public const string ExtraChooserResultIntentSender;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraChooserResultIntentSender" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ExtraChooserResultIntentSender" />
+      <MemberSignature Language="F#" Value="val mutable ExtraChooserResultIntentSender : string" Usage="Android.Content.Intent.ExtraChooserResultIntentSender" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_CHOOSER_RESULT_INTENT_SENDER", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_CHOOSER_RESULT_INTENT_SENDER", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>An <c>IntentSender</c> that will be notified when a user successfully chooses a target
+            component or initiates an action such as copy or edit within an <c>#ACTION_CHOOSER</c>
+            activity.</summary>
+        <remarks>
+          <para>An <c>IntentSender</c> that will be notified when a user successfully chooses a target
+            component or initiates an action such as copy or edit within an <c>#ACTION_CHOOSER</c>
+            activity. The IntentSender will have the extra <c>#EXTRA_CHOOSER_RESULT</c> describing
+            the result.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_CHOOSER_RESULT_INTENT_SENDER" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_CHOOSER_RESULT_INTENT_SENDER</code>.</a>
             </format>
           </para>
           <para>
@@ -12863,6 +13486,53 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="ExtraMetadataText">
+      <MemberSignature Language="C#" Value="public const string ExtraMetadataText;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraMetadataText" />
+      <MemberSignature Language="DocId" Value="F:Android.Content.Intent.ExtraMetadataText" />
+      <MemberSignature Language="F#" Value="val mutable ExtraMetadataText : string" Usage="Android.Content.Intent.ExtraMetadataText" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_METADATA_TEXT", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_METADATA_TEXT", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>A CharSequence of additional text describing the content being shared.</summary>
+        <remarks>
+          <para>A CharSequence of additional text describing the content being shared. This text will be
+            displayed to the user as a part of the sharesheet when included in an
+            <c>#ACTION_CHOOSER</c><c>Intent</c>.</para>
+          <para>e.g. When sharing a photo, metadata could inform the user that location data is included
+            in the photo they are sharing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_METADATA_TEXT" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_METADATA_TEXT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ExtraMimeTypes">
       <MemberSignature Language="C#" Value="public const string ExtraMimeTypes;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraMimeTypes" />
@@ -13859,6 +14529,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getExtras", "()Landroid/os/Bundle;", "GetGetExtrasHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getExtras", "()Landroid/os/Bundle;", "GetGetExtrasHandler")&gt;]</AttributeName>
         </Attribute>
@@ -14494,10 +15168,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Optional extra specifying a time in milliseconds since the Epoch.</summary>
+        <summary>Optional extra specifying a time in milliseconds.</summary>
         <remarks>
-          <para>Optional extra specifying a time in milliseconds since the Epoch. The value must be
-            non-negative.</para>
+          <para>Optional extra specifying a time in milliseconds. The timebase depends on the Intent
+            including this extra. The value must be non-negative.</para>
           <para>Type: long</para>
           <para>
             <format type="text/html">
@@ -14791,7 +15465,7 @@
       <ReturnValue>
         <ReturnType>Android.Content.FillInFlags</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -15482,6 +16156,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -15524,6 +16204,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.ICharSequence[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -15568,6 +16254,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Java.Lang.ICharSequence&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -15918,6 +16610,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Java.Lang.Integer&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -16186,6 +16884,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.OS.IParcelable[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -16240,9 +16944,22 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Object[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="clazz" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
@@ -16349,7 +17066,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
-        <Parameter Name="clazz" Type="Java.Lang.Class" />
+        <Parameter Name="clazz" Type="Java.Lang.Class">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the desired item.</param>
@@ -16457,7 +17181,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
-        <Parameter Name="clazz" Type="Java.Lang.Class" />
+        <Parameter Name="clazz" Type="Java.Lang.Class">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the desired item.</param>
@@ -16559,7 +17290,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
-        <Parameter Name="clazz" Type="Java.Lang.Class" />
+        <Parameter Name="clazz" Type="Java.Lang.Class">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the desired item.</param>
@@ -16691,6 +17429,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -16735,6 +17479,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;System.String&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -16941,6 +17691,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
         </Attribute>
@@ -16961,6 +17715,56 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#getIdentifier()" title="Reference documentation">Java documentation for <code>android.content.Intent.getIdentifier()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsMismatchingFilter">
+      <MemberSignature Language="C#" Value="public virtual bool IsMismatchingFilter { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsMismatchingFilter" />
+      <MemberSignature Language="DocId" Value="P:Android.Content.Intent.IsMismatchingFilter" />
+      <MemberSignature Language="F#" Value="member this.IsMismatchingFilter : bool" Usage="Android.Content.Intent.IsMismatchingFilter" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isMismatchingFilter", "()Z", "GetIsMismatchingFilterHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isMismatchingFilter", "()Z", "GetIsMismatchingFilterHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Whether the intent mismatches all intent filters declared in the receiving component.</summary>
+        <value>Returns true if the intent does not match any intent filters declared in the
+            receiving component.</value>
+        <remarks>
+          <para>Whether the intent mismatches all intent filters declared in the receiving component.</para>
+          <para>When a component receives an intent, normally obtainable through the following methods:
+            &lt;ul&gt;
+                &lt;li&gt; <c>BroadcastReceiver#onReceive(Context, Intent)</c>&lt;li&gt; <c>Activity#getIntent()</c>&lt;li&gt; <c>Activity#onNewIntent)</c>&lt;li&gt; <c>android.app.Service#onStartCommand(Intent, int, int)</c>&lt;li&gt; <c>android.app.Service#onBind(Intent)</c>&lt;/ul&gt;
+            The developer can call this method to check if this intent does not match any of its
+            declared intent filters. A non-matching intent can be delivered when the intent sender
+            explicitly set the component through <c>#setComponent</c> or <c>#setClassName</c>.</para>
+          <para>This method always returns <c>false</c> if the intent originated from within the same
+            application or the system, because these cases are always exempted from security checks.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/Intent#isMismatchingFilter()" title="Reference documentation">Java documentation for <code>android.content.Intent.isMismatchingFilter()</code>.</a>
             </format>
           </para>
           <para>
@@ -17274,6 +18078,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getPackage", "()Ljava/lang/String;", "GetGetPackageHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPackage", "()Ljava/lang/String;", "GetGetPackageHandler")&gt;]</AttributeName>
         </Attribute>
@@ -17326,7 +18134,14 @@
       <Parameters>
         <Parameter Name="resources" Type="Android.Content.Res.Resources" />
         <Parameter Name="parser" Type="System.Xml.XmlReader" />
-        <Parameter Name="attrs" Type="Android.Util.IAttributeSet" />
+        <Parameter Name="attrs" Type="Android.Util.IAttributeSet">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="resources">The Resources to use when inflating resources.</param>
@@ -17442,8 +18257,22 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;Java.Lang.ICharSequence&gt;" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;Java.Lang.ICharSequence&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the extra data, with package prefix.</param>
@@ -17486,6 +18315,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -17536,6 +18371,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -17588,8 +18429,22 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="value" Type="Android.OS.IParcelable[]" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="value" Type="Android.OS.IParcelable[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the extra data, with package prefix.</param>
@@ -17636,6 +18491,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -17686,6 +18547,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -17738,8 +18605,22 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="value" Type="Java.Lang.ICharSequence[]" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="value" Type="Java.Lang.ICharSequence[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the extra data, with package prefix.</param>
@@ -17788,7 +18669,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
@@ -17836,6 +18724,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -17886,6 +18780,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -17938,7 +18838,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.Char" />
       </Parameters>
       <Docs>
@@ -17986,6 +18893,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -18038,7 +18951,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.Double" />
       </Parameters>
       <Docs>
@@ -18086,6 +19006,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -18138,7 +19064,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.Int16" />
       </Parameters>
       <Docs>
@@ -18186,6 +19119,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -18238,7 +19177,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
@@ -18286,6 +19232,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -18338,7 +19290,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.Int64" />
       </Parameters>
       <Docs>
@@ -18386,6 +19345,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -18438,7 +19403,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.SByte" />
       </Parameters>
       <Docs>
@@ -18488,7 +19460,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="value" Type="System.Single" />
       </Parameters>
       <Docs>
@@ -18536,6 +19515,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -18586,6 +19571,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -18638,8 +19629,22 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="value" Type="System.String[]" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="value" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the extra data, with package prefix.</param>
@@ -18777,8 +19782,22 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;Java.Lang.Integer&gt;" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;Java.Lang.Integer&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the extra data, with package prefix.</param>
@@ -18823,8 +19842,22 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;Android.OS.IParcelable&gt;" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;Android.OS.IParcelable&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the extra data, with package prefix.</param>
@@ -18869,8 +19902,22 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
-        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;System.String&gt;" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="value" Type="System.Collections.Generic.IList&lt;System.String&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="name">The name of the extra data, with package prefix.</param>
@@ -19127,7 +20174,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="extras" Type="Android.OS.Bundle" />
+        <Parameter Name="extras" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="extras">The new set of extras in the Intent, or null to erase
@@ -19170,6 +20224,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.ComponentName</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="pm" Type="Android.Content.PM.PackageManager" />
@@ -19242,6 +20302,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.PM.ActivityInfo</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="pm" Type="Android.Content.PM.PackageManager" />
@@ -19301,6 +20367,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="resolver" Type="Android.Content.ContentResolver" />
@@ -19349,6 +20421,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
@@ -19396,6 +20474,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="resolver" Type="Android.Content.ContentResolver" />
@@ -19437,6 +20521,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getScheme", "()Ljava/lang/String;", "GetGetSchemeHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getScheme", "()Ljava/lang/String;", "GetGetSchemeHandler")&gt;]</AttributeName>
@@ -19480,6 +20568,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getSelector", "()Landroid/content/Intent;", "GetGetSelectorHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSelector", "()Landroid/content/Intent;", "GetGetSelectorHandler")&gt;]</AttributeName>
@@ -19564,7 +20656,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="action" Type="System.String" />
+        <Parameter Name="action" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="action">An action name, such as ACTION_VIEW.  Application-specific
@@ -19784,7 +20883,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="component" Type="Android.Content.ComponentName" />
+        <Parameter Name="component" Type="Android.Content.ComponentName">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="component">The name of the application component to handle the
@@ -19840,7 +20946,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="data" Type="Android.Net.Uri" />
+        <Parameter Name="data" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="data">The Uri of the data this intent is now targeting.</param>
@@ -19945,6 +21058,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Intent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="data" Type="Android.Net.Uri" />
@@ -20008,7 +21127,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="data" Type="Android.Net.Uri" />
-        <Parameter Name="type" Type="System.String" />
+        <Parameter Name="type" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="data">The Uri of the data this intent is now targeting.</param>
@@ -20175,7 +21301,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="identifier" Type="System.String" />
+        <Parameter Name="identifier" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="identifier">The identifier for this Intent.  The contents of the string have no
@@ -20230,7 +21363,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="packageName" Type="System.String" />
+        <Parameter Name="packageName" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="packageName">The name of the application package to handle the
@@ -20281,7 +21421,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="type" Type="System.String" />
+        <Parameter Name="type" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="type">The MIME type of the data being handled by this intent.</param>
@@ -20337,7 +21484,14 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="type" Type="System.String" />
+        <Parameter Name="type" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="type">The MIME type of the data being handled by this intent.</param>
@@ -20383,6 +21537,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getSourceBounds", "()Landroid/graphics/Rect;", "GetGetSourceBoundsHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSourceBounds", "()Landroid/graphics/Rect;", "GetGetSourceBoundsHandler")&gt;]</AttributeName>
@@ -20599,6 +21757,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getType", "()Ljava/lang/String;", "GetGetTypeHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getType", "()Ljava/lang/String;", "GetGetTypeHandler")&gt;]</AttributeName>

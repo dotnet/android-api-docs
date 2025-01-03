@@ -17,13 +17,32 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/ssl/SSLSockets", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Static utility methods for accessing additional functionality of supported instances of
+            <c>SSLSocket</c>.</summary>
+    <remarks>
+      <para>Static utility methods for accessing additional functionality of supported instances of
+            <c>SSLSocket</c>.  Sockets from the platform TLS provider will be compatible with all
+            methods in this class.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/ssl/SSLSockets" title="Reference documentation">Java documentation for <code>android.net.ssl.SSLSockets</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -69,21 +88,58 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="socket" Type="Javax.Net.Ssl.SSLSocket" />
         <Parameter Name="label" Type="System.String" />
-        <Parameter Name="context" Type="System.Byte[]" />
+        <Parameter Name="context" Type="System.Byte[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="socket">To be added.</param>
-        <param name="label">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="socket">the socket to use for exporting keying material</param>
+        <param name="label">the label to use in calculating the exported value.  This must be
+            an ASCII-only string.</param>
+        <param name="context">the application-specific context value to use in calculating the
+            exported value.  This may be <c>null</c> to use no application context, which is
+            treated differently than an empty byte array.</param>
+        <param name="length">the number of bytes of keying material to return.</param>
+        <summary>Exports a value derived from the TLS master secret as described in RFC 5705.</summary>
+        <returns>a value of the specified length, or <c>null</c> if the handshake has not yet
+            completed or the connection has been closed.</returns>
+        <remarks>
+          <para>Exports a value derived from the TLS master secret as described in RFC 5705.
+            
+            A number of protocols leverage Transport Layer Security (TLS) to perform key
+            establishment but then use some of the keying material for their own purposes.
+            
+            This method allows an application to export keying material from a TLS connection.
+            The exported material will be the same on the client and server if they pass in
+            the same values for <c>label</c> and <c>context</c>.  See RFC 5705 for further
+            details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ssl/SSLSockets#exportKeyingMaterial(javax.net.ssl.SSLSocket,%20java.lang.String,%20byte[],%20int)" title="Reference documentation">Java documentation for <code>android.net.ssl.SSLSockets.exportKeyingMaterial(javax.net.ssl.SSLSocket, java.lang.String, byte[], int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsSupportedSocket">
@@ -114,9 +170,22 @@
       </Parameters>
       <Docs>
         <param name="socket">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Returns whether the given socket can be used with the methods in this class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns whether the given socket can be used with the methods in this class.  In general,
+            only sockets from the platform TLS provider are supported.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ssl/SSLSockets#isSupportedSocket(javax.net.ssl.SSLSocket)" title="Reference documentation">Java documentation for <code>android.net.ssl.SSLSockets.isSupportedSocket(javax.net.ssl.SSLSocket)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -176,10 +245,23 @@
         <Parameter Name="useSessionTickets" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="socket">To be added.</param>
-        <param name="useSessionTickets">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="socket">the socket</param>
+        <param name="useSessionTickets">whether to enable or disable the use of session tickets</param>
+        <summary>Enables or disables the use of session tickets.</summary>
+        <remarks>
+          <para>Enables or disables the use of session tickets.</para>
+          <para>This function must be called before the handshake is started or it will have no effect.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ssl/SSLSockets#setUseSessionTickets(javax.net.ssl.SSLSocket,%20boolean)" title="Reference documentation">Java documentation for <code>android.net.ssl.SSLSockets.setUseSessionTickets(javax.net.ssl.SSLSocket, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/app/WallpaperManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/WallpaperManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="5">
     <summary>Provides access to the system wallpaper.</summary>
@@ -78,6 +82,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_CHANGE_LIVE_WALLPAPER")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_CHANGE_LIVE_WALLPAPER")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -119,6 +127,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_CROP_AND_SET_WALLPAPER")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_CROP_AND_SET_WALLPAPER")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -158,6 +170,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_LIVE_WALLPAPER_CHOOSER")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_LIVE_WALLPAPER_CHOOSER")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -208,7 +224,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="listener" Type="Android.App.WallpaperManager+IOnColorsChangedListener" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="listener">To be added.</param>
@@ -285,8 +308,8 @@
             wallpaper.</summary>
         <remarks>
           <para>Remove any currently set system wallpaper, reverting to the system's built-in
-            wallpaper. On success, the intent <c>Intent#ACTION_WALLPAPER_CHANGED</c>
-            is broadcast.</para>
+            wallpaper.
+            On success, the intent <c>Intent#ACTION_WALLPAPER_CHANGED</c> is broadcast.</para>
           <para>This method requires the caller to hold the permission
             <c>android.Manifest.permission#SET_WALLPAPER</c>.</para>
           <para>
@@ -350,9 +373,19 @@
             display for each one.</summary>
         <remarks>
           <para>Remove one or more currently set wallpapers, reverting to the system default
-            display for each one.  If <c>#FLAG_SYSTEM</c> is set in the <c>which</c>
-            parameter, the intent <c>Intent#ACTION_WALLPAPER_CHANGED</c> will be broadcast
-            upon success.</para>
+            display for each one. On success, the intent <c>Intent#ACTION_WALLPAPER_CHANGED</c>
+            is broadcast.
+            &lt;ul&gt;
+                &lt;li&gt; When called with <c>which=</c><c>#FLAG_LOCK</c>, clear the lockscreen wallpaper.
+                The home screen wallpaper will become visible on the lock screen. &lt;/li&gt;
+            
+                &lt;li&gt; When called with <c>which=</c><c>#FLAG_SYSTEM</c>, revert the home screen
+                wallpaper to default. The lockscreen wallpaper will be unchanged: if the previous
+                wallpaper was shared between home and lock screen, it will become lock screen only. &lt;/li&gt;
+            
+                &lt;li&gt; When called with <c>which=</c>(<c>#FLAG_LOCK</c> | <c>#FLAG_SYSTEM</c>), put the
+                default wallpaper on both home and lock screen, removing any user defined wallpaper.&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#clear(int)" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.clear(int)</code>.</a>
@@ -395,11 +428,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Reset all wallpaper to the factory default.</summary>
+        <summary>Equivalent to <c>#clear()</c>.</summary>
         <remarks>
-          <para>Reset all wallpaper to the factory default.</para>
-          <para>This method requires the caller to hold the permission
-            <c>android.Manifest.permission#SET_WALLPAPER</c>.</para>
+          <para>Equivalent to <c>#clear()</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#clearWallpaper()" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.clearWallpaper()</code>.</a>
@@ -472,6 +503,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android27.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android27.0")&gt;]</AttributeName>
         </Attribute>
@@ -498,6 +533,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("COMMAND_DROP")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("COMMAND_DROP")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -538,6 +577,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("COMMAND_SECONDARY_TAP")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("COMMAND_SECONDARY_TAP")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -580,6 +623,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("COMMAND_TAP")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("COMMAND_TAP")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -724,19 +771,23 @@
       <Docs>
         <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
         <value>A Drawable object for the requested wallpaper.</value>
         <remarks>
           <para>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
+                &lt;li&gt;Starting in Android 13, directly accessing the wallpaper is not possible anymore,
                 instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+                (some versions of Android 13 may throw a <c>SecurityException</c>).&lt;/li&gt;
+                &lt;li&gt;From Android 14, this method should not be used
+                and will always throw a <c>SecurityException</c>.&lt;/li&gt;
+                &lt;li&gt; Apps with <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c>
+                can still access the real wallpaper on all versions. &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>Equivalent to <c>#getDrawable(int)</c> with <c>which=</c><c>#FLAG_SYSTEM</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#getDrawable()" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.getDrawable()</code>.</a>
@@ -765,6 +816,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_LIVE_WALLPAPER_COMPONENT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_LIVE_WALLPAPER_COMPONENT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -814,19 +869,23 @@
       <Docs>
         <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
         <value>A Drawable object for the requested wallpaper.</value>
         <remarks>
           <para>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
+                &lt;li&gt;Starting in Android 13, directly accessing the wallpaper is not possible anymore,
                 instead the default wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+                (some versions of Android 13 may throw a <c>SecurityException</c>).&lt;/li&gt;
+                &lt;li&gt;From Android 14, this method should not be used
+                and will always throw a <c>SecurityException</c>.&lt;/li&gt;
+                &lt;li&gt; Apps with <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c>
+                can still access the real wallpaper on all versions. &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>Equivalent to <c>#getFastDrawable(int)</c> with <c>which=</c><c>#FLAG_SYSTEM</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#getFastDrawable()" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.getFastDrawable()</code>.</a>
@@ -1232,21 +1291,24 @@
       <Docs>
         <param name="which">The <c>FLAG_*</c> identifier of a valid wallpaper type. Throws
                 IllegalArgumentException if an invalid wallpaper is requested.</param>
-        <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
+        <summary>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.</summary>
         <returns>A Drawable object for the requested wallpaper.</returns>
         <remarks>
-          <para>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
-                instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+          <para>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.
+            Otherwise, a <c>SecurityException</c> will be thrown.</para>
+          <para>Retrieve the requested wallpaper for the specified wallpaper type if the wallpaper is not
+            a live wallpaper. This method should not be used to display the user wallpaper on an app:
+            <c>android.view.WindowManager.LayoutParams#FLAG_SHOW_WALLPAPER</c> should be used instead.</para>
+          <para>When called with <c>which=</c><c>#FLAG_SYSTEM</c>,
+            if there is a live wallpaper on home screen, the built-in default wallpaper is returned.</para>
+          <para>When called with <c>which=</c><c>#FLAG_LOCK</c>, if there is a live wallpaper
+            on lock screen, or if the lock screen and home screen share the same wallpaper engine,
+            <c>null</c> is returned.</para>
+          <para>
+            <c>#getWallpaperInfo(int)</c> can be used to determine whether there is a live wallpaper
+            on a specified screen type.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#getDrawable(int)" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.getDrawable(int)</code>.</a>
@@ -1296,22 +1358,24 @@
       <Docs>
         <param name="which">The <c>FLAG_*</c> identifier of a valid wallpaper type.  Throws
                 IllegalArgumentException if an invalid wallpaper is requested.</param>
-        <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
+        <summary>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.</summary>
         <returns>An optimized Drawable object for the requested wallpaper, or <c>null</c>
                 in some cases as specified in <c>#getDrawable(int)</c>.</returns>
         <remarks>
-          <para>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
-                instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+          <para>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.
+            Otherwise, a <c>SecurityException</c> will be thrown.
+            
+            Like <c>#getDrawable(int)</c>, but the returned Drawable has a number
+            of limitations to reduce its overhead as much as possible. It will
+            never scale the wallpaper (only centering it if the requested bounds
+            do match the bitmap bounds, which should not be typical), doesn't
+            allow setting an alpha, color filter, or other attributes, etc.  The
+            bounds of the returned drawable will be initialized to the same bounds
+            as the wallpaper, so normally you will not need to touch it.  The
+            drawable also assumes that it will be used in a context running in
+            the same density as the screen (not in density compatibility mode).</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#getFastDrawable(int)" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.getFastDrawable(int)</code>.</a>
@@ -1463,7 +1527,7 @@
                 <c>#FLAG_LOCK</c>.</param>
         <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
         <returns>An open, readable file descriptor to the requested wallpaper image file;
                 or <c>null</c> if no such wallpaper is configured or if the calling app does
@@ -1471,13 +1535,23 @@
         <remarks>
           <para>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
+                &lt;li&gt;Starting in Android 13, directly accessing the wallpaper is not possible anymore,
                 instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+                (some versions of Android 13 may throw a <c>SecurityException</c>).&lt;/li&gt;
+                &lt;li&gt;From Android 14, this method should not be used
+                and will always throw a <c>SecurityException</c>.&lt;/li&gt;
+                &lt;li&gt; Apps with <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c>
+                can still access the real wallpaper on all versions. &lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;br&gt;
+            
+            Get an open, readable file descriptor to the given wallpaper image file.
+            The caller is responsible for closing the file descriptor when done ingesting the file.</para>
+          <para>If no lock-specific wallpaper has been configured for the given user, then
+            this method will return <c>null</c> when requesting <c>#FLAG_LOCK</c> rather than
+            returning the system wallpaper's image file.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#getWallpaperFile(int)" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.getWallpaperFile(int)</code>.</a>
@@ -1585,16 +1659,16 @@
       </Parameters>
       <Docs>
         <param name="which">Specifies wallpaper to request (home or lock).</param>
-        <summary>Returns the information about the home screen wallpaper if its current wallpaper is a live
+        <summary>Returns the information about the designated wallpaper if its current wallpaper is a live
             wallpaper component.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns the information about the home screen wallpaper if its current wallpaper is a live
-            wallpaper component. Otherwise, if the wallpaper is a static image or is not set, this
-            returns null.</para>
+          <para>Returns the information about the designated wallpaper if its current wallpaper is a live
+            wallpaper component. Otherwise, if the wallpaper is a static image or is not set, or if
+            the caller doesn't have the appropriate permissions, this returns <c>null</c>.</para>
           <para>In order to use this, apps should declare a <c>&lt;queries&gt;</c> tag with the action
-            <c>"android.service.wallpaper.WallpaperService"</c>. Otherwise,
-            this method will return <c>null</c> if the caller doesn't otherwise have
+            <c>"android.service.wallpaper.WallpaperService"</c>. Otherwise, this method will return
+            <c>null</c> if the caller doesn't otherwise have
             <see href="https://developer.android.com/training/package-visibility">visibility</see> of the wallpaper package.</para>
           <para>
             <format type="text/html">
@@ -1759,6 +1833,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -1794,19 +1872,23 @@
       <Docs>
         <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
         <returns>A Drawable object for the requested wallpaper.</returns>
         <remarks>
           <para>&lt;strong&gt; Important note: &lt;/strong&gt;
             &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
+                &lt;li&gt;Up to Android 12, this method requires the
                 <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
+                &lt;li&gt;Starting in Android 13, directly accessing the wallpaper is not possible anymore,
                 instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+                (some versions of Android 13 may throw a <c>SecurityException</c>).&lt;/li&gt;
+                &lt;li&gt;From Android 14, this method should not be used
+                and will always throw a <c>SecurityException</c>.&lt;/li&gt;
+                &lt;li&gt; Apps with <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c>
+                can still access the real wallpaper on all versions. &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>Equivalent to <c>#getDrawable()</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#peekDrawable()" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.peekDrawable()</code>.</a>
@@ -1857,21 +1939,14 @@
       <Docs>
         <param name="which">The <c>FLAG_*</c> identifier of a valid wallpaper type. Throws
                 IllegalArgumentException if an invalid wallpaper is requested.</param>
-        <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
+        <summary>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.</summary>
         <returns>A Drawable object for the requested wallpaper.</returns>
         <remarks>
-          <para>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
-                instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+          <para>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.
+            Otherwise, a <c>SecurityException</c> will be thrown.</para>
+          <para>Equivalent to <c>#getDrawable(int)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#peekDrawable(int)" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.peekDrawable(int)</code>.</a>
@@ -1906,21 +1981,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
+        <summary>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.</summary>
         <returns>An optimized Drawable object for the requested wallpaper.</returns>
         <remarks>
-          <para>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
-                instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+          <para>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c> should use this method.
+            Otherwise, a <c>SecurityException</c> will be thrown.</para>
+          <para>Equivalent to <c>#getFastDrawable()</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#peekFastDrawable()" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.peekFastDrawable()</code>.</a>
@@ -1971,21 +2039,15 @@
       <Docs>
         <param name="which">The <c>FLAG_*</c> identifier of a valid wallpaper type.  Throws
                 IllegalArgumentException if an invalid wallpaper is requested.</param>
-        <summary>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.</summary>
+        <summary>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c>
+            should use this method.</summary>
         <returns>An optimized Drawable object for the requested wallpaper.</returns>
         <remarks>
-          <para>&lt;strong&gt; Important note: &lt;/strong&gt;
-            &lt;ul&gt;
-                &lt;li&gt;Up to version S, this method requires the
-                <c>android.Manifest.permission#READ_EXTERNAL_STORAGE</c> permission.&lt;/li&gt;
-                &lt;li&gt;Starting in T, directly accessing the wallpaper is not possible anymore,
-                instead the default system wallpaper is returned
-                (some versions of T may throw a <c>SecurityException</c>).&lt;/li&gt;
-                &lt;li&gt;From version U, this method should not be used
-                and will always throw a</para>
+          <para>&lt;strong&gt; Important note: &lt;/strong&gt; only apps with
+            <c>android.Manifest.permission#MANAGE_EXTERNAL_STORAGE</c>
+            should use this method. Otherwise, a <c>SecurityException</c> will be thrown.</para>
+          <para>Equivalent to <c>#getFastDrawable(int)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#peekFastDrawable(int)" title="Reference documentation">Java documentation for <code>android.app.WallpaperManager.peekFastDrawable(int)</code>.</a>
@@ -2047,6 +2109,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("sendWallpaperCommand", "(Landroid/os/IBinder;Ljava/lang/String;IIILandroid/os/Bundle;)V", "GetSendWallpaperCommand_Landroid_os_IBinder_Ljava_lang_String_IIILandroid_os_Bundle_Handler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("sendWallpaperCommand", "(Landroid/os/IBinder;Ljava/lang/String;IIILandroid/os/Bundle;)V", "GetSendWallpaperCommand_Landroid_os_IBinder_Ljava_lang_String_IIILandroid_os_Bundle_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.ALWAYS_UPDATE_WALLPAPER")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.ALWAYS_UPDATE_WALLPAPER")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2846,6 +2912,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -2873,6 +2943,10 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getWallpaperInfo", "()Landroid/app/WallpaperInfo;", "GetGetWallpaperInfoHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getWallpaperInfo", "()Landroid/app/WallpaperInfo;", "GetGetWallpaperInfoHandler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("QUERY_ALL_PACKAGES")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("QUERY_ALL_PACKAGES")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.App.WallpaperInfo</ReturnType>
@@ -2883,10 +2957,13 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the information about the home screen wallpaper if its current wallpaper is a live
-            wallpaper component. Otherwise, if the wallpaper is a static image, this returns null.</para>
-          <para>In order to use this, apps should declare a <c>&lt;queries&gt;</c> tag with the action
-            <c>"android.service.wallpaper.WallpaperService"</c>. Otherwise,
-            this method will return <c>null</c> if the caller doesn't otherwise have
+            wallpaper component. Otherwise, if the wallpaper is a static image or is not set, or if the
+            caller doesn't have the appropriate permissions, this returns <c>null</c>.</para>
+          <para>For devices running Android 13 or earlier, this method requires the
+            <c>android.Manifest.permission#QUERY_ALL_PACKAGES</c> permission.</para>
+          <para>For devices running Android 14 or later, in order to use this, apps should declare a
+            <c>&lt;queries&gt;</c> tag with the action <c>"android.service.wallpaper.WallpaperService"</c>.
+            Otherwise, this method will return <c>null</c> if the caller doesn't otherwise have
             <see href="https://developer.android.com/training/package-visibility">visibility</see> of the wallpaper package.</para>
           <para>
             <format type="text/html">
@@ -2916,6 +2993,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("WALLPAPER_PREVIEW_META_DATA")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("WALLPAPER_PREVIEW_META_DATA")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

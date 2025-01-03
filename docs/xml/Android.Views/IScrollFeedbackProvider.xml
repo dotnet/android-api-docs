@@ -1,0 +1,309 @@
+<Type Name="IScrollFeedbackProvider" FullName="Android.Views.IScrollFeedbackProvider">
+  <TypeSignature Language="C#" Value="public interface IScrollFeedbackProvider : Android.Runtime.IJavaObject, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit IScrollFeedbackProvider implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Android.Views.IScrollFeedbackProvider" />
+  <TypeSignature Language="F#" Value="type IScrollFeedbackProvider = interface&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/view/ScrollFeedbackProvider", "", "Android.Views.IScrollFeedbackProviderInvoker", ApiSince=35)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/view/ScrollFeedbackProvider", "", "Android.Views.IScrollFeedbackProviderInvoker", ApiSince=35)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>Provides feedback to the user for scroll events on a <c>View</c>.</summary>
+    <remarks>
+      <para>Provides feedback to the user for scroll events on a <c>View</c>. The type of feedback provided
+            to the user may depend on the <c>InputDevice</c> that generated the scroll events.</para>
+      <para>An example of the type of feedback that this interface may provide is haptic feedback (that
+            is, tactile feedback that provide the user physical feedback for their scroll).</para>
+      <para>The interface provides methods for the client to report different scroll events. The client
+            should report all scroll events that they want to be considered for scroll feedback using the
+            respective methods. The interface will process these events and provide scroll feedback based on
+            its specific feedback implementation.
+            
+            &lt;h3&gt;Obtaining the correct arguments for methods in this interface&lt;/h3&gt;</para>
+      <para>Methods in this interface rely on the provision of valid <c>InputDevice</c> ID and source, as
+            well as the <c>MotionEvent</c> axis that generated a specific scroll event. The
+            <c>InputDevice</c> represented by the provided ID must have a <c>InputDevice.MotionRange</c>
+            with the provided source and axis. See below for more details on obtaining the right arguments
+            for your method call.
+            
+            &lt;ul&gt;
+            
+            &lt;li&gt;</para>
+      <para>&lt;b&gt;inputDeviceId&lt;/b&gt;: should always be the ID of the <c>InputDevice</c> that generated
+            the scroll event. If calling this method in response to a <c>MotionEvent</c>, use the device ID
+            that is reported by the event, which can be obtained using <c>MotionEvent#getDeviceId()</c>.
+            Otherwise, use a valid ID that is obtained from <c>InputDevice#getId()</c>, or from an
+            <c>android.hardware.input.InputManager</c> instance
+            (<c>android.hardware.input.InputManager#getInputDeviceIds()</c> gives all the valid input
+            device IDs).
+            
+            &lt;li&gt;</para>
+      <para>&lt;b&gt;source&lt;/b&gt;: should always be the <c>InputDevice</c> source that generated the scroll
+            event. Use <c>MotionEvent#getSource()</c> if calling this method in response to a
+            <c>MotionEvent</c>. Otherwise, use a valid source for the <c>InputDevice</c>. You can use
+            <c>InputDevice#getMotionRanges()</c> to get all the <c>InputDevice.MotionRange</c>s for the
+            <c>InputDevice</c>, from which you can derive all the valid sources for the device.
+            
+            &lt;li&gt;</para>
+      <para>&lt;b&gt;axis&lt;/b&gt;: should always be the axis whose axis value produced the scroll event.
+            A <c>MotionEvent</c> may report data for multiple axes, and each axis may have multiple data
+            points for different pointers. Use the axis whose movement produced the specific scroll event.
+            The motion value for an axis can be obtained using <c>MotionEvent#getAxisValue(int)</c>.
+            You can use <c>InputDevice#getMotionRanges()</c> to get all the <c>InputDevice.MotionRange</c>s
+            for the <c>InputDevice</c>, from which you can derive all the valid axes for the device.
+            
+            &lt;/ul&gt;
+            
+            &lt;b&gt;Note&lt;/b&gt; that not all valid input device source and motion axis inputs are necessarily
+            supported for scroll feedback; the implementation may choose to provide no feedback for some
+            valid input device source and motion axis arguments.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/view/ScrollFeedbackProvider" title="Reference documentation">Java documentation for <code>android.view.ScrollFeedbackProvider</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="CreateProvider">
+      <MemberSignature Language="C#" Value="public static Android.Views.IScrollFeedbackProvider CreateProvider (Android.Views.View view);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Android.Views.IScrollFeedbackProvider CreateProvider(class Android.Views.View view) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.IScrollFeedbackProvider.CreateProvider(Android.Views.View)" />
+      <MemberSignature Language="F#" Value="static member CreateProvider : Android.Views.View -&gt; Android.Views.IScrollFeedbackProvider" Usage="Android.Views.IScrollFeedbackProvider.CreateProvider view" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("createProvider", "(Landroid/view/View;)Landroid/view/ScrollFeedbackProvider;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("createProvider", "(Landroid/view/View;)Landroid/view/ScrollFeedbackProvider;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.IScrollFeedbackProvider</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="view" Type="Android.Views.View" />
+      </Parameters>
+      <Docs>
+        <param name="view">the <c>View</c> for which to provide scroll feedback.</param>
+        <summary>Creates a <c>ScrollFeedbackProvider</c> implementation for this device.</summary>
+        <returns>the default <c>ScrollFeedbackProvider</c> implementation for the device.</returns>
+        <remarks>
+          <para>Creates a <c>ScrollFeedbackProvider</c> implementation for this device.</para>
+          <para>Use a feedback provider created by this method, unless you intend to use your custom
+            scroll feedback providing logic. This allows your use cases to generate scroll feedback that
+            is consistent with the rest of the use cases on the device.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/ScrollFeedbackProvider#createProvider(android.view.View)" title="Reference documentation">Java documentation for <code>android.view.ScrollFeedbackProvider.createProvider(android.view.View)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnScrollLimit">
+      <MemberSignature Language="C#" Value="public void OnScrollLimit (int inputDeviceId, int source, int axis, bool isStart);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnScrollLimit(int32 inputDeviceId, int32 source, int32 axis, bool isStart) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.IScrollFeedbackProvider.OnScrollLimit(System.Int32,System.Int32,System.Int32,System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member OnScrollLimit : int * int * int * bool -&gt; unit" Usage="iScrollFeedbackProvider.OnScrollLimit (inputDeviceId, source, axis, isStart)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onScrollLimit", "(IIIZ)V", "GetOnScrollLimit_IIIZHandler:Android.Views.IScrollFeedbackProviderInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onScrollLimit", "(IIIZ)V", "GetOnScrollLimit_IIIZHandler:Android.Views.IScrollFeedbackProviderInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="inputDeviceId" Type="System.Int32" />
+        <Parameter Name="source" Type="System.Int32" />
+        <Parameter Name="axis" Type="System.Int32" />
+        <Parameter Name="isStart" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="inputDeviceId">the ID of the <c>InputDevice</c> that caused scrolling to hit limit.</param>
+        <param name="source">the input source of the motion that caused scrolling to hit the limit.</param>
+        <param name="axis">the axis of <c>event</c> that caused scrolling to hit the limit.</param>
+        <param name="isStart">
+          <c>true</c> if scrolling hit limit at the start of the scrolling list, and
+                           <c>false</c> if the scrolling hit limit at the end of the scrolling list.
+                           <i>start</i> and <i>end<i> in this context are not geometrical references.
+                           Instead, they refer to the start and end of a scrolling experience. As such,
+                           "start" for some views may be at the bottom of a scrolling list, while it may
+                           be at the top of scrolling list for others.</i></i></param>
+        <summary>Call this when the view has reached the scroll limit.</summary>
+        <remarks>
+          <para>Call this when the view has reached the scroll limit.</para>
+          <para>Note that a feedback may not be provided on every call to this method. This interface, for
+            instance, may provide feedback on every `N`th scroll limit event. For the interface to
+            properly provide feedback when needed, call this method for each scroll limit event that you
+            want to be accounted to scroll limit feedback.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/ScrollFeedbackProvider#onScrollLimit(int,%20int,%20int,%20boolean)" title="Reference documentation">Java documentation for <code>android.view.ScrollFeedbackProvider.onScrollLimit(int, int, int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnScrollProgress">
+      <MemberSignature Language="C#" Value="public void OnScrollProgress (int inputDeviceId, int source, int axis, int deltaInPixels);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnScrollProgress(int32 inputDeviceId, int32 source, int32 axis, int32 deltaInPixels) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.IScrollFeedbackProvider.OnScrollProgress(System.Int32,System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member OnScrollProgress : int * int * int * int -&gt; unit" Usage="iScrollFeedbackProvider.OnScrollProgress (inputDeviceId, source, axis, deltaInPixels)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onScrollProgress", "(IIII)V", "GetOnScrollProgress_IIIIHandler:Android.Views.IScrollFeedbackProviderInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onScrollProgress", "(IIII)V", "GetOnScrollProgress_IIIIHandler:Android.Views.IScrollFeedbackProviderInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="inputDeviceId" Type="System.Int32" />
+        <Parameter Name="source" Type="System.Int32" />
+        <Parameter Name="axis" Type="System.Int32" />
+        <Parameter Name="deltaInPixels" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="inputDeviceId">the ID of the <c>InputDevice</c> that caused scroll progress.</param>
+        <param name="source">the input source of the motion that caused scroll progress.</param>
+        <param name="axis">the axis of <c>event</c> that caused scroll progress.</param>
+        <param name="deltaInPixels">the amount of scroll progress, in pixels.</param>
+        <summary>Call this when the view has scrolled.</summary>
+        <remarks>
+          <para>Call this when the view has scrolled.</para>
+          <para>Different axes have different ways to map their raw axis values to pixels for scrolling.
+            When calling this method, use the scroll values in pixels by which the view was scrolled; do
+            not use the raw axis values. That is, use whatever value is passed to one of View's scrolling
+            methods (example: <c>View#scrollBy(int, int)</c>). For example, for vertical scrolling on
+            <c>MotionEvent#AXIS_SCROLL</c>, convert the raw axis value to the equivalent pixels by using
+            <c>ViewConfiguration#getScaledVerticalScrollFactor()</c>, and use that value for this method
+            call.</para>
+          <para>Note that a feedback may not be provided on every call to this method. This interface, for
+            instance, may provide feedback for every `x` pixels scrolled. For the interface to properly
+            track scroll progress and provide feedback when needed, call this method for each scroll
+            event that you want to be accounted to scroll feedback.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/ScrollFeedbackProvider#onScrollProgress(int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.view.ScrollFeedbackProvider.onScrollProgress(int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnSnapToItem">
+      <MemberSignature Language="C#" Value="public void OnSnapToItem (int inputDeviceId, int source, int axis);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnSnapToItem(int32 inputDeviceId, int32 source, int32 axis) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.IScrollFeedbackProvider.OnSnapToItem(System.Int32,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member OnSnapToItem : int * int * int -&gt; unit" Usage="iScrollFeedbackProvider.OnSnapToItem (inputDeviceId, source, axis)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onSnapToItem", "(III)V", "GetOnSnapToItem_IIIHandler:Android.Views.IScrollFeedbackProviderInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onSnapToItem", "(III)V", "GetOnSnapToItem_IIIHandler:Android.Views.IScrollFeedbackProviderInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="inputDeviceId" Type="System.Int32" />
+        <Parameter Name="source" Type="System.Int32" />
+        <Parameter Name="axis" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="inputDeviceId">the ID of the <c>InputDevice</c> that generated the motion triggering
+                     the snap.</param>
+        <param name="source">the input source of the motion causing the snap.</param>
+        <param name="axis">the axis of <c>event</c> that caused the item to snap.</param>
+        <summary>Call this when the view has snapped to an item.</summary>
+        <remarks>
+          <para>Call this when the view has snapped to an item.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/ScrollFeedbackProvider#onSnapToItem(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.view.ScrollFeedbackProvider.onSnapToItem(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

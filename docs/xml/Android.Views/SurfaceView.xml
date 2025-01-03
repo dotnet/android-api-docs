@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/view/SurfaceView", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/view/SurfaceView", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>Provides a dedicated drawing surface embedded inside of a view hierarchy.</summary>
@@ -360,6 +364,10 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getHostToken", "()Landroid/os/IBinder;", "GetGetHostTokenHandler", ApiSince=30)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getHostToken", "()Landroid/os/IBinder;", "GetGetHostTokenHandler", ApiSince=30)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.OS.IBinder</ReturnType>
@@ -370,6 +378,7 @@
         <remarks>
           <para>A token used for constructing <c>SurfaceControlViewHost</c>. This token should
             be passed from the host process to the client process.</para>
+          <para>This member is deprecated. Use <c>AttachedSurfaceControl#getInputTransferToken()</c> instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/SurfaceView#getHostToken()" title="Reference documentation">Java documentation for <code>android.view.SurfaceView.getHostToken()</code>.</a>
@@ -401,6 +410,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -444,6 +457,64 @@
         <param name="p">To be added.</param>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDesiredHdrHeadroom">
+      <MemberSignature Language="C#" Value="public virtual void SetDesiredHdrHeadroom (float desiredHeadroom);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDesiredHdrHeadroom(float32 desiredHeadroom) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.SurfaceView.SetDesiredHdrHeadroom(System.Single)" />
+      <MemberSignature Language="F#" Value="abstract member SetDesiredHdrHeadroom : single -&gt; unit&#xA;override this.SetDesiredHdrHeadroom : single -&gt; unit" Usage="surfaceView.SetDesiredHdrHeadroom desiredHeadroom" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setDesiredHdrHeadroom", "(F)V", "GetSetDesiredHdrHeadroom_FHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDesiredHdrHeadroom", "(F)V", "GetSetDesiredHdrHeadroom_FHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="desiredHeadroom" Type="System.Single" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="desiredHeadroom">The amount of HDR headroom that is desired. Must be &gt;= 1.0 (no HDR)
+                                   and &lt;= 10,000.0. Passing 0.0 will reset to the default, automatically
+                                   chosen value.</param>
+        <summary>Sets the desired amount of HDR headroom to be used when HDR content is presented on this
+            SurfaceView.</summary>
+        <remarks>
+          <para>Sets the desired amount of HDR headroom to be used when HDR content is presented on this
+            SurfaceView.</para>
+          <para>By default the system will choose an amount of HDR headroom that is appropriate
+            for the underlying device capabilities &amp; bit-depth of the panel. However, for some types
+            of content this can end up being more headroom than necessary or desired. An example
+            would be a messaging app or gallery thumbnail view where some amount of HDR pop is desired
+            without overly influencing the perceived brightness of the majority SDR content. This can
+            also be used to animate in/out of an HDR range for smoother transitions.</para>
+          <para>Note: The actual amount of HDR headroom that will be given is subject to a variety
+            of factors such as ambient conditions, display capabilities, or bit-depth limitations.
+            See <c>Display#getHdrSdrRatio()</c> for more information as well as how to query the
+            current value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/SurfaceView#setDesiredHdrHeadroom(float)" title="Reference documentation">Java documentation for <code>android.view.SurfaceView.setDesiredHdrHeadroom(float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSecure">
@@ -886,6 +957,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

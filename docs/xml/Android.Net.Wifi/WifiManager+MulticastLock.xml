@@ -16,16 +16,30 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/wifi/WifiManager$MulticastLock", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/WifiManager$MulticastLock", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
     <summary>Allows an application to receive Wifi Multicast packets.</summary>
     <remarks>
+      <para>Allows an application to receive Wifi Multicast packets.
+            Normally the Wifi stack filters out packets not explicitly
+            addressed to this device.  Acquring a MulticastLock will
+            cause the stack to receive packets addressed to multicast
+            addresses.  Processing these extra packets can cause a noticeable
+            battery drain and should be disabled when not needed.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/WifiManager$MulticastLock" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.MulticastLock" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.MulticastLock</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
     <since version="Added in API level 4" />
   </Docs>
@@ -74,9 +88,36 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Locks Wifi Multicast on until <see cref="M:Android.Net.Wifi.WifiManager.MulticastLock.Release" /> is called.</summary>
+        <summary>Locks Wifi Multicast on until <c>#release</c> is called.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Locks Wifi Multicast on until <c>#release</c> is called.
+            
+            If this MulticastLock is reference-counted each call to
+            <c>acquire</c> will increment the reference count, and the
+            wifi interface will receive multicast packets as long as the
+            reference count is above zero.
+            
+            If this MulticastLock is not reference-counted, the first call to
+            <c>acquire</c> will turn on the multicast packets, but subsequent
+            calls will be ignored.  Only one call to <c>#release</c> will
+            be required, regardless of the number of times that <c>acquire</c>
+            is called.
+            
+            Note that other applications may also lock Wifi Multicast on.
+            Only they can relinquish their lock.
+            
+            Also note that applications cannot leave Multicast locked on.
+            When an app exits or crashes, any Multicast locks will be released.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.MulticastLock#acquire()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.MulticastLock.acquire()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 4" />
       </Docs>
@@ -102,9 +143,19 @@
       </ReturnValue>
       <Docs>
         <summary>Checks whether this MulticastLock is currently held.</summary>
-        <value>To be added.</value>
+        <value>true if this MulticastLock is held, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Checks whether this MulticastLock is currently held.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.MulticastLock#isHeld()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.MulticastLock.isHeld()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 4" />
       </Docs>
@@ -162,9 +213,40 @@
       <Parameters />
       <Docs>
         <summary>Unlocks Wifi Multicast, restoring the filter of packets
- not addressed specifically to this device and saving power.</summary>
+            not addressed specifically to this device and saving power.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Unlocks Wifi Multicast, restoring the filter of packets
+            not addressed specifically to this device and saving power.
+            
+            If this MulticastLock is reference-counted, each call to
+            <c>release</c> will decrement the reference count, and the
+            multicast packets will only stop being received when the reference
+            count reaches zero.  If the reference count goes below zero (that
+            is, if <c>release</c> is called a greater number of times than
+            <c>#acquire</c>), an exception is thrown.
+            
+            If this MulticastLock is not reference-counted, the first call to
+            <c>release</c> (after the radio was multicast locked using
+            <c>#acquire</c>) will unlock the multicast, and subsequent calls
+            will be ignored.
+            
+            Note that if any other Wifi Multicast Locks are still outstanding
+            this <c>release</c> call will not have an immediate effect.  Only
+            when all applications have released all their Multicast Locks will
+            the Multicast filter be turned back on.
+            
+            Also note that when an app exits or crashes all of its Multicast
+            Locks will be automatically released.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.MulticastLock#release()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.MulticastLock.release()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 4" />
       </Docs>
@@ -193,12 +275,30 @@
       </Parameters>
       <Docs>
         <param name="refCounted">true if this MulticastLock should keep a reference
- count
-</param>
+            count</param>
         <summary>Controls whether this is a reference-counted or non-reference-
- counted MulticastLock.</summary>
+            counted MulticastLock.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Controls whether this is a reference-counted or non-reference-
+            counted MulticastLock.
+            
+            Reference-counted MulticastLocks keep track of the number of calls
+            to <c>#acquire</c> and <c>#release</c>, and only stop the
+            reception of multicast packets when every call to <c>#acquire</c>
+            has been balanced with a call to <c>#release</c>.  Non-reference-
+            counted MulticastLocks allow the reception of multicast packets
+            whenever <c>#acquire</c> is called and stop accepting multicast
+            packets whenever <c>#release</c> is called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiManager.MulticastLock#setReferenceCounted(boolean)" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiManager.MulticastLock.setReferenceCounted(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 4" />
       </Docs>

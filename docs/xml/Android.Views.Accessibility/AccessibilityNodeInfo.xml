@@ -29,6 +29,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/view/accessibility/AccessibilityNodeInfo", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/view/accessibility/AccessibilityNodeInfo", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="14">
     <summary>This class represents a node of the window content as well as actions that
@@ -53,7 +57,12 @@
       <para>For more information about making applications accessible, read the
             <see href="https://developer.android.com/guide/topics/ui/accessibility/index.html">Accessibility</see>
             developer guide.</para>
-      <para>&lt;/div&gt;</para>
+      <para>&lt;/div&gt;
+            "note"&gt;
+            &lt;b&gt;Note:&lt;/b&gt; Use a &lt;c&gt;androidx.core.view.accessibility.AccessibilityNodeInfoCompat&lt;/c&gt;
+            wrapper instead of this class for backwards-compatibility. &lt;/aside&gt;
+            
+            </para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo</code>.</a>
@@ -345,6 +354,8 @@
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets whether this node is accessibility focused.</para>
+          <para>This is distinct from <c>#isFocused()</c>, which is used to track system focus.
+            See <c>#ACTION_ACCESSIBILITY_FOCUS</c> for details.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#isAccessibilityFocused()" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.isAccessibilityFocused()</code>.</a>
@@ -355,6 +366,10 @@
           <para>&lt;strong&gt;Note:&lt;/strong&gt; Cannot be called from an
               <c>android.accessibilityservice.AccessibilityService</c>.
               This class is made immutable before being delivered to an AccessibilityService.</para>
+          <para>The UI element updating this property should send an event of
+            <c>AccessibilityEvent#TYPE_VIEW_ACCESSIBILITY_FOCUSED</c>
+            or <c>AccessibilityEvent#TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED</c> if its
+            accessibility-focused state changes.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setAccessibilityFocused(boolean)" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.setAccessibilityFocused(boolean)</code>.</a>
@@ -401,7 +416,8 @@
       <Docs>
         <summary>Action that gives accessibility focus to the node.</summary>
         <remarks>
-          <para>Action that gives accessibility focus to the node.</para>
+          <para>Action that gives accessibility focus to the node.
+            See <c>AccessibilityAction#ACTION_ACCESSIBILITY_FOCUS</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_ACCESSIBILITY_FOCUS" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS</code>.</a>
@@ -433,6 +449,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_COLUMN_INT", ApiSince=23)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_COLUMN_INT", ApiSince=23)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
@@ -481,6 +501,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_DIRECTION_INT", ApiSince=34)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_DIRECTION_INT", ApiSince=34)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
@@ -536,6 +560,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -584,6 +612,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_HTML_ELEMENT_STRING")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_HTML_ELEMENT_STRING")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -630,6 +662,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -675,6 +711,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_MOVE_WINDOW_X", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_MOVE_WINDOW_X", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -725,6 +765,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_MOVE_WINDOW_Y", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -771,6 +815,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT", ApiSince=30)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT", ApiSince=30)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android30.0")]</AttributeName>
@@ -821,6 +869,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_PROGRESS_VALUE", ApiSince=24)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
         </Attribute>
@@ -869,6 +921,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_ROW_INT", ApiSince=23)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
         </Attribute>
@@ -898,6 +954,81 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="ActionArgumentScrollAmountFloat">
+      <MemberSignature Language="C#" Value="public const string ActionArgumentScrollAmountFloat;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionArgumentScrollAmountFloat" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.Accessibility.AccessibilityNodeInfo.ActionArgumentScrollAmountFloat" />
+      <MemberSignature Language="F#" Value="val mutable ActionArgumentScrollAmountFloat : string" Usage="Android.Views.Accessibility.AccessibilityNodeInfo.ActionArgumentScrollAmountFloat" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Argument to represent the scroll amount as a percent of the visible area of a node, with
+            1.</summary>
+        <remarks>
+          <para>Argument to represent the scroll amount as a percent of the visible area of a node, with
+            1.0F as the default. Values smaller than 1.0F represent a partial scroll of the node, and
+            values larger than 1.0F represent a scroll that extends beyond the currently visible node
+            Rect. Setting this to <c>Float#POSITIVE_INFINITY</c> or to another "too large" value should
+            scroll to the end of the node. Negative values should not be used with this argument.</para>
+          <para>This argument should be used with the following scroll actions:
+                &lt;ul&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_FORWARD</c>&lt;/li&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_BACKWARD</c>&lt;/li&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_UP</c>&lt;/li&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_DOWN</c>&lt;/li&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_LEFT</c>&lt;/li&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_RIGHT</c>&lt;/li&gt;
+                &lt;/ul&gt;</para>
+          <para>Example: if a view representing a list of items implements
+                <c>AccessibilityAction#ACTION_SCROLL_FORWARD</c> to scroll forward by an entire screen
+                (one "page"), then passing a value of .25F via this argument should scroll that view
+                only by 1/4th of a screen. Passing a value of 1.50F via this argument should scroll the
+                view by 1 1/2 screens or to end of the node if the node doesn't extend to 1 1/2 screens.</para>
+          <para>This argument should not be used with the following scroll actions, which don't cleanly
+                conform to granular scroll semantics:
+                &lt;ul&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_IN_DIRECTION</c>&lt;/li&gt;
+                    &lt;li&gt;<c>AccessibilityAction#ACTION_SCROLL_TO_POSITION</c>&lt;/li&gt;
+                &lt;/ul&gt;</para>
+          <para>Views that support this argument should set
+                <c>#setGranularScrollingSupported(boolean)</c> to true. Clients should use
+                <c>#isGranularScrollingSupported()</c> to check if granular scrolling is supported.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ActionArgumentSelectionEndInt">
       <MemberSignature Language="C#" Value="public const string ActionArgumentSelectionEndInt;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string ActionArgumentSelectionEndInt" />
@@ -915,6 +1046,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_SELECTION_END_INT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_SELECTION_END_INT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -961,6 +1096,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_SELECTION_START_INT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_SELECTION_START_INT")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -1005,6 +1144,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1062,7 +1205,8 @@
       <Docs>
         <summary>Action that clears accessibility focus of the node.</summary>
         <remarks>
-          <para>Action that clears accessibility focus of the node.</para>
+          <para>Action that clears accessibility focus of the node.
+            See <c>AccessibilityAction#ACTION_CLEAR_ACCESSIBILITY_FOCUS</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_CLEAR_ACCESSIBILITY_FOCUS" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS</code>.</a>
@@ -1107,7 +1251,8 @@
       <Docs>
         <summary>Action that clears input focus of the node.</summary>
         <remarks>
-          <para>Action that clears input focus of the node.</para>
+          <para>Action that clears input focus of the node.
+            See <c>AccessibilityAction#ACTION_CLEAR_FOCUS</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_CLEAR_FOCUS" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_CLEAR_FOCUS</code>.</a>
@@ -1197,9 +1342,7 @@
       <Docs>
         <summary>Action that clicks on the node info.</summary>
         <remarks>
-          <para>Action that clicks on the node info.
-            
-            See <c>AccessibilityAction#ACTION_CLICK</c></para>
+          <para>Action that clicks on the node info.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_CLICK" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK</code>.</a>
@@ -1466,7 +1609,8 @@
       <Docs>
         <summary>Action that gives input focus to the node.</summary>
         <remarks>
-          <para>Action that gives input focus to the node.</para>
+          <para>Action that gives input focus to the node.
+            See <c>AccessibilityAction#ACTION_FOCUS</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_FOCUS" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS</code>.</a>
@@ -1492,6 +1636,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getActionList", "()Ljava/util/List;", "GetGetActionListHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getActionList", "()Ljava/util/List;", "GetGetActionListHandler")&gt;]</AttributeName>
@@ -2078,17 +2226,6 @@
         <remarks>
           <para>Action to set the selection. Performing this action with no arguments
             clears the selection.</para>
-          <para>&lt;strong&gt;Arguments:&lt;/strong&gt;
-            <c>#ACTION_ARGUMENT_SELECTION_START_INT</c>,
-            <c>#ACTION_ARGUMENT_SELECTION_END_INT</c>&lt;br&gt;
-            &lt;strong&gt;Example:&lt;/strong&gt;
-            <c>&lt;pre&gt;&lt;p&gt;
-              Bundle arguments = new Bundle();
-              arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 1);
-              arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, 2);
-              info.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, arguments);
-            </c>&lt;/pre&gt;</para>
-          <para>&lt;/p&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_SET_SELECTION" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_SELECTION</code>.</a>
@@ -2138,15 +2275,6 @@
           <para>Action that sets the text of the node. Performing the action without argument, using <c>
             null</c> or empty <c>CharSequence</c> will clear the text. This action will also put the
             cursor at the end of text.</para>
-          <para>&lt;strong&gt;Arguments:&lt;/strong&gt;
-            <c>#ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE</c>&lt;br&gt;
-            &lt;strong&gt;Example:&lt;/strong&gt;
-            <c>&lt;pre&gt;&lt;p&gt;
-              Bundle arguments = new Bundle();
-              arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
-                  "android");
-              info.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
-            </c>&lt;/pre&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#ACTION_SET_TEXT" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT</code>.</a>
@@ -2365,6 +2493,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
@@ -3052,7 +3184,8 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <value>To be added.</value>
         <remarks>
           <para>
@@ -3437,6 +3570,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_DATA_RENDERING_INFO_KEY", ApiSince=30)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android30.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android30.0")&gt;]</AttributeName>
         </Attribute>
@@ -3489,6 +3626,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -3500,7 +3641,7 @@
         <summary>Integer argument specifying the end index of the requested text location data.</summary>
         <remarks>
           <para>Integer argument specifying the end index of the requested text location data. Must be
-            positive and no larger than <c>#EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH</c>.</para>
+            positive and no larger than <c>#EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_MAX_LENGTH</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH</code>.</a>
@@ -3577,6 +3718,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -3619,6 +3764,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -3717,6 +3866,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Views.Accessibility.AccessibilityNodeInfo&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="text" Type="System.String" />
@@ -3766,6 +3921,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Views.Accessibility.AccessibilityNodeInfo&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="viewId" Type="System.String" />
@@ -3949,6 +4110,7 @@
           <para>This must not be combined with <c>#FLAG_PREFETCH_DESCENDANTS_HYBRID</c> or
             <c>#FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST</c> or this will trigger an
             IllegalArgumentException.</para>
+          <para>See <c>#FLAG_PREFETCH_ANCESTORS</c> for information on where these flags can be used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST</code>.</a>
@@ -4000,6 +4162,7 @@
           <para>This must not be combined with <c>#FLAG_PREFETCH_DESCENDANTS_HYBRID</c> or
             <c>#FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST</c> or this will trigger an
             IllegalArgumentException.</para>
+          <para>See <c>#FLAG_PREFETCH_ANCESTORS</c> for information on where these flags can be used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST</code>.</a>
@@ -4054,6 +4217,7 @@
             must not be combined with <c>#FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST</c> or
             <c>#FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST</c> or this will trigger an
             IllegalArgumentException.</para>
+          <para>See <c>#FLAG_PREFETCH_ANCESTORS</c> for information on where these flags can be used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#FLAG_PREFETCH_DESCENDANTS_HYBRID" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.FLAG_PREFETCH_DESCENDANTS_HYBRID</code>.</a>
@@ -4104,6 +4268,7 @@
           <para>Prefetching strategy that prefetches the siblings of the requested node.</para>
           <para>To avoid disconnected trees, this flag will also prefetch the parent. Siblings will be
             prefetched before descendants.</para>
+          <para>See <c>#FLAG_PREFETCH_ANCESTORS</c> for information on where these flags can be used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#FLAG_PREFETCH_SIBLINGS" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.FLAG_PREFETCH_SIBLINGS</code>.</a>
@@ -4154,6 +4319,7 @@
         <remarks>
           <para>Prefetching flag that specifies prefetching should not be interrupted by a request to
             retrieve a node or perform an action on a node.</para>
+          <para>See <c>#FLAG_PREFETCH_ANCESTORS</c> for information on where these flags can be used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#FLAG_PREFETCH_UNINTERRUPTIBLE" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.FLAG_PREFETCH_UNINTERRUPTIBLE</code>.</a>
@@ -4197,6 +4363,7 @@
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets whether this node is focusable.</para>
+          <para>In the View system, this typically maps to <c>View#isFocusable()</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#isFocusable()" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.isFocusable()</code>.</a>
@@ -4207,6 +4374,8 @@
           <para>&lt;strong&gt;Note:&lt;/strong&gt; Cannot be called from an
               <c>android.accessibilityservice.AccessibilityService</c>.
               This class is made immutable before being delivered to an AccessibilityService.</para>
+          <para>To mark a node as explicitly focusable for a screen reader, consider using
+            <c>#setScreenReaderFocusable(boolean)</c> instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setFocusable(boolean)" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.setFocusable(boolean)</code>.</a>
@@ -4298,6 +4467,8 @@
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets whether this node is focused.</para>
+          <para>This is distinct from <c>#isAccessibilityFocused()</c>, which is used by screen readers.
+            See <c>AccessibilityAction#ACTION_ACCESSIBILITY_FOCUS</c> for details.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#isFocused()" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.isFocused()</code>.</a>
@@ -4666,6 +4837,7 @@
         <returns>The child node.</returns>
         <remarks>
           <para>Get the child at given index.</para>
+          <para>See <c>#getParent(int)</c> for a description of prefetching.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#getChild(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.getChild(int, int)</code>.</a>
@@ -4924,6 +5096,70 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#getTouchDelegateInfo()" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.getTouchDelegateInfo()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GranularScrollingSupported">
+      <MemberSignature Language="C#" Value="public virtual bool GranularScrollingSupported { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool GranularScrollingSupported" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.Accessibility.AccessibilityNodeInfo.GranularScrollingSupported" />
+      <MemberSignature Language="F#" Value="member this.GranularScrollingSupported : bool with get, set" Usage="Android.Views.Accessibility.AccessibilityNodeInfo.GranularScrollingSupported" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isGranularScrollingSupported", "()Z", "GetIsGranularScrollingSupportedHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isGranularScrollingSupported", "()Z", "GetIsGranularScrollingSupportedHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setGranularScrollingSupported", "(Z)V", "GetSetGranularScrollingSupported_ZHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setGranularScrollingSupported", "(Z)V", "GetSetGranularScrollingSupported_ZHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="granularScrollingSupported">True if the node supports granular scrolling, false
+                                             otherwise.</param>
+        <summary>Gets if the node supports granular scrolling. -or- Sets if the node supports granular scrolling.</summary>
+        <value>True if all scroll actions that could support
+            <c>#ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT</c> have done so, false otherwise.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Gets if the node supports granular scrolling.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#isGranularScrollingSupported()" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.isGranularScrollingSupported()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets if the node supports granular scrolling. This should be set to true if all scroll
+            actions which could support <c>#ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT</c> have done so.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Cannot be called from an
+              <c>android.accessibilityservice.AccessibilityService</c>.
+              This class is made immutable before being delivered to an AccessibilityService.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setGranularScrollingSupported(boolean)" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.setGranularScrollingSupported(boolean)</code>.</a>
             </format>
           </para>
           <para>
@@ -5272,6 +5508,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -5600,6 +5840,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -5640,6 +5884,8 @@
             content change events to accessibility services one event per second.
             Accessibility service will throttle those content change events and only handle one event
             per minute for that view.</para>
+          <para>Example UI elements that frequently update and may benefit from a duration are progress bars,
+            timers, and stopwatches.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setMinDurationBetweenContentChanges(java.time.Duration)" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.setMinDurationBetweenContentChanges(java.time.Duration)</code>.</a>
@@ -6940,6 +7186,9 @@
           <para>&lt;strong&gt;Note:&lt;/strong&gt; Cannot be called from an
               <c>android.accessibilityservice.AccessibilityService</c>.
               This class is made immutable before being delivered to an AccessibilityService.</para>
+          <para>This can be used to
+            <see href="https://developer.android.com/guide/topics/ui/accessibility/principles#content-groups">group related
+            content.</see></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setScreenReaderFocusable(boolean)" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.setScreenReaderFocusable(boolean)</code>.</a>
@@ -8681,6 +8930,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

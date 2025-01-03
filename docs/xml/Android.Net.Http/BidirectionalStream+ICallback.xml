@@ -25,8 +25,20 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Callback interface used to receive callbacks from a <c>BidirectionalStream</c>.</summary>
+    <remarks>
+      <para>Callback interface used to receive callbacks from a <c>BidirectionalStream</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="OnCanceled">
@@ -54,13 +66,38 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="stream" Type="Android.Net.Http.BidirectionalStream" />
-        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
+        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream that was canceled. &lt;strong&gt;This is not guaranteed to
+                   be the same object as the one received by other callbacks, nor is it guaranteed
+                   to be the one returned by <c>BidirectionalStream.Builder#build</c>.&lt;/strong&gt;
+                   However, method calls on this object will have the same effects as calls on the
+                   original <c>BidirectionalStream</c>.</param>
+        <param name="info">the response information. May be <c>null</c> if no response was received.</param>
+        <summary>Invoked if the stream was canceled via <c>BidirectionalStream#cancel</c>.</summary>
+        <remarks>
+          <para>Invoked if the stream was canceled via <c>BidirectionalStream#cancel</c>. Once invoked,
+            no further <c>BidirectionalStream.Callback</c> methods will be invoked. Default
+            implementation takes no action.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onCanceled(android.net.http.BidirectionalStream,%20android.net.http.UrlResponseInfo)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onCanceled(android.net.http.BidirectionalStream, android.net.http.UrlResponseInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnFailed">
@@ -88,15 +125,41 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="stream" Type="Android.Net.Http.BidirectionalStream" />
-        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
+        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="error" Type="Android.Net.Http.HttpException" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="info">To be added.</param>
-        <param name="error">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream which has failed. &lt;strong&gt;This is not guaranteed to
+                   be the same object as the one received by other callbacks, nor is it guaranteed
+                   to be the one returned by <c>BidirectionalStream.Builder#build</c>.&lt;/strong&gt;
+                   However, method calls on this object will have the same effects as calls on the
+                   original <c>BidirectionalStream</c>.</param>
+        <param name="info">the response information. May be <c>null</c> if no response was received.</param>
+        <param name="error">information about the failure</param>
+        <summary>Invoked if the stream failed for any reason after <c>BidirectionalStream#start</c>.</summary>
+        <remarks>
+          <para>Invoked if the stream failed for any reason after <c>BidirectionalStream#start</c>.
+            <see href="https://tools.ietf.org/html/rfc7540#section-7">HTTP/2 error codes</see> are
+            mapped to <c>NetworkException#getErrorCode</c> codes. Once invoked,
+            no further <c>BidirectionalStream.Callback</c> methods will be invoked.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onFailed(android.net.http.BidirectionalStream,%20android.net.http.UrlResponseInfo,%20android.net.http.HttpException)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onFailed(android.net.http.BidirectionalStream, android.net.http.UrlResponseInfo, android.net.http.HttpException)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnReadCompleted">
@@ -129,12 +192,35 @@
         <Parameter Name="endOfStream" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="info">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="endOfStream">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream on which the read completed. &lt;strong&gt;This is not guaranteed to
+                   be the same object as the one received by other callbacks, nor is it guaranteed
+                   to be the one returned by <c>BidirectionalStream.Builder#build</c>.&lt;/strong&gt;
+                   However, method calls on this object will have the same effects as calls on the
+                   original <c>BidirectionalStream</c>.</param>
+        <param name="info">the response information</param>
+        <param name="buffer">the buffer that was passed to <c>BidirectionalStream#read read()</c>, now
+            set to the end of the received data. If position is not updated, it means the remote side
+            has signaled that it will send no more data.</param>
+        <param name="endOfStream">if true, this is the last read data, remote will not send more data,
+                    and
+            the read side is closed.</param>
+        <summary>Invoked when data is read into the buffer passed to <c>BidirectionalStream#read
+            read()</c>.</summary>
+        <remarks>
+          <para>Invoked when data is read into the buffer passed to <c>BidirectionalStream#read
+            read()</c>. Only part of the buffer may be populated. To continue reading, call <c>BidirectionalStream#read read()</c>. It may be invoked after <c>onResponseTrailersReceived()</c>, if there was pending read data before trailers were
+            received.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onReadCompleted(android.net.http.BidirectionalStream,%20android.net.http.UrlResponseInfo,%20java.nio.ByteBuffer,%20boolean)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onReadCompleted(android.net.http.BidirectionalStream, android.net.http.UrlResponseInfo, java.nio.ByteBuffer, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnResponseHeadersReceived">
@@ -165,10 +251,26 @@
         <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream on which response headers were received. &lt;strong&gt;This is not
+                   guaranteed to be the same object as the one received by other callbacks, nor is
+                   it guaranteed to be the one returned by <c>BidirectionalStream.Builder#build</c>.
+                   &lt;/strong&gt; However, method calls on this object will have the same effects as
+                   calls on the original <c>BidirectionalStream</c>.</param>
+        <param name="info">the response information.</param>
+        <summary>Invoked when initial response headers are received.</summary>
+        <remarks>
+          <para>Invoked when initial response headers are received. Headers are available from <c>info.</c><c>UrlResponseInfo#getHeaders getHeaders()</c>. Consumer may call <c>BidirectionalStream#read read()</c> to start reading. Consumer may call <c>BidirectionalStream#write write()</c> to start writing or close the stream.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onResponseHeadersReceived(android.net.http.BidirectionalStream,%20android.net.http.UrlResponseInfo)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onResponseHeadersReceived(android.net.http.BidirectionalStream, android.net.http.UrlResponseInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnResponseTrailersReceived">
@@ -200,11 +302,30 @@
         <Parameter Name="trailers" Type="Android.Net.Http.HeaderBlock" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="info">To be added.</param>
-        <param name="trailers">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream on which response trailers were received. &lt;strong&gt;This is not
+                   guaranteed to be the same object as the one received by other callbacks, nor is
+                   it guaranteed to be the one returned by <c>BidirectionalStream.Builder#build</c>.
+                   &lt;/strong&gt; However, method calls on this object will have the same effects as calls
+                   on the original <c>BidirectionalStream</c>.</param>
+        <param name="info">the response information</param>
+        <param name="trailers">the trailers received</param>
+        <summary>Invoked when trailers are received before closing the stream.</summary>
+        <remarks>
+          <para>Invoked when trailers are received before closing the stream. Only invoked when server
+            sends trailers, which it may not. May be invoked while there is read data remaining in
+            local buffer.</para>
+          <para>Default implementation takes no action.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onResponseTrailersReceived(android.net.http.BidirectionalStream,%20android.net.http.UrlResponseInfo,%20android.net.http.HeaderBlock)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onResponseTrailersReceived(android.net.http.BidirectionalStream, android.net.http.UrlResponseInfo, android.net.http.HeaderBlock)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnStreamReady">
@@ -234,9 +355,25 @@
         <Parameter Name="stream" Type="Android.Net.Http.BidirectionalStream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream that is ready. &lt;strong&gt;This is not guaranteed to be the same
+                   object as the one received by other callbacks, nor is it guaranteed to be the one
+                   returned by <c>BidirectionalStream.Builder#build</c>.&lt;/strong&gt; However, method
+                   calls on this object will have the same effects as calls on the original
+                   <c>BidirectionalStream</c>.</param>
+        <summary>Invoked when the stream is ready for reading and writing.</summary>
+        <remarks>
+          <para>Invoked when the stream is ready for reading and writing. Consumer may call <c>BidirectionalStream#read read()</c> to start reading data. Consumer may call <c>BidirectionalStream#write write()</c> to start writing data.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onStreamReady(android.net.http.BidirectionalStream)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onStreamReady(android.net.http.BidirectionalStream)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSucceeded">
@@ -267,10 +404,29 @@
         <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream which is closed successfully. &lt;strong&gt;This is not guaranteed to
+                   be the same object as the one received by other callbacks, nor is it guaranteed
+                   to be the one returned by <c>BidirectionalStream.Builder#build</c>.&lt;/strong&gt;
+                   However, method calls on this object will have the same effects as calls on the
+                   original <c>BidirectionalStream</c>.</param>
+        <param name="info">the response information</param>
+        <summary>Invoked when there is no data to be read or written and the stream is closed successfully
+            remotely and locally.</summary>
+        <remarks>
+          <para>Invoked when there is no data to be read or written and the stream is closed successfully
+            remotely and locally. Once invoked, no further <c>BidirectionalStream.Callback</c>
+            methods will be invoked.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onSucceeded(android.net.http.BidirectionalStream,%20android.net.http.UrlResponseInfo)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onSucceeded(android.net.http.BidirectionalStream, android.net.http.UrlResponseInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnWriteCompleted">
@@ -303,12 +459,34 @@
         <Parameter Name="endOfStream" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="info">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="endOfStream">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">the stream on which the write completed. &lt;strong&gt;This is not guaranteed to
+                   be the same object as the one received by other callbacks, nor is it guaranteed
+                   to be the one returned by <c>BidirectionalStream.Builder#build</c>.&lt;/strong&gt;
+                   However, method calls on this object will have the same effects as calls on the
+                   original <c>BidirectionalStream</c>.</param>
+        <param name="info">the response information</param>
+        <param name="buffer">the buffer that was passed to <c>BidirectionalStream#write write()</c>.
+                    The
+            buffer's position is set to the buffer's limit. The buffer's limit is not changed.</param>
+        <param name="endOfStream">the endOfStream flag that was passed to the corresponding <c>BidirectionalStream#write write()</c>. If true, the write side is closed.</param>
+        <summary>Invoked when the entire ByteBuffer passed to <c>BidirectionalStream#write write()</c> is
+            sent.</summary>
+        <remarks>
+          <para>Invoked when the entire ByteBuffer passed to <c>BidirectionalStream#write write()</c> is
+            sent. The buffer's position is updated to be the same as the buffer's limit. The buffer's
+            limit is not changed. To continue writing, call <c>BidirectionalStream#write
+            write()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream.Callback#onWriteCompleted(android.net.http.BidirectionalStream,%20android.net.http.UrlResponseInfo,%20java.nio.ByteBuffer,%20boolean)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.Callback.onWriteCompleted(android.net.http.BidirectionalStream, android.net.http.UrlResponseInfo, java.nio.ByteBuffer, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

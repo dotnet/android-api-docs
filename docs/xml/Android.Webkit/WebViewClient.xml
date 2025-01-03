@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/webkit/WebViewClient", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/webkit/WebViewClient", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>To be added.</summary>
@@ -141,6 +145,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -773,27 +781,36 @@
         <Parameter Name="error" Type="Android.Net.Http.SslError" />
       </Parameters>
       <Docs>
-        <param name="view">The WebView that is initiating the callback.</param>
-        <param name="handler">An <c>SslErrorHandler</c> that will handle the user's
-                       response.</param>
-        <param name="error">The SSL error object.</param>
-        <summary>Notify the host application that an SSL error occurred while loading a
+        <param name="view">
+          <c>WebView</c> that initiated the callback.</param>
+        <param name="handler">
+          <c>SslErrorHandler</c> that handles the user's response.</param>
+        <param name="error">SSL error object.</param>
+        <summary>Notifies the host application that an SSL error occurred while loading a
             resource.</summary>
         <remarks>
-          <para>Notify the host application that an SSL error occurred while loading a
-            resource. The host application must call either <c>SslErrorHandler#cancel</c> or
-            <c>SslErrorHandler#proceed</c>. Note that the decision may be retained for use in
-            response to future SSL errors. The default behavior is to cancel the
-            load.</para>
-          <para>This API is only called for recoverable SSL certificate errors. In the case of
-            non-recoverable errors (such as when the server fails the client), WebView will call <c>#onReceivedError(WebView, WebResourceRequest, WebResourceError)</c> with <c>#ERROR_FAILED_SSL_HANDSHAKE</c>.</para>
-          <para>Applications are advised not to prompt the user about SSL errors, as
-            the user is unlikely to be able to make an informed security decision
-            and WebView does not provide any UI for showing the details of the
+          <para>Notifies the host application that an SSL error occurred while loading a
+            resource. The host application must call either
+            <c>SslErrorHandler#cancel()</c> or <c>SslErrorHandler#proceed()</c>.
+            
+            &lt;p class="warning"&gt;&lt;b&gt;Warning:&lt;/b&gt; Application overrides of this method
+            can be used to display custom error pages or to silently log issues, but
+            the host application should always call <c>SslErrorHandler#cancel()</c>
+            and never proceed past errors.
+            
+            &lt;p class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; Do not prompt the user about SSL errors.
+            Users are unlikely to be able to make an informed security decision, and
+            <c>WebView</c> does not provide a UI for showing the details of the
             error in a meaningful way.</para>
-          <para>Application overrides of this method may display custom error pages or
-            silently log issues, but it is strongly recommended to always call
-            <c>SslErrorHandler#cancel</c> and never allow proceeding past errors.</para>
+          <para>The decision to call <c>proceed()</c> or <c>cancel()</c> may be
+            retained to facilitate responses to future SSL errors. The default
+            behavior is to cancel the resource loading process.</para>
+          <para>This API is called only for recoverable SSL certificate errors. For
+            non-recoverable errors (such as when the server fails the client), the
+            <c>WebView</c> calls <c>#onReceivedError(WebView,
+            WebResourceRequest, WebResourceError) onReceivedError(WebView,
+            WebResourceRequest, WebResourceError)</c> with the
+            <c>#ERROR_FAILED_SSL_HANDSHAKE</c> argument.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/WebViewClient#onReceivedSslError(android.webkit.WebView,%20android.webkit.SslErrorHandler,%20android.net.http.SslError)" title="Reference documentation">Java documentation for <code>android.webkit.WebViewClient.onReceivedSslError(android.webkit.WebView, android.webkit.SslErrorHandler, android.net.http.SslError)</code>.</a>
@@ -1366,7 +1383,14 @@
             current WebView. If a WebViewClient is not provided, by default WebView will ask Activity
             Manager to choose the proper handler for the URL. If a WebViewClient is provided, returning
             <c>true</c> causes the current WebView to abort loading the URL, while returning
-            <c>false</c> causes the WebView to continue loading the URL as usual.
+            <c>false</c> causes the WebView to continue loading the URL as usual.</para>
+          <para>This callback is not called for all page navigations. In particular, this is not called
+            for navigations which the app initiated with <c>loadUrl()</c>: this callback would not serve
+            a purpose in this case, because the app already knows about the navigation. This callback
+            lets the app know about navigations initiated by the web page (such as navigations initiated
+            by JavaScript code), by the user (such as when the user taps on a link), or by an HTTP
+            redirect (ex. if <c>loadUrl("foo.com")</c> redirects to <c>"bar.com"</c> because of HTTP
+            301).
             
             &lt;p class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; Do not call <c>WebView#loadUrl(String)</c> with the request's
             URL and then return <c>true</c>. This unnecessarily cancels the current load and starts a
@@ -1505,6 +1529,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/appwidget/AppWidgetManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/appwidget/AppWidgetManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="3">
     <summary>Updates AppWidget state; gets information about installed AppWidget providers and other
@@ -1365,7 +1369,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="packageName" Type="System.String" />
-        <Parameter Name="profile" Type="Android.OS.UserHandle" />
+        <Parameter Name="profile" Type="Android.OS.UserHandle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="packageName">The package for which to get providers. If null, this method is
@@ -1413,7 +1424,14 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.Appwidget.AppWidgetProviderInfo&gt;</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="profile" Type="Android.OS.UserHandle" />
+        <Parameter Name="profile" Type="Android.OS.UserHandle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="profile">The profile for which to get providers. Passing null is equivalent
@@ -1484,6 +1502,73 @@
         <since version="Added in API level 3" />
       </Docs>
     </Member>
+    <Member MemberName="GetWidgetPreview">
+      <MemberSignature Language="C#" Value="public virtual Android.Widget.RemoteViews? GetWidgetPreview (Android.Content.ComponentName provider, Android.OS.UserHandle? profile, Android.Appwidget.AppWidgetCategory widgetCategory);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Widget.RemoteViews GetWidgetPreview(class Android.Content.ComponentName provider, class Android.OS.UserHandle profile, valuetype Android.Appwidget.AppWidgetCategory widgetCategory) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Appwidget.AppWidgetManager.GetWidgetPreview(Android.Content.ComponentName,Android.OS.UserHandle,Android.Appwidget.AppWidgetCategory)" />
+      <MemberSignature Language="F#" Value="abstract member GetWidgetPreview : Android.Content.ComponentName * Android.OS.UserHandle * Android.Appwidget.AppWidgetCategory -&gt; Android.Widget.RemoteViews&#xA;override this.GetWidgetPreview : Android.Content.ComponentName * Android.OS.UserHandle * Android.Appwidget.AppWidgetCategory -&gt; Android.Widget.RemoteViews" Usage="appWidgetManager.GetWidgetPreview (provider, profile, widgetCategory)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getWidgetPreview", "(Landroid/content/ComponentName;Landroid/os/UserHandle;I)Landroid/widget/RemoteViews;", "GetGetWidgetPreview_Landroid_content_ComponentName_Landroid_os_UserHandle_IHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getWidgetPreview", "(Landroid/content/ComponentName;Landroid/os/UserHandle;I)Landroid/widget/RemoteViews;", "GetGetWidgetPreview_Landroid_content_ComponentName_Landroid_os_UserHandle_IHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Widget.RemoteViews</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="provider" Type="Android.Content.ComponentName" Index="0" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="profile" Type="Android.OS.UserHandle" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="widgetCategory" Type="Android.Appwidget.AppWidgetCategory" Index="2" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="provider">The <c>ComponentName</c> for the <c>android.content.BroadcastReceiver
+               BroadcastReceiver</c> provider for the AppWidget you intend to get a preview for.</param>
+        <param name="profile">The profile in which the provider resides. Passing null is equivalent
+                   to querying for only the calling user.</param>
+        <param name="widgetCategory">The widget category for which you want to display previews. This should
+               be a single category. If a combination of categories is provided, this function will
+               return a preview that matches at least one of the categories.</param>
+        <summary>Get the RemoteViews previews for this widget.</summary>
+        <returns>The widget preview for the selected category, if available.</returns>
+        <remarks>
+          <para>Get the RemoteViews previews for this widget.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#getWidgetPreview(android.content.ComponentName,%20android.os.UserHandle,%20int)" title="Reference documentation">Java documentation for <code>android.appwidget.AppWidgetManager.getWidgetPreview(android.content.ComponentName, android.os.UserHandle, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="InstalledProviders">
       <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;Android.Appwidget.AppWidgetProviderInfo&gt;? InstalledProviders { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IList`1&lt;class Android.Appwidget.AppWidgetProviderInfo&gt; InstalledProviders" />
@@ -1495,6 +1580,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getInstalledProviders", "()Ljava/util/List;", "GetGetInstalledProvidersHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInstalledProviders", "()Ljava/util/List;", "GetGetInstalledProvidersHandler")&gt;]</AttributeName>
@@ -1687,6 +1776,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("notifyAppWidgetViewDataChanged", "(II)V", "GetNotifyAppWidgetViewDataChanged_IIHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("notifyAppWidgetViewDataChanged", "(II)V", "GetNotifyAppWidgetViewDataChanged_IIHandler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1703,6 +1796,16 @@
         <remarks>
           <para>Notifies the specified collection view in the specified AppWidget instance
             to invalidate its data.</para>
+          <para>This member is deprecated. The corresponding API
+            <c>RemoteViews#setRemoteAdapter(int, Intent)</c> associated with this method has been
+            deprecated. Moving forward please use
+            <c>RemoteViews#setRemoteAdapter(int, android.widget.RemoteViews.RemoteCollectionItems)</c>
+            instead to set <c>android.widget.RemoteViews.RemoteCollectionItems</c> for the remote
+            adapter and update the widget views by calling <c>#updateAppWidget(int[], RemoteViews)</c>,
+            <c>#updateAppWidget(int, RemoteViews)</c>,
+            <c>#updateAppWidget(ComponentName, RemoteViews)</c>,
+            <c>#partiallyUpdateAppWidget(int[], RemoteViews)</c>,
+            or <c>#partiallyUpdateAppWidget(int, RemoteViews)</c>, whichever applicable.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#notifyAppWidgetViewDataChanged(int,%20int)" title="Reference documentation">Java documentation for <code>android.appwidget.AppWidgetManager.notifyAppWidgetViewDataChanged(int, int)</code>.</a>
@@ -1732,6 +1835,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("notifyAppWidgetViewDataChanged", "([II)V", "GetNotifyAppWidgetViewDataChanged_arrayIIHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("notifyAppWidgetViewDataChanged", "([II)V", "GetNotifyAppWidgetViewDataChanged_arrayIIHandler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1748,6 +1855,16 @@
         <remarks>
           <para>Notifies the specified collection view in all the specified AppWidget instances
             to invalidate their data.</para>
+          <para>This member is deprecated. The corresponding API
+            <c>RemoteViews#setRemoteAdapter(int, Intent)</c> associated with this method has been
+            deprecated. Moving forward please use
+            <c>RemoteViews#setRemoteAdapter(int, android.widget.RemoteViews.RemoteCollectionItems)</c>
+            instead to set <c>android.widget.RemoteViews.RemoteCollectionItems</c> for the remote
+            adapter and update the widget views by calling <c>#updateAppWidget(int[], RemoteViews)</c>,
+            <c>#updateAppWidget(int, RemoteViews)</c>,
+            <c>#updateAppWidget(ComponentName, RemoteViews)</c>,
+            <c>#partiallyUpdateAppWidget(int[], RemoteViews)</c>,
+            or <c>#partiallyUpdateAppWidget(int, RemoteViews)</c>, whichever applicable.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#notifyAppWidgetViewDataChanged(int[],%20int)" title="Reference documentation">Java documentation for <code>android.appwidget.AppWidgetManager.notifyAppWidgetViewDataChanged(int[], int)</code>.</a>
@@ -2153,6 +2270,62 @@
         <since version="Added in API level 11" />
       </Docs>
     </Member>
+    <Member MemberName="RemoveWidgetPreview">
+      <MemberSignature Language="C#" Value="public virtual void RemoveWidgetPreview (Android.Content.ComponentName provider, Android.Appwidget.AppWidgetCategory widgetCategories);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RemoveWidgetPreview(class Android.Content.ComponentName provider, valuetype Android.Appwidget.AppWidgetCategory widgetCategories) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Appwidget.AppWidgetManager.RemoveWidgetPreview(Android.Content.ComponentName,Android.Appwidget.AppWidgetCategory)" />
+      <MemberSignature Language="F#" Value="abstract member RemoveWidgetPreview : Android.Content.ComponentName * Android.Appwidget.AppWidgetCategory -&gt; unit&#xA;override this.RemoveWidgetPreview : Android.Content.ComponentName * Android.Appwidget.AppWidgetCategory -&gt; unit" Usage="appWidgetManager.RemoveWidgetPreview (provider, widgetCategories)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("removeWidgetPreview", "(Landroid/content/ComponentName;I)V", "GetRemoveWidgetPreview_Landroid_content_ComponentName_IHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeWidgetPreview", "(Landroid/content/ComponentName;I)V", "GetRemoveWidgetPreview_Landroid_content_ComponentName_IHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="provider" Type="Android.Content.ComponentName" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="widgetCategories" Type="Android.Appwidget.AppWidgetCategory" Index="1" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="provider">The AppWidgetProvider to remove previews for.</param>
+        <param name="widgetCategories">The categories of the preview to remove. For example, removing the
+               preview for WIDGET_CATEGORY_HOME_SCREEN | WIDGET_CATEGORY_KEYGUARD will remove the
+               previews for both categories.</param>
+        <summary>Remove this provider's preview for the specified widget categories.</summary>
+        <remarks>
+          <para>Remove this provider's preview for the specified widget categories. If the provider does not
+            have a preview for the specified widget category, this is a no-op.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#removeWidgetPreview(android.content.ComponentName,%20int)" title="Reference documentation">Java documentation for <code>android.appwidget.AppWidgetManager.removeWidgetPreview(android.content.ComponentName, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="RequestPinAppWidget">
       <MemberSignature Language="C#" Value="public virtual bool RequestPinAppWidget (Android.Content.ComponentName provider, Android.OS.Bundle? extras, Android.App.PendingIntent? successCallback);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool RequestPinAppWidget(class Android.Content.ComponentName provider, class Android.OS.Bundle extras, class Android.App.PendingIntent successCallback) cil managed" />
@@ -2177,7 +2350,14 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="provider" Type="Android.Content.ComponentName" />
+        <Parameter Name="provider" Type="Android.Content.ComponentName">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="extras" Type="Android.OS.Bundle" />
         <Parameter Name="successCallback" Type="Android.App.PendingIntent" />
       </Parameters>
@@ -2189,7 +2369,8 @@
         <returns>
           <c>TRUE</c> if the launcher supports this feature. Note the API will return without
                waiting for the user to respond, so getting <c>TRUE</c> from this API does *not* mean
-               the shortcut is pinned. <c>FALSE</c> if the launcher doesn't support this feature.</returns>
+               the shortcut is pinned. <c>FALSE</c> if the launcher doesn't support this feature or if
+               calling app belongs to a user-profile with items restricted on home screen.</returns>
         <remarks>
           <para>Request to pin an app widget on the current launcher. It's up to the launcher to accept this
             request (optionally showing a user confirmation). If the request is accepted, the caller will
@@ -2207,6 +2388,72 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#requestPinAppWidget(android.content.ComponentName,%20android.os.Bundle,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.appwidget.AppWidgetManager.requestPinAppWidget(android.content.ComponentName, android.os.Bundle, android.app.PendingIntent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetWidgetPreview">
+      <MemberSignature Language="C#" Value="public virtual bool SetWidgetPreview (Android.Content.ComponentName provider, Android.Appwidget.AppWidgetCategory widgetCategories, Android.Widget.RemoteViews preview);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool SetWidgetPreview(class Android.Content.ComponentName provider, valuetype Android.Appwidget.AppWidgetCategory widgetCategories, class Android.Widget.RemoteViews preview) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Appwidget.AppWidgetManager.SetWidgetPreview(Android.Content.ComponentName,Android.Appwidget.AppWidgetCategory,Android.Widget.RemoteViews)" />
+      <MemberSignature Language="F#" Value="abstract member SetWidgetPreview : Android.Content.ComponentName * Android.Appwidget.AppWidgetCategory * Android.Widget.RemoteViews -&gt; bool&#xA;override this.SetWidgetPreview : Android.Content.ComponentName * Android.Appwidget.AppWidgetCategory * Android.Widget.RemoteViews -&gt; bool" Usage="appWidgetManager.SetWidgetPreview (provider, widgetCategories, preview)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setWidgetPreview", "(Landroid/content/ComponentName;ILandroid/widget/RemoteViews;)Z", "GetSetWidgetPreview_Landroid_content_ComponentName_ILandroid_widget_RemoteViews_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setWidgetPreview", "(Landroid/content/ComponentName;ILandroid/widget/RemoteViews;)Z", "GetSetWidgetPreview_Landroid_content_ComponentName_ILandroid_widget_RemoteViews_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="provider" Type="Android.Content.ComponentName" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="widgetCategories" Type="Android.Appwidget.AppWidgetCategory" Index="1" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="preview" Type="Android.Widget.RemoteViews" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="provider">The <c>ComponentName</c> for the <c>android.content.BroadcastReceiver
+               BroadcastReceiver</c> provider for the AppWidget you intend to provide a preview for.</param>
+        <param name="widgetCategories">The categories that this preview should be used for. This can be a
+               single category or combination of categories. If multiple categories are specified,
+               then this preview will be used for each of those categories. For example, if you
+               set a preview for WIDGET_CATEGORY_HOME_SCREEN | WIDGET_CATEGORY_KEYGUARD, the preview will
+               be used when picking widgets for the home screen and keyguard.
+            
+               &lt;p&gt;Note: You should only use the widget categories that the provider supports, as defined
+               in <c>AppWidgetProviderInfo#widgetCategory</c>.</param>
+        <param name="preview">This preview will be used for previewing the provider when picking widgets for
+               the selected categories.</param>
+        <summary>Set a preview for this widget.</summary>
+        <returns>true if the call was successful, false if it was rate-limited.</returns>
+        <remarks>
+          <para>Set a preview for this widget. This preview will be used instead of the provider's <c>AppWidgetProviderInfo#previewLayout previewLayout</c> or <c>AppWidgetProviderInfo#previewImage previewImage</c> for previewing the widget in the widget
+            picker and pin app widget flow.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#setWidgetPreview(android.content.ComponentName,%20int,%20android.widget.RemoteViews)" title="Reference documentation">Java documentation for <code>android.appwidget.AppWidgetManager.setWidgetPreview(android.content.ComponentName, int, android.widget.RemoteViews)</code>.</a>
             </format>
           </para>
           <para>

@@ -1,0 +1,407 @@
+<Type Name="DrbgParameters" FullName="Java.Security.DrbgParameters">
+  <TypeSignature Language="C#" Value="public class DrbgParameters : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DrbgParameters extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Java.Security.DrbgParameters" />
+  <TypeSignature Language="F#" Value="type DrbgParameters = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/security/DrbgParameters", ApiSince=35, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/security/DrbgParameters", ApiSince=35, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>This class specifies the parameters used by a DRBG (Deterministic
+            Random Bit Generator).</summary>
+    <remarks>
+      <para>This class specifies the parameters used by a DRBG (Deterministic
+            Random Bit Generator).</para>
+      <para>According to
+            <see href="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">
+            NIST Special Publication 800-90A Revision 1, Recommendation for Random
+            Number Generation Using Deterministic Random Bit Generators</see> (800-90Ar1),
+            &lt;blockquote&gt;
+            A DRBG is based on a DRBG mechanism as specified in this Recommendation
+            and includes a source of randomness. A DRBG mechanism uses an algorithm
+            (i.e., a DRBG algorithm) that produces a sequence of bits from an initial
+            value that is determined by a seed that is determined from the output of
+            the randomness source."
+            &lt;/blockquote&gt;</para>
+      <para>The 800-90Ar1 specification allows for a variety of DRBG implementation
+            choices, such as:
+            &lt;ul&gt;
+            &lt;li&gt; an entropy source,
+            &lt;li&gt; a DRBG mechanism (for example, Hash_DRBG),
+            &lt;li&gt; a DRBG algorithm (for example, SHA-256 for Hash_DRBG and AES-256
+            for CTR_DRBG. Please note that it is not the algorithm used in
+            <c>SecureRandom#getInstance</c>, which we will call a
+            &lt;em&gt;SecureRandom algorithm&lt;/em&gt; below),
+            &lt;li&gt; optional features, including prediction resistance
+            and reseeding supports,
+            &lt;li&gt; highest security strength.
+            &lt;/ul&gt;</para>
+      <para>These choices are set in each implementation and are not directly
+            managed by the <c>SecureRandom</c> API.  Check your DRBG provider's
+            documentation to find an appropriate implementation for the situation.</para>
+      <para>On the other hand, the 800-90Ar1 specification does have some configurable
+            options, such as:
+            &lt;ul&gt;
+            &lt;li&gt; required security strength,
+            &lt;li&gt; if prediction resistance is required,
+            &lt;li&gt; personalization string and additional input.
+            &lt;/ul&gt;</para>
+      <para>A DRBG instance can be instantiated with parameters from an
+            <c>DrbgParameters.Instantiation</c> object and other information
+            (for example, the nonce, which is not managed by this API). This maps
+            to the <c>Instantiate_function</c> defined in NIST SP 800-90Ar1.</para>
+      <para>A DRBG instance can be reseeded with parameters from a
+            <c>DrbgParameters.Reseed</c> object. This maps to the
+            <c>Reseed_function</c> defined in NIST SP 800-90Ar1. Calling
+            <c>SecureRandom#reseed()</c> is equivalent to calling
+            <c>SecureRandom#reseed(SecureRandomParameters)</c> with the effective
+            instantiated prediction resistance flag (as returned by
+            <c>SecureRandom#getParameters()</c>) with no additional input.</para>
+      <para>A DRBG instance generates data with additional parameters from a
+            <c>DrbgParameters.NextBytes</c> object. This maps to the
+            <c>Generate_function</c> defined in NIST SP 800-90Ar1. Calling
+            <c>SecureRandom#nextBytes(byte[])</c> is equivalent to calling
+            <c>SecureRandom#nextBytes(byte[], SecureRandomParameters)</c>
+            with the effective instantiated strength and prediction resistance flag
+            (as returned by <c>SecureRandom#getParameters()</c>) with no
+            additional input.</para>
+      <para>A DRBG should be implemented as a subclass of <c>SecureRandomSpi</c>.
+            It is recommended that the implementation contain the 1-arg
+            SecureRandomSpi#SecureRandomSpi(SecureRandomParameters) constructor
+            that takes a <c>DrbgParameters.Instantiation</c> argument. If implemented
+            this way, this implementation can be chosen by any
+            <c>SecureRandom.getInstance()</c> method. If it is chosen by a
+            <c>SecureRandom.getInstance()</c> with a <c>SecureRandomParameters</c>
+            parameter, the parameter is passed into this constructor. If it is chosen
+            by a <c>SecureRandom.getInstance()</c> without a
+            <c>SecureRandomParameters</c> parameter, the constructor is called with
+            a <c>null</c> argument and the implementation should choose its own
+            parameters. Its <c>SecureRandom#getParameters()</c> must always return a
+            non-null effective <c>DrbgParameters.Instantiation</c> object that reflects
+            how the DRBG is actually instantiated. A caller can use this information
+            to determine whether a <c>SecureRandom</c> object is a DRBG and what
+            features it supports. Please note that the returned value does not
+            necessarily equal to the <c>DrbgParameters.Instantiation</c> object passed
+            into the <c>SecureRandom.getInstance()</c> call. For example,
+            the requested capability can be <c>DrbgParameters.Capability#NONE</c>
+            but the effective value can be <c>DrbgParameters.Capability#RESEED_ONLY</c>
+            if the implementation supports reseeding. The implementation must implement
+            the <c>SecureRandomSpi#engineNextBytes(byte[], SecureRandomParameters)</c>
+            method which takes a <c>DrbgParameters.NextBytes</c> parameter. Unless
+            the result of <c>SecureRandom#getParameters()</c> has its
+            DrbgParameters.Instantiation#getCapability() capability being
+            <c>Capability#NONE NONE</c>, it must implement
+            <c>SecureRandomSpi#engineReseed(SecureRandomParameters)</c> which takes
+            a <c>DrbgParameters.Reseed</c> parameter.</para>
+      <para>On the other hand, if a DRBG implementation does not contain a constructor
+            that has an <c>DrbgParameters.Instantiation</c> argument (not recommended),
+            it can only be chosen by a <c>SecureRandom.getInstance()</c> without
+            a <c>SecureRandomParameters</c> parameter, but will not be chosen if
+            a <c>getInstance</c> method with a <c>SecureRandomParameters</c> parameter
+            is called. If implemented this way, its <c>SecureRandom#getParameters()</c>
+            must return <c>null</c>, and it does not need to implement either
+            <c>SecureRandomSpi#engineNextBytes(byte[], SecureRandomParameters)</c>
+            or <c>SecureRandomSpi#engineReseed(SecureRandomParameters)</c>.</para>
+      <para>A DRBG might reseed itself automatically if the seed period is bigger
+            than the maximum seed life defined by the DRBG mechanism.</para>
+      <para>A DRBG implementation should support serialization and deserialization
+            by retaining the configuration and effective parameters, but the internal
+            state must not be serialized and the deserialized object must be
+            reinstantiated.</para>
+      <para>Examples:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">SecureRandom drbg;
+            byte[] buffer = new byte[32];
+            
+            // Any DRBG is OK
+            drbg = SecureRandom.getInstance("DRBG");
+            drbg.nextBytes(buffer);
+            
+            SecureRandomParameters params = drbg.getParameters();
+            if (params instanceof DrbgParameters.Instantiation) {
+                DrbgParameters.Instantiation ins = (DrbgParameters.Instantiation) params;
+                if (ins.getCapability().supportsReseeding()) {
+                    drbg.reseed();
+                }
+            }
+            
+            // The following call requests a weak DRBG instance. It is only
+            // guaranteed to support 112 bits of security strength.
+            drbg = SecureRandom.getInstance("DRBG",
+                    DrbgParameters.instantiation(112, NONE, null));
+            
+            // Both the next two calls will likely fail, because drbg could be
+            // instantiated with a smaller strength with no prediction resistance
+            // support.
+            drbg.nextBytes(buffer,
+                    DrbgParameters.nextBytes(256, false, "more".getBytes()));
+            drbg.nextBytes(buffer,
+                    DrbgParameters.nextBytes(112, true, "more".getBytes()));
+            
+            // The following call requests a strong DRBG instance, with a
+            // personalization string. If it successfully returns an instance,
+            // that instance is guaranteed to support 256 bits of security strength
+            // with prediction resistance available.
+            drbg = SecureRandom.getInstance("DRBG", DrbgParameters.instantiation(
+                    256, PR_AND_RESEED, "hello".getBytes()));
+            
+            // Prediction resistance is not requested in this single call,
+            // but an additional input is used.
+            drbg.nextBytes(buffer,
+                    DrbgParameters.nextBytes(-1, false, "more".getBytes()));
+            
+            // Same for this call.
+            drbg.reseed(DrbgParameters.reseed(false, "extra".getBytes()));</code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>Added in 9.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/security/DrbgParameters" title="Reference documentation">Java documentation for <code>java.security.DrbgParameters</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected DrbgParameters (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.DrbgParameters.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Java.Security.DrbgParameters : nativeint * Android.Runtime.JniHandleOwnership -&gt; Java.Security.DrbgParameters" Usage="new Java.Security.DrbgParameters (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">To be added.</param>
+        <param name="transfer">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeInstantiation">
+      <MemberSignature Language="C#" Value="public static Java.Security.DrbgParameters.Instantiation? InvokeInstantiation (int strength, Java.Security.DrbgParameters.Capability? capability, byte[]? personalizationString);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Security.DrbgParameters/Instantiation InvokeInstantiation(int32 strength, class Java.Security.DrbgParameters/Capability capability, unsigned int8[] personalizationString) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.DrbgParameters.InvokeInstantiation(System.Int32,Java.Security.DrbgParameters.Capability,System.Byte[])" />
+      <MemberSignature Language="F#" Value="static member InvokeInstantiation : int * Java.Security.DrbgParameters.Capability * byte[] -&gt; Java.Security.DrbgParameters.Instantiation" Usage="Java.Security.DrbgParameters.InvokeInstantiation (strength, capability, personalizationString)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("instantiation", "(ILjava/security/DrbgParameters$Capability;[B)Ljava/security/DrbgParameters$Instantiation;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("instantiation", "(ILjava/security/DrbgParameters$Capability;[B)Ljava/security/DrbgParameters$Instantiation;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.DrbgParameters+Instantiation</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="strength" Type="System.Int32" />
+        <Parameter Name="capability" Type="Java.Security.DrbgParameters+Capability" />
+        <Parameter Name="personalizationString" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="strength">To be added.</param>
+        <param name="capability">To be added.</param>
+        <param name="personalizationString">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeNextBytes">
+      <MemberSignature Language="C#" Value="public static Java.Security.DrbgParameters.NextBytes? InvokeNextBytes (int strength, bool predictionResistance, byte[]? additionalInput);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Security.DrbgParameters/NextBytes InvokeNextBytes(int32 strength, bool predictionResistance, unsigned int8[] additionalInput) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.DrbgParameters.InvokeNextBytes(System.Int32,System.Boolean,System.Byte[])" />
+      <MemberSignature Language="F#" Value="static member InvokeNextBytes : int * bool * byte[] -&gt; Java.Security.DrbgParameters.NextBytes" Usage="Java.Security.DrbgParameters.InvokeNextBytes (strength, predictionResistance, additionalInput)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextBytes", "(IZ[B)Ljava/security/DrbgParameters$NextBytes;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextBytes", "(IZ[B)Ljava/security/DrbgParameters$NextBytes;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.DrbgParameters+NextBytes</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="strength" Type="System.Int32" />
+        <Parameter Name="predictionResistance" Type="System.Boolean" />
+        <Parameter Name="additionalInput" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="strength">To be added.</param>
+        <param name="predictionResistance">To be added.</param>
+        <param name="additionalInput">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InvokeReseed">
+      <MemberSignature Language="C#" Value="public static Java.Security.DrbgParameters.Reseed? InvokeReseed (bool predictionResistance, byte[]? additionalInput);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Security.DrbgParameters/Reseed InvokeReseed(bool predictionResistance, unsigned int8[] additionalInput) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.DrbgParameters.InvokeReseed(System.Boolean,System.Byte[])" />
+      <MemberSignature Language="F#" Value="static member InvokeReseed : bool * byte[] -&gt; Java.Security.DrbgParameters.Reseed" Usage="Java.Security.DrbgParameters.InvokeReseed (predictionResistance, additionalInput)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("reseed", "(Z[B)Ljava/security/DrbgParameters$Reseed;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reseed", "(Z[B)Ljava/security/DrbgParameters$Reseed;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.DrbgParameters+Reseed</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="predictionResistance" Type="System.Boolean" />
+        <Parameter Name="additionalInput" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="predictionResistance">To be added.</param>
+        <param name="additionalInput">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.DrbgParameters.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Security.DrbgParameters.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.DrbgParameters.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Security.DrbgParameters.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.DrbgParameters.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Security.DrbgParameters.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
