@@ -136,9 +136,8 @@
              &lt;h4&gt;Accessing Raw Video ByteBuffers on Older Devices&lt;/h4&gt;</para>
       <para>Prior to <c>android.os.Build.VERSION_CODES#LOLLIPOP</c> and <c>Image</c> support, you need to
              use the <c>MediaFormat#KEY_STRIDE</c> and <c>MediaFormat#KEY_SLICE_HEIGHT</c> output format
-             values to understand the layout of the raw output buffers.
-             &lt;p class=note&gt;
-             Note that on some devices the slice-height is advertised as 0. This could mean either that the
+             values to understand the layout of the raw output buffers.</para>
+      <para>Note that on some devices the slice-height is advertised as 0. This could mean either that the
              slice-height is the same as the frame height, or that the slice-height is the frame height
              aligned to some value (usually a power of 2). Unfortunately, there is no standard and simple way
              to tell the actual slice height in this case. Furthermore, the vertical stride of the <c>U</c>
@@ -199,8 +198,7 @@
                               - format.getInteger(MediaFormat.KEY_CROP_TOP);
              }
              </code>
-      <para>&lt;p class=note&gt;
-             Also note that the meaning of <c>BufferInfo#offset BufferInfo.offset</c> was not consistent across
+      <para>Also note that the meaning of <c>BufferInfo#offset BufferInfo.offset</c> was not consistent across
              devices. On some devices the offset pointed to the top-left pixel of the crop rectangle, while on
              most devices it pointed to the top-left pixel of the entire frame.
             
@@ -224,9 +222,8 @@
              end-of-stream marker, the codec transitions to the End-of-Stream sub-state. In this state the
              codec no longer accepts further input buffers, but still generates output buffers until the
              end-of-stream is reached on the output. For decoders, you can move back to the Flushed sub-state
-             at any time while in the Executing state using <c>#flush</c>.
-             &lt;p class=note&gt;
-             &lt;strong&gt;Note:&lt;/strong&gt; Going back to Flushed state is only supported for decoders, and may not
+             at any time while in the Executing state using <c>#flush</c>.</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; Going back to Flushed state is only supported for decoders, and may not
              work for encoders (the behavior is undefined).</para>
       <para>Call <c>#stop</c> to return the codec to the Uninitialized state, whereupon it may be configured
              again. When you are done using a codec, you must release it by calling <c>#release</c>.</para>
@@ -242,9 +239,8 @@
              you want to add using <c>MediaFormat#setFeatureEnabled MediaFormat.setFeatureEnabled</c>, then
              call <c>MediaCodecList#findDecoderForFormat MediaCodecList.findDecoderForFormat</c> to get the
              name of a codec that can handle that specific media format. Finally, create the codec using
-             <c>#createByCodecName</c>.
-             &lt;p class=note&gt;
-             &lt;strong&gt;Note:&lt;/strong&gt; On <c>android.os.Build.VERSION_CODES#LOLLIPOP</c>, the format to
+             <c>#createByCodecName</c>.</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; On <c>android.os.Build.VERSION_CODES#LOLLIPOP</c>, the format to
              <c>MediaCodecList.findDecoder</c>/<c>EncoderForFormat</c> must not contain a MediaFormat#KEY_FRAME_RATE frame rate. Use
              <c>format.setString(MediaFormat.KEY_FRAME_RATE, null)</c>
              to clear any existing frame rate setting in the format.</para>
@@ -303,9 +299,8 @@
              &lt;li&gt;The default video encoder profile always supports the default 8-bit RGBA color format in
              Surface mode even if no such formats are enumerated in the <c>CodecCapabilities#colorFormats
              supported formats</c>.
-             &lt;/ul&gt;
-             &lt;p class=note&gt;
-             &lt;b&gt;Note&lt;/b&gt;: the accepted profile can be queried through the <c>#getOutputFormat output
+             &lt;/ul&gt;</para>
+      <para>&lt;b&gt;Note&lt;/b&gt;: the accepted profile can be queried through the <c>#getOutputFormat output
              format</c> of the encoder after <c>configure</c> to allow applications to set up their
              codec input to a format supported by the encoder profile.</para>
       <para>&lt;b&gt;Implication:&lt;/b&gt;
@@ -404,10 +399,8 @@
                 &lt;td class=NA&gt;Not Used&lt;/td&gt;
                &lt;/tr&gt;
               &lt;/tbody&gt;
-             &lt;/table&gt;
-            
-             &lt;p class=note&gt;
-             &lt;strong&gt;Note:&lt;/strong&gt; care must be taken if the codec is flushed immediately or shortly
+             &lt;/table&gt;</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; care must be taken if the codec is flushed immediately or shortly
              after start, before any output buffer or output format change has been returned, as the codec
              specific data may be lost during the flush. You must resubmit the data using buffers marked with
              <c>#BUFFER_FLAG_CODEC_CONFIG</c> after such flush to ensure proper codec operation.</para>
@@ -521,10 +514,8 @@
              <c>#getInputImage getInput</c>/<c>#getOutputImage OutputImage(int)</c> even when using the
              codec in synchronous mode. This allows certain optimizations by the framework, e.g. when
              processing dynamic content. This optimization is disabled if you call <c>#getInputBuffers
-             getInput</c>/<c>#getOutputBuffers OutputBuffers()</c>.
-            
-             &lt;p class=note&gt;
-             &lt;strong&gt;Note:&lt;/strong&gt; do not mix the methods of using buffers and buffer arrays at the same
+             getInput</c>/<c>#getOutputBuffers OutputBuffers()</c>.</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; do not mix the methods of using buffers and buffer arrays at the same
              time. Specifically, only call <c>getInput</c>/<c>OutputBuffers</c> directly after <c>#start</c> or after having dequeued an output buffer ID with the value of <c>#INFO_OUTPUT_FORMAT_CHANGED</c>.</para>
       <para>MediaCodec is typically used like this in synchronous mode:</para>
       <code lang="text/java">MediaCodec codec = MediaCodec.createByCodecName(name);
@@ -631,24 +622,20 @@
              &lt;h4&gt;Transformations When Rendering onto Surface&lt;/h4&gt;
             
              If the codec is configured into Surface mode, any crop rectangle, MediaFormat#KEY_ROTATION rotation and #setVideoScalingMode video scaling
-             mode will be automatically applied with one exception:
-             &lt;p class=note&gt;
-             Prior to the <c>android.os.Build.VERSION_CODES#M</c> release, software decoders may not
+             mode will be automatically applied with one exception:</para>
+      <para>Prior to the <c>android.os.Build.VERSION_CODES#M</c> release, software decoders may not
              have applied the rotation when being rendered onto a Surface. Unfortunately, there is no standard
              and simple way to identify software decoders, or if they apply the rotation other than by trying
              it out.</para>
-      <para>There are also some caveats.
-             &lt;p class=note&gt;
-             Note that the pixel aspect ratio is not considered when displaying the output onto the
+      <para>There are also some caveats.</para>
+      <para>Note that the pixel aspect ratio is not considered when displaying the output onto the
              Surface. This means that if you are using <c>#VIDEO_SCALING_MODE_SCALE_TO_FIT</c> mode, you
              must position the output Surface so that it has the proper final display aspect ratio. Conversely,
              you can only use <c>#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</c> mode for content with
-             square pixels (pixel aspect ratio or 1:1).
-             &lt;p class=note&gt;
-             Note also that as of <c>android.os.Build.VERSION_CODES#N</c> release, <c>#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</c> mode may not work correctly for videos rotated
-             by 90 or 270 degrees.
-             &lt;p class=note&gt;
-             When setting the video scaling mode, note that it must be reset after each time the output
+             square pixels (pixel aspect ratio or 1:1).</para>
+      <para>Note also that as of <c>android.os.Build.VERSION_CODES#N</c> release, <c>#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</c> mode may not work correctly for videos rotated
+             by 90 or 270 degrees.</para>
+      <para>When setting the video scaling mode, note that it must be reset after each time the output
              buffers change. Since the <c>#INFO_OUTPUT_BUFFERS_CHANGED</c> event is deprecated, you can
              do this after each time the output format changes.
             
@@ -708,12 +695,9 @@
              seek) you &lt;strong&gt;MUST&lt;/strong&gt; flush the decoder. Since all output buffers are immediately
              revoked at the point of the flush, you may want to first signal then wait for the end-of-stream
              before you call <c>flush</c>. It is important that the input data after a flush starts at a
-             suitable stream boundary/key frame.
-             &lt;p class=note&gt;
-             &lt;strong&gt;Note:&lt;/strong&gt; the format of the data submitted after a flush must not change; <c>#flush</c> does not support format discontinuities; for that, a full <c>#stop</c> - <c>#configure configure(&amp;hellip;)</c> - <c>#start</c> cycle is necessary.
-            
-             &lt;p class=note&gt;
-             &lt;strong&gt;Also note:&lt;/strong&gt; if you flush the codec too soon after <c>#start</c> &amp;ndash;
+             suitable stream boundary/key frame.</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; the format of the data submitted after a flush must not change; <c>#flush</c> does not support format discontinuities; for that, a full <c>#stop</c> - <c>#configure configure(&amp;hellip;)</c> - <c>#start</c> cycle is necessary.</para>
+      <para>&lt;strong&gt;Also note:&lt;/strong&gt; if you flush the codec too soon after <c>#start</c> &amp;ndash;
              generally, before the first output buffer or output format change is received &amp;ndash; you
              will need to resubmit the codec-specific-data to the codec. See the codec-specific-data section for more info.
             
@@ -727,9 +711,8 @@
              any start codes), and submit it as a &lt;strong&gt;regular&lt;/strong&gt; input buffer.</para>
       <para>You will receive an <c>#INFO_OUTPUT_FORMAT_CHANGED</c> return value from <c>#dequeueOutputBuffer dequeueOutputBuffer</c> or a <c>Callback#onOutputBufferAvailable
              onOutputFormatChanged</c> callback just after the picture-size change takes place and before any
-             frames with the new size have been returned.
-             &lt;p class=note&gt;
-             &lt;strong&gt;Note:&lt;/strong&gt; just as the case for codec-specific data, be careful when calling
+             frames with the new size have been returned.</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; just as the case for codec-specific data, be careful when calling
              <c>#flush</c> shortly after you have changed the picture size. If you have not received
              confirmation of the picture size change, you will need to repeat the request for the new picture
              size.
@@ -4277,9 +4260,8 @@
             recommended only for advanced users.</para>
           <para>To indicate that this is the final piece of input data (or rather that
             no more input data follows unless the decoder is subsequently flushed)
-            specify the flag <c>#BUFFER_FLAG_END_OF_STREAM</c>.
-            &lt;p class=note&gt;
-            &lt;strong&gt;Note:&lt;/strong&gt; Prior to <c>android.os.Build.VERSION_CODES#M</c>,
+            specify the flag <c>#BUFFER_FLAG_END_OF_STREAM</c>.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Prior to <c>android.os.Build.VERSION_CODES#M</c>,
             <c>presentationTimeUs</c> was not propagated to the frame timestamp of (rendered)
             Surface output buffers, and the resulting frame timestamp was undefined.
             Use <c>#releaseOutputBuffer(int, long)</c> to ensure a specific frame timestamp is set.
@@ -5129,14 +5111,12 @@
             specifies the scaling mode to use.</summary>
         <remarks>
           <para>If a surface has been specified in a previous call to <c>#configure</c>
-            specifies the scaling mode to use. The default is "scale to fit".
-            &lt;p class=note&gt;
-            The scaling mode may be reset to the &lt;strong&gt;default&lt;/strong&gt; each time an
+            specifies the scaling mode to use. The default is "scale to fit".</para>
+          <para>The scaling mode may be reset to the &lt;strong&gt;default&lt;/strong&gt; each time an
             <c>#INFO_OUTPUT_BUFFERS_CHANGED</c> event is received from the codec; therefore, the client
             must call this method after every buffer change event (and before the first output buffer is
-            released for rendering) to ensure consistent scaling mode.
-            &lt;p class=note&gt;
-            Since the <c>#INFO_OUTPUT_BUFFERS_CHANGED</c> event is deprecated, this can also be done
+            released for rendering) to ensure consistent scaling mode.</para>
+          <para>Since the <c>#INFO_OUTPUT_BUFFERS_CHANGED</c> event is deprecated, this can also be done
             after each <c>#INFO_OUTPUT_FORMAT_CHANGED</c> event.</para>
           <para>
             <format type="text/html">
@@ -5586,12 +5566,10 @@
             surface area is used, content may be cropped.</summary>
         <remarks>
           <para>The content is scaled, maintaining its aspect ratio, the whole
-            surface area is used, content may be cropped.
-            &lt;p class=note&gt;
-            This mode is only suitable for content with 1:1 pixel aspect ratio as you cannot
-            configure the pixel aspect ratio for a <c>Surface</c>.
-            &lt;p class=note&gt;
-            As of <c>android.os.Build.VERSION_CODES#N</c> release, this mode may not work if
+            surface area is used, content may be cropped.</para>
+          <para>This mode is only suitable for content with 1:1 pixel aspect ratio as you cannot
+            configure the pixel aspect ratio for a <c>Surface</c>.</para>
+          <para>As of <c>android.os.Build.VERSION_CODES#N</c> release, this mode may not work if
             the video is MediaFormat#KEY_ROTATION rotated by 90 or 270 degrees.</para>
           <para>
             <format type="text/html">

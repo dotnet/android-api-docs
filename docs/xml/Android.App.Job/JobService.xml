@@ -34,8 +34,7 @@
             in blocking any future callbacks from the JobScheduler - specifically
             <c>#onStopJob(android.app.job.JobParameters)</c>, which is meant to inform you that the
             scheduling requirements are no longer being met.</para>
-      <para>&lt;p class="note"&gt;
-            Since the introduction of JobScheduler, if an app did not return from
+      <para>Since the introduction of JobScheduler, if an app did not return from
             <c>#onStartJob(JobParameters)</c> within several seconds, JobScheduler would consider the app
             unresponsive and clean up job execution. In such cases, the app was no longer considered
             to be running a job and therefore did not have any of the job lifecycle guarantees outlined
@@ -283,13 +282,11 @@
             <c>android.app.job.JobInfo.Builder#setBackoffCriteria(long, int)</c> method
             when the job is originally scheduled.  The job's initial
             requirements are preserved when jobs are rescheduled, regardless of backed-off
-            policy.
-            &lt;p class="note"&gt;
-            A job running while the device is dozing will not be rescheduled with the normal back-off
+            policy.</para>
+          <para>A job running while the device is dozing will not be rescheduled with the normal back-off
             policy.  Instead, the job will be re-added to the queue and executed again during
             a future idle maintenance window.</para>
-          <para>&lt;p class="note"&gt;
-            Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
+          <para>Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
             cannot be rescheduled when the user has asked to stop the app
             via a system provided affordance (such as the Task Manager).
             In such situations, the value of <c>wantsReschedule</c> is always treated as <c>false</c>.</para>
@@ -514,13 +511,11 @@
             ignore it.</para>
           <para>Once this method returns (or times out), the system releases the wakelock that it is holding
             on behalf of the job.</para>
-          <para>&lt;p class="note"&gt;
-            Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
+          <para>Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
             cannot be rescheduled when stopped by the user via a system provided affordance (such as
             the Task Manager). In such situations, the returned value from this method call is always
-            treated as <c>false</c>.
-            
-            &lt;p class="caution"&gt;&lt;strong&gt;Note:&lt;/strong&gt; When a job is stopped and rescheduled via this
+            treated as <c>false</c>.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; When a job is stopped and rescheduled via this
             method call, the deadline constraint is excluded from the rescheduled job's constraint set.
             The rescheduled job will run again once all remaining constraints are satisfied.</para>
           <para>

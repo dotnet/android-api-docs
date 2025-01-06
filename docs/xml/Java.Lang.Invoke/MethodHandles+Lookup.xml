@@ -133,9 +133,8 @@
             for reflective objects corresponding to the given members.</para>
       <para>In cases where the given member is of variable arity (i.e., a method or constructor)
             the returned method handle will also be of MethodHandle#asVarargsCollector variable arity.
-            In all other cases, the returned method handle will be of fixed arity.
-            &lt;p style="font-size:smaller;"&gt;
-            &lt;em&gt;Discussion:&lt;/em&gt;
+            In all other cases, the returned method handle will be of fixed arity.</para>
+      <para>&lt;em&gt;Discussion:&lt;/em&gt;
             The equivalence between looked-up method handles and underlying
             class members and bytecode behaviors
             can break down in a few ways:
@@ -199,9 +198,8 @@
             And the effect of invoking the method handle resulting from the lookup
             is exactly equivalent
             to executing the compiled, verified, and resolved call to <c>M</c>.
-            The same point is true of fields and constructors.
-            &lt;p style="font-size:smaller;"&gt;
-            &lt;em&gt;Discussion:&lt;/em&gt;
+            The same point is true of fields and constructors.</para>
+      <para>&lt;em&gt;Discussion:&lt;/em&gt;
             Access checks only apply to named and reflected methods,
             constructors, and fields.
             Other method handle creation methods, such as
@@ -251,10 +249,8 @@
             produces a lookup object with full capabilities relative to
             its caller class, to emulate all supported bytecode behaviors.
             Also, the <c>Lookup#in Lookup.in</c> method may produce a lookup object
-            with fewer access modes than the original lookup object.
-            
-            &lt;p style="font-size:smaller;"&gt;
-            "privacc"&gt;&lt;em&gt;Discussion of private access:&lt;/em&gt;
+            with fewer access modes than the original lookup object.</para>
+      <para>"privacc"&gt;&lt;em&gt;Discussion of private access:&lt;/em&gt;
             We say that a lookup has &lt;em&gt;private access&lt;/em&gt;
             if its #lookupModes lookup modes
             include the possibility of accessing <c>private</c> members.
@@ -268,9 +264,8 @@
                 for classes accessible to the lookup class
             &lt;li&gt;create <c>Lookup#in delegated lookup objects</c> which have private access to other classes
                 within the same package member
-            &lt;/ul&gt;
-            &lt;p style="font-size:smaller;"&gt;
-            Each of these permissions is a consequence of the fact that a lookup object
+            &lt;/ul&gt;</para>
+      <para>Each of these permissions is a consequence of the fact that a lookup object
             with private access can be securely traced back to an originating class,
             whose bytecode behaviors and Java language access permissions
             can be reliably determined and emulated by method handles.
@@ -347,25 +342,22 @@
             the lookup class is disregarded.
             In such cases, no caller-sensitive method handle can be created,
             access is forbidden, and the lookup fails with an
-            <c>IllegalAccessException</c>.
-            &lt;p style="font-size:smaller;"&gt;
-            &lt;em&gt;Discussion:&lt;/em&gt;
+            <c>IllegalAccessException</c>.</para>
+      <para>&lt;em&gt;Discussion:&lt;/em&gt;
             For example, the caller-sensitive method
             <c>java.lang.Class#forName(String) Class.forName(x)</c>
             can return varying classes or throw varying exceptions,
             depending on the class loader of the class that calls it.
             A public lookup of <c>Class.forName</c> will fail, because
-            there is no reasonable way to determine its bytecode behavior.
-            &lt;p style="font-size:smaller;"&gt;
-            If an application caches method handles for broad sharing,
+            there is no reasonable way to determine its bytecode behavior.</para>
+      <para>If an application caches method handles for broad sharing,
             it should use <c>publicLookup()</c> to create them.
             If there is a lookup of <c>Class.forName</c>, it will fail,
             and the application must take appropriate action in that case.
             It may be that a later lookup, perhaps during the invocation of a
             bootstrap method, can incorporate the specific identity
-            of the caller, making the method accessible.
-            &lt;p style="font-size:smaller;"&gt;
-            The function <c>MethodHandles.lookup</c> is caller sensitive
+            of the caller, making the method accessible.</para>
+      <para>The function <c>MethodHandles.lookup</c> is caller sensitive
             so that there can be a secure foundation for lookups.
             Nearly all other methods in the JSR 292 API rely on lookup
             objects to check access requests.</para>
@@ -703,9 +695,8 @@
             privileges, the access fails.</para>
           <para>The returned method handle will have
             MethodHandle#asVarargsCollector variable arity if and only if
-            the method's variable arity modifier bit (<c>0x0080</c>) is set.
-            &lt;p style="font-size:smaller;"&gt;
-            &lt;em&gt;(Note:  JVM internal methods named <c>"&lt;init&gt;"</c> are not visible to this API,
+            the method's variable arity modifier bit (<c>0x0080</c>) is set.</para>
+          <para>&lt;em&gt;(Note:  JVM internal methods named <c>"&lt;init&gt;"</c> are not visible to this API,
             even though the <c>invokespecial</c> instruction can refer to them
             in special circumstances.  Use <c>#findConstructor findConstructor</c>
             to access instance initialization methods in a safe manner.)&lt;/em&gt;</para>

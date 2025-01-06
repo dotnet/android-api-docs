@@ -29,47 +29,48 @@
     <summary>Provides access to network usage history and statistics.</summary>
     <remarks>
       <para>Provides access to network usage history and statistics. Usage data is collected in
-            discrete bins of time called 'Buckets'. See <c>NetworkStats.Bucket</c> for details.
-            &lt;p /&gt;
-            Queries can define a time interval in the form of start and end timestamps (Long.MIN_VALUE and
+            discrete bins of time called 'Buckets'. See <c>NetworkStats.Bucket</c> for details.</para>
+      <para>Queries can define a time interval in the form of start and end timestamps (Long.MIN_VALUE and
             Long.MAX_VALUE can be used to simulate open ended intervals). By default, apps can only obtain
             data about themselves. See the below note for special cases in which apps can obtain data about
             other applications.
             &lt;h3&gt;
             Summary queries
             &lt;/h3&gt;
-            <c>#querySummaryForDevice</c>&lt;p /&gt;
-            <c>#querySummaryForUser</c>&lt;p /&gt;
-            <c>#querySummary</c>&lt;p /&gt;
-            These queries aggregate network usage across the whole interval. Therefore there will be only one
+            <c>#querySummaryForDevice</c></para>
+      <para>
+        <c>#querySummaryForUser</c>
+      </para>
+      <para>
+        <c>#querySummary</c>
+      </para>
+      <para>These queries aggregate network usage across the whole interval. Therefore there will be only one
             bucket for a particular key, state, metered and roaming combination. In case of the user-wide
             and device-wide summaries a single bucket containing the totalised network usage is returned.
             &lt;h3&gt;
             History queries
             &lt;/h3&gt;
-            <c>#queryDetailsForUid</c>&lt;p /&gt;
-            <c>#queryDetails</c>&lt;p /&gt;
-            These queries do not aggregate over time but do aggregate over state, metered and roaming.
+            <c>#queryDetailsForUid</c></para>
+      <para>
+        <c>#queryDetails</c>
+      </para>
+      <para>These queries do not aggregate over time but do aggregate over state, metered and roaming.
             Therefore there can be multiple buckets for a particular key. However, all Buckets will have
             <c>state</c><c>NetworkStats.Bucket#STATE_ALL</c>,
             <c>defaultNetwork</c><c>NetworkStats.Bucket#DEFAULT_NETWORK_ALL</c>,
             <c>metered</c><c>NetworkStats.Bucket#METERED_ALL</c>,
-            <c>roaming</c><c>NetworkStats.Bucket#ROAMING_ALL</c>.
-            &lt;p /&gt;
-            &lt;b&gt;NOTE:&lt;/b&gt; Calling <c>#querySummaryForDevice</c> or accessing stats for apps other than the
+            <c>roaming</c><c>NetworkStats.Bucket#ROAMING_ALL</c>.</para>
+      <para>&lt;b&gt;NOTE:&lt;/b&gt; Calling <c>#querySummaryForDevice</c> or accessing stats for apps other than the
             calling app requires the permission <c>android.Manifest.permission#PACKAGE_USAGE_STATS</c>,
             which is a system-level permission and will not be granted to third-party apps. However,
             declaring the permission implies intention to use the API and the user of the device can grant
-            permission through the Settings application.
-            &lt;p /&gt;
-            Profile owner apps are automatically granted permission to query data on the profile they manage
+            permission through the Settings application.</para>
+      <para>Profile owner apps are automatically granted permission to query data on the profile they manage
             (that is, for any query except <c>#querySummaryForDevice</c>). Device owner apps and carrier-
-            privileged apps likewise get access to usage data for all users on the device.
-            &lt;p /&gt;
-            In addition to tethering usage, usage by removed users and apps, and usage by the system
-            is also included in the results for callers with one of these higher levels of access.
-            &lt;p /&gt;
-            &lt;b&gt;NOTE:&lt;/b&gt; Prior to API level <c>android.os.Build.VERSION_CODES#N</c>, all calls to these APIs required
+            privileged apps likewise get access to usage data for all users on the device.</para>
+      <para>In addition to tethering usage, usage by removed users and apps, and usage by the system
+            is also included in the results for callers with one of these higher levels of access.</para>
+      <para>&lt;b&gt;NOTE:&lt;/b&gt; Prior to API level <c>android.os.Build.VERSION_CODES#N</c>, all calls to these APIs required
             the above permission, even to access an app's own data usage, and carrier-privileged apps were
             not included.</para>
       <para>

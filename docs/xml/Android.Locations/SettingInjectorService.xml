@@ -23,19 +23,14 @@
   </Attributes>
   <Docs since="19">
     <summary>Dynamically specifies the summary (subtitle) and enabled status of a preference injected into
-            the list of app settings displayed by the system settings app
-            &lt;p/&gt;
-            For use only by apps that are included in the system image, for preferences that affect multiple
-            apps.</summary>
+            the list of app settings displayed by the system settings app</summary>
     <remarks>
       <para>Dynamically specifies the summary (subtitle) and enabled status of a preference injected into
-            the list of app settings displayed by the system settings app
-            &lt;p/&gt;
-            For use only by apps that are included in the system image, for preferences that affect multiple
+            the list of app settings displayed by the system settings app</para>
+      <para>For use only by apps that are included in the system image, for preferences that affect multiple
             apps. Location settings that apply only to one app should be shown within that app,
-            rather than in the system settings.
-            &lt;p/&gt;
-            To add a preference to the list, a subclass of <c>SettingInjectorService</c> must be declared in
+            rather than in the system settings.</para>
+      <para>To add a preference to the list, a subclass of <c>SettingInjectorService</c> must be declared in
             the manifest as so:</para>
       <code lang="text/java">&amp;lt;service android:name="com.example.android.injector.MyInjectorService" &amp;gt;
                     &amp;lt;intent-filter&amp;gt;
@@ -72,9 +67,8 @@
             To ensure a good user experience, your <c>android.app.Application#onCreate()</c>,
             <c>#onGetSummary()</c>, and <c>#onGetEnabled()</c> methods must all be fast. If any are slow,
             it can delay the display of settings values for other apps as well. Note further that all are
-            called on your app's UI thread.
-            &lt;p/&gt;
-            For compactness, only one copy of a given setting should be injected. If each account has a
+            called on your app's UI thread.</para>
+      <para>For compactness, only one copy of a given setting should be injected. If each account has a
             distinct value for the setting, then the <c>#onGetSummary()</c> value should represent a summary
             of the state across all of the accounts and <c>settingsActivity</c> should display the value for
             each account.</para>
@@ -390,14 +384,12 @@
         <remarks>
           <para>Returns the <c>android.preference.Preference#isEnabled()</c> value. Should not perform
             unpredictably-long operations such as network access--see the running-time comments in the
-            class-level javadoc.
-            &lt;p/&gt;
-            Note that to prevent churn in the settings list, there is no support for dynamically choosing
+            class-level javadoc.</para>
+          <para>Note that to prevent churn in the settings list, there is no support for dynamically choosing
             to hide a setting. Instead you should have this method return false, which will disable the
             setting and its link to your setting activity. One reason why you might choose to do this is
-            if <c>android.provider.Settings.Secure#LOCATION_MODE</c> is <c>android.provider.Settings.Secure#LOCATION_MODE_OFF</c>.
-            &lt;p/&gt;
-            It is possible that the user may click on the setting before this method returns, so your
+            if <c>android.provider.Settings.Secure#LOCATION_MODE</c> is <c>android.provider.Settings.Secure#LOCATION_MODE_OFF</c>.</para>
+          <para>It is possible that the user may click on the setting before this method returns, so your
             settings activity must handle the case where it is invoked even though the setting is
             disabled. The simplest approach may be to simply call <c>android.app.Activity#finish()</c>
             when disabled.</para>
@@ -441,9 +433,8 @@
         <remarks>
           <para>Returns the <c>android.preference.Preference#getSummary()</c> value (allowed to be null or
             empty). Should not perform unpredictably-long operations such as network access--see the
-            running-time comments in the class-level javadoc.
-            &lt;p/&gt;
-            This method is called on KitKat, and Q+ devices.</para>
+            running-time comments in the class-level javadoc.</para>
+          <para>This method is called on KitKat, and Q+ devices.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/location/SettingInjectorService#onGetSummary()" title="Reference documentation">Java documentation for <code>android.location.SettingInjectorService.onGetSummary()</code>.</a>

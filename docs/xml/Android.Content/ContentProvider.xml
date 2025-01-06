@@ -62,11 +62,11 @@
               &lt;li&gt;<c>#delete</c> which deletes data from the content provider&lt;/li&gt;
               &lt;li&gt;<c>#getType</c> which returns the MIME type of data in the content provider&lt;/li&gt;
             &lt;/ul&gt;</para>
-      <para>&lt;p class="caution"&gt;Data access methods (such as <c>#insert</c> and
+      <para>Data access methods (such as <c>#insert</c> and
             <c>#update</c>) may be called from many threads at once, and must be thread-safe.
             Other methods (such as <c>#onCreate</c>) are only called from the application
             main thread, and must avoid performing lengthy operations.  See the method
-            descriptions for their expected thread behavior.&lt;/p&gt;</para>
+            descriptions for their expected thread behavior.</para>
       <para>Requests to <c>ContentResolver</c> are automatically forwarded to the appropriate
             ContentProvider instance, so subclasses don't have to worry about the details of
             cross-process calls.</para>
@@ -463,14 +463,13 @@
         <remarks>
           <para>Call a provider-defined method.  This can be used to implement
             interfaces that are cheaper and/or unnatural for a table-like
-            model.
-            
-            &lt;p class="note"&gt;&lt;strong&gt;WARNING:&lt;/strong&gt; The framework does no permission checking
+            model.</para>
+          <para>&lt;strong&gt;WARNING:&lt;/strong&gt; The framework does no permission checking
             on this entry into the content provider besides the basic ability for the application
             to get access to the provider at all.  For example, it has no idea whether the call
             being executed may read or write data in the provider, so can't enforce those
             individual permissions.  Any implementation of this method &lt;strong&gt;must&lt;/strong&gt;
-            do its own permission checks on incoming calls to make sure they are allowed.&lt;/p&gt;</para>
+            do its own permission checks on incoming calls to make sure they are allowed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#call(java.lang.String,%20java.lang.String,%20java.lang.String,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.call(java.lang.String, java.lang.String, java.lang.String, android.os.Bundle)</code>.</a>
@@ -1808,20 +1807,18 @@
             or <c>ContentResolver#openOutputStream ContentResolver.openOutputStream</c>
             methods.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;If you are implementing this to return a full file, you
+            streaming of data.</para>
+          <para>If you are implementing this to return a full file, you
             should create the AssetFileDescriptor with
             <c>AssetFileDescriptor#UNKNOWN_LENGTH</c> to be compatible with
             applications that cannot handle sub-sections of files.</para>
-          <para>&lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
-            type and select the appropriate matching targets as part of its operation.&lt;/p&gt;
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            type and select the appropriate matching targets as part of its operation.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
-            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.&lt;/p&gt;</para>
+            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openAssetFile(android.net.Uri,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openAssetFile(android.net.Uri, java.lang.String)</code>.</a>
@@ -1910,20 +1907,18 @@
             or <c>ContentResolver#openOutputStream ContentResolver.openOutputStream</c>
             methods.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;If you are implementing this to return a full file, you
+            streaming of data.</para>
+          <para>If you are implementing this to return a full file, you
             should create the AssetFileDescriptor with
             <c>AssetFileDescriptor#UNKNOWN_LENGTH</c> to be compatible with
             applications that cannot handle sub-sections of files.</para>
-          <para>&lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
-            type and select the appropriate matching targets as part of its operation.&lt;/p&gt;
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            type and select the appropriate matching targets as part of its operation.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
-            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.&lt;/p&gt;</para>
+            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openAssetFile(android.net.Uri,%20java.lang.String,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openAssetFile(android.net.Uri, java.lang.String, android.os.CancellationSignal)</code>.</a>
@@ -2007,18 +2002,17 @@
             disk, such as a file on a network share or cloud storage service,
             consider using
             <c>StorageManager#openProxyFileDescriptor(int, android.os.ProxyFileDescriptorCallback, android.os.Handler)</c>
-            which will let you to stream the content on-demand.
-            
-            &lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+            which will let you to stream the content on-demand.</para>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
             type and select the appropriate matching targets as part of its operation.</para>
-          <para>&lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
             to supply, such as <c>android.provider.MediaStore.MediaColumns#DATE_ADDED</c>
-            in <c>android.provider.MediaStore.MediaColumns</c>.&lt;/p&gt;</para>
+            in <c>android.provider.MediaStore.MediaColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openFile(android.net.Uri,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openFile(android.net.Uri, java.lang.String)</code>.</a>
@@ -2113,18 +2107,17 @@
             error, you can use <c>ParcelFileDescriptor#open(File, int,
             android.os.Handler, android.os.ParcelFileDescriptor.OnCloseListener)</c>,
             <c>ParcelFileDescriptor#createReliablePipe()</c>, or
-            <c>ParcelFileDescriptor#createReliableSocketPair()</c>.
-            
-            &lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+            <c>ParcelFileDescriptor#createReliableSocketPair()</c>.</para>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
             type and select the appropriate matching targets as part of its operation.</para>
-          <para>&lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
             to supply, such as <c>android.provider.MediaStore.MediaColumns#DATE_ADDED</c>
-            in <c>android.provider.MediaStore.MediaColumns</c>.&lt;/p&gt;</para>
+            in <c>android.provider.MediaStore.MediaColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openFile(android.net.Uri,%20java.lang.String,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openFile(android.net.Uri, java.lang.String, android.os.CancellationSignal)</code>.</a>
@@ -2327,9 +2320,8 @@
           <para>See <c>ClipData</c> for examples of the use and implementation
             of this method.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            streaming of data.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
@@ -2426,9 +2418,8 @@
           <para>See <c>ClipData</c> for examples of the use and implementation
             of this method.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            streaming of data.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
