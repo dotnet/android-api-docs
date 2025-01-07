@@ -16,11 +16,19 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/bluetooth/le/BluetoothLeAdvertiser", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/le/BluetoothLeAdvertiser", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>This class provides a way to perform Bluetooth LE advertise operations, such as starting and
             stopping advertising.</summary>
     <remarks>
+      <para>This class provides a way to perform Bluetooth LE advertise operations, such as starting and
+            stopping advertising. An advertiser can broadcast up to 31 bytes of advertisement data
+            represented by <c>AdvertiseData</c>.</para>
+      <para>To get an instance of <c>BluetoothLeAdvertiser</c>, call the <c>BluetoothAdapter#getBluetoothLeAdvertiser()</c> method.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser</code>.</a>
@@ -52,6 +60,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -99,6 +111,8 @@
         <param name="callback">Callback for advertising status.</param>
         <summary>Start Bluetooth LE Advertising.</summary>
         <remarks>
+          <para>Start Bluetooth LE Advertising. On success, the <c>advertiseData</c> will be broadcasted.
+            Returns immediately, the operation status is delivered through <c>callback</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertising(android.bluetooth.le.AdvertiseSettings,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertising(android.bluetooth.le.AdvertiseSettings, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseCallback)</code>.</a>
@@ -148,6 +162,10 @@
         <param name="callback">Callback for advertising status.</param>
         <summary>Start Bluetooth LE Advertising.</summary>
         <remarks>
+          <para>Start Bluetooth LE Advertising. The <c>advertiseData</c> will be broadcasted if the
+            operation succeeds. The <c>scanResponse</c> is returned when a scanning device sends an
+            active scan request. This method returns immediately, the operation status is delivered
+            through <c>callback</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertising(android.bluetooth.le.AdvertiseSettings,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertising(android.bluetooth.le.AdvertiseSettings, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseCallback)</code>.</a>
@@ -199,15 +217,18 @@
       <Docs>
         <param name="parameters">advertising set parameters.</param>
         <param name="advertiseData">Advertisement data to be broadcasted. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>. If the advertisement is connectable,
-            three bytes will be added for flags.</param>
+                three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
-            exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
+                exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="periodicParameters">periodic advertisng parameters. If null, periodic advertising will
-            not be started.</param>
+                not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="callback">Callback for advertising set.</param>
         <summary>Creates a new advertising set.</summary>
         <remarks>
+          <para>Creates a new advertising set. If operation succeed, device will start advertising. This
+            method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertisingSetCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertisingSetCallback)</code>.</a>
@@ -260,16 +281,19 @@
       <Docs>
         <param name="parameters">advertising set parameters.</param>
         <param name="advertiseData">Advertisement data to be broadcasted. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>. If the advertisement is connectable,
-            three bytes will be added for flags.</param>
+                three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
-            exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
+                exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="periodicParameters">periodic advertisng parameters. If null, periodic advertising will
-            not be started.</param>
+                not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="callback">Callback for advertising set.</param>
         <param name="handler">thread upon which the callbacks will be invoked.</param>
         <summary>Creates a new advertising set.</summary>
         <remarks>
+          <para>Creates a new advertising set. If operation succeed, device will start advertising. This
+            method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertisingSetCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertisingSetCallback, android.os.Handler)</code>.</a>
@@ -323,20 +347,23 @@
       <Docs>
         <param name="parameters">advertising set parameters.</param>
         <param name="advertiseData">Advertisement data to be broadcasted. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>. If the advertisement is connectable,
-            three bytes will be added for flags.</param>
+                three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
-            exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
+                exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="periodicParameters">periodic advertisng parameters. If null, periodic advertising will
-            not be started.</param>
+                not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="duration">advertising duration, in 10ms unit. Valid range is from 1 (10ms) to 65535
-            (655,350 ms). 0 means advertising should continue until stopped.</param>
+                (655,350 ms). 0 means advertising should continue until stopped.</param>
         <param name="maxExtendedAdvertisingEvents">maximum number of extended advertising events the
-            controller shall attempt to send prior to terminating the extended advertising, even if the
-            duration has not expired. Valid range is from 1 to 255. 0 means no maximum.</param>
+                controller shall attempt to send prior to terminating the extended advertising, even if
+                the duration has not expired. Valid range is from 1 to 255. 0 means no maximum.</param>
         <param name="callback">Callback for advertising set.</param>
         <summary>Creates a new advertising set.</summary>
         <remarks>
+          <para>Creates a new advertising set. If operation succeed, device will start advertising. This
+            method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20int,%20int,%20android.bluetooth.le.AdvertisingSetCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, int, int, android.bluetooth.le.AdvertisingSetCallback)</code>.</a>
@@ -391,21 +418,24 @@
       <Docs>
         <param name="parameters">Advertising set parameters.</param>
         <param name="advertiseData">Advertisement data to be broadcasted. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>. If the advertisement is connectable,
-            three bytes will be added for flags.</param>
+                three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
-            exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c></param>
+                exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c></param>
         <param name="periodicParameters">Periodic advertisng parameters. If null, periodic advertising will
-            not be started.</param>
+                not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c></param>
         <param name="duration">advertising duration, in 10ms unit. Valid range is from 1 (10ms) to 65535
-            (655,350 ms). 0 means advertising should continue until stopped.</param>
+                (655,350 ms). 0 means advertising should continue until stopped.</param>
         <param name="maxExtendedAdvertisingEvents">maximum number of extended advertising events the
-            controller shall attempt to send prior to terminating the extended advertising, even if the
-            duration has not expired. Valid range is from 1 to 255. 0 means no maximum.</param>
+                controller shall attempt to send prior to terminating the extended advertising, even if
+                the duration has not expired. Valid range is from 1 to 255. 0 means no maximum.</param>
         <param name="callback">Callback for advertising set.</param>
         <param name="handler">Thread upon which the callbacks will be invoked.</param>
         <summary>Creates a new advertising set.</summary>
         <remarks>
+          <para>Creates a new advertising set. If operation succeed, device will start advertising. This
+            method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20int,%20int,%20android.bluetooth.le.AdvertisingSetCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, int, int, android.bluetooth.le.AdvertisingSetCallback, android.os.Handler)</code>.</a>
@@ -450,6 +480,7 @@
           <c>AdvertiseCallback</c> identifies the advertising instance to stop.</param>
         <summary>Stop Bluetooth LE advertising.</summary>
         <remarks>
+          <para>Stop Bluetooth LE advertising. The <c>callback</c> must be the same one use in <c>BluetoothLeAdvertiser#startAdvertising</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#stopAdvertising(android.bluetooth.le.AdvertiseCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.stopAdvertising(android.bluetooth.le.AdvertiseCallback)</code>.</a>
@@ -497,6 +528,7 @@
         <param name="callback">To be added.</param>
         <summary>Used to dispose of a <c>AdvertisingSet</c> object, obtained with <c>BluetoothLeAdvertiser#startAdvertisingSet</c>.</summary>
         <remarks>
+          <para>Used to dispose of a <c>AdvertisingSet</c> object, obtained with <c>BluetoothLeAdvertiser#startAdvertisingSet</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#stopAdvertisingSet(android.bluetooth.le.AdvertisingSetCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.stopAdvertisingSet(android.bluetooth.le.AdvertisingSetCallback)</code>.</a>
@@ -559,6 +591,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

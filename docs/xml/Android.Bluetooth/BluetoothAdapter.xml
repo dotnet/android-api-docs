@@ -16,10 +16,31 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/bluetooth/BluetoothAdapter", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothAdapter", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="5">
     <summary>Represents the local device Bluetooth adapter.</summary>
     <remarks>
+      <para>Represents the local device Bluetooth adapter. The <c>BluetoothAdapter</c> lets you perform
+            fundamental Bluetooth tasks, such as initiate device discovery, query a list of bonded (paired)
+            devices, instantiate a <c>BluetoothDevice</c> using a known MAC address, and create a <c>BluetoothServerSocket</c> to listen for connection requests from other devices, and start a scan for
+            Bluetooth LE devices.</para>
+      <para>To get a <c>BluetoothAdapter</c> representing the local Bluetooth adapter, call the <c>BluetoothManager#getAdapter</c> function on <c>BluetoothManager</c>. On JELLY_BEAN_MR1 and below
+            you will need to use the static <c>#getDefaultAdapter</c> method instead.</para>
+      <para>Fundamentally, this is your starting point for all Bluetooth actions. Once you have the local
+            adapter, you can get a set of <c>BluetoothDevice</c> objects representing all paired devices
+            with <c>#getBondedDevices()</c>; start device discovery with <c>#startDiscovery()</c>; or
+            create a <c>BluetoothServerSocket</c> to listen for incoming RFComm connection requests with
+            <c>#listenUsingRfcommWithServiceRecord(String, UUID)</c>; listen for incoming L2CAP
+            Connection-oriented Channels (CoC) connection requests with <c>#listenUsingL2capChannel()</c>;
+            or start a scan for Bluetooth LE devices with <c>#startLeScan(LeScanCallback callback)</c>.</para>
+      <para>This class is thread safe. &lt;div class="special reference"&gt;
+            
+            &lt;h3&gt;Developer Guides&lt;/h3&gt;</para>
+      <para>For more information about using Bluetooth, read the <see href="https://developer.android.com/guide/topics/connectivity/bluetooth.html">Bluetooth</see> developer guide. &lt;/div&gt;</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter</code>.</a>
@@ -369,6 +390,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getAddress", "()Ljava/lang/String;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAddress", "()Ljava/lang/String;", "")&gt;]</AttributeName>
         </Attribute>
@@ -406,6 +431,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getBluetoothLeAdvertiser", "()Landroid/bluetooth/le/BluetoothLeAdvertiser;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getBluetoothLeAdvertiser", "()Landroid/bluetooth/le/BluetoothLeAdvertiser;", "")&gt;]</AttributeName>
         </Attribute>
@@ -442,6 +471,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getBluetoothLeScanner", "()Landroid/bluetooth/le/BluetoothLeScanner;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getBluetoothLeScanner", "()Landroid/bluetooth/le/BluetoothLeScanner;", "")&gt;]</AttributeName>
         </Attribute>
@@ -477,6 +510,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getBondedDevices", "()Ljava/util/Set;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getBondedDevices", "()Ljava/util/Set;", "")&gt;]</AttributeName>
@@ -536,6 +573,14 @@
         <summary>Cancel the current device discovery process.</summary>
         <returns>true on success, false on error</returns>
         <remarks>
+          <para>Cancel the current device discovery process.</para>
+          <para>Because discovery is a heavyweight procedure for the Bluetooth adapter, this method should
+            always be called before attempting to connect to a remote device with <c>android.bluetooth.BluetoothSocket#connect()</c>. Discovery is not managed by the Activity, but
+            is run as a system service, so an application should always call cancel discovery even if it
+            did not directly request a discovery, just to be sure.</para>
+          <para>If Bluetooth state is not <c>#STATE_ON</c>, this API will return false. After turning on
+            Bluetooth, wait for <c>#ACTION_STATE_CHANGED</c> with <c>#STATE_ON</c> to get the updated
+            value.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#cancelDiscovery()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.cancelDiscovery()</code>.</a>
@@ -652,6 +697,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android31.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android31.0")&gt;]</AttributeName>
         </Attribute>
@@ -711,10 +760,31 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Turn off the local Bluetooth adapter&amp;mdash;do not use without explicit
-            user action to turn off Bluetooth.</summary>
+        <summary>Turn off the local Bluetooth adapter&amp;mdash;do not use without explicit user action to turn
+            off Bluetooth.</summary>
         <returns>true to indicate adapter shutdown has begun, or false on immediate error</returns>
         <remarks>
+          <para>Turn off the local Bluetooth adapter&amp;mdash;do not use without explicit user action to turn
+            off Bluetooth.</para>
+          <para>This gracefully shuts down all Bluetooth connections, stops Bluetooth system services, and
+            powers down the underlying Bluetooth hardware.</para>
+          <para>&lt;strong&gt;Bluetooth should never be disabled without direct user
+            consent&lt;/strong&gt;. The <c>#disable()</c> method is provided only for applications that
+            include a user interface for changing system settings, such as a "power manager" app.</para>
+          <para>This is an asynchronous call: it will return immediately, and clients should listen for
+            <c>#ACTION_STATE_CHANGED</c> to be notified of subsequent adapter state changes. If this
+            call returns true, then the adapter state will immediately transition from <c>#STATE_ON</c>
+            to <c>#STATE_TURNING_OFF</c>, and some time later transition to either <c>#STATE_OFF</c> or
+            <c>#STATE_ON</c>. If this call returns false then there was an immediate problem that will
+            prevent the adapter from being turned off - such as the adapter already being turned off.</para>
+          <para>This member is deprecated. Starting with <c>android.os.Build.VERSION_CODES#TIRAMISU</c>, applications are
+                not allowed to enable/disable Bluetooth. &lt;b&gt;Compatibility Note:&lt;/b&gt; For applications
+                targeting <c>android.os.Build.VERSION_CODES#TIRAMISU</c> or above, this API will always
+                fail and return <c>false</c>. If apps are targeting an older SDK (<c>android.os.Build.VERSION_CODES#S</c> or below), they can continue to use this API.
+                &lt;p&gt;Deprecation Exemptions:
+                &lt;ul&gt;
+                  &lt;li&gt;Device Owner (DO), Profile Owner (PO) and system apps.
+                &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.disable()</code>.</a>
@@ -740,6 +810,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
@@ -791,10 +865,35 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Turn on the local Bluetooth adapter&amp;mdash;do not use without explicit
-            user action to turn on Bluetooth.</summary>
+        <summary>Turn on the local Bluetooth adapter&amp;mdash;do not use without explicit user action to turn on
+            Bluetooth.</summary>
         <returns>true to indicate adapter startup has begun, or false on immediate error</returns>
         <remarks>
+          <para>Turn on the local Bluetooth adapter&amp;mdash;do not use without explicit user action to turn on
+            Bluetooth.</para>
+          <para>This powers on the underlying Bluetooth hardware, and starts all Bluetooth system
+            services.</para>
+          <para>&lt;strong&gt;Bluetooth should never be enabled without direct user
+            consent&lt;/strong&gt;. If you want to turn on Bluetooth in order to create a wireless connection,
+            you should use the <c>#ACTION_REQUEST_ENABLE</c> Intent, which will raise a dialog that
+            requests user permission to turn on Bluetooth. The <c>#enable()</c> method is provided only
+            for applications that include a user interface for changing system settings, such as a "power
+            manager" app.</para>
+          <para>This is an asynchronous call: it will return immediately, and clients should listen for
+            <c>#ACTION_STATE_CHANGED</c> to be notified of subsequent adapter state changes. If this
+            call returns true, then the adapter state will immediately transition from <c>#STATE_OFF</c>
+            to <c>#STATE_TURNING_ON</c>, and some time later transition to either <c>#STATE_OFF</c> or
+            <c>#STATE_ON</c>. If this call returns false then there was an immediate problem that will
+            prevent the adapter from being turned on - such as Airplane mode, or the adapter is already
+            turned on.</para>
+          <para>This member is deprecated. Starting with <c>android.os.Build.VERSION_CODES#TIRAMISU</c>, applications are
+                not allowed to enable/disable Bluetooth. &lt;b&gt;Compatibility Note:&lt;/b&gt; For applications
+                targeting <c>android.os.Build.VERSION_CODES#TIRAMISU</c> or above, this API will always
+                fail and return <c>false</c>. If apps are targeting an older SDK (<c>android.os.Build.VERSION_CODES#S</c> or below), they can continue to use this API.
+                &lt;p&gt;Deprecation Exemptions:
+                &lt;ul&gt;
+                  &lt;li&gt;Device Owner (DO), Profile Owner (PO) and system apps.
+                &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.enable()</code>.</a>
@@ -832,6 +931,13 @@
       <Docs>
         <summary>Sentinel error value for this class.</summary>
         <remarks>
+          <para>Sentinel error value for this class. Guaranteed to not equal any other integer constant in
+            this class. Provided as a convenience for functions that require a sentinel error value, for
+            example:</para>
+          <para>
+            <c>Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+            BluetoothAdapter.ERROR)</c>
+          </para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#ERROR" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.ERROR</code>.</a>
@@ -1167,7 +1273,7 @@
       <ReturnValue>
         <ReturnType>Android.Bluetooth.ProfileState</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -1188,9 +1294,13 @@
         <summary>Get the current connection state of a profile.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Get the current connection state of a profile. This function can be used to check whether the
+            local Bluetooth adapter is connected to any remote device for a specific profile. Profile can
+            be one of <c>BluetoothProfile#HEADSET</c>, <c>BluetoothProfile#A2DP</c>.</para>
+          <para>Return the profile connection state</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getProfileConnectionState(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.getProfileConnectionState(int)</code>.</a>
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getProfileConnectionState(.*int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.getProfileConnectionState(.*int)</code>.</a>
             </format>
           </para>
           <para>
@@ -1370,9 +1480,13 @@
         <Parameter Name="address" Type="System.String" />
         <Parameter Name="addressType" Type="System.Int32">
           <Attributes>
-            <Attribute>
+            <Attribute FrameworkAlternate="net-android-34.0">
               <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "AddressTypePublic", "AddressTypeRandom", "AddressTypeUnknown" }, Type="Android.Bluetooth.BluetoothDevice")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "AddressTypePublic", "AddressTypeRandom", "AddressTypeUnknown" }, Type="Android.Bluetooth.BluetoothDevice")&gt;]</AttributeName>
+            </Attribute>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "AddressTypePublic", "AddressTypeRandom", "AddressTypeAnonymous", "AddressTypeUnknown" }, Type="Android.Bluetooth.BluetoothDevice")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "AddressTypePublic", "AddressTypeRandom", "AddressTypeAnonymous", "AddressTypeUnknown" }, Type="Android.Bluetooth.BluetoothDevice")&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -1409,10 +1523,18 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return true if the local Bluetooth adapter is currently in the device
-            discovery process.</summary>
+        <summary>Return true if the local Bluetooth adapter is currently in the device discovery process.</summary>
         <value>true if discovering</value>
         <remarks>
+          <para>Return true if the local Bluetooth adapter is currently in the device discovery process.</para>
+          <para>Device discovery is a heavyweight procedure. New connections to remote Bluetooth devices
+            should not be attempted while discovery is in progress, and existing connections will
+            experience limited bandwidth and high latency. Use <c>#cancelDiscovery()</c> to cancel an
+            ongoing discovery.</para>
+          <para>Applications can also register for <c>#ACTION_DISCOVERY_STARTED</c> or <c>#ACTION_DISCOVERY_FINISHED</c> to be notified when discovery starts or completes.</para>
+          <para>If Bluetooth state is not <c>#STATE_ON</c>, this API will return false. After turning on
+            Bluetooth, wait for <c>#ACTION_STATE_CHANGED</c> with <c>#STATE_ON</c> to get the updated
+            value.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isDiscovering()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isDiscovering()</code>.</a>
@@ -1450,6 +1572,8 @@
         <summary>Return true if Bluetooth is currently enabled and ready for use.</summary>
         <value>true if the local adapter is turned on</value>
         <remarks>
+          <para>Return true if Bluetooth is currently enabled and ready for use.</para>
+          <para>Equivalent to: <c>getBluetoothState() == STATE_ON</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isEnabled()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isEnabled()</code>.</a>
@@ -1491,6 +1615,7 @@
         <summary>Return true if LE 2M PHY feature is supported.</summary>
         <value>true if chipset supports LE 2M PHY feature</value>
         <remarks>
+          <para>Return true if LE 2M PHY feature is supported.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isLe2MPhySupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isLe2MPhySupported()</code>.</a>
@@ -1529,9 +1654,25 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns <c>BluetoothStatusCodes#FEATURE_SUPPORTED</c> if the LE audio broadcast assistant
+            feature is supported, <c>BluetoothStatusCodes#FEATURE_NOT_SUPPORTED</c> if the feature is
+            not supported, or an error code.</summary>
+        <returns>whether the LE audio broadcast assistant is supported</returns>
+        <remarks>
+          <para>Returns <c>BluetoothStatusCodes#FEATURE_SUPPORTED</c> if the LE audio broadcast assistant
+            feature is supported, <c>BluetoothStatusCodes#FEATURE_NOT_SUPPORTED</c> if the feature is
+            not supported, or an error code.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isLeAudioBroadcastAssistantSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isLeAudioBroadcastAssistantSupported()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsLeAudioBroadcastSourceSupported">
@@ -1559,9 +1700,25 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns <c>BluetoothStatusCodes#FEATURE_SUPPORTED</c> if the LE audio broadcast source
+            feature is supported, <c>BluetoothStatusCodes#FEATURE_NOT_SUPPORTED</c> if the feature is
+            not supported, or an error code.</summary>
+        <returns>whether the LE audio broadcast source is supported</returns>
+        <remarks>
+          <para>Returns <c>BluetoothStatusCodes#FEATURE_SUPPORTED</c> if the LE audio broadcast source
+            feature is supported, <c>BluetoothStatusCodes#FEATURE_NOT_SUPPORTED</c> if the feature is
+            not supported, or an error code.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isLeAudioBroadcastSourceSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isLeAudioBroadcastSourceSupported()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsLeAudioSupported">
@@ -1589,9 +1746,25 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns <c>BluetoothStatusCodes#FEATURE_SUPPORTED</c> if the LE audio feature is supported,
+            <c>BluetoothStatusCodes#FEATURE_NOT_SUPPORTED</c> if the feature is not supported, or an
+            error code.</summary>
+        <returns>whether the LE audio is supported</returns>
+        <remarks>
+          <para>Returns <c>BluetoothStatusCodes#FEATURE_SUPPORTED</c> if the LE audio feature is supported,
+            <c>BluetoothStatusCodes#FEATURE_NOT_SUPPORTED</c> if the feature is not supported, or an
+            error code.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isLeAudioSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isLeAudioSupported()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsLeCodedPhySupported">
@@ -1621,6 +1794,7 @@
         <summary>Return true if LE Coded PHY feature is supported.</summary>
         <value>true if chipset supports LE Coded PHY feature</value>
         <remarks>
+          <para>Return true if LE Coded PHY feature is supported.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isLeCodedPhySupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isLeCodedPhySupported()</code>.</a>
@@ -1661,6 +1835,7 @@
         <summary>Return true if LE Extended Advertising feature is supported.</summary>
         <value>true if chipset supports LE Extended Advertising feature</value>
         <remarks>
+          <para>Return true if LE Extended Advertising feature is supported.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isLeExtendedAdvertisingSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isLeExtendedAdvertisingSupported()</code>.</a>
@@ -1701,6 +1876,7 @@
         <summary>Return true if LE Periodic Advertising feature is supported.</summary>
         <value>true if chipset supports LE Periodic Advertising feature</value>
         <remarks>
+          <para>Return true if LE Periodic Advertising feature is supported.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isLePeriodicAdvertisingSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isLePeriodicAdvertisingSupported()</code>.</a>
@@ -1737,6 +1913,7 @@
         <summary>Return true if the multi advertisement is supported by the chipset</summary>
         <value>true if Multiple Advertisement feature is supported</value>
         <remarks>
+          <para>Return true if the multi advertisement is supported by the chipset</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isMultipleAdvertisementSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isMultipleAdvertisementSupported()</code>.</a>
@@ -1773,6 +1950,7 @@
         <summary>Return true if offloaded filters are supported</summary>
         <value>true if chipset supports on-chip filtering</value>
         <remarks>
+          <para>Return true if offloaded filters are supported</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isOffloadedFilteringSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isOffloadedFilteringSupported()</code>.</a>
@@ -1809,6 +1987,7 @@
         <summary>Return true if offloaded scan batching is supported</summary>
         <value>true if chipset supports on-chip scan batching</value>
         <remarks>
+          <para>Return true if offloaded scan batching is supported</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#isOffloadedScanBatchingSupported()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.isOffloadedScanBatchingSupported()</code>.</a>
@@ -1877,10 +2056,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return the maximum LE advertising data length in bytes,
-            if LE Extended Advertising feature is supported, 0 otherwise.</summary>
+        <summary>Return the maximum LE advertising data length in bytes, if LE Extended Advertising feature is
+            supported, 0 otherwise.</summary>
         <value>the maximum LE advertising data length.</value>
         <remarks>
+          <para>Return the maximum LE advertising data length in bytes, if LE Extended Advertising feature is
+            supported, 0 otherwise.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getLeMaximumAdvertisingDataLength()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.getLeMaximumAdvertisingDataLength()</code>.</a>
@@ -2114,9 +2295,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Get the maximum number of connected devices per audio profile for this device.</summary>
+        <value>the number of allowed simultaneous connected devices for each audio profile for this
+                device, or -1 if the Bluetooth service can't be reached</value>
+        <remarks>
+          <para>Get the maximum number of connected devices per audio profile for this device.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getMaxConnectedAudioDevices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.getMaxConnectedAudioDevices()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Name">
@@ -2130,6 +2324,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getName", "()Ljava/lang/String;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getName", "()Ljava/lang/String;", "")&gt;]</AttributeName>
@@ -2187,6 +2385,13 @@
         <summary>Get the current Bluetooth scan mode of the local Bluetooth adapter.</summary>
         <value>scan mode</value>
         <remarks>
+          <para>Get the current Bluetooth scan mode of the local Bluetooth adapter.</para>
+          <para>The Bluetooth scan mode determines if the local adapter is connectable and/or discoverable
+            from remote Bluetooth devices.</para>
+          <para>Possible values are: <c>#SCAN_MODE_NONE</c>, <c>#SCAN_MODE_CONNECTABLE</c>, <c>#SCAN_MODE_CONNECTABLE_DISCOVERABLE</c>.</para>
+          <para>If Bluetooth state is not <c>#STATE_ON</c>, this API will return <c>#SCAN_MODE_NONE</c>.
+            After turning on Bluetooth, wait for <c>#ACTION_STATE_CHANGED</c> with <c>#STATE_ON</c> to
+            get the updated value.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getScanMode()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.getScanMode()</code>.</a>
@@ -2274,6 +2479,25 @@
         <summary>Start the remote device discovery process.</summary>
         <returns>true on success, false on error</returns>
         <remarks>
+          <para>Start the remote device discovery process.</para>
+          <para>The discovery process usually involves an inquiry scan of about 12 seconds, followed by a
+            page scan of each new device to retrieve its Bluetooth name.</para>
+          <para>This is an asynchronous call, it will return immediately. Register for <c>#ACTION_DISCOVERY_STARTED</c> and <c>#ACTION_DISCOVERY_FINISHED</c> intents to determine
+            exactly when the discovery starts and completes. Register for <c>BluetoothDevice#ACTION_FOUND</c> to be notified as remote Bluetooth devices are found.</para>
+          <para>Device discovery is a heavyweight procedure. New connections to remote Bluetooth devices
+            should not be attempted while discovery is in progress, and existing connections will
+            experience limited bandwidth and high latency. Use <c>#cancelDiscovery()</c> to cancel an
+            ongoing discovery. Discovery is not managed by the Activity, but is run as a system service,
+            so an application should always call <c>BluetoothAdapter#cancelDiscovery()</c> even if it
+            did not directly request a discovery, just to be sure.</para>
+          <para>Device discovery will only find remote devices that are currently <i>discoverable</i>
+            (inquiry scan enabled). Many Bluetooth devices are not discoverable by default, and need to
+            be entered into a special mode.</para>
+          <para>If Bluetooth state is not <c>#STATE_ON</c>, this API will return false. After turning on
+            Bluetooth, wait for <c>#ACTION_STATE_CHANGED</c> with <c>#STATE_ON</c> to get the updated
+            value.</para>
+          <para>If a device is currently bonding, this request will be queued and executed once that
+            device has finished bonding. If a request is already queued, this request will be ignored.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#startDiscovery()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.startDiscovery()</code>.</a>
@@ -2365,7 +2589,14 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="serviceUuids" Type="Java.Util.UUID[]" />
+        <Parameter Name="serviceUuids" Type="Java.Util.UUID[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="callback" Type="Android.Bluetooth.BluetoothAdapter+ILeScanCallback" />
       </Parameters>
       <Docs>
@@ -2411,6 +2642,8 @@
         <summary>Get the current state of the local Bluetooth adapter.</summary>
         <value>current state of Bluetooth adapter</value>
         <remarks>
+          <para>Get the current state of the local Bluetooth adapter.</para>
+          <para>Possible return values are <c>#STATE_OFF</c>, <c>#STATE_TURNING_ON</c>, <c>#STATE_ON</c>, <c>#STATE_TURNING_OFF</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getState()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothAdapter.getState()</code>.</a>

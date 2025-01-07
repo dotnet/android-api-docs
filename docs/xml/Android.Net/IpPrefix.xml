@@ -29,17 +29,41 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/IpPrefix", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/IpPrefix", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
-    <summary>This class represents an IP prefix, i.e., a contiguous block of IP addresses aligned on a
- power of two boundary (also known as an "IP subnet").</summary>
+    <summary>This class represents an IP prefix, i.</summary>
     <remarks>
+      <para>This class represents an IP prefix, i.e., a contiguous block of IP addresses aligned on a
+            power of two boundary (also known as an "IP subnet"). A prefix is specified by two pieces of
+            information:
+            
+            &lt;ul&gt;
+            &lt;li&gt;A starting IP address (IPv4 or IPv6). This is the first IP address of the prefix.
+            &lt;li&gt;A prefix length. This specifies the length of the prefix by specifing the number of bits
+                in the IP address, starting from the most significant bit in network byte order, that
+                are constant for all addresses in the prefix.
+            &lt;/ul&gt;
+            
+            For example, the prefix <c>192.0.2.0/24</c> covers the 256 IPv4 addresses from
+            <c>192.0.2.0</c> to <c>192.0.2.255</c>, inclusive, and the prefix
+            <c>2001:db8:1:2</c>  covers the 2^64 IPv6 addresses from <c>2001:db8:1:2::</c> to
+            <c>2001:db8:1:2:ffff:ffff:ffff:ffff</c>, inclusive.
+            
+            Objects of this class are immutable.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/IpPrefix" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/IpPrefix" title="Reference documentation">Java documentation for <code>android.net.IpPrefix</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -68,10 +92,24 @@
         <Parameter Name="prefixLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
-        <param name="prefixLength">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="address">the IP address. Must be non-null.</param>
+        <param name="prefixLength">the prefix length. Must be &amp;gt;= 0 and &amp;lt;= (32 or 128) (IPv4 or IPv6).</param>
+        <summary>Constructs a new <c>IpPrefix</c> from an IPv4 or IPv6 address and a prefix length.</summary>
+        <remarks>
+          <para>Constructs a new <c>IpPrefix</c> from an IPv4 or IPv6 address and a prefix length. Silently
+            truncates the address to the prefix length, so for example <c>192.0.2.1/24</c> is silently
+            converted to <c>192.0.2.0/24</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpPrefix#IpPrefix(java.net.InetAddress,%20int)" title="Reference documentation">Java documentation for <code>android.net.IpPrefix.IpPrefix(java.net.InetAddress, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Address">
@@ -95,9 +133,20 @@
       </ReturnValue>
       <Docs>
         <summary>Returns a copy of the first IP address in the prefix.</summary>
-        <value>To be added.</value>
+        <value>the address in the form of a byte array.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a copy of the first IP address in the prefix. Modifying the returned object does not
+            change this object's contents.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpPrefix#getAddress()" title="Reference documentation">Java documentation for <code>android.net.IpPrefix.getAddress()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -128,11 +177,22 @@
         <Parameter Name="address" Type="Java.Net.InetAddress" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="address">An <c>InetAddress</c> to test.</param>
+        <summary>Determines whether the prefix contains the specified address.</summary>
+        <returns>
+          <c>true</c> if the prefix covers the given address. <c>false</c> otherwise.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Determines whether the prefix contains the specified address.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpPrefix#contains(java.net.InetAddress)" title="Reference documentation">Java documentation for <code>android.net.IpPrefix.contains(java.net.InetAddress)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -150,6 +210,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("CREATOR")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -190,7 +254,17 @@
         <summary>Implement the Parcelable interface.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Implement the Parcelable interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpPrefix#describeContents()" title="Reference documentation">Java documentation for <code>android.net.IpPrefix.describeContents()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -216,10 +290,21 @@
       <Parameters />
       <Docs>
         <summary>Returns a copy of the IP address bytes in network order (the highest order byte is the zeroth
- element).</summary>
-        <returns>To be added.</returns>
+            element).</summary>
+        <returns>the address in the form of a byte array.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a copy of the IP address bytes in network order (the highest order byte is the zeroth
+            element). Modifying the returned array does not change this object's contents.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpPrefix#getRawAddress()" title="Reference documentation">Java documentation for <code>android.net.IpPrefix.getRawAddress()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -278,9 +363,19 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the prefix length of this <c>IpPrefix</c>.</summary>
-        <value>To be added.</value>
+        <value>the prefix length.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the prefix length of this <c>IpPrefix</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpPrefix#getPrefixLength()" title="Reference documentation">Java documentation for <code>android.net.IpPrefix.getPrefixLength()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -386,7 +481,17 @@
 </param>
         <summary>Implement the Parcelable interface.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Implement the Parcelable interface.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpPrefix#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Java documentation for <code>android.net.IpPrefix.writeToParcel(android.os.Parcel, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

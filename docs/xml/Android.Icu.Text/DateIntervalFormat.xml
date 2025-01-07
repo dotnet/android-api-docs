@@ -17,19 +17,219 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/DateIntervalFormat", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>DateIntervalFormat is a class for formatting and parsing date
+            intervals in a language-independent manner.</summary>
     <remarks>
+      <para>DateIntervalFormat is a class for formatting and parsing date
+            intervals in a language-independent manner.
+            Only formatting is supported. Parsing is not supported.</para>
+      <para>Date interval means from one date to another date,
+            for example, from "Jan 11, 2008" to "Jan 18, 2008".
+            We introduced class DateInterval to represent it.
+            DateInterval is a pair of UDate, which is
+            the standard milliseconds since 24:00 GMT, Jan 1, 1970.</para>
+      <para>DateIntervalFormat formats a DateInterval into
+            text as compactly as possible.
+            For example, the date interval format from "Jan 11, 2008" to "Jan 18,. 2008"
+            is "Jan 11-18, 2008" for English.
+            And it parses text into DateInterval,
+            although initially, parsing is not supported.</para>
+      <para>There is no structural information in date time patterns.
+            For any punctuations and string literals inside a date time pattern,
+            we do not know whether it is just a separator, or a prefix, or a suffix.
+            Without such information, so, it is difficult to generate a sub-pattern
+            (or super-pattern) by algorithm.
+            So, formatting a DateInterval is pattern-driven. It is very
+            similar to formatting in SimpleDateFormat.
+            We introduce class DateIntervalInfo to save date interval
+            patterns, similar to date time pattern in SimpleDateFormat.</para>
+      <para>Logically, the interval patterns are mappings
+            from (skeleton, the_largest_different_calendar_field)
+            to (date_interval_pattern).</para>
+      <para>A skeleton
+            &lt;ol&gt;
+            &lt;li&gt;
+            only keeps the field pattern letter and ignores all other parts
+            in a pattern, such as space, punctuations, and string literals.
+            &lt;li&gt;
+            hides the order of fields.
+            &lt;li&gt;
+            might hide a field's pattern letter length.
+            
+            For those non-digit calendar fields, the pattern letter length is
+            important, such as MMM, MMMM, and MMMMM; EEE and EEEE,
+            and the field's pattern letter length is honored.
+            
+            For the digit calendar fields,  such as M or MM, d or dd, yy or yyyy,
+            the field pattern length is ignored and the best match, which is defined
+            in date time patterns, will be returned without honor the field pattern
+            letter length in skeleton.
+            &lt;/ol&gt;</para>
+      <para>The calendar fields we support for interval formatting are:
+            year, month, date, day-of-week, am-pm, hour, hour-of-day, minute, and
+            second (though we do not currently have specific intervalFormat data for
+            skeletons with seconds).
+            Those calendar fields can be defined in the following order:
+            year &amp;gt; month &amp;gt; date &amp;gt; hour (in day) &amp;gt; minute &amp;gt; second
+            
+            The largest different calendar fields between 2 calendars is the
+            first different calendar field in above order.
+            
+            For example: the largest different calendar fields between "Jan 10, 2007"
+            and "Feb 20, 2008" is year.</para>
+      <para>For other calendar fields, the compact interval formatting is not
+            supported. And the interval format will be fall back to fall-back
+            patterns, which is mostly "{date0} - {date1}".</para>
+      <para>There is a set of pre-defined static skeleton strings in DateFormat,
+            There are pre-defined interval patterns for those pre-defined skeletons
+            in locales' resource files.
+            For example, for a skeleton YEAR_ABBR_MONTH_DAY, which is  "yMMMd",
+            in  en_US, if the largest different calendar field between date1 and date2
+            is "year", the date interval pattern  is "MMM d, yyyy - MMM d, yyyy",
+            such as "Jan 10, 2007 - Jan 10, 2008".
+            If the largest different calendar field between date1 and date2 is "month",
+            the date interval pattern is "MMM d - MMM d, yyyy",
+            such as "Jan 10 - Feb 10, 2007".
+            If the largest different calendar field between date1 and date2 is "day",
+            the date interval pattern is ""MMM d-d, yyyy", such as "Jan 10-20, 2007".
+            
+            For date skeleton, the interval patterns when year, or month, or date is
+            different are defined in resource files.
+            For time skeleton, the interval patterns when am/pm, or hour, or minute is
+            different are defined in resource files.</para>
+      <para>If a skeleton is not found in a locale's DateIntervalInfo, which means
+            the interval patterns for the skeleton is not defined in resource file,
+            the interval pattern will falls back to the interval "fallback" pattern
+            defined in resource file.
+            If the interval "fallback" pattern is not defined, the default fall-back
+            is "{date0} - {data1}".</para>
+      <para>For the combination of date and time,
+            The rule to genearte interval patterns are:
+            &lt;ol&gt;
+            &lt;li&gt;
+               when the year, month, or day differs, falls back to fall-back
+               interval pattern, which mostly is the concatenate the two original
+               expressions with a separator between,
+               For example, interval pattern from "Jan 10, 2007 10:10 am"
+               to "Jan 11, 2007 10:10am" is
+               "Jan 10, 2007 10:10 am - Jan 11, 2007 10:10am"
+            &lt;li&gt;
+               otherwise, present the date followed by the range expression
+               for the time.
+               For example, interval pattern from "Jan 10, 2007 10:10 am"
+               to "Jan 10, 2007 11:10am" is "Jan 10, 2007 10:10 am - 11:10am"
+            &lt;/ol&gt;</para>
+      <para>If two dates are the same, the interval pattern is the single date pattern.
+            For example, interval pattern from "Jan 10, 2007" to "Jan 10, 2007" is
+            "Jan 10, 2007".
+            
+            Or if the presenting fields between 2 dates have the exact same values,
+            the interval pattern is the  single date pattern.
+            For example, if user only requests year and month,
+            the interval pattern from "Jan 10, 2007" to "Jan 20, 2007" is "Jan 2007".</para>
+      <para>DateIntervalFormat needs the following information for correct
+            formatting: time zone, calendar type, pattern, date format symbols,
+            and date interval patterns.
+            It can be instantiated in several ways:
+            &lt;ol&gt;
+            &lt;li&gt;
+               create an instance using default or given locale plus given skeleton.
+               Users are encouraged to created date interval formatter this way and
+               to use the pre-defined skeleton macros, such as
+               YEAR_NUM_MONTH, which consists the calendar fields and
+               the format style.
+            &lt;/li&gt;
+            &lt;li&gt;
+               create an instance using default or given locale plus given skeleton
+               plus a given DateIntervalInfo.
+               This factory method is for powerful users who want to provide their own
+               interval patterns.
+               Locale provides the timezone, calendar, and format symbols information.
+               Local plus skeleton provides full pattern information.
+               DateIntervalInfo provides the date interval patterns.
+            &lt;/li&gt;
+            &lt;/ol&gt;</para>
+      <para>For the calendar field pattern letter, such as G, y, M, d, a, h, H, m, s etc.
+            DateIntervalFormat uses the same syntax as that of
+            DateTime format.</para>
+      <para>Code Sample: general usage</para>
+      <code lang="text/java">// the date interval object which the DateIntervalFormat formats on
+              // and parses into
+              DateInterval dtInterval = new DateInterval(1000*3600*24L, 1000*3600*24*2L);
+              DateIntervalFormat dtIntervalFmt = DateIntervalFormat.getInstance(
+                      DateFormat.YEAR_MONTH_DAY, new Locale("en", "GB", ""));
+              StringBuffer result = new StringBuffer("");
+              FieldPosition pos = new FieldPosition(-1);
+              // formatting
+              dtIntervalFmt.format(dtInterval, result, pos);
+              assertEquals("interval", "1–2 January 1970", result.toString());
+            
+            </code>
+      <para>Code Sample: for powerful users who wants to use their own interval pattern</para>
+      <code lang="text/java">import android.icu.text.DateIntervalInfo;
+                import android.icu.text.DateIntervalFormat;
+                ....................
+            
+                // Get DateIntervalFormat instance using default locale
+                DateIntervalFormat dtitvfmt = DateIntervalFormat.getInstance(YEAR_MONTH_DAY);
+            
+                // Create an empty DateIntervalInfo object, which does not have any interval patterns inside.
+                dtitvinf = new DateIntervalInfo();
+            
+                // a series of set interval patterns.
+                // Only ERA, YEAR, MONTH, DATE,  DAY_OF_MONTH, DAY_OF_WEEK, AM_PM,  HOUR, HOUR_OF_DAY,
+                MINUTE, SECOND and MILLISECOND are supported.
+                dtitvinf.setIntervalPattern("yMMMd", Calendar.YEAR, "'y ~ y'");
+                dtitvinf.setIntervalPattern("yMMMd", Calendar.MONTH, "yyyy 'diff' MMM d - MMM d");
+                dtitvinf.setIntervalPattern("yMMMd", Calendar.DATE, "yyyy MMM d ~ d");
+                dtitvinf.setIntervalPattern("yMMMd", Calendar.HOUR_OF_DAY, "yyyy MMM d HH:mm ~ HH:mm");
+            
+                // Set fallback interval pattern. Fallback pattern is used when interval pattern is not found.
+                // If the fall-back pattern is not set,  falls back to {date0} - {date1} if interval pattern is not found.
+                dtitvinf.setFallbackIntervalPattern("{0} - {1}");
+            
+                // Set above DateIntervalInfo object as the interval patterns of date interval formatter
+                dtitvfmt.setDateIntervalInfo(dtitvinf);
+            
+                // Prepare to format
+                pos = new FieldPosition(0);
+                str = new StringBuffer("");
+            
+                // The 2 calendars should be equivalent, otherwise,  IllegalArgumentException will be thrown by format()
+                Calendar fromCalendar = (Calendar) dtfmt.getCalendar().clone();
+                Calendar toCalendar = (Calendar) dtfmt.getCalendar().clone();
+                fromCalendar.setTimeInMillis(....);
+                toCalendar.setTimeInMillis(...);
+            
+                //Formatting given 2 calendars
+                dtitvfmt.format(fromCalendar, toCalendar, str, pos);
+            
+            
+            </code>
+      <para>&lt;h3&gt;Synchronization&lt;/h3&gt;
+            
+            The format methods of DateIntervalFormat may be used concurrently from multiple threads.
+            Functions that alter the state of a DateIntervalFormat object (setters)
+            may not be used concurrently with any other functions.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -80,10 +280,21 @@
         <ReturnType>Android.Icu.Text.DateFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the date formatter</summary>
+        <value>a copy of the date formatter associated with
+            this date interval formatter.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the date formatter</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getDateFormat()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getDateFormat()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -119,10 +330,30 @@
         <ReturnType>Android.Icu.Text.DateIntervalInfo</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="newItvPattern">the given interval patterns to copy.</param>
+        <summary>Gets the date time interval patterns. -or- Set the date time interval patterns.</summary>
+        <value>a copy of the date time interval patterns associated with
+            this date interval formatter.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Gets the date time interval patterns.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getDateIntervalInfo()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getDateIntervalInfo()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the date time interval patterns.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#setDateIntervalInfo(android.icu.text.DateIntervalInfo)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.setDateIntervalInfo(android.icu.text.DateIntervalInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -155,13 +386,28 @@
         <Parameter Name="fieldPosition" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="dtInterval">To be added.</param>
-        <param name="appendTo">To be added.</param>
-        <param name="fieldPosition">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="dtInterval">DateInterval to be formatted.</param>
+        <param name="appendTo">Output parameter to receive result.
+                                     Result is appended to existing contents.</param>
+        <param name="fieldPosition">On input: an alignment field, if desired.
+                                     On output: the offsets of the alignment field.
+                                     There may be multiple instances of a given field type
+                                     in an interval format; in this case the fieldPosition
+                                     offsets refer to the first instance.</param>
+        <summary>Format a DateInterval to produce a string.</summary>
+        <returns>Reference to 'appendTo' parameter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Format a DateInterval to produce a string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#format(android.icu.util.DateInterval,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.format(android.icu.util.DateInterval, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -194,13 +440,32 @@
         <Parameter Name="fieldPosition" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <param name="appendTo">To be added.</param>
-        <param name="fieldPosition">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="obj">The object to format.
+                                     Must be a DateInterval.</param>
+        <param name="appendTo">Output parameter to receive result.
+                                     Result is appended to existing contents.</param>
+        <param name="fieldPosition">On input: an alignment field, if desired.
+                                     On output: the offsets of the alignment field.
+                                     There may be multiple instances of a given field type
+                                     in an interval format; in this case the fieldPosition
+                                     offsets refer to the first instance.</param>
+        <summary>Format an object to produce a string.</summary>
+        <returns>Reference to 'appendTo' parameter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Format an object to produce a string. This method handles Formattable
+            objects with a DateInterval type.
+            If a the Formattable object type is not a DateInterval,
+            IllegalArgumentException is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#format(java.lang.Object,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.format(java.lang.Object, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -234,14 +499,31 @@
         <Parameter Name="pos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="fromCalendar">To be added.</param>
-        <param name="toCalendar">To be added.</param>
-        <param name="appendTo">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="fromCalendar">calendar set to the from date in date interval
+                                     to be formatted into date interval string</param>
+        <param name="toCalendar">calendar set to the to date in date interval
+                                     to be formatted into date interval string</param>
+        <param name="appendTo">Output parameter to receive result.
+                                     Result is appended to existing contents.</param>
+        <param name="pos">On input: an alignment field, if desired.
+                                     On output: the offsets of the alignment field.
+                                     There may be multiple instances of a given field type
+                                     in an interval format; in this case the fieldPosition
+                                     offsets refer to the first instance.</param>
+        <summary>Format 2 Calendars to produce a string.</summary>
+        <returns>Reference to 'appendTo' parameter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Format 2 Calendars to produce a string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#format(android.icu.util.Calendar,%20android.icu.util.Calendar,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.format(android.icu.util.Calendar, android.icu.util.Calendar, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -373,11 +655,25 @@
         <Parameter Name="skeleton" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="skeleton">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="skeleton">the skeleton on which interval format based.</param>
+        <summary>Construct a DateIntervalFormat from skeleton and  the default <c>FORMAT</c> locale.</summary>
+        <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton and  the default <c>FORMAT</c> locale.
+            
+            This is a convenient override of
+            getInstance(String skeleton, ULocale locale)
+            with the value of locale as default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -409,12 +705,28 @@
         <Parameter Name="dtitvinf" Type="Android.Icu.Text.DateIntervalInfo" />
       </Parameters>
       <Docs>
-        <param name="skeleton">To be added.</param>
-        <param name="dtitvinf">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="skeleton">the skeleton on which interval format based.</param>
+        <param name="dtitvinf">the DateIntervalInfo object to be adopted.</param>
+        <summary>Construct a DateIntervalFormat from skeleton
+             DateIntervalInfo, and the default <c>FORMAT</c> locale.</summary>
+        <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton
+             DateIntervalInfo, and the default <c>FORMAT</c> locale.
+            
+            This is a convenient override of
+            getInstance(String skeleton, ULocale locale, DateIntervalInfo dtitvinf)
+            with the locale value as default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20android.icu.text.DateIntervalInfo)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String, android.icu.text.DateIntervalInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -446,12 +758,41 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="skeleton">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="skeleton">the skeleton on which interval format based.</param>
+        <param name="locale">the given locale</param>
+        <summary>Construct a DateIntervalFormat from skeleton and a given locale.</summary>
+        <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton and a given locale.</para>
+          <para>In this factory method,
+            the date interval pattern information is load from resource files.
+            Users are encouraged to created date interval formatter this way and
+            to use the pre-defined skeleton macros.</para>
+          <para>There are pre-defined skeletons in DateFormat,
+            such as MONTH_DAY, YEAR_MONTH_WEEKDAY_DAY etc.
+            
+            Those skeletons have pre-defined interval patterns in resource files.
+            Users are encouraged to use them.
+            For example:
+            DateIntervalFormat.getInstance(DateFormat.MONTH_DAY, false, loc);
+            
+            The given Locale provides the interval patterns.
+            For example, for en_GB, if skeleton is YEAR_ABBR_MONTH_WEEKDAY_DAY,
+            which is "yMMMEEEd",
+            the interval patterns defined in resource file to above skeleton are:
+            "EEE, d MMM, yyyy - EEE, d MMM, yyyy" for year differs,
+            "EEE, d MMM - EEE, d MMM, yyyy" for month differs,
+            "EEE, d - EEE, d MMM, yyyy" for day differs,</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -483,12 +824,25 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="skeleton">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="skeleton">the skeleton on which interval format based.</param>
+        <param name="locale">the given locale</param>
+        <summary>Construct a DateIntervalFormat from skeleton and a given locale.</summary>
+        <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton and a given locale.</para>
+          <para>This is a convenient override of
+            getInstance(String skeleton, ULocale locale)</para>
+          <para>Example code:{</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -521,13 +875,47 @@
         <Parameter Name="dtitvinf" Type="Android.Icu.Text.DateIntervalInfo" />
       </Parameters>
       <Docs>
-        <param name="skeleton">To be added.</param>
-        <param name="locale">To be added.</param>
-        <param name="dtitvinf">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="skeleton">the skeleton on which interval format based.</param>
+        <param name="locale">the given locale</param>
+        <param name="dtitvinf">the DateIntervalInfo object to be adopted.</param>
+        <summary>Construct a DateIntervalFormat from skeleton
+            a DateIntervalInfo, and the given locale.</summary>
+        <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton
+            a DateIntervalInfo, and the given locale.</para>
+          <para>In this factory method, user provides its own date interval pattern
+            information, instead of using those pre-defined data in resource file.
+            This factory method is for powerful users who want to provide their own
+            interval patterns.</para>
+          <para>There are pre-defined skeleton in DateFormat,
+            such as MONTH_DAY, YEAR_MONTH_WEEKDAY_DAY etc.
+            
+            Those skeletons have pre-defined interval patterns in resource files.
+            Users are encouraged to use them.
+            For example:
+            DateIntervalFormat.getInstance(DateFormat.MONTH_DAY, false, loc,itvinf);
+            
+            the DateIntervalInfo provides the interval patterns.
+            
+            User are encouraged to set default interval pattern in DateIntervalInfo
+            as well, if they want to set other interval patterns ( instead of
+            reading the interval patterns from resource files).
+            When the corresponding interval pattern for a largest calendar different
+            field is not found ( if user not set it ), interval format fallback to
+            the default interval pattern.
+            If user does not provide default interval pattern, it fallback to
+            "{date0} - {date1}"</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20android.icu.util.ULocale,%20android.icu.text.DateIntervalInfo)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String, android.icu.util.ULocale, android.icu.text.DateIntervalInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -560,13 +948,28 @@
         <Parameter Name="dtitvinf" Type="Android.Icu.Text.DateIntervalInfo" />
       </Parameters>
       <Docs>
-        <param name="skeleton">To be added.</param>
-        <param name="locale">To be added.</param>
-        <param name="dtitvinf">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="skeleton">the skeleton on which interval format based.</param>
+        <param name="locale">the given locale</param>
+        <param name="dtitvinf">the DateIntervalInfo object to be adopted.</param>
+        <summary>Construct a DateIntervalFormat from skeleton
+            a DateIntervalInfo, and the given locale.</summary>
+        <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton
+            a DateIntervalInfo, and the given locale.</para>
+          <para>This is a convenient override of
+            getInstance(String skeleton, ULocale locale, DateIntervalInfo dtitvinf)</para>
+          <para>Example code:{</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20java.util.Locale,%20android.icu.text.DateIntervalInfo)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String, java.util.Locale, android.icu.text.DateIntervalInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -588,6 +991,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -633,12 +1040,34 @@
         <Parameter Name="parse_pos" Type="Java.Text.ParsePosition" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="parse_pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">The string to be parsed into an object.</param>
+        <param name="parse_pos">The position to start parsing at. Since no parsing
+                             is supported, upon return this param is unchanged.</param>
+        <summary>Date interval parsing is not supported.</summary>
+        <returns>A newly created <c>Formattable</c> object, or NULL
+                             on failure.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Date interval parsing is not supported.</para>
+          <para>This method should handle parsing of
+            date time interval strings into Formattable objects with
+            DateInterval type, which is a pair of UDate.</para>
+          <para>Before calling, set parse_pos.index to the offset you want to start
+            parsing at in the source. After calling, parse_pos.index is the end of
+            the text you parsed. If error occurs, index is unchanged.</para>
+          <para>When parsing, leading whitespace is discarded (with a successful parse),
+            while trailing whitespace is left as is.</para>
+          <para>See Format.parseObject() for more.</para>
+          <para>This member is deprecated. This API is ICU internal only.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#parseObject(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.parseObject(java.lang.String, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -669,9 +1098,26 @@
         <Parameter Name="context" Type="Android.Icu.Text.DisplayContext" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The DisplayContext value to set.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Set a particular DisplayContext value in the formatter,
+            such as CAPITALIZATION_FOR_STANDALONE.</summary>
+        <remarks>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Set a particular DisplayContext value in the formatter,
+            such as CAPITALIZATION_FOR_STANDALONE. This causes the formatted
+            result to be capitalized appropriately for the context in which
+            it is intended to be used, considering both the locale and the
+            type of field at the beginning of the formatted result.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#setContext(android.icu.text.DisplayContext)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.setContext(android.icu.text.DisplayContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -724,6 +1170,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -768,10 +1218,29 @@
         <ReturnType>Android.Icu.Util.TimeZone</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="zone">The new TimeZone, will be cloned for use by this DateIntervalFormat.</param>
+        <summary>Get the TimeZone -or- Set the TimeZone for the calendar used by this DateIntervalFormat object.</summary>
+        <value>A copy of the TimeZone associated with this date interval formatter.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Get the TimeZone</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getTimeZone()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getTimeZone()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the TimeZone for the calendar used by this DateIntervalFormat object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#setTimeZone(android.icu.util.TimeZone)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.setTimeZone(android.icu.util.TimeZone)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

@@ -17,19 +17,77 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/util/IslamicCalendar", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>IslamicCalendar</c> is a subclass of <c>Calendar</c>
+            that that implements the Islamic civil and religious calendars.</summary>
     <remarks>
       <para>
+        <c>IslamicCalendar</c> is a subclass of <c>Calendar</c>
+            that that implements the Islamic civil and religious calendars.  It
+            is used as the civil calendar in most of the Arab world and the
+            liturgical calendar of the Islamic faith worldwide.  This calendar
+            is also known as the "Hijri" calendar, since it starts at the time
+            of Mohammed's emigration (or "hijra") to Medinah on Thursday,
+            July 15, 622 AD (Julian).</para>
+      <para>The Islamic calendar is strictly lunar, and thus an Islamic year of twelve
+            lunar months does not correspond to the solar year used by most other
+            calendar systems, including the Gregorian.  An Islamic year is, on average,
+            about 354 days long, so each successive Islamic year starts about 11 days
+            earlier in the corresponding Gregorian year.</para>
+      <para>Each month of the calendar starts when the new moon's crescent is visible
+            at sunset.  However, in order to keep the time fields in this class
+            synchronized with those of the other calendars and with local clock time,
+            we treat days and months as beginning at midnight,
+            roughly 6 hours after the corresponding sunset.</para>
+      <para>There are three main variants of the Islamic calendar in existence.  The first
+            is the &lt;em&gt;civil&lt;/em&gt; calendar, which uses a fixed cycle of alternating 29-
+            and 30-day months, with a leap day added to the last month of 11 out of
+            every 30 years.  This calendar is easily calculated and thus predictable in
+            advance, so it is used as the civil calendar in a number of Arab countries.
+            This is the default behavior of a newly-created <c>IslamicCalendar</c>
+            object.</para>
+      <para>The Islamic &lt;em&gt;religious&lt;/em&gt; calendar and Saudi Arabia's &lt;em&gt;Umm al-Qura&lt;/em&gt;
+            calendar, however, are based on the &lt;em&gt;observation&lt;/em&gt; of the crescent moon.
+            It is thus affected by the position at which the
+            observations are made, seasonal variations in the time of sunset, the
+            eccentricities of the moon's orbit, and even the weather at the observation
+            site.  This makes it impossible to calculate in advance, and it causes the
+            start of a month in the religious calendar to differ from the civil calendar
+            by up to three days.</para>
+      <para>Using astronomical calculations for the position of the sun and moon, the
+            moon's illumination, and other factors, it is possible to determine the start
+            of a lunar month with a fairly high degree of certainty.  However, these
+            calculations are extremely complicated and thus slow, so most algorithms,
+            including the one used here, are only approximations of the true astronomical
+            calculations.  At present, the approximations used in this class are fairly
+            simplistic; they will be improved in later versions of the code.</para>
+      <para>Like the Islamic religious calendar, &lt;em&gt;Umm al-Qura&lt;/em&gt; is also based
+            on the sighting method of the crescent moon but is standardized by Saudi Arabia.</para>
+      <para>The fixed-cycle &lt;em&gt;civil&lt;/em&gt; calendar is used.</para>
+      <para>This class should not be subclassed.</para>
+      <para>IslamicCalendar usually should be instantiated using
+            <c>android.icu.util.Calendar#getInstance(ULocale)</c> passing in a <c>ULocale</c>
+            with the tag <c>"@calendar=islamic"</c> or <c>"@calendar=islamic-civil"</c>
+            or <c>"@calendar=islamic-umalqura"</c>.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -54,9 +112,21 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constructs a default <c>IslamicCalendar</c> using the current time
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a default <c>IslamicCalendar</c> using the current time
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar()" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -84,10 +154,22 @@
         <Parameter Name="zone" Type="Android.Icu.Util.TimeZone" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">the given time zone.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the given time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the given time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(android.icu.util.TimeZone)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(android.icu.util.TimeZone)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -115,10 +197,22 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">the given ulocale.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the default time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the default time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -146,10 +240,22 @@
         <Parameter Name="date" Type="Java.Util.Date" />
       </Parameters>
       <Docs>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="date">The date to which the new calendar is set.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(java.util.Date)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -177,10 +283,22 @@
         <Parameter Name="aLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="aLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="aLocale">the given locale.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the default time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the default time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -209,11 +327,23 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">the given time zone.</param>
+        <param name="locale">the given ulocale.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the given time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the given time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(android.icu.util.TimeZone,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(android.icu.util.TimeZone, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -242,11 +372,23 @@
         <Parameter Name="aLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <param name="aLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">the given time zone.</param>
+        <param name="aLocale">the given locale.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the given time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> based on the current time
+            in the given time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(android.icu.util.TimeZone,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(android.icu.util.TimeZone, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -299,12 +441,25 @@
         <Parameter Name="date" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="year">the value used to set the <c>#YEAR YEAR</c> time field in the calendar.</param>
+        <param name="month">the value used to set the <c>#MONTH MONTH</c> time field in the calendar.
+                         Note that the month value is 0-based. e.g., 0 for Muharram.</param>
+        <param name="date">the value used to set the <c>#DATE DATE</c> time field in the calendar.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -337,15 +492,31 @@
         <Parameter Name="second" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="date">To be added.</param>
-        <param name="hour">To be added.</param>
-        <param name="minute">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="year">the value used to set the <c>#YEAR YEAR</c> time field in the calendar.</param>
+        <param name="month">the value used to set the <c>#MONTH MONTH</c> time field in the calendar.
+                         Note that the month value is 0-based. e.g., 0 for Muharram.</param>
+        <param name="date">the value used to set the <c>#DATE DATE</c> time field in the calendar.</param>
+        <param name="hour">the value used to set the <c>#HOUR_OF_DAY HOUR_OF_DAY</c> time field
+                         in the calendar.</param>
+        <param name="minute">the value used to set the <c>#MINUTE MINUTE</c> time field
+                         in the calendar.</param>
+        <param name="second">the value used to set the <c>#SECOND SECOND</c> time field
+                         in the calendar.</param>
+        <summary>Constructs an <c>IslamicCalendar</c> with the given date
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an <c>IslamicCalendar</c> with the given date
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#IslamicCalendar(int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.IslamicCalendar(int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -374,9 +545,19 @@
       </ReturnValue>
       <MemberValue>11</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Dhu al-Hijjah, the 12th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Dhu al-Hijjah, the 12th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#DHU_AL_HIJJAH" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.DHU_AL_HIJJAH</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -405,9 +586,19 @@
       </ReturnValue>
       <MemberValue>10</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Dhu al-Qi'dah, the 11th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Dhu al-Qi'dah, the 11th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#DHU_AL_QIDAH" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.DHU_AL_QIDAH</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -577,6 +768,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -614,9 +809,19 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Jumada al-awwal or (Jumada I), the 5th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Jumada al-awwal or (Jumada I), the 5th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#JUMADA_1" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.JUMADA_1</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -645,9 +850,19 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Jumada al-thani or (Jumada II), the 6th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Jumada al-thani or (Jumada II), the 6th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#JUMADA_2" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.JUMADA_2</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -676,9 +891,19 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Muharram, the 1st month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Muharram, the 1st month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#MUHARRAM" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.MUHARRAM</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -707,9 +932,19 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Rabi' al-awwal (or Rabi' I), the 3rd month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Rabi' al-awwal (or Rabi' I), the 3rd month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#RABI_1" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.RABI_1</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -738,9 +973,19 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Rabi' al-thani or (Rabi' II), the 4th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Rabi' al-thani or (Rabi' II), the 4th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#RABI_2" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.RABI_2</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -769,9 +1014,19 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Rajab, the 7th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Rajab, the 7th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#RAJAB" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.RAJAB</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -800,9 +1055,19 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Ramadan, the 9th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Ramadan, the 9th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#RAMADAN" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.RAMADAN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -831,9 +1096,19 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Safar, the 2nd month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Safar, the 2nd month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#SAFAR" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.SAFAR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -896,9 +1171,19 @@
       </ReturnValue>
       <MemberValue>7</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Sha'ban, the 8th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Sha'ban, the 8th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#SHABAN" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.SHABAN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -927,9 +1212,19 @@
       </ReturnValue>
       <MemberValue>9</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Shawwal, the 10th month of the Islamic year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Shawwal, the 10th month of the Islamic year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/IslamicCalendar#SHAWWAL" title="Reference documentation">Java documentation for <code>android.icu.util.IslamicCalendar.SHAWWAL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -982,6 +1277,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

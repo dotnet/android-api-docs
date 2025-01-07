@@ -17,13 +17,29 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/WifiNetworkSuggestion$Builder", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Builder used to create <c>WifiNetworkSuggestion</c> objects.</summary>
+    <remarks>
+      <para>Builder used to create <c>WifiNetworkSuggestion</c> objects.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiNetworkSuggestion.Builder</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -76,9 +92,62 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Create a network suggestion object for use in
+            <c>WifiManager#addNetworkSuggestions(List)</c>.</summary>
+        <returns>Instance of <c>WifiNetworkSuggestion</c></returns>
+        <remarks>
+          <para>Create a network suggestion object for use in
+            <c>WifiManager#addNetworkSuggestions(List)</c>.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; Apps can set a combination of SSID using <c>#setSsid(String)</c> and BSSID
+            using <c>#setBssid(MacAddress)</c> to provide more fine grained network suggestions to
+            the platform.</para>
+          <para>For example:
+            To provide credentials for one open, one WPA2, one WPA3 network with their
+            corresponding SSID's and one with Passpoint config:</para>
+          <code lang="text/java">{@code
+            final WifiNetworkSuggestion suggestion1 =
+                 new Builder()
+                 .setSsid("test111111")
+                 .build();
+            final WifiNetworkSuggestion suggestion2 =
+                 new Builder()
+                 .setSsid("test222222")
+                 .setWpa2Passphrase("test123456")
+                 .build();
+            final WifiNetworkSuggestion suggestion3 =
+                 new Builder()
+                 .setSsid("test333333")
+                 .setWpa3Passphrase("test6789")
+                 .build();
+            final PasspointConfiguration passpointConfig= new PasspointConfiguration();
+            // configure passpointConfig to include a valid Passpoint configuration
+            final WifiNetworkSuggestion suggestion4 =
+                 new Builder()
+                 .setPasspointConfig(passpointConfig)
+                 .build();
+            final List&lt;WifiNetworkSuggestion&gt; suggestionsList =
+                 new ArrayList&lt;WifiNetworkSuggestion&gt; { {
+                     add(suggestion1);
+                     add(suggestion2);
+                     add(suggestion3);
+                     add(suggestion4);
+                 } };
+            final WifiManager wifiManager =
+                 context.getSystemService(Context.WIFI_SERVICE);
+            wifiManager.addNetworkSuggestions(suggestionsList);
+            // ...
+            }</code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#build()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiNetworkSuggestion.Builder.build()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -798,6 +867,39 @@
       </Parameters>
       <Docs>
         <param name="passphrase">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetWifi7Enabled">
+      <MemberSignature Language="C#" Value="public Android.Net.Wifi.WifiNetworkSuggestion.Builder SetWifi7Enabled (bool enabled);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Net.Wifi.WifiNetworkSuggestion/Builder SetWifi7Enabled(bool enabled) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.Wifi.WifiNetworkSuggestion.Builder.SetWifi7Enabled(System.Boolean)" />
+      <MemberSignature Language="F#" Value="member this.SetWifi7Enabled : bool -&gt; Android.Net.Wifi.WifiNetworkSuggestion.Builder" Usage="builder.SetWifi7Enabled enabled" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setWifi7Enabled", "(Z)Landroid/net/wifi/WifiNetworkSuggestion$Builder;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setWifi7Enabled", "(Z)Landroid/net/wifi/WifiNetworkSuggestion$Builder;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Net.Wifi.WifiNetworkSuggestion+Builder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="enabled" Type="System.Boolean" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="enabled">To be added.</param>
         <summary>To be added.</summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>

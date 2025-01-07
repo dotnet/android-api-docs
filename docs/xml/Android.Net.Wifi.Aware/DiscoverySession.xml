@@ -30,19 +30,38 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/aware/DiscoverySession", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>A class representing a single publish or subscribe Aware session.</summary>
     <remarks>
+      <para>A class representing a single publish or subscribe Aware session. This object
+            will not be created directly - only its child classes are available:
+            <c>PublishDiscoverySession</c> and <c>SubscribeDiscoverySession</c>. This
+            class provides functionality common to both publish and subscribe discovery sessions:
+            &lt;ul&gt;
+                 &lt;li&gt;Sending messages: <c>#sendMessage(PeerHandle, int, byte[])</c> method.
+                 &lt;li&gt;Creating a network-specifier when requesting a Aware connection using
+                 <c>WifiAwareNetworkSpecifier.Builder</c>.
+            &lt;/ul&gt;</para>
+      <para>The <c>#close()</c> method must be called to destroy discovery sessions once they are
+            no longer needed.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -104,16 +123,47 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="password" Type="System.String" />
+        <Parameter Name="password" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="requestId">To be added.</param>
-        <param name="peerHandle">To be added.</param>
-        <param name="peerDeviceAlias">To be added.</param>
-        <param name="cipherSuite">To be added.</param>
-        <param name="password">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="requestId">Id to identify the received pairing session, obtained by
+                                   <c>DiscoverySessionCallback#onPairingSetupRequestReceived(PeerHandle,
+                                   int)</c></param>
+        <param name="peerHandle">The peer's handle for the pairing request. Must be a result of a
+                                   <c>DiscoverySessionCallback#onServiceDiscovered(ServiceDiscoveryInfo)</c>
+                                   or
+                                   <c>DiscoverySessionCallback#onMessageReceived(PeerHandle, byte[])</c>
+                                   events.</param>
+        <param name="peerDeviceAlias">The alias of paired device set by caller, will help caller to identify
+                                   the paired device.</param>
+        <param name="cipherSuite">The cipher suite to be used to encrypt the link.</param>
+        <param name="password">The password is used for the pairing setup. If set to empty or null,
+                                   opportunistic pairing will be used.</param>
+        <summary>Accept and respond to a Wi-Fi Aware Pairing setup request received from peer.</summary>
+        <remarks>
+          <para>Accept and respond to a Wi-Fi Aware Pairing setup request received from peer. This is the
+            response to the
+            <c>DiscoverySessionCallback#onPairingSetupRequestReceived(PeerHandle, int)</c>
+            When the Aware Pairing setup is finished, both sides will receive
+            <c>DiscoverySessionCallback#onPairingSetupSucceeded(PeerHandle, String)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#acceptPairingRequest(int,%20android.net.wifi.aware.PeerHandle,%20java.lang.String,%20int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.acceptPairingRequest(int, android.net.wifi.aware.PeerHandle, java.lang.String, int, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Close">
@@ -144,9 +194,28 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Destroy the publish or subscribe session - free any resources, and stop
+            transmitting packets on-air (for an active session) or listening for
+            matches (for a passive session).</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Destroy the publish or subscribe session - free any resources, and stop
+            transmitting packets on-air (for an active session) or listening for
+            matches (for a passive session). The session may not be used for any
+            additional operations after its destruction.</para>
+          <para>This operation must be done on a session which is no longer needed. Otherwise system
+                resources will continue to be utilized until the application exits. The only
+                exception is a session for which we received a termination callback,
+                <c>DiscoverySessionCallback#onSessionTerminated()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#close()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.close()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -176,16 +245,56 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.NetworkSpecifier</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="peerHandle">The peer's handle obtained through
+            <c>DiscoverySessionCallback#onServiceDiscovered(PeerHandle, byte[], java.util.List)</c>
+                              or
+                              <c>DiscoverySessionCallback#onMessageReceived(PeerHandle, byte[])</c>.
+                              On a RESPONDER this value is used to gate the acceptance of a connection
+                              request from only that peer.</param>
+        <summary>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an unencrypted WiFi Aware connection (link) to the specified peer.</summary>
+        <returns>A <c>NetworkSpecifier</c> to be used to construct
+            <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> to pass to
+            <c>android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest,
+            android.net.ConnectivityManager.NetworkCallback)</c>
+            [or other varieties of that API].</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an unencrypted WiFi Aware connection (link) to the specified peer. The
+            <c>android.net.NetworkRequest.Builder#addTransportType(int)</c> should be set to
+            <c>android.net.NetworkCapabilities#TRANSPORT_WIFI_AWARE</c>.</para>
+          <para>This method should be used when setting up a connection with a peer discovered through Aware
+            discovery or communication (in such scenarios the MAC address of the peer is shielded by
+            an opaque peer ID handle). If an Aware connection is needed to a peer discovered using other
+            OOB (out-of-band) mechanism then use the alternative
+            <c>WifiAwareSession#createNetworkSpecifierOpen(int, byte[])</c> method - which uses the
+            peer's MAC address.</para>
+          <para>Note: per the Wi-Fi Aware specification the roles are fixed - a Subscriber is an INITIATOR
+            and a Publisher is a RESPONDER.</para>
+          <para>To set up an encrypted link use the
+            <c>#createNetworkSpecifierPassphrase(PeerHandle, String)</c> API.</para>
+          <para>This member is deprecated. Use the replacement <c>WifiAwareNetworkSpecifier.Builder</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#createNetworkSpecifierOpen(android.net.wifi.aware.PeerHandle)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.createNetworkSpecifierOpen(android.net.wifi.aware.PeerHandle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -215,18 +324,59 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.NetworkSpecifier</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
         <Parameter Name="passphrase" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="passphrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="peerHandle">The peer's handle obtained through
+            <c>DiscoverySessionCallback#onServiceDiscovered(PeerHandle,
+            byte[], java.util.List)</c> or
+            <c>DiscoverySessionCallback#onMessageReceived(PeerHandle,
+            byte[])</c>. On a RESPONDER this value is used to gate the acceptance of a connection request
+                              from only that peer.</param>
+        <param name="passphrase">The passphrase to be used to encrypt the link. The PMK is generated from
+                              the passphrase. Use the
+                              <c>#createNetworkSpecifierOpen(PeerHandle)</c> API to
+                              specify an open (unencrypted) link.</param>
+        <summary>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an encrypted WiFi Aware connection (link) to the specified peer.</summary>
+        <returns>A <c>NetworkSpecifier</c> to be used to construct
+            <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> to pass to
+            <c>android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest,
+            android.net.ConnectivityManager.NetworkCallback)</c>
+            [or other varieties of that API].</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an encrypted WiFi Aware connection (link) to the specified peer. The
+            <c>android.net.NetworkRequest.Builder#addTransportType(int)</c> should be set to
+            <c>android.net.NetworkCapabilities#TRANSPORT_WIFI_AWARE</c>.</para>
+          <para>This method should be used when setting up a connection with a peer discovered through Aware
+            discovery or communication (in such scenarios the MAC address of the peer is shielded by
+            an opaque peer ID handle). If an Aware connection is needed to a peer discovered using other
+            OOB (out-of-band) mechanism then use the alternative
+            <c>WifiAwareSession#createNetworkSpecifierPassphrase(int, byte[], String)</c> method -
+            which uses the peer's MAC address.</para>
+          <para>Note: per the Wi-Fi Aware specification the roles are fixed - a Subscriber is an INITIATOR
+            and a Publisher is a RESPONDER.</para>
+          <para>This member is deprecated. Use the replacement <c>WifiAwareNetworkSpecifier.Builder</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#createNetworkSpecifierPassphrase(android.net.wifi.aware.PeerHandle,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.createNetworkSpecifierPassphrase(android.net.wifi.aware.PeerHandle, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -265,10 +415,32 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="method">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The peer's handle for the pairing request. Must be a result of an
+            <c>DiscoverySessionCallback#onServiceDiscovered(ServiceDiscoveryInfo)</c> or
+            <c>DiscoverySessionCallback#onMessageReceived(PeerHandle, byte[])</c> events.</param>
+        <param name="method">one of the AwarePairingConfig#PAIRING_BOOTSTRAPPING_ values, should be one of
+                          the methods received from <c>ServiceDiscoveryInfo#getPairingConfig()</c><c>AwarePairingConfig#getBootstrappingMethods()</c></param>
+        <summary>Initiate a Wi-Fi Aware bootstrapping setup request to create a pairing with the target peer.</summary>
+        <remarks>
+          <para>Initiate a Wi-Fi Aware bootstrapping setup request to create a pairing with the target peer.
+            The Aware bootstrapping request should be done in the context of a discovery session -
+            after a publish/subscribe
+            <c>DiscoverySessionCallback#onServiceDiscovered(ServiceDiscoveryInfo)</c> event is received.
+            The peer will check if the method can be fulfilled by
+            <c>AwarePairingConfig.Builder#setBootstrappingMethods(int)</c>
+            When the Aware Bootstrapping setup finished, both side will receive
+            <c>DiscoverySessionCallback#onBootstrappingSucceeded(PeerHandle, int)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#initiateBootstrappingRequest(android.net.wifi.aware.PeerHandle,%20int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.initiateBootstrappingRequest(android.net.wifi.aware.PeerHandle, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="InitiatePairingRequest">
@@ -305,15 +477,47 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="password" Type="System.String" />
+        <Parameter Name="password" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="peerDeviceAlias">To be added.</param>
-        <param name="cipherSuite">To be added.</param>
-        <param name="password">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The peer's handle for the pairing request. Must be a result of a
+                                   <c>DiscoverySessionCallback#onServiceDiscovered(ServiceDiscoveryInfo)</c>
+                                   or
+                                   <c>DiscoverySessionCallback#onMessageReceived(PeerHandle, byte[])</c>
+                                   events.</param>
+        <param name="peerDeviceAlias">The alias of paired device set by caller, will help caller to identify
+                                   the paired device.</param>
+        <param name="cipherSuite">The cipher suite to be used to encrypt the link.</param>
+        <param name="password">The password used for the pairing setup. If set to empty or null,
+                                   opportunistic pairing will be used.</param>
+        <summary>Initiate a Wi-Fi Aware Pairing setup request to create a pairing with the target peer.</summary>
+        <remarks>
+          <para>Initiate a Wi-Fi Aware Pairing setup request to create a pairing with the target peer.
+            The Aware pairing request should be done in the context of a discovery session -
+            after a publish/subscribe
+            <c>DiscoverySessionCallback#onServiceDiscovered(ServiceDiscoveryInfo)</c> event is received.
+            The peer will get a callback indicating a message was received using
+            <c>DiscoverySessionCallback#onPairingSetupRequestReceived(PeerHandle, int)</c>.
+            When the Aware Pairing setup is finished, both sides will receive
+            <c>DiscoverySessionCallback#onPairingSetupSucceeded(PeerHandle, String)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#initiatePairingRequest(android.net.wifi.aware.PeerHandle,%20java.lang.String,%20int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.initiatePairingRequest(android.net.wifi.aware.PeerHandle, java.lang.String, int, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -378,10 +582,30 @@
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
       </Parameters>
       <Docs>
-        <param name="requestId">To be added.</param>
-        <param name="peerHandle">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="requestId">Id to identify the received pairing session, get by
+                                   <c>DiscoverySessionCallback#onPairingSetupRequestReceived(PeerHandle,
+                                   int)</c></param>
+        <param name="peerHandle">The peer's handle for the pairing request. Must be a result of a
+                                   <c>DiscoverySessionCallback#onServiceDiscovered(ServiceDiscoveryInfo)</c>
+                                   or
+                                   <c>DiscoverySessionCallback#onMessageReceived(PeerHandle, byte[])</c>
+                                   events.</param>
+        <summary>Reject a Wi-Fi Aware Pairing setup request received from peer.</summary>
+        <remarks>
+          <para>Reject a Wi-Fi Aware Pairing setup request received from peer. This is the
+            response to the
+            <c>DiscoverySessionCallback#onPairingSetupRequestReceived(PeerHandle, int)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#rejectPairingRequest(int,%20android.net.wifi.aware.PeerHandle)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.rejectPairingRequest(int, android.net.wifi.aware.PeerHandle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SendMessage">
@@ -410,15 +634,50 @@
       <Parameters>
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
         <Parameter Name="messageId" Type="System.Int32" />
-        <Parameter Name="message" Type="System.Byte[]" />
+        <Parameter Name="message" Type="System.Byte[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="messageId">To be added.</param>
-        <param name="message">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="peerHandle">The peer's handle for the message. Must be a result of an
+            <c>DiscoverySessionCallback#onServiceDiscovered(PeerHandle,
+            byte[], java.util.List)</c> or
+            <c>DiscoverySessionCallback#onMessageReceived(PeerHandle,
+            byte[])</c> events.</param>
+        <param name="messageId">An arbitrary integer used by the caller to identify the message. The same
+                       integer ID will be returned in the callbacks indicating message send success or
+                       failure. The <c>messageId</c> is not used internally by the Aware service - it
+                             can be arbitrary and non-unique.</param>
+        <param name="message">The message to be transmitted.</param>
+        <summary>Sends a message to the specified destination.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sends a message to the specified destination. Aware messages are transmitted in the context
+            of a discovery session - executed subsequent to a publish/subscribe
+            <c>DiscoverySessionCallback#onServiceDiscovered(PeerHandle,
+            byte[], java.util.List)</c> event.</para>
+          <para>Aware messages are not guaranteed delivery. Callbacks on
+                <c>DiscoverySessionCallback</c> indicate message was transmitted successfully,
+                <c>DiscoverySessionCallback#onMessageSendSucceeded(int)</c>, or transmission
+                failed (possibly after several retries) -
+                <c>DiscoverySessionCallback#onMessageSendFailed(int)</c>.</para>
+          <para>The peer will get a callback indicating a message was received using
+            <c>DiscoverySessionCallback#onMessageReceived(PeerHandle,
+            byte[])</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#sendMessage(android.net.wifi.aware.PeerHandle,%20int,%20byte[])" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySession.sendMessage(android.net.wifi.aware.PeerHandle, int, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

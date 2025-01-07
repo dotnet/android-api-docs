@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/hardware/SensorManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/hardware/SensorManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>SensorManager lets you access the device's <c>android.hardware.Sensor
@@ -27,11 +31,9 @@
             activity is paused. Failing to do so can drain the battery in just a few
             hours. Note that the system will <i>not</i> disable sensors automatically when
             the screen turns off.</para>
-      <para>&lt;p class="note"&gt;
-            Note: Don't use this mechanism with a Trigger Sensor, have a look
+      <para>Note: Don't use this mechanism with a Trigger Sensor, have a look
             at <c>TriggerEventListener</c>. <c>Sensor#TYPE_SIGNIFICANT_MOTION</c>
-            is an example of a trigger sensor.
-            &lt;/p&gt;</para>
+            is an example of a trigger sensor.</para>
       <para>In order to access sensor data at high sampling rates (i.e. greater than 200 Hz
             for <c>SensorEventListener</c> and greater than <c>SensorDirectChannel#RATE_NORMAL</c>
             for <c>SensorDirectChannel</c>), apps must declare
@@ -189,7 +191,7 @@
           <para>Create a sensor direct channel backed by shared memory wrapped in HardwareBuffer object.
             
             The resulting channel can be used for delivering sensor events to native code, other
-            processes, GPU/DSP or other co-processors without CPU intervention. This is the recommanded
+            processes, GPU/DSP or other co-processors without CPU intervention. This is the recommended
             for high performance sensor applications that use high sensor rates (e.g. greater than 200Hz)
             and cares about sensor event latency.
             
@@ -243,7 +245,7 @@
           <para>Create a sensor direct channel backed by shared memory wrapped in MemoryFile object.
             
             The resulting channel can be used for delivering sensor events to native code, other
-            processes, GPU/DSP or other co-processors without CPU intervention. This is the recommanded
+            processes, GPU/DSP or other co-processors without CPU intervention. This is the recommended
             for high performance sensor applications that use high sensor rates (e.g. greater than 200Hz)
             and cares about sensor event latency.
             
@@ -295,9 +297,9 @@
                     listener or flush on one of the sensors fails.</returns>
         <remarks>
           <para>Flushes the FIFO of all the sensors registered for this listener. If there are events
-            in the FIFO of the sensor, they are returned as if the maxReportLantecy of the FIFO has
+            in the FIFO of the sensor, they are returned as if the maxReportLatency of the FIFO has
             expired. Events are returned in the usual way through the SensorEventListener.
-            This call doesn't affect the maxReportLantecy for this sensor. This call is asynchronous and
+            This call doesn't affect the maxReportLatency for this sensor. This call is asynchronous and
             returns immediately.
             <c>android.hardware.SensorEventListener2#onFlushCompleted onFlushCompleted</c> is called
             after all the events in the batch at the time of calling this method have been delivered
@@ -333,6 +335,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Android.Hardware.SensorManager</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
@@ -577,10 +585,8 @@
                 &lt;li&gt;getDefaultSensor(<c>Sensor#TYPE_PROXIMITY</c>, true) returns a wake-up proximity
                 sensor which is the same as the Sensor returned by <c>#getDefaultSensor(int)</c>. &lt;/li&gt;
             &lt;/ul&gt;</para>
-          <para>&lt;p class="note"&gt;
-            Note: Sensors like <c>Sensor#TYPE_PROXIMITY</c> and <c>Sensor#TYPE_SIGNIFICANT_MOTION</c>
-            are declared as wake-up sensors by default.
-            &lt;/p&gt;</para>
+          <para>Note: Sensors like <c>Sensor#TYPE_PROXIMITY</c> and <c>Sensor#TYPE_SIGNIFICANT_MOTION</c>
+            are declared as wake-up sensors by default.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/SensorManager#getDefaultSensor(int,%20boolean)" title="Reference documentation">Java documentation for <code>android.hardware.SensorManager.getDefaultSensor(int, boolean)</code>.</a>
@@ -617,6 +623,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Hardware.Sensor&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="type" Type="Android.Hardware.SensorType">
@@ -635,13 +647,10 @@
         <remarks>
           <para>Use this method to get a list of available dynamic sensors of a certain type.
             Make multiple calls to get sensors of different types or use
-            <c>android.hardware.Sensor#TYPE_ALL Sensor.TYPE_ALL</c> to get all dynamic sensors.
-            
-            &lt;p class="note"&gt;
-            NOTE: Both wake-up and non wake-up sensors matching the given type are
+            <c>android.hardware.Sensor#TYPE_ALL Sensor.TYPE_ALL</c> to get all dynamic sensors.</para>
+          <para>NOTE: Both wake-up and non wake-up sensors matching the given type are
             returned. Check <c>Sensor#isWakeUpSensor()</c> to know the wake-up properties
-            of the returned <c>Sensor</c>.
-            &lt;/p&gt;</para>
+            of the returned <c>Sensor</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/SensorManager#getDynamicSensorList(int)" title="Reference documentation">Java documentation for <code>android.hardware.SensorManager.getDynamicSensorList(int)</code>.</a>
@@ -1030,6 +1039,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Hardware.Sensor&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="type" Type="Android.Hardware.SensorType">
@@ -1051,13 +1066,10 @@
             <c>android.hardware.Sensor#TYPE_ALL Sensor.TYPE_ALL</c> to get all the
             sensors. Note that the <c>android.hardware.Sensor#getName()</c> is
             expected to yield a value that is unique across any sensors that return
-            the same value for <c>android.hardware.Sensor#getType()</c>.
-            
-            &lt;p class="note"&gt;
-            NOTE: Both wake-up and non wake-up sensors matching the given type are
+            the same value for <c>android.hardware.Sensor#getType()</c>.</para>
+          <para>NOTE: Both wake-up and non wake-up sensors matching the given type are
             returned. Check <c>Sensor#isWakeUpSensor()</c> to know the wake-up properties
-            of the returned <c>Sensor</c>.
-            &lt;/p&gt;</para>
+            of the returned <c>Sensor</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/SensorManager#getSensorList(int)" title="Reference documentation">Java documentation for <code>android.hardware.SensorManager.getSensorList(int)</code>.</a>
@@ -1629,6 +1641,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2278,12 +2294,10 @@
             whether a sensor is a wake-up sensor. See
             <c>#registerListener(SensorEventListener, Sensor, int, int)</c> for information on how to
             reduce the power impact of registering to wake-up sensors.</para>
-          <para>&lt;p class="note"&gt;
-            Note: Don't use this method with one-shot trigger sensors such as
+          <para>Note: Don't use this method with one-shot trigger sensors such as
             <c>Sensor#TYPE_SIGNIFICANT_MOTION</c>. Use
             <c>#requestTriggerSensor(TriggerEventListener, Sensor)</c> instead. Use
-            <c>Sensor#getReportingMode()</c> to obtain the reporting mode of a given sensor.
-            &lt;/p&gt;</para>
+            <c>Sensor#getReportingMode()</c> to obtain the reporting mode of a given sensor.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/SensorManager#registerListener(android.hardware.SensorEventListener,%20android.hardware.Sensor,%20int)" title="Reference documentation">Java documentation for <code>android.hardware.SensorManager.registerListener(android.hardware.SensorEventListener, android.hardware.Sensor, int)</code>.</a>
@@ -2423,10 +2437,9 @@
             sensor. Events are delivered in continuous mode as soon as they are available. To reduce the
             power consumption, applications can use
             <c>#registerListener(SensorEventListener, Sensor, int, int)</c> instead and specify a
-            positive non-zero maximum reporting latency.
-            &lt;p class="note"&gt;
-            &lt;/p&gt;
-            Note: Don't use this method with a one shot trigger sensor such as
+            positive non-zero maximum reporting latency.</para>
+          <para />
+          <para>Note: Don't use this method with a one shot trigger sensor such as
             <c>Sensor#TYPE_SIGNIFICANT_MOTION</c>. Use
             <c>#requestTriggerSensor(TriggerEventListener, Sensor)</c> instead. &lt;/p&gt;</para>
           <para>
@@ -2521,9 +2534,8 @@
             especially important when registering to wake-up sensors, for which each interrupt causes the
             AP to wake up if it was in suspend mode. See <c>Sensor#isWakeUpSensor()</c> for more
             information on wake-up sensors.</para>
-          <para>&lt;p class="note"&gt;
-            &lt;/p&gt;
-            Note: Don't use this method with one-shot trigger sensors such as
+          <para />
+          <para>Note: Don't use this method with one-shot trigger sensors such as
             <c>Sensor#TYPE_SIGNIFICANT_MOTION</c>. Use
             <c>#requestTriggerSensor(TriggerEventListener, Sensor)</c> instead. &lt;/p&gt;</para>
           <para>
@@ -2657,9 +2669,9 @@
       <Docs>
         <param name="inR">the rotation matrix to be transformed. Usually it is the matrix
                    returned by <c>#getRotationMatrix</c>.</param>
-        <param name="X">defines the axis of the new cooridinate system that coincide with the X axis of the
+        <param name="X">defines the axis of the new coordinate system that coincide with the X axis of the
                    original coordinate system.</param>
-        <param name="Y">defines the axis of the new cooridinate system that coincide with the Y axis of the
+        <param name="Y">defines the axis of the new coordinate system that coincide with the Y axis of the
                    original coordinate system.</param>
         <param name="outR">the transformed rotation matrix. inR and outR should not be the same
                    array.</param>
@@ -2897,6 +2909,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -3076,13 +3092,10 @@
         <param name="sensor">the sensor to unregister from</param>
         <summary>Unregisters a listener for the sensors with which it is registered.</summary>
         <remarks>
-          <para>Unregisters a listener for the sensors with which it is registered.
-            
-            &lt;p class="note"&gt;
-            Note: Don't use this method with a one shot trigger sensor such as
+          <para>Unregisters a listener for the sensors with which it is registered.</para>
+          <para>Note: Don't use this method with a one shot trigger sensor such as
             <c>Sensor#TYPE_SIGNIFICANT_MOTION</c>.
-            Use <c>#cancelTriggerSensor(TriggerEventListener, Sensor)</c> instead.
-            &lt;/p&gt;</para>
+            Use <c>#cancelTriggerSensor(TriggerEventListener, Sensor)</c> instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/SensorManager#unregisterListener(android.hardware.SensorEventListener,%20android.hardware.Sensor)" title="Reference documentation">Java documentation for <code>android.hardware.SensorManager.unregisterListener(android.hardware.SensorEventListener, android.hardware.Sensor)</code>.</a>

@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothHidDevice", ApiSince=28, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
     </Attribute>
@@ -37,6 +41,9 @@
   <Docs>
     <summary>Provides the public APIs to control the Bluetooth HID Device profile.</summary>
     <remarks>
+      <para>Provides the public APIs to control the Bluetooth HID Device profile.</para>
+      <para>BluetoothHidDevice is a proxy object for controlling the Bluetooth HID Device Service via IPC.
+            Use <c>BluetoothAdapter#getProfileProxy</c> to get the BluetoothHidDevice proxy object.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice</code>.</a>
@@ -85,6 +92,16 @@
       <Docs>
         <summary>Intent used to broadcast the change in connection state of the Input Host profile.</summary>
         <remarks>
+          <para>Intent used to broadcast the change in connection state of the Input Host profile.</para>
+          <para>This intent will have 3 extras:
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>#EXTRA_STATE</c> - The current state of the profile.
+              &lt;li&gt;<c>#EXTRA_PREVIOUS_STATE</c>- The previous state of the profile.
+              &lt;li&gt;<c>BluetoothDevice#EXTRA_DEVICE</c> - The remote device.
+            &lt;/ul&gt;</para>
+          <para>
+            <c>#EXTRA_STATE</c> or <c>#EXTRA_PREVIOUS_STATE</c> can be any of <c>#STATE_DISCONNECTED</c>, <c>#STATE_CONNECTING</c>, <c>#STATE_CONNECTED</c>, <c>#STATE_DISCONNECTING</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#ACTION_CONNECTION_STATE_CHANGED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.ACTION_CONNECTION_STATE_CHANGED</code>.</a>
@@ -133,6 +150,10 @@
         <summary>Initiates connection to host which is currently paired with this device.</summary>
         <returns>true if the command is successfully sent; otherwise false.</returns>
         <remarks>
+          <para>Initiates connection to host which is currently paired with this device. If the application
+            is not registered, #connect(BluetoothDevice) will fail. The connection state should be
+            tracked by the application by handling callback from Callback#onConnectionStateChanged. The
+            connection state is not related to the return value of this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#connect(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.connect(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -161,6 +182,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
         </Attribute>
@@ -180,6 +205,7 @@
         <summary>To be added</summary>
         <value>To be added.</value>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#getConnectedDevices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.getConnectedDevices()</code>.</a>
@@ -228,6 +254,9 @@
         <summary>Disconnects from currently connected host.</summary>
         <returns>true if the command is successfully sent; otherwise false.</returns>
         <remarks>
+          <para>Disconnects from currently connected host. The connection state should be tracked by the
+            application by handling callback from Callback#onConnectionStateChanged. The connection state
+            is not related to the return value of this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#disconnect(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.disconnect(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -273,6 +302,7 @@
       <Docs>
         <summary>Constant representing error response for Set Report due to "invalid parameter".</summary>
         <remarks>
+          <para>Constant representing error response for Set Report due to "invalid parameter".</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#ERROR_RSP_INVALID_PARAM" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.ERROR_RSP_INVALID_PARAM</code>.</a>
@@ -318,6 +348,7 @@
       <Docs>
         <summary>Constant representing error response for Set Report due to "invalid report ID".</summary>
         <remarks>
+          <para>Constant representing error response for Set Report due to "invalid report ID".</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#ERROR_RSP_INVALID_RPT_ID" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.ERROR_RSP_INVALID_RPT_ID</code>.</a>
@@ -363,6 +394,7 @@
       <Docs>
         <summary>Constant representing error response for Set Report due to "not ready".</summary>
         <remarks>
+          <para>Constant representing error response for Set Report due to "not ready".</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#ERROR_RSP_NOT_READY" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.ERROR_RSP_NOT_READY</code>.</a>
@@ -408,6 +440,7 @@
       <Docs>
         <summary>Constant representing success response for Set Report.</summary>
         <remarks>
+          <para>Constant representing success response for Set Report.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#ERROR_RSP_SUCCESS" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.ERROR_RSP_SUCCESS</code>.</a>
@@ -453,6 +486,7 @@
       <Docs>
         <summary>Constant representing error response for Set Report with unknown reason.</summary>
         <remarks>
+          <para>Constant representing error response for Set Report with unknown reason.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#ERROR_RSP_UNKNOWN" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.ERROR_RSP_UNKNOWN</code>.</a>
@@ -498,6 +532,7 @@
       <Docs>
         <summary>Constant representing error response for Set Report due to "unsupported request".</summary>
         <remarks>
+          <para>Constant representing error response for Set Report due to "unsupported request".</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#ERROR_RSP_UNSUPPORTED_REQ" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.ERROR_RSP_UNSUPPORTED_REQ</code>.</a>
@@ -549,6 +584,7 @@
         <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#getConnectionState(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.getConnectionState(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -591,6 +627,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Bluetooth.BluetoothDevice&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="states" Type="Android.Bluetooth.ProfileState[]">
@@ -607,6 +649,7 @@
         <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#getDevicesMatchingConnectionStates(int[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.getDevicesMatchingConnectionStates(int[])</code>.</a>
@@ -684,6 +727,7 @@
       <Docs>
         <summary>Constant representing boot protocol mode used set by host.</summary>
         <remarks>
+          <para>Constant representing boot protocol mode used set by host. Default is always <c>#PROTOCOL_REPORT_MODE</c> unless notified otherwise.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#PROTOCOL_BOOT_MODE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.PROTOCOL_BOOT_MODE</code>.</a>
@@ -729,6 +773,7 @@
       <Docs>
         <summary>Constant representing report protocol mode used set by host.</summary>
         <remarks>
+          <para>Constant representing report protocol mode used set by host. Default is always <c>#PROTOCOL_REPORT_MODE</c> unless notified otherwise.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#PROTOCOL_REPORT_MODE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.PROTOCOL_REPORT_MODE</code>.</a>
@@ -851,6 +896,7 @@
         <summary>Sends report to remote host as reply for GET_REPORT request from <c>Callback#onGetReport(BluetoothDevice, byte, byte, int)</c>.</summary>
         <returns>true if the command is successfully sent; otherwise false.</returns>
         <remarks>
+          <para>Sends report to remote host as reply for GET_REPORT request from <c>Callback#onGetReport(BluetoothDevice, byte, byte, int)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#replyReport(android.bluetooth.BluetoothDevice,%20byte,%20byte,%20byte[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.replyReport(android.bluetooth.BluetoothDevice, byte, byte, byte[])</code>.</a>
@@ -901,6 +947,7 @@
         <summary>Sends error handshake message as reply for invalid SET_REPORT request from <c>Callback#onSetReport(BluetoothDevice, byte, byte, byte[])</c>.</summary>
         <returns>true if the command is successfully sent; otherwise false.</returns>
         <remarks>
+          <para>Sends error handshake message as reply for invalid SET_REPORT request from <c>Callback#onSetReport(BluetoothDevice, byte, byte, byte[])</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#reportError(android.bluetooth.BluetoothDevice,%20byte)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.reportError(android.bluetooth.BluetoothDevice, byte)</code>.</a>
@@ -946,6 +993,7 @@
       <Docs>
         <summary>Constant representing HID Feature Report type.</summary>
         <remarks>
+          <para>Constant representing HID Feature Report type.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#REPORT_TYPE_FEATURE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.REPORT_TYPE_FEATURE</code>.</a>
@@ -991,6 +1039,7 @@
       <Docs>
         <summary>Constant representing HID Input Report type.</summary>
         <remarks>
+          <para>Constant representing HID Input Report type.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#REPORT_TYPE_INPUT" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.REPORT_TYPE_INPUT</code>.</a>
@@ -1036,6 +1085,7 @@
       <Docs>
         <summary>Constant representing HID Output Report type.</summary>
         <remarks>
+          <para>Constant representing HID Output Report type.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#REPORT_TYPE_OUTPUT" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.REPORT_TYPE_OUTPUT</code>.</a>
@@ -1089,6 +1139,7 @@
         <summary>Sends report to remote host using interrupt channel.</summary>
         <returns>true if the command is successfully sent; otherwise false.</returns>
         <remarks>
+          <para>Sends report to remote host using interrupt channel.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#sendReport(android.bluetooth.BluetoothDevice,%20int,%20byte[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.sendReport(android.bluetooth.BluetoothDevice, int, byte[])</code>.</a>
@@ -1134,6 +1185,7 @@
       <Docs>
         <summary>Constant representing combo keyboard and mouse subclass.</summary>
         <remarks>
+          <para>Constant representing combo keyboard and mouse subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS1_COMBO" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS1_COMBO</code>.</a>
@@ -1179,6 +1231,7 @@
       <Docs>
         <summary>Constant representing keyboard subclass.</summary>
         <remarks>
+          <para>Constant representing keyboard subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS1_KEYBOARD" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS1_KEYBOARD</code>.</a>
@@ -1224,6 +1277,7 @@
       <Docs>
         <summary>Constant representing mouse subclass.</summary>
         <remarks>
+          <para>Constant representing mouse subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS1_MOUSE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS1_MOUSE</code>.</a>
@@ -1269,6 +1323,7 @@
       <Docs>
         <summary>Constant representing unspecified HID device subclass.</summary>
         <remarks>
+          <para>Constant representing unspecified HID device subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS1_NONE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS1_NONE</code>.</a>
@@ -1314,6 +1369,7 @@
       <Docs>
         <summary>Constant representing card reader subclass.</summary>
         <remarks>
+          <para>Constant representing card reader subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS2_CARD_READER" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS2_CARD_READER</code>.</a>
@@ -1359,6 +1415,7 @@
       <Docs>
         <summary>Constant representing digitizer tablet subclass.</summary>
         <remarks>
+          <para>Constant representing digitizer tablet subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS2_DIGITIZER_TABLET" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS2_DIGITIZER_TABLET</code>.</a>
@@ -1404,6 +1461,7 @@
       <Docs>
         <summary>Constant representing gamepad subclass.</summary>
         <remarks>
+          <para>Constant representing gamepad subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS2_GAMEPAD" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS2_GAMEPAD</code>.</a>
@@ -1449,6 +1507,7 @@
       <Docs>
         <summary>Constant representing joystick subclass.</summary>
         <remarks>
+          <para>Constant representing joystick subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS2_JOYSTICK" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS2_JOYSTICK</code>.</a>
@@ -1494,6 +1553,7 @@
       <Docs>
         <summary>Constant representing remote control subclass.</summary>
         <remarks>
+          <para>Constant representing remote control subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS2_REMOTE_CONTROL" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS2_REMOTE_CONTROL</code>.</a>
@@ -1539,6 +1599,7 @@
       <Docs>
         <summary>Constant representing sensing device subclass.</summary>
         <remarks>
+          <para>Constant representing sensing device subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS2_SENSING_DEVICE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS2_SENSING_DEVICE</code>.</a>
@@ -1584,6 +1645,7 @@
       <Docs>
         <summary>Constant representing uncategorized HID device subclass.</summary>
         <remarks>
+          <para>Constant representing uncategorized HID device subclass.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#SUBCLASS2_UNCATEGORIZED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.SUBCLASS2_UNCATEGORIZED</code>.</a>
@@ -1687,6 +1749,12 @@
         <summary>Unregisters application.</summary>
         <returns>true if the command is successfully sent; otherwise false.</returns>
         <remarks>
+          <para>Unregisters application. Active connection will be disconnected and no new connections will
+            be allowed until registered again using <c>#registerApp
+            (BluetoothHidDeviceAppQosSettings, BluetoothHidDeviceAppQosSettings,
+            BluetoothHidDeviceAppQosSettings, Executor, Callback)</c>. The registration status should be
+            tracked by the application by handling callback from Callback#onAppStatusChanged. The app
+            registration status is not related to the return value of this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice#unregisterApp()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.unregisterApp()</code>.</a>

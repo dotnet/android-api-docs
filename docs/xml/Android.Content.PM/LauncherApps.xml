@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/content/pm/LauncherApps", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/content/pm/LauncherApps", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>Class for retrieving a list of launchable activities for the current user and any associated
@@ -194,6 +198,14 @@
             of the installer. Callers need to either declare &amp;lt;queries&amp;gt; element with the specific
             package name in the app's manifest, have the android.permission.QUERY_ALL_PACKAGES, or be
             the session owner to retrieve these details.</para>
+          <para>To receive callbacks for hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#getAllPackageInstallerSessions()" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.getAllPackageInstallerSessions()</code>.</a>
@@ -269,6 +281,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Content.PM.LauncherActivityInfo&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="packageName" Type="System.String" />
@@ -286,10 +304,9 @@
             <c>Intent#CATEGORY_LAUNCHER</c>, across all apps, for a specified user. If an app doesn't
             have any activities that specify <c>ACTION_MAIN</c> or <c>CATEGORY_LAUNCHER</c>,
             the system adds a synthesized activity to the list. This synthesized activity represents the
-            app's details page within system settings.
-            
-            &lt;p class="note"&gt;&lt;b&gt;Note: &lt;/b&gt;It's possible for system apps, such as app stores, to prevent
-            the system from adding synthesized activities to the returned list.&lt;/p&gt;</para>
+            app's details page within system settings.</para>
+          <para>&lt;b&gt;Note: &lt;/b&gt;It's possible for system apps, such as app stores, to prevent
+            the system from adding synthesized activities to the returned list.</para>
           <para>As of Android Q, at least
             one of the app's activities or synthesized activities appears in the returned list unless the
             app satisfies at least one of the following conditions:</para>
@@ -311,6 +328,14 @@
             <see href="https://developers.google.com/android/work/overview#employee-owned-devices-byod">work
             profile</see>, no synthesized activities for the user's work apps appear in the returned
             list.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
@@ -347,6 +372,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.PM.ApplicationInfo</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="packageName" Type="System.String" />
@@ -371,9 +402,161 @@
                     isn't enabled.</returns>
         <remarks>
           <para>Returns <c>ApplicationInfo</c> about an application installed for a specific user profile.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#getApplicationInfo(java.lang.String,%20int,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.getApplicationInfo(java.lang.String, int, android.os.UserHandle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetAppMarketActivityIntent">
+      <MemberSignature Language="C#" Value="public virtual Android.Content.IntentSender? GetAppMarketActivityIntent (string? packageName, Android.OS.UserHandle user);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Content.IntentSender GetAppMarketActivityIntent(string packageName, class Android.OS.UserHandle user) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Content.PM.LauncherApps.GetAppMarketActivityIntent(System.String,Android.OS.UserHandle)" />
+      <MemberSignature Language="F#" Value="abstract member GetAppMarketActivityIntent : string * Android.OS.UserHandle -&gt; Android.Content.IntentSender&#xA;override this.GetAppMarketActivityIntent : string * Android.OS.UserHandle -&gt; Android.Content.IntentSender" Usage="launcherApps.GetAppMarketActivityIntent (packageName, user)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getAppMarketActivityIntent", "(Ljava/lang/String;Landroid/os/UserHandle;)Landroid/content/IntentSender;", "GetGetAppMarketActivityIntent_Ljava_lang_String_Landroid_os_UserHandle_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getAppMarketActivityIntent", "(Ljava/lang/String;Landroid/os/UserHandle;)Landroid/content/IntentSender;", "GetGetAppMarketActivityIntent_Ljava_lang_String_Landroid_os_UserHandle_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Content.IntentSender</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="packageName" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="user" Type="Android.OS.UserHandle" Index="1" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="packageName">the package for which intent sender to launch App Market Activity is
+                               required.</param>
+        <param name="user">the profile for which intent sender to launch App Market Activity is required.</param>
+        <summary>Returns an intent sender which can be used to start the App Market activity (Installer
+            Activity).</summary>
+        <returns>
+          <c>IntentSender</c> object which launches the App Market Activity, null in case
+                    there is no such activity.</returns>
+        <remarks>
+          <para>Returns an intent sender which can be used to start the App Market activity (Installer
+            Activity).
+            This method is primarily used to get an intent sender which starts App Market activity for
+            another profile, if the caller is not otherwise allowed to start activity in that profile.</para>
+          <para>When packageName is set, intent sender to start the App Market Activity which installed
+            the package in calling user will be returned, but for the profile passed.</para>
+          <para>When packageName is not set, intent sender to launch the default App Market Activity for
+            the profile will be returned. In case there are multiple App Market Activities available for
+            the profile, IntentPicker will be started, allowing user to choose the preferred activity.</para>
+          <para>The method will fall back to the behaviour of not having the packageName set, in case:
+            &lt;ul&gt;
+                &lt;li&gt;No activity for the packageName is found in calling user-space.&lt;/li&gt;
+                &lt;li&gt;The App Market Activity which installed the package in calling user-space is not
+                    present.&lt;/li&gt;
+                &lt;li&gt;The App Market Activity which installed the package in calling user-space is not
+                    present in the profile passed.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#getAppMarketActivityIntent(java.lang.String,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.getAppMarketActivityIntent(java.lang.String, android.os.UserHandle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetLauncherUserInfo">
+      <MemberSignature Language="C#" Value="public Android.Content.PM.LauncherUserInfo? GetLauncherUserInfo (Android.OS.UserHandle userHandle);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Content.PM.LauncherUserInfo GetLauncherUserInfo(class Android.OS.UserHandle userHandle) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Content.PM.LauncherApps.GetLauncherUserInfo(Android.OS.UserHandle)" />
+      <MemberSignature Language="F#" Value="member this.GetLauncherUserInfo : Android.OS.UserHandle -&gt; Android.Content.PM.LauncherUserInfo" Usage="launcherApps.GetLauncherUserInfo userHandle" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getLauncherUserInfo", "(Landroid/os/UserHandle;)Landroid/content/pm/LauncherUserInfo;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getLauncherUserInfo", "(Landroid/os/UserHandle;)Landroid/content/pm/LauncherUserInfo;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Content.PM.LauncherUserInfo</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="userHandle" Type="Android.OS.UserHandle" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="userHandle">user handle of the user for which LauncherUserInfo is requested.</param>
+        <summary>Returns information related to a user which is useful for displaying UI elements
+            to distinguish it from other users (eg, badges).</summary>
+        <returns>the <c>LauncherUserInfo</c> object related to the user specified, null in case
+            the user is inaccessible.</returns>
+        <remarks>
+          <para>Returns information related to a user which is useful for displaying UI elements
+            to distinguish it from other users (eg, badges).</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#getLauncherUserInfo(android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.getLauncherUserInfo(android.os.UserHandle)</code>.</a>
             </format>
           </para>
           <para>
@@ -419,6 +602,63 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#getPinItemRequest(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.getPinItemRequest(android.content.Intent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetPreInstalledSystemPackages">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;string&gt; GetPreInstalledSystemPackages (Android.OS.UserHandle userHandle);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IList`1&lt;string&gt; GetPreInstalledSystemPackages(class Android.OS.UserHandle userHandle) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Content.PM.LauncherApps.GetPreInstalledSystemPackages(Android.OS.UserHandle)" />
+      <MemberSignature Language="F#" Value="abstract member GetPreInstalledSystemPackages : Android.OS.UserHandle -&gt; System.Collections.Generic.IList&lt;string&gt;&#xA;override this.GetPreInstalledSystemPackages : Android.OS.UserHandle -&gt; System.Collections.Generic.IList&lt;string&gt;" Usage="launcherApps.GetPreInstalledSystemPackages userHandle" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getPreInstalledSystemPackages", "(Landroid/os/UserHandle;)Ljava/util/List;", "GetGetPreInstalledSystemPackages_Landroid_os_UserHandle_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getPreInstalledSystemPackages", "(Landroid/os/UserHandle;)Ljava/util/List;", "GetGetPreInstalledSystemPackages_Landroid_os_UserHandle_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="userHandle" Type="Android.OS.UserHandle" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="userHandle">the user for which installed system packages are required.</param>
+        <summary>Returns the list of the system packages that are installed at user creation.</summary>
+        <returns>
+          <c>List</c> of <c>String</c>, representing the package name of the installed
+                   package. Can be empty but not null.</returns>
+        <remarks>
+          <para>Returns the list of the system packages that are installed at user creation.</para>
+          <para>An empty list denotes that all system packages should be treated as pre-installed for that
+            user at creation.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#getPreInstalledSystemPackages(android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.getPreInstalledSystemPackages(android.os.UserHandle)</code>.</a>
             </format>
           </para>
           <para>
@@ -500,6 +740,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.IntentSender</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="info" Type="Android.Content.PM.LauncherActivityInfo" />
@@ -551,9 +797,22 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Content.PM.LauncherActivityInfo&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="packageName" Type="System.String" />
+        <Parameter Name="packageName" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="user" Type="Android.OS.UserHandle" />
       </Parameters>
       <Docs>
@@ -561,7 +820,8 @@
                        in the profile.</param>
         <param name="user">The UserHandle of the profile.</param>
         <summary>Retrieves a list of config activities for creating <c>ShortcutInfo</c>.</summary>
-        <returns>List of config activities. Can be an empty list but will not be null.</returns>
+        <returns>List of config activities. Can be an empty list but will not be null. Empty list will
+            be returned for user-profiles that have items restricted on home screen.</returns>
         <remarks>
           <para>Retrieves a list of config activities for creating <c>ShortcutInfo</c>.</para>
           <para>
@@ -599,6 +859,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Graphics.Drawables.Drawable</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="shortcut" Type="Android.Content.PM.ShortcutInfo" />
@@ -649,11 +915,24 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.App.PendingIntent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="packageName" Type="System.String" />
         <Parameter Name="shortcutId" Type="System.String" />
-        <Parameter Name="opts" Type="Android.OS.Bundle" />
+        <Parameter Name="opts" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="user" Type="Android.OS.UserHandle" />
       </Parameters>
       <Docs>
@@ -700,6 +979,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Content.PM.ShortcutInfo&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="query" Type="Android.Content.PM.LauncherApps+ShortcutQuery" />
@@ -765,6 +1050,14 @@
             PersistableBundle, String)</c>.</para>
           <para>The contents of this <c>Bundle</c> are supposed to be a contract between the suspending
             app and the launcher.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>Note: This just returns whatever extras were provided to the system, &lt;em&gt;which might
             even be <c>null</c>.&lt;/em&gt;</para>
           <para>
@@ -865,6 +1158,14 @@
           <para>Checks if the activity exists and it enabled for a profile.</para>
           <para>The activity may still not be exported, in which case <c>#startMainActivity</c> will
             throw a <c>SecurityException</c> unless the caller has the same UID as the target app's.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#isActivityEnabled(android.content.ComponentName,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.isActivityEnabled(android.content.ComponentName, android.os.UserHandle)</code>.</a>
@@ -908,6 +1209,14 @@
         <returns>true if the package exists and is enabled.</returns>
         <remarks>
           <para>Checks if the package is installed and enabled for a profile.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#isPackageEnabled(java.lang.String,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.isPackageEnabled(java.lang.String, android.os.UserHandle)</code>.</a>
@@ -971,6 +1280,10 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android25.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android25.0")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.ACCESS_SHORTCUTS")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.ACCESS_SHORTCUTS")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -991,6 +1304,8 @@
             However, different launchers may have different set of pinned shortcuts.</para>
           <para>The calling launcher application must be allowed to access the shortcut information,
             as defined in <c>#hasShortcutHostPermission()</c>.</para>
+          <para>For user-profiles with items restricted on home screen, caller must have the required
+            permission.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#pinShortcuts(java.lang.String,%20java.util.List%3Cjava.lang.String%3E,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.pinShortcuts(java.lang.String, java.util.List&lt;java.lang.String&gt;, android.os.UserHandle)</code>.</a>
@@ -1016,6 +1331,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -1034,6 +1353,14 @@
           <para>Return a list of profiles that the caller can access via the <c>LauncherApps</c> APIs.</para>
           <para>If the caller is running on a managed profile, it'll return only the current profile.
             Otherwise it'll return the same list as <c>UserManager#getUserProfiles()</c> would.</para>
+          <para>To get hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#getProfiles()" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.getProfiles()</code>.</a>
@@ -1205,6 +1532,14 @@
         <remarks>
           <para>Returns the activity info for a given intent and user handle, if it resolves. Otherwise it
             returns null.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#resolveActivity(android.content.Intent,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.resolveActivity(android.content.Intent, android.os.UserHandle)</code>.</a>
@@ -1216,6 +1551,38 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetArchiveCompatibility">
+      <MemberSignature Language="C#" Value="public virtual void SetArchiveCompatibility (Android.Content.PM.LauncherApps.ArchiveCompatibilityParams params);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetArchiveCompatibility(class Android.Content.PM.LauncherApps/ArchiveCompatibilityParams params) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Content.PM.LauncherApps.SetArchiveCompatibility(Android.Content.PM.LauncherApps.ArchiveCompatibilityParams)" />
+      <MemberSignature Language="F#" Value="abstract member SetArchiveCompatibility : Android.Content.PM.LauncherApps.ArchiveCompatibilityParams -&gt; unit&#xA;override this.SetArchiveCompatibility : Android.Content.PM.LauncherApps.ArchiveCompatibilityParams -&gt; unit" Usage="launcherApps.SetArchiveCompatibility params" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setArchiveCompatibility", "(Landroid/content/pm/LauncherApps$ArchiveCompatibilityParams;)V", "GetSetArchiveCompatibility_Landroid_content_pm_LauncherApps_ArchiveCompatibilityParams_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setArchiveCompatibility", "(Landroid/content/pm/LauncherApps$ArchiveCompatibilityParams;)V", "GetSetArchiveCompatibility_Landroid_content_pm_LauncherApps_ArchiveCompatibilityParams_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="params" Type="Android.Content.PM.LauncherApps+ArchiveCompatibilityParams" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="params">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ShouldHideFromSuggestions">
@@ -1254,6 +1621,14 @@
           <para>Returns whether a package should be hidden from suggestions to the user. Currently, this
             could be done because the package was marked as distracting to the user via
             <c>PackageManager.setDistractingPackageRestrictions(String[], int)</c>.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#shouldHideFromSuggestions(java.lang.String,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.shouldHideFromSuggestions(java.lang.String, android.os.UserHandle)</code>.</a>
@@ -1302,6 +1677,14 @@
         <remarks>
           <para>Starts the settings activity to show the application details for a
             package in the specified profile.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#startAppDetailsActivity(android.content.ComponentName,%20android.os.UserHandle,%20android.graphics.Rect,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.startAppDetailsActivity(android.content.ComponentName, android.os.UserHandle, android.graphics.Rect, android.os.Bundle)</code>.</a>
@@ -1348,6 +1731,14 @@
         <summary>Starts a Main activity in the specified profile.</summary>
         <remarks>
           <para>Starts a Main activity in the specified profile.</para>
+          <para>If the user in question is a hidden profile <c>UserManager.USER_TYPE_PROFILE_PRIVATE</c>,
+            caller should have either:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;the privileged <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES_FULL</c>
+            permission&lt;/li&gt;
+            &lt;li&gt;the normal <c>android.Manifest.permission.ACCESS_HIDDEN_PROFILES</c> permission and the
+            <c>android.app.role.RoleManager.ROLE_HOME</c> role. &lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/LauncherApps#startMainActivity(android.content.ComponentName,%20android.os.UserHandle,%20android.graphics.Rect,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.content.pm.LauncherApps.startMainActivity(android.content.ComponentName, android.os.UserHandle, android.graphics.Rect, android.os.Bundle)</code>.</a>
@@ -1385,7 +1776,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="sessionInfo" Type="Android.Content.PM.PackageInstaller+SessionInfo" />
+        <Parameter Name="sessionInfo" Type="Android.Content.PM.PackageInstaller+SessionInfo">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sourceBounds" Type="Android.Graphics.Rect" />
         <Parameter Name="opts" Type="Android.OS.Bundle" />
       </Parameters>
@@ -1432,7 +1830,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="shortcut" Type="Android.Content.PM.ShortcutInfo" />
+        <Parameter Name="shortcut" Type="Android.Content.PM.ShortcutInfo">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sourceBounds" Type="Android.Graphics.Rect" />
         <Parameter Name="startActivityOptions" Type="Android.OS.Bundle" />
       </Parameters>
@@ -1484,8 +1889,22 @@
       <Parameters>
         <Parameter Name="packageName" Type="System.String" />
         <Parameter Name="shortcutId" Type="System.String" />
-        <Parameter Name="sourceBounds" Type="Android.Graphics.Rect" />
-        <Parameter Name="startActivityOptions" Type="Android.OS.Bundle" />
+        <Parameter Name="sourceBounds" Type="Android.Graphics.Rect">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="startActivityOptions" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="user" Type="Android.OS.UserHandle" />
       </Parameters>
       <Docs>

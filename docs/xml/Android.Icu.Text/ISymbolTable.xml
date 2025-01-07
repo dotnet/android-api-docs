@@ -25,14 +25,40 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>An interface that defines both lookup protocol and parsing of
+            symbolic names.</summary>
     <remarks>
+      <para>An interface that defines both lookup protocol and parsing of
+            symbolic names.</para>
+      <para>This interface is used by UnicodeSet to resolve $Variable style
+            references that appear in set patterns.  RBBI and Transliteration
+            both independently implement this interface.</para>
+      <para>A symbol table maintains two kinds of mappings.  The first is
+            between symbolic names and their values.  For example, if the
+            variable with the name "start" is set to the value "alpha"
+            (perhaps, though not necessarily, through an expression such as
+            "$start=alpha"), then the call lookup("start") will return the
+            char[] array ['a', 'l', 'p', 'h', 'a'].</para>
+      <para>The second kind of mapping is between character values and
+            UnicodeMatcher objects.  This is used by RuleBasedTransliterator,
+            which uses characters in the private use area to represent objects
+            such as UnicodeSets.  If U+E015 is mapped to the UnicodeSet [a-z],
+            then lookupMatcher(0xE015) will return the UnicodeSet [a-z].</para>
+      <para>Finally, a symbol table defines parsing behavior for symbolic
+            names.  All symbolic names start with the SYMBOL_REF character.
+            When a parser encounters this character, it calls parseReference()
+            with the position immediately following the SYMBOL_REF.  The symbol
+            table parses the name, if there is one, and returns it.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/SymbolTable" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/SymbolTable" title="Reference documentation">Java documentation for <code>android.icu.text.SymbolTable</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -63,11 +89,24 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">the symbolic name to lookup</param>
+        <summary>Lookup the characters associated with this string and return it.</summary>
+        <returns>a char array containing the name's value, or null if
+            there is no mapping for s.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Lookup the characters associated with this string and return it.
+            Return <c>null</c> if no such name exists.  The resultant
+            array may have length zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SymbolTable#lookup(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.SymbolTable.lookup(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -98,11 +137,24 @@
         <Parameter Name="ch" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ch">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ch">a 32-bit code point from 0 to 0x10FFFF inclusive.</param>
+        <summary>Lookup the UnicodeMatcher associated with the given character, and
+            return it.</summary>
+        <returns>the UnicodeMatcher object represented by the given
+            character, or null if there is no mapping for ch.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Lookup the UnicodeMatcher associated with the given character, and
+            return it.  Return <c>null</c> if not found.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SymbolTable#lookupMatcher(int)" title="Reference documentation">Java documentation for <code>android.icu.text.SymbolTable.lookupMatcher(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -135,13 +187,33 @@
         <Parameter Name="limit" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="pos">To be added.</param>
-        <param name="limit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">the text to parse for the name</param>
+        <param name="pos">on entry, the index of the first character to parse.
+            This is the character following the SYMBOL_REF character.  On
+            exit, the index after the last parsed character.  If the parse
+            failed, pos is unchanged on exit.</param>
+        <param name="limit">the index after the last character to be parsed.</param>
+        <summary>Parse a symbol reference name from the given string, starting
+            at the given position.</summary>
+        <returns>the parsed name, or null if there is no valid symbolic
+            name at the given position.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Parse a symbol reference name from the given string, starting
+            at the given position.  If no valid symbol reference name is
+            found, return null and leave pos unchanged.  That is, if the
+            character at pos cannot start a name, or if pos is at or after
+            text.length(), then return null.  This indicates an isolated
+            SYMBOL_REF character.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SymbolTable#parseReference(java.lang.String,%20java.text.ParsePosition,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.SymbolTable.parseReference(java.lang.String, java.text.ParsePosition, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -169,8 +241,20 @@
         <ReturnType>System.Char</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The character preceding a symbol reference name.</summary>
+        <remarks>
+          <para>The character preceding a symbol reference name.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SymbolTable#SYMBOL_REF" title="Reference documentation">Java documentation for <code>android.icu.text.SymbolTable.SYMBOL_REF</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

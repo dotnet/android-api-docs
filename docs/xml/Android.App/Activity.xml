@@ -47,6 +47,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/app/Activity", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/Activity", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>An activity is a single, focused thing that the user can do.</summary>
@@ -301,19 +305,18 @@
             persistent data in <c>#onPause</c> instead of <c>#onSaveInstanceState</c>
             because the latter is not part of the lifecycle callbacks, so will not
             be called in every situation as described in its documentation.</para>
-      <para>&lt;p class="note"&gt;Be aware that these semantics will change slightly between
+      <para>Be aware that these semantics will change slightly between
             applications targeting platforms starting with <c>android.os.Build.VERSION_CODES#HONEYCOMB</c>
             vs. those targeting prior platforms.  Starting with Honeycomb, an application
             is not in the killable state until its <c>#onStop</c> has returned.  This
             impacts when <c>#onSaveInstanceState(Bundle)</c> may be called (it may be
             safely called after <c>#onPause()</c>) and allows an application to safely
-            wait until <c>#onStop()</c> to save persistent state.&lt;/p&gt;
-            
-            &lt;p class="note"&gt;For applications targeting platforms starting with
+            wait until <c>#onStop()</c> to save persistent state.</para>
+      <para>For applications targeting platforms starting with
             <c>android.os.Build.VERSION_CODES#P</c><c>#onSaveInstanceState(Bundle)</c>
             will always be called after <c>#onStop</c>, so an application may safely
             perform fragment transactions in <c>#onStop</c> and will be able to save
-            persistent state later.&lt;/p&gt;</para>
+            persistent state later.</para>
       <para>For those methods that are not marked as being killable, the activity's
             process will not be killed by the system starting from the time the method
             is called and continuing after it returns.  Thus an activity is in the killable
@@ -590,7 +593,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -738,6 +742,53 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="Caller">
+      <MemberSignature Language="C#" Value="public virtual Android.App.ComponentCaller? Caller { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.App.ComponentCaller Caller" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Activity.Caller" />
+      <MemberSignature Language="F#" Value="member this.Caller : Android.App.ComponentCaller" Usage="Android.App.Activity.Caller" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getCaller", "()Landroid/app/ComponentCaller;", "GetGetCallerHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCaller", "()Landroid/app/ComponentCaller;", "GetGetCallerHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.ComponentCaller</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the ComponentCaller instance of the app that launched this activity with the intent
+            from <c>#getIntent()</c>.</summary>
+        <value>
+          <c>ComponentCaller</c> instance corresponding to the intent from
+                    <c>#getIntent()</c>, or <c>null</c> if the activity was not launched with that
+                    intent</value>
+        <remarks>
+          <para>Returns the ComponentCaller instance of the app that launched this activity with the intent
+            from <c>#getIntent()</c>. To keep the value of the ComponentCaller instance for new intents,
+            call <c>#setIntent(Intent, ComponentCaller)</c> instead of <c>#setIntent(Intent)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#getCaller()" title="Reference documentation">Java documentation for <code>android.app.Activity.getCaller()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="CallingActivity">
       <MemberSignature Language="C#" Value="public virtual Android.Content.ComponentName? CallingActivity { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Android.Content.ComponentName CallingActivity" />
@@ -765,9 +816,8 @@
           <para>Return the name of the activity that invoked this activity.  This is
             who the data in <c>#setResult setResult()</c> will be sent to.  You
             can use this information to validate that the recipient is allowed to
-            receive the data.
-            
-            &lt;p class="note"&gt;Note: if the calling activity is not expecting a result (that is it
+            receive the data.</para>
+          <para>Note: if the calling activity is not expecting a result (that is it
             did not use the <c>#startActivityForResult</c>
             form that includes a request code), then the calling package will be
             null.</para>
@@ -812,18 +862,16 @@
           <para>Return the name of the package that invoked this activity.  This is who
             the data in <c>#setResult setResult()</c> will be sent to.  You can
             use this information to validate that the recipient is allowed to
-            receive the data.
-            
-            &lt;p class="note"&gt;Note: if the calling activity is not expecting a result (that is it
+            receive the data.</para>
+          <para>Note: if the calling activity is not expecting a result (that is it
             did not use the <c>#startActivityForResult</c>
             form that includes a request code), then the calling package will be
-            null.&lt;/p&gt;
-            
-            &lt;p class="note"&gt;Note: prior to <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
+            null.</para>
+          <para>Note: prior to <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR2</c>,
             the result from this method was unstable.  If the process hosting the calling
             package was no longer running, it would return null instead of the proper package
             name.  You can use <c>#getCallingActivity()</c> and retrieve the package name
-            from that instead.&lt;/p&gt;</para>
+            from that instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getCallingPackage()" title="Reference documentation">Java documentation for <code>android.app.Activity.getCallingPackage()</code>.</a>
@@ -1170,6 +1218,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.App.PendingIntent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="requestCode" Type="System.Int32" />
@@ -1222,6 +1276,62 @@
         </remarks>
         <since version="Added in API level 1" />
         <altmember cref="T:Android.App.PendingIntent" />
+      </Docs>
+    </Member>
+    <Member MemberName="CurrentCaller">
+      <MemberSignature Language="C#" Value="public virtual Android.App.ComponentCaller CurrentCaller { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.App.ComponentCaller CurrentCaller" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Activity.CurrentCaller" />
+      <MemberSignature Language="F#" Value="member this.CurrentCaller : Android.App.ComponentCaller" Usage="Android.App.Activity.CurrentCaller" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getCurrentCaller", "()Landroid/app/ComponentCaller;", "GetGetCurrentCallerHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCurrentCaller", "()Landroid/app/ComponentCaller;", "GetGetCurrentCallerHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.ComponentCaller</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the ComponentCaller instance of the app that re-launched this activity with a new
+            intent via <c>#onNewIntent</c> or <c>#onActivityResult</c>.</summary>
+        <value>
+          <c>ComponentCaller</c> instance</value>
+        <remarks>
+          <para>Returns the ComponentCaller instance of the app that re-launched this activity with a new
+            intent via <c>#onNewIntent</c> or <c>#onActivityResult</c>.</para>
+          <para>Note that this method only works within the <c>#onNewIntent</c> and
+            <c>#onActivityResult</c> methods. If you call this method outside <c>#onNewIntent</c> and
+            <c>#onActivityResult</c>, it will throw an <c>IllegalStateException</c>.</para>
+          <para>You can also retrieve the caller if you override
+            <c>#onNewIntent(Intent, ComponentCaller)</c> or
+            <c>#onActivityResult(int, int, Intent, ComponentCaller)</c>.</para>
+          <para>To keep the ComponentCaller instance for future use, call
+            <c>#setIntent(Intent, ComponentCaller)</c>, and use <c>#getCaller</c> to retrieve it.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#getCurrentCaller()" title="Reference documentation">Java documentation for <code>android.app.Activity.getCurrentCaller()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CurrentFocus">
@@ -1658,9 +1768,23 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="prefix" Type="System.String" />
-        <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
+        <Parameter Name="fd" Type="Java.IO.FileDescriptor">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="writer" Type="Java.IO.PrintWriter" />
-        <Parameter Name="args" Type="System.String[]" />
+        <Parameter Name="args" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="prefix">Desired prefix to prepend at each line of output.</param>
@@ -1860,12 +1984,24 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>T</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <TypeParameters>
         <TypeParameter Name="T">
           <Constraints>
             <BaseTypeName>Android.Views.View</BaseTypeName>
           </Constraints>
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
         </TypeParameter>
       </TypeParameters>
       <Parameters>
@@ -2217,7 +2353,8 @@
         <ReturnType>System.Collections.Generic.IList&lt;System.Int32&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <value>To be added.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2278,8 +2415,10 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2330,8 +2469,10 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2533,6 +2674,54 @@
         <altmember cref="P:Android.App.Activity.Immersive" />
       </Docs>
     </Member>
+    <Member MemberName="InitialCaller">
+      <MemberSignature Language="C#" Value="public virtual Android.App.ComponentCaller InitialCaller { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.App.ComponentCaller InitialCaller" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Activity.InitialCaller" />
+      <MemberSignature Language="F#" Value="member this.InitialCaller : Android.App.ComponentCaller" Usage="Android.App.Activity.InitialCaller" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getInitialCaller", "()Landroid/app/ComponentCaller;", "GetGetInitialCallerHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInitialCaller", "()Landroid/app/ComponentCaller;", "GetGetInitialCallerHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.ComponentCaller</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the ComponentCaller instance of the app that initially launched this activity.</summary>
+        <value>
+          <c>ComponentCaller</c> instance</value>
+        <remarks>
+          <para>Returns the ComponentCaller instance of the app that initially launched this activity.</para>
+          <para>Note that calls to <c>#onNewIntent</c> have no effect on the returned value of this
+            method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#getInitialCaller()" title="Reference documentation">Java documentation for <code>android.app.Activity.getInitialCaller()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="InstanceCount">
       <MemberSignature Language="C#" Value="public static long InstanceCount { get; }" />
       <MemberSignature Language="ILAsm" Value=".property int64 InstanceCount" />
@@ -2584,21 +2773,23 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="newIntent">The new Intent object to return from getIntent</param>
-        <summary>Return the intent that started this activity. -or- Change the intent returned by <c>#getIntent</c>.</summary>
+        <param name="newIntent">The new Intent object to return from <c>#getIntent</c></param>
+        <summary>Returns the intent that started this activity. -or- Changes the intent returned by <c>#getIntent</c>.</summary>
         <value>To be added.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>Return the intent that started this activity.</para>
+          <para>Returns the intent that started this activity.</para>
+          <para>To keep the Intent instance for future use, call <c>#setIntent(Intent)</c>, and use
+            this method to retrieve it.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getIntent()" title="Reference documentation">Java documentation for <code>android.app.Activity.getIntent()</code>.</a>
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para>Change the intent returned by <c>#getIntent</c>.  This holds a
-            reference to the given intent; it does not copy it.  Often used in
-            conjunction with <c>#onNewIntent</c>.</para>
+          <para>Changes the intent returned by <c>#getIntent</c>. This holds a
+            reference to the given intent; it does not copy it. Often used in
+            conjunction with <c>#onNewIntent(Intent)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#setIntent(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.app.Activity.setIntent(android.content.Intent)</code>.</a>
@@ -2758,15 +2949,20 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("isChild", "()Z", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isChild", "()Z", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Is this activity embedded inside of another activity?</summary>
+        <summary>Whether this is a child <c>Activity</c> of an <c>ActivityGroup</c>.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Is this activity embedded inside of another activity?</para>
+          <para>Whether this is a child <c>Activity</c> of an <c>ActivityGroup</c>.</para>
+          <para>This member is deprecated. <c>ActivityGroup</c> is deprecated.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#isChild()" title="Reference documentation">Java documentation for <code>android.app.Activity.isChild()</code>.</a>
@@ -3194,6 +3390,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -3387,6 +3587,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getLayoutInflater", "()Landroid/view/LayoutInflater;", "GetGetLayoutInflaterHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLayoutInflater", "()Landroid/view/LayoutInflater;", "GetGetLayoutInflaterHandler")&gt;]</AttributeName>
         </Attribute>
@@ -3470,6 +3674,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getLocalClassName", "()Ljava/lang/String;", "GetGetLocalClassNameHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLocalClassName", "()Ljava/lang/String;", "GetGetLocalClassNameHandler")&gt;]</AttributeName>
         </Attribute>
@@ -3522,9 +3730,23 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="projection" Type="System.String[]" />
+        <Parameter Name="projection" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sortOrder" Type="System.String" />
       </Parameters>
       <Docs>
@@ -3691,6 +3913,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getMenuInflater", "()Landroid/view/MenuInflater;", "GetGetMenuInflaterHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMenuInflater", "()Landroid/view/MenuInflater;", "GetGetMenuInflaterHandler")&gt;]</AttributeName>
@@ -4094,6 +4320,80 @@
         <altmember cref="M:Android.App.Activity.SetResult(Android.App.Result)" />
       </Docs>
     </Member>
+    <Member MemberName="OnActivityResult">
+      <MemberSignature Language="C#" Value="public virtual void OnActivityResult (int requestCode, Android.App.Result resultCode, Android.Content.Intent? data, Android.App.ComponentCaller caller);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnActivityResult(int32 requestCode, valuetype Android.App.Result resultCode, class Android.Content.Intent data, class Android.App.ComponentCaller caller) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.OnActivityResult(System.Int32,Android.App.Result,Android.Content.Intent,Android.App.ComponentCaller)" />
+      <MemberSignature Language="F#" Value="abstract member OnActivityResult : int * Android.App.Result * Android.Content.Intent * Android.App.ComponentCaller -&gt; unit&#xA;override this.OnActivityResult : int * Android.App.Result * Android.Content.Intent * Android.App.ComponentCaller -&gt; unit" Usage="activity.OnActivityResult (requestCode, resultCode, data, caller)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("onActivityResult", "(IILandroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnActivityResult_IILandroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onActivityResult", "(IILandroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnActivityResult_IILandroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="requestCode" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="resultCode" Type="Android.App.Result" Index="1" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="data" Type="Android.Content.Intent" Index="2" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="caller" Type="Android.App.ComponentCaller" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="requestCode">The integer request code originally supplied to
+                               startActivityForResult(), allowing you to identify who this
+                               result came from.</param>
+        <param name="resultCode">The integer result code returned by the child activity
+                              through its setResult().</param>
+        <param name="data">An Intent, which can return result data to the caller
+                          (various data can be attached to Intent "extras").</param>
+        <param name="caller">The <c>ComponentCaller</c> instance associated with the app that sent the
+                          intent.</param>
+        <summary>Same as <c>#onActivityResult(int, int, Intent)</c>, but with an extra parameter for the
+            ComponentCaller instance associated with the app that sent the result.</summary>
+        <remarks>
+          <para>Same as <c>#onActivityResult(int, int, Intent)</c>, but with an extra parameter for the
+            ComponentCaller instance associated with the app that sent the result.</para>
+          <para>If you want to retrieve the caller without overriding this method, call
+            <c>#getCurrentCaller</c> inside your existing <c>#onActivityResult(int, int, Intent)</c>.</para>
+          <para>Note that you should only override one <c>#onActivityResult</c> method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#onActivityResult(int,%20int,%20android.content.Intent,%20android.app.ComponentCaller)" title="Reference documentation">Java documentation for <code>android.app.Activity.onActivityResult(int, int, android.content.Intent, android.app.ComponentCaller)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="OnAttachedToWindow">
       <MemberSignature Language="C#" Value="public virtual void OnAttachedToWindow ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnAttachedToWindow() cil managed" />
@@ -4201,6 +4501,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
@@ -4339,7 +4643,8 @@
       <Docs>
         <param name="childActivity">To be added.</param>
         <param name="title">To be added.</param>
-        <summary></summary>
+        <summary>
+        </summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4403,13 +4708,17 @@
             activity is running.</summary>
         <remarks>
           <para>Called by the system when the device configuration changes while your
-            activity is running.  Note that this will &lt;em&gt;only&lt;/em&gt; be called if
-            you have selected configurations you would like to handle with the
+            activity is running.  Note that this will only be called if you have
+            selected configurations you would like to handle with the
             <c>android.R.attr#configChanges</c> attribute in your manifest.  If
             any configuration change occurs that is not selected to be reported
             by that attribute, then instead of reporting it the system will stop
             and restart the activity (to have it launched with the new
-            configuration).</para>
+            configuration). The only exception is if a size-based configuration
+            is not large enough to be considered significant, in which case the
+            system will not recreate the activity and will instead call this
+            method. For details on this see the documentation on
+            <see href="https://developer.android.com/guide/topics/resources/runtime-changes.html">size-based config change</see>.</para>
           <para>At the time that this function has been called, your Resources
             object will have been updated to return resource values matching the
             new configuration.</para>
@@ -5215,6 +5524,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Views.View</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -5273,9 +5588,22 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Views.View</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="parent" Type="Android.Views.View" />
+        <Parameter Name="parent" Type="Android.Views.View">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="name" Type="System.String" />
         <Parameter Name="context" Type="Android.Content.Context" />
         <Parameter Name="attrs" Type="Android.Util.IAttributeSet" />
@@ -5631,7 +5959,9 @@
             it will set up the dispatch to call <c>#onKeyUp</c> where the action
             will be performed; for earlier applications, it will perform the
             action immediately in on-down, as those versions of the platform
-            behaved.</para>
+            behaved. This implementation will also take care of <c>KeyEvent#KEYCODE_ESCAPE</c>
+            by finishing the activity if it would be closed by touching outside
+            of it.</para>
           <para>Other additional default key handling may be performed
             if configured with <c>#setDefaultKeyMode</c>.</para>
           <para>
@@ -6341,7 +6671,7 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">The new intent that was started for the activity.</param>
+        <param name="intent">The new intent that was used to start the activity</param>
         <summary>This is called for activities that set launchMode to "singleTop" in
             their package, or if a client used the <c>Intent#FLAG_ACTIVITY_SINGLE_TOP</c>
             flag when calling <c>#startActivity</c>.</summary>
@@ -6355,12 +6685,12 @@
             re-launch it.</para>
           <para>An activity can never receive a new intent in the resumed state. You can count on
             <c>#onResume</c> being called after this method, though not necessarily immediately after
-            the completion this callback. If the activity was resumed, it will be paused and new intent
-            will be delivered, followed by <c>#onResume</c>. If the activity wasn't in the resumed
-            state, then new intent can be delivered immediately, with <c>#onResume()</c> called
+            the completion of this callback. If the activity was resumed, it will be paused and new
+            intent will be delivered, followed by <c>#onResume</c>. If the activity wasn't in the
+            resumed state, then new intent can be delivered immediately, with <c>#onResume()</c> called
             sometime later when activity becomes active again.</para>
           <para>Note that <c>#getIntent</c> still returns the original Intent.  You
-            can use <c>#setIntent</c> to update it to this new Intent.</para>
+            can use <c>#setIntent(Intent)</c> to update it to this new Intent.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onNewIntent(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.app.Activity.onNewIntent(android.content.Intent)</code>.</a>
@@ -6375,6 +6705,58 @@
         <since version="Added in API level 1" />
         <altmember cref="P:Android.App.Activity.Intent" />
         <altmember cref="M:Android.App.Activity.OnResume" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnNewIntent">
+      <MemberSignature Language="C#" Value="public virtual void OnNewIntent (Android.Content.Intent intent, Android.App.ComponentCaller caller);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnNewIntent(class Android.Content.Intent intent, class Android.App.ComponentCaller caller) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.OnNewIntent(Android.Content.Intent,Android.App.ComponentCaller)" />
+      <MemberSignature Language="F#" Value="abstract member OnNewIntent : Android.Content.Intent * Android.App.ComponentCaller -&gt; unit&#xA;override this.OnNewIntent : Android.Content.Intent * Android.App.ComponentCaller -&gt; unit" Usage="activity.OnNewIntent (intent, caller)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("onNewIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnNewIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onNewIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnNewIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="intent" Type="Android.Content.Intent" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="caller" Type="Android.App.ComponentCaller" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="intent">The new intent that was used to start the activity</param>
+        <param name="caller">The <c>ComponentCaller</c> instance associated with the app that sent the
+                          intent</param>
+        <summary>Same as <c>#onNewIntent(Intent)</c>, but with an extra parameter for the ComponentCaller
+            instance associated with the app that sent the intent.</summary>
+        <remarks>
+          <para>Same as <c>#onNewIntent(Intent)</c>, but with an extra parameter for the ComponentCaller
+            instance associated with the app that sent the intent.</para>
+          <para>If you want to retrieve the caller without overriding this method, call
+            <c>#getCurrentCaller</c> inside your existing <c>#onNewIntent(Intent)</c>.</para>
+          <para>Note that you should only override one <c>#onNewIntent</c> method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#onNewIntent(android.content.Intent,%20android.app.ComponentCaller)" title="Reference documentation">Java documentation for <code>android.app.Activity.onNewIntent(android.content.Intent, android.app.ComponentCaller)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnOptionsItemSelected">
@@ -6930,7 +7312,7 @@
       </Parameters>
       <Docs>
         <param name="savedInstanceState">The data most recently supplied in <c>#onSaveInstanceState</c></param>
-        <param name="persistentState">The data caming from the PersistableBundle first
+        <param name="persistentState">The data coming from the PersistableBundle first
             saved in <c>#onSaveInstanceState(Bundle, PersistableBundle)</c>.</param>
         <summary>This is the same as <c>#onPostCreate(Bundle)</c> but is called for activities
             created with the attribute <c>android.R.attr#persistableMode</c> set to
@@ -7234,7 +7616,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="featureId" Type="System.Int32" />
-        <Parameter Name="view" Type="Android.Views.View" />
+        <Parameter Name="view" Type="Android.Views.View">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="menu" Type="Android.Views.IMenu" />
       </Parameters>
       <Docs>
@@ -7403,7 +7792,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="data" Type="System.Collections.Generic.IList&lt;Android.Views.KeyboardShortcutGroup&gt;" />
+        <Parameter Name="data" Type="System.Collections.Generic.IList&lt;Android.Views.KeyboardShortcutGroup&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="menu" Type="Android.Views.IMenu" />
         <Parameter Name="deviceId" Type="System.Int32" />
       </Parameters>
@@ -7499,21 +7895,86 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="requestCode">The request code passed in <c>#requestPermissions(String[], int)</c>.</param>
+        <param name="requestCode">The request code passed in <c>#requestPermissions</c>.</param>
         <param name="permissions">The requested permissions. Never null.</param>
-        <param name="grantResults">The grant results for the corresponding permissions
-                which is either <c>android.content.pm.PackageManager#PERMISSION_GRANTED</c>
-                or <c>android.content.pm.PackageManager#PERMISSION_DENIED</c>. Never null.</param>
+        <param name="grantResults">The grant results for the corresponding permissions which is either
+                                <c>android.content.pm.PackageManager#PERMISSION_GRANTED</c> or
+                                <c>android.content.pm.PackageManager#PERMISSION_DENIED</c>. Never null.</param>
         <summary>Callback for the result from requesting permissions.</summary>
         <remarks>
           <para>Callback for the result from requesting permissions. This method
-            is invoked for every call on <c>#requestPermissions(String[], int)</c>.</para>
+            is invoked for every call on <c>#requestPermissions</c></para>
           <para>&lt;strong&gt;Note:&lt;/strong&gt; It is possible that the permissions request interaction
             with the user is interrupted. In this case you will receive empty permissions
             and results arrays which should be treated as a cancellation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onRequestPermissionsResult(int,%20java.lang.String[],%20int[])" title="Reference documentation">Java documentation for <code>android.app.Activity.onRequestPermissionsResult(int, java.lang.String[], int[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnRequestPermissionsResult">
+      <MemberSignature Language="C#" Value="public virtual void OnRequestPermissionsResult (int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults, int deviceId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnRequestPermissionsResult(int32 requestCode, string[] permissions, valuetype Android.Content.PM.Permission[] grantResults, int32 deviceId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.OnRequestPermissionsResult(System.Int32,System.String[],Android.Content.PM.Permission[],System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member OnRequestPermissionsResult : int * string[] * Android.Content.PM.Permission[] * int -&gt; unit&#xA;override this.OnRequestPermissionsResult : int * string[] * Android.Content.PM.Permission[] * int -&gt; unit" Usage="activity.OnRequestPermissionsResult (requestCode, permissions, grantResults, deviceId)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("onRequestPermissionsResult", "(I[Ljava/lang/String;[II)V", "GetOnRequestPermissionsResult_IarrayLjava_lang_String_arrayIIHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onRequestPermissionsResult", "(I[Ljava/lang/String;[II)V", "GetOnRequestPermissionsResult_IarrayLjava_lang_String_arrayIIHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="requestCode" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="permissions" Type="System.String[]" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="grantResults" Type="Android.Content.PM.Permission[]" Index="2" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="deviceId" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="requestCode">The request code passed in <c>#requestPermissions</c>.</param>
+        <param name="permissions">The requested permissions. Never null.</param>
+        <param name="grantResults">The grant results for the corresponding permissions which is either
+                                <c>android.content.pm.PackageManager#PERMISSION_GRANTED</c> or
+                                <c>android.content.pm.PackageManager#PERMISSION_DENIED</c>. Never null.</param>
+        <param name="deviceId">The deviceId for which permissions were requested. The primary/physical
+                            device is assigned <c>Context#DEVICE_ID_DEFAULT</c>, and virtual devices
+                            are assigned unique device Ids.</param>
+        <summary>Callback for the result from requesting permissions.</summary>
+        <remarks>
+          <para>Callback for the result from requesting permissions. This method
+            is invoked for every call on <c>#requestPermissions</c>.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; It is possible that the permissions request interaction
+            with the user is interrupted. In this case you will receive empty permissions
+            and results arrays which should be treated as a cancellation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#onRequestPermissionsResult(int,%20java.lang.String[],%20int[],%20int)" title="Reference documentation">Java documentation for <code>android.app.Activity.onRequestPermissionsResult(int, java.lang.String[], int[], int)</code>.</a>
             </format>
           </para>
           <para>
@@ -7722,7 +8183,7 @@
             indicator that the activity became active and ready to receive input. This sometimes could
             also be a transit state toward another resting state. For instance, an activity may be
             relaunched to <c>#onPause</c> due to configuration changes and the activity was visible,
-            but wasn’t the top-most activity of an activity task. <c>#onResume</c> is guaranteed to be
+            but wasn't the top-most activity of an activity task. <c>#onResume</c> is guaranteed to be
             called before <c>#onPause</c> in this case which honors the activity lifecycle policy and
             the activity eventually rests in <c>#onPause</c>.</para>
           <para>On platform versions prior to <c>android.os.Build.VERSION_CODES#Q</c> this is also a good
@@ -8048,7 +8509,7 @@
         <remarks>
           <para>This hook is called when the user signals the desire to start a search.</para>
           <para>You can use this function as a simple way to launch the search UI, in response to a
-            menu item, search button, or other widgets within your activity. Unless overidden,
+            menu item, search button, or other widgets within your activity. Unless overridden,
             calling this function is the same as calling
             <c>#startSearch startSearch(null, false, null, false)</c>, which launches
             search for the current activity as specified in its manifest, see <c>SearchManager</c>.</para>
@@ -8250,7 +8711,8 @@
       <Docs>
         <param name="title">To be added.</param>
         <param name="color">To be added.</param>
-        <summary></summary>
+        <summary>
+        </summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -9232,8 +9694,10 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -9286,8 +9750,10 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
-        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -9347,15 +9813,22 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getParent", "()Landroid/app/Activity;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getParent", "()Landroid/app/Activity;", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.App.Activity</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return the parent activity if this view is an embedded child.</summary>
+        <summary>Returns the parent <c>Activity</c> if this is a child <c>Activity</c> of an
+            <c>ActivityGroup</c>.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Return the parent activity if this view is an embedded child.</para>
+          <para>Returns the parent <c>Activity</c> if this is a child <c>Activity</c> of an
+            <c>ActivityGroup</c>.</para>
+          <para>This member is deprecated. <c>ActivityGroup</c> is deprecated.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getParent()" title="Reference documentation">Java documentation for <code>android.app.Activity.getParent()</code>.</a>
@@ -9542,8 +10015,8 @@
             referrer can be identified -- it is neither explicitly specified, nor is it known which
             application package was involved.</para>
           <para>If called while inside the handling of <c>#onNewIntent</c>, this function will
-            return the referrer that submitted that new intent to the activity.  Otherwise, it
-            always returns the referrer of the original Intent.</para>
+            return the referrer that submitted that new intent to the activity only after
+            <c>#setIntent(Intent)</c> is called with the provided intent.</para>
           <para>Note that this is &lt;em&gt;not&lt;/em&gt; a security feature -- you can not trust the
             referrer information, applications can spoof it.</para>
           <para>
@@ -9997,22 +10470,18 @@
                                     dispatched on the main thread. If the request is rejected, the
                                     Throwable provided will be an <c>IllegalStateException</c> with a
                                     detailed message can be retrieved by <c>Throwable#getMessage()</c>.</param>
-        <summary>Request to put the a freeform activity into fullscreen.</summary>
+        <summary>Request to put the activity into fullscreen.</summary>
         <remarks>
-          <para>Request to put the a freeform activity into fullscreen. This will only be allowed if the
-            activity is on a freeform display, such as a desktop device. The requester has to be the
-            top-most activity of the focused display, and the request should be a response to a user
-            input. When getting fullscreen and receiving corresponding
+          <para>Request to put the activity into fullscreen. The requester must be pinned or the top-most
+            activity of the focused display which can be verified using
+            <c>#onTopResumedActivityChanged(boolean)</c>. The request should also be a response to a
+            user input. When getting fullscreen and receiving corresponding
             <c>#onConfigurationChanged(Configuration)</c> and
             <c>#onMultiWindowModeChanged(boolean, Configuration)</c>, the activity should relayout
             itself and the system bars' visibilities can be controlled as usual fullscreen apps.
             
             Calling it again with the exit request can restore the activity to the previous status.
-            This will only happen when it got into fullscreen through this API.
-            
-            If an app wants to be in fullscreen always, it should claim as not being resizable
-            by setting
-            <see href="https://developer.android.com/guide/topics/large-screens/multi-window-support#resizeableActivity"><c>android:resizableActivity="false"</c></see> instead of calling this API.</para>
+            This will only happen when it got into fullscreen through this API.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#requestFullscreenMode(int,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Throwable%3E)" title="Reference documentation">Java documentation for <code>android.app.Activity.requestFullscreenMode(int, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Throwable&gt;)</code>.</a>
@@ -10054,10 +10523,10 @@
         <Parameter Name="requestCode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="permissions">The requested permissions. Must me non-null and not empty.</param>
+        <param name="permissions">The requested permissions. Must be non-null and not empty.</param>
         <param name="requestCode">Application specific request code to match with a result
-               reported to <c>#onRequestPermissionsResult(int, String[], int[])</c>.
-               Should be &gt;= 0.</param>
+                               reported to <c>#onRequestPermissionsResult</c>.
+                               Should be &gt;= 0.</param>
         <summary>Requests permissions to be granted to this application.</summary>
         <remarks>
           <para>Requests permissions to be granted to this application. These permissions
@@ -10069,11 +10538,11 @@
             <c>android.content.pm.PermissionInfo#PROTECTION_SIGNATURE</c> are granted at
             install time if requested in the manifest and the signature of your app matches
             the signature of the app declaring the permissions.</para>
-          <para>Call <c>#shouldShowRequestPermissionRationale(String)</c> before calling this API to
+          <para>Call <c>#shouldShowRequestPermissionRationale</c> before calling this API to
             check if the system recommends to show a rationale UI before asking for a permission.</para>
           <para>If your app does not have the requested permissions the user will be presented
             with UI for accepting them. After the user has accepted or rejected the
-            requested permissions you will receive a callback on <c>#onRequestPermissionsResult(int, String[], int[])</c> reporting whether the
+            requested permissions you will receive a callback on <c>#onRequestPermissionsResult</c> reporting whether the
             permissions were granted or not.</para>
           <para>Note that requesting a permission does not guarantee it will be granted and
             your app should be able to run without having this permission.</para>
@@ -10081,17 +10550,97 @@
             to grant and which to reject. Hence, you should be prepared that your activity
             may be paused and resumed. Further, granting some permissions may require
             a restart of you application. In such a case, the system will recreate the
-            activity stack before delivering the result to <c>#onRequestPermissionsResult(int, String[], int[])</c>.</para>
+            activity stack before delivering the result to <c>#onRequestPermissionsResult</c>.</para>
           <para>When checking whether you have a permission you should use <c>#checkSelfPermission(String)</c>.</para>
           <para>You cannot request a permission if your activity sets <c>android.R.styleable#AndroidManifestActivity_noHistory noHistory</c> to
             <c>true</c> because in this case the activity would not receive
-            result callbacks including <c>#onRequestPermissionsResult(int, String[], int[])</c>.</para>
-          <para>The <see href="https://github.com/android/permissions-samples">
-            RuntimePermissions</see> sample apps demonstrate how to use this method to
+            result callbacks including <c>#onRequestPermissionsResult</c>.</para>
+          <para>The <see href="https://github.com/android/platform-samples/tree/main/samples/privacy/permissions">
+            permissions samples</see> repo demonstrates how to use this method to
             request permissions at run time.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#requestPermissions(java.lang.String[],%20int)" title="Reference documentation">Java documentation for <code>android.app.Activity.requestPermissions(java.lang.String[], int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RequestPermissions">
+      <MemberSignature Language="C#" Value="public void RequestPermissions (string[] permissions, int requestCode, int deviceId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RequestPermissions(string[] permissions, int32 requestCode, int32 deviceId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.RequestPermissions(System.String[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.RequestPermissions : string[] * int * int -&gt; unit" Usage="activity.RequestPermissions (permissions, requestCode, deviceId)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("requestPermissions", "([Ljava/lang/String;II)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("requestPermissions", "([Ljava/lang/String;II)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="permissions" Type="System.String[]" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="requestCode" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="deviceId" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="permissions">The requested permissions. Must be non-null and not empty.</param>
+        <param name="requestCode">Application specific request code to match with a result
+                               reported to <c>#onRequestPermissionsResult</c>.
+                               Should be &gt;= 0.</param>
+        <param name="deviceId">The app is requesting permissions for this device. The primary/physical
+                            device is assigned <c>Context#DEVICE_ID_DEFAULT</c>, and virtual devices
+                            are assigned unique device Ids.</param>
+        <summary>Requests permissions to be granted to this application.</summary>
+        <remarks>
+          <para>Requests permissions to be granted to this application. These permissions
+            must be requested in your manifest, they should not be granted to your app,
+            and they should have protection level <c>android.content.pm.PermissionInfo#PROTECTION_DANGEROUS dangerous</c>, regardless
+            whether they are declared by the platform or a third-party app.</para>
+          <para>Normal permissions <c>android.content.pm.PermissionInfo#PROTECTION_NORMAL</c>
+            are granted at install time if requested in the manifest. Signature permissions
+            <c>android.content.pm.PermissionInfo#PROTECTION_SIGNATURE</c> are granted at
+            install time if requested in the manifest and the signature of your app matches
+            the signature of the app declaring the permissions.</para>
+          <para>Call <c>#shouldShowRequestPermissionRationale</c> before calling this API to
+            check if the system recommends to show a rationale UI before asking for a permission.</para>
+          <para>If your app does not have the requested permissions the user will be presented
+            with UI for accepting them. After the user has accepted or rejected the
+            requested permissions you will receive a callback on <c>#onRequestPermissionsResult</c>
+            reporting whether the permissions were granted or not.</para>
+          <para>Note that requesting a permission does not guarantee it will be granted and
+            your app should be able to run without having this permission.</para>
+          <para>This method may start an activity allowing the user to choose which permissions
+            to grant and which to reject. Hence, you should be prepared that your activity
+            may be paused and resumed. Further, granting some permissions may require
+            a restart of you application. In such a case, the system will recreate the
+            activity stack before delivering the result to <c>#onRequestPermissionsResult</c>.</para>
+          <para>When checking whether you have a permission you should use <c>#checkSelfPermission(String)</c>.</para>
+          <para>You cannot request a permission if your activity sets <c>android.R.styleable#AndroidManifestActivity_noHistory noHistory</c> to
+            <c>true</c> because in this case the activity would not receive
+            result callbacks including <c>#onRequestPermissionsResult</c>.</para>
+          <para>The <see href="https://github.com/android/platform-samples/tree/main/samples/privacy/permissions">
+            permissions samples</see> repo demonstrates how to use this method to
+            request permissions at run time.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#requestPermissions(java.lang.String[],%20int,%20int)" title="Reference documentation">Java documentation for <code>android.app.Activity.requestPermissions(java.lang.String[], int, int)</code>.</a>
             </format>
           </para>
           <para>
@@ -10339,6 +10888,16 @@
       </ReturnValue>
       <TypeParameters>
         <TypeParameter Name="T">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+            </Attribute>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
           <Constraints>
             <BaseTypeName>Android.Views.View</BaseTypeName>
           </Constraints>
@@ -10504,6 +11063,59 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#setActionBar(android.widget.Toolbar)" title="Reference documentation">Java documentation for <code>android.app.Activity.setActionBar(android.widget.Toolbar)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetAllowCrossUidActivitySwitchFromBelow">
+      <MemberSignature Language="C#" Value="public virtual void SetAllowCrossUidActivitySwitchFromBelow (bool allowed);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetAllowCrossUidActivitySwitchFromBelow(bool allowed) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.SetAllowCrossUidActivitySwitchFromBelow(System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member SetAllowCrossUidActivitySwitchFromBelow : bool -&gt; unit&#xA;override this.SetAllowCrossUidActivitySwitchFromBelow : bool -&gt; unit" Usage="activity.SetAllowCrossUidActivitySwitchFromBelow allowed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setAllowCrossUidActivitySwitchFromBelow", "(Z)V", "GetSetAllowCrossUidActivitySwitchFromBelow_ZHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setAllowCrossUidActivitySwitchFromBelow", "(Z)V", "GetSetAllowCrossUidActivitySwitchFromBelow_ZHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="allowed" Type="System.Boolean" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="allowed">
+          <c>true</c> to disable the UID restrictions; <c>false</c> to revert back to
+                                       the default behaviour</param>
+        <summary>Specifies whether the activities below this one in the task can also start other activities
+            or finish the task.</summary>
+        <remarks>
+          <para>Specifies whether the activities below this one in the task can also start other activities
+            or finish the task.</para>
+          <para>Starting from Target SDK Level <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>, apps
+            may be blocked from starting new activities or finishing their task unless the top activity
+            of such task belong to the same UID for security reasons.</para>
+          <para>Setting this flag to <c>true</c> will allow the launching app to ignore the restriction if
+            this activity is on top. Apps matching the UID of this activity are always exempt.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#setAllowCrossUidActivitySwitchFromBelow(boolean)" title="Reference documentation">Java documentation for <code>android.app.Activity.setAllowCrossUidActivitySwitchFromBelow(boolean)</code>.</a>
             </format>
           </para>
           <para>
@@ -11099,6 +11711,58 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#setInheritShowWhenLocked(boolean)" title="Reference documentation">Java documentation for <code>android.app.Activity.setInheritShowWhenLocked(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetIntent">
+      <MemberSignature Language="C#" Value="public virtual void SetIntent (Android.Content.Intent? newIntent, Android.App.ComponentCaller? newCaller);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetIntent(class Android.Content.Intent newIntent, class Android.App.ComponentCaller newCaller) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.SetIntent(Android.Content.Intent,Android.App.ComponentCaller)" />
+      <MemberSignature Language="F#" Value="abstract member SetIntent : Android.Content.Intent * Android.App.ComponentCaller -&gt; unit&#xA;override this.SetIntent : Android.Content.Intent * Android.App.ComponentCaller -&gt; unit" Usage="activity.SetIntent (newIntent, newCaller)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetSetIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetSetIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="newIntent" Type="Android.Content.Intent" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="newCaller" Type="Android.App.ComponentCaller" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="newIntent">The new Intent object to return from <c>#getIntent</c></param>
+        <param name="newCaller">The new <c>ComponentCaller</c> object to return from
+                             <c>#getCaller</c></param>
+        <summary>Changes the intent returned by <c>#getIntent</c>, and ComponentCaller returned by
+            <c>#getCaller</c>.</summary>
+        <remarks>
+          <para>Changes the intent returned by <c>#getIntent</c>, and ComponentCaller returned by
+            <c>#getCaller</c>. This holds references to the given intent, and ComponentCaller; it does
+            not copy them. Often used in conjunction with <c>#onNewIntent(Intent)</c>. To retrieve the
+            caller from <c>#onNewIntent(Intent)</c>, use <c>#getCurrentCaller</c>, otherwise override
+            <c>#onNewIntent(Intent, ComponentCaller)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#setIntent(android.content.Intent,%20android.app.ComponentCaller)" title="Reference documentation">Java documentation for <code>android.app.Activity.setIntent(android.content.Intent, android.app.ComponentCaller)</code>.</a>
             </format>
           </para>
           <para>
@@ -12191,6 +12855,55 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="ShouldShowRequestPermissionRationale">
+      <MemberSignature Language="C#" Value="public virtual bool ShouldShowRequestPermissionRationale (string permission, int deviceId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool ShouldShowRequestPermissionRationale(string permission, int32 deviceId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.ShouldShowRequestPermissionRationale(System.String,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member ShouldShowRequestPermissionRationale : string * int -&gt; bool&#xA;override this.ShouldShowRequestPermissionRationale : string * int -&gt; bool" Usage="activity.ShouldShowRequestPermissionRationale (permission, deviceId)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("shouldShowRequestPermissionRationale", "(Ljava/lang/String;I)Z", "GetShouldShowRequestPermissionRationale_Ljava_lang_String_IHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("shouldShowRequestPermissionRationale", "(Ljava/lang/String;I)Z", "GetShouldShowRequestPermissionRationale_Ljava_lang_String_IHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="permission" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="deviceId" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="permission">A permission your app wants to request.</param>
+        <param name="deviceId">The app is requesting permissions for this device. The primary/physical
+                            device is assigned <c>Context#DEVICE_ID_DEFAULT</c>, and virtual devices
+                            are assigned unique device Ids.</param>
+        <summary>Gets whether you should show UI with rationale before requesting a permission.</summary>
+        <returns>Whether you should show permission rationale UI.</returns>
+        <remarks>
+          <para>Gets whether you should show UI with rationale before requesting a permission.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#shouldShowRequestPermissionRationale(java.lang.String,%20int)" title="Reference documentation">Java documentation for <code>android.app.Activity.shouldShowRequestPermissionRationale(java.lang.String, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ShouldUpRecreateTask">
       <MemberSignature Language="C#" Value="public virtual bool ShouldUpRecreateTask (Android.Content.Intent? targetIntent);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool ShouldUpRecreateTask(class Android.Content.Intent targetIntent) cil managed" />
@@ -12465,6 +13178,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
@@ -12754,7 +13471,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="child" Type="Android.App.Activity" />
-        <Parameter Name="intent" Type="Android.Content.Intent" />
+        <Parameter Name="intent" Type="Android.Content.Intent">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="requestCode" Type="System.Int32" />
       </Parameters>
       <Docs>
@@ -12808,7 +13532,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="child" Type="Android.App.Activity" />
+        <Parameter Name="child" Type="Android.App.Activity">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="intent" Type="Android.Content.Intent" />
         <Parameter Name="requestCode" Type="System.Int32" />
         <Parameter Name="options" Type="Android.OS.Bundle" />
@@ -12870,7 +13601,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="fragment" Type="Android.App.Fragment" />
-        <Parameter Name="intent" Type="Android.Content.Intent" />
+        <Parameter Name="intent" Type="Android.Content.Intent">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="requestCode" Type="System.Int32" />
       </Parameters>
       <Docs>
@@ -12925,7 +13663,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="fragment" Type="Android.App.Fragment" />
+        <Parameter Name="fragment" Type="Android.App.Fragment">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="intent" Type="Android.Content.Intent" />
         <Parameter Name="requestCode" Type="System.Int32" />
         <Parameter Name="options" Type="Android.OS.Bundle" />
@@ -13037,7 +13782,14 @@
       <Parameters>
         <Parameter Name="intent" Type="Android.Content.Intent" />
         <Parameter Name="requestCode" Type="System.Int32" />
-        <Parameter Name="options" Type="Android.OS.Bundle" />
+        <Parameter Name="options" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="intent">The intent to start.</param>
@@ -13627,7 +14379,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="intent" Type="Android.Content.Intent" />
-        <Parameter Name="options" Type="Android.OS.Bundle" />
+        <Parameter Name="options" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="intent">The intent to dispatch to the next activity.  For
@@ -14047,6 +14806,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

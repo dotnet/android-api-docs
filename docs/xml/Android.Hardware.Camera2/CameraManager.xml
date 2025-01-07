@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/hardware/camera2/CameraManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/hardware/camera2/CameraManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>A system service manager for detecting, characterizing, and connecting to
@@ -172,6 +176,39 @@
       </Docs>
       <since version="Added in API level 21" />
     </Member>
+    <Member MemberName="GetCameraDeviceSetup">
+      <MemberSignature Language="C#" Value="public Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup GetCameraDeviceSetup (string cameraId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Hardware.Camera2.CameraDevice/CameraDeviceSetup GetCameraDeviceSetup(string cameraId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Hardware.Camera2.CameraManager.GetCameraDeviceSetup(System.String)" />
+      <MemberSignature Language="F#" Value="member this.GetCameraDeviceSetup : string -&gt; Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup" Usage="cameraManager.GetCameraDeviceSetup cameraId" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getCameraDeviceSetup", "(Ljava/lang/String;)Landroid/hardware/camera2/CameraDevice$CameraDeviceSetup;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getCameraDeviceSetup", "(Ljava/lang/String;)Landroid/hardware/camera2/CameraDevice$CameraDeviceSetup;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Hardware.Camera2.CameraDevice+CameraDeviceSetup</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cameraId" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="cameraId">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetCameraExtensionCharacteristics">
       <MemberSignature Language="C#" Value="public Android.Hardware.Camera2.CameraExtensionCharacteristics GetCameraExtensionCharacteristics (string cameraId);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Hardware.Camera2.CameraExtensionCharacteristics GetCameraExtensionCharacteristics(string cameraId) cil managed" />
@@ -314,6 +351,65 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="IsCameraDeviceSetupSupported">
+      <MemberSignature Language="C#" Value="public bool IsCameraDeviceSetupSupported (string cameraId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool IsCameraDeviceSetupSupported(string cameraId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Hardware.Camera2.CameraManager.IsCameraDeviceSetupSupported(System.String)" />
+      <MemberSignature Language="F#" Value="member this.IsCameraDeviceSetupSupported : string -&gt; bool" Usage="cameraManager.IsCameraDeviceSetupSupported cameraId" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("isCameraDeviceSetupSupported", "(Ljava/lang/String;)Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isCameraDeviceSetupSupported", "(Ljava/lang/String;)Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cameraId" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="cameraId">The unique identifier of the camera device for which
+                            <c>CameraDevice.CameraDeviceSetup</c> support is being queried. This
+                            identifier must be present in <c>#getCameraIdList()</c>.</param>
+        <summary>Checks a Camera Device's characteristics to ensure that a
+            <c>CameraDevice.CameraDeviceSetup</c> instance can be constructed for a given
+            <c>cameraId</c>.</summary>
+        <returns>
+          <c>true</c> if <c>CameraDevice.CameraDeviceSetup</c> object can be constructed
+            for the provided <c>cameraId</c>; <c>false</c> otherwise.</returns>
+        <remarks>
+          <para>Checks a Camera Device's characteristics to ensure that a
+            <c>CameraDevice.CameraDeviceSetup</c> instance can be constructed for a given
+            <c>cameraId</c>. If this method returns false for a <c>cameraId</c>, calling
+            <c>#getCameraDeviceSetup</c> for that <c>cameraId</c> will throw an
+            <c>UnsupportedOperationException</c>.</para>
+          <para>
+            <c>CameraDevice.CameraDeviceSetup</c> is supported for all devices that report
+            <c>CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION</c> &gt;
+            <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#isCameraDeviceSetupSupported(java.lang.String)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraManager.isCameraDeviceSetupSupported(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="IsConcurrentSessionConfigurationSupported">
       <MemberSignature Language="C#" Value="public bool IsConcurrentSessionConfigurationSupported (System.Collections.Generic.IDictionary&lt;string,Android.Hardware.Camera2.Params.SessionConfiguration&gt; cameraIdAndSessionConfig);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool IsConcurrentSessionConfigurationSupported(class System.Collections.Generic.IDictionary`2&lt;string, class Android.Hardware.Camera2.Params.SessionConfiguration&gt; cameraIdAndSessionConfig) cil managed" />
@@ -440,7 +536,14 @@
       <Parameters>
         <Parameter Name="cameraId" Type="System.String" />
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraDevice+StateCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="cameraId">The unique identifier of the camera device to open</param>
@@ -523,7 +626,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraManager+AvailabilityCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="callback">the new callback to send camera availability notices to</param>
@@ -617,7 +727,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraManager+TorchCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="callback">The new callback to send torch mode status to</param>

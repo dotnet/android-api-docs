@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/webkit/URLUtil", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/webkit/URLUtil", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>To be added.</summary>
@@ -82,11 +86,21 @@
         <param name="inQuery">To be added.</param>
         <param name="template">To be added.</param>
         <param name="queryPlaceHolder">To be added.</param>
-        <summary>
-        </summary>
+        <summary>Inserts the <c>inQuery</c> in the <c>template</c> after URL-encoding it.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Inserts the <c>inQuery</c> in the <c>template</c> after URL-encoding it. The encoded query
+            will replace the <c>queryPlaceHolder</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/webkit/URLUtil#composeSearchUrl(java.lang.String,%20java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.webkit.URLUtil.composeSearchUrl(java.lang.String, java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -153,13 +167,33 @@
         <param name="url">Url to the content</param>
         <param name="contentDisposition">Content-Disposition HTTP header or <c>null</c></param>
         <param name="mimeType">Mime-type of the content or <c>null</c></param>
-        <summary>Guesses canonical filename that a download would have, using
-            the URL and contentDisposition.</summary>
+        <summary>Guesses canonical filename that a download would have, using the URL and contentDisposition.</summary>
         <returns>suggested filename</returns>
         <remarks>
-          <para>Guesses canonical filename that a download would have, using
-            the URL and contentDisposition. File extension, if not defined,
-            is added based on the mimetype</para>
+          <para>Guesses canonical filename that a download would have, using the URL and contentDisposition.</para>
+          <para>File extension, if not defined, is added based on the mimetype.</para>
+          <para>The <c>contentDisposition</c> argument will be treated differently depending on
+            targetSdkVersion.
+            
+            &lt;ul&gt;
+              &lt;li&gt;For targetSDK versions &amp;lt; <c>VANILLA_ICE_CREAM</c> it will be parsed based on RFC
+                  2616.
+              &lt;li&gt;For targetSDK versions &amp;gt;= <c>VANILLA_ICE_CREAM</c> it will be parsed based on RFC
+                  6266.
+            &lt;/ul&gt;
+            
+            In practice, this means that from <c>VANILLA_ICE_CREAM</c>, this method will be able to
+            parse <c>filename*</c> directives in the <c>contentDisposition</c> string.</para>
+          <para>The function also changed in the following ways in <c>VANILLA_ICE_CREAM</c>:
+            
+            &lt;ul&gt;
+              &lt;li&gt;If the suggested file type extension doesn't match the passed <c>mimeType</c>, the
+                  method will append the appropriate extension instead of replacing the current
+                  extension.
+              &lt;li&gt;If the suggested file name contains a path separator (<c>"/"</c>), the method will
+                  replace this with the underscore character (<c>"_"</c>) instead of splitting the
+                  result and only using the last part.
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/URLUtil#guessFileName(java.lang.String,%20java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.webkit.URLUtil.guessFileName(java.lang.String, java.lang.String, java.lang.String)</code>.</a>
@@ -375,8 +409,8 @@
         <param name="url">To be added.</param>
         <summary>This member is deprecated.</summary>
         <returns>
-          <c>true</c> if the url is a proxy url to allow cookieless network
-            requests from a file url.</returns>
+          <c>true</c> if the url is a proxy url to allow cookieless network requests from a
+                file url.</returns>
         <remarks>
           <para>This member is deprecated. Cookieless proxy is no longer supported.</para>
           <para>
@@ -713,6 +747,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -816,6 +854,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

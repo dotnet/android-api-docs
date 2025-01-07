@@ -16,13 +16,15 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/app/KeyguardManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/KeyguardManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>Class that can be used to lock and unlock the keyguard.</summary>
+    <summary>Class to manage and query the state of the lock screen (also known as Keyguard).</summary>
     <remarks>
-      <para>Class that can be used to lock and unlock the keyguard. The
-            actual class to control the keyguard locking is
-            <c>android.app.KeyguardManager.KeyguardLock</c>.</para>
+      <para>Class to manage and query the state of the lock screen (also known as Keyguard).</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/KeyguardManager" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager</code>.</a>
@@ -136,7 +138,7 @@
             if enrolled) for the current user of the device. The caller is expected to launch this
             activity using <c>android.app.Activity#startActivityForResult(Intent, int)</c> and check for
             <c>android.app.Activity#RESULT_OK</c> if the user successfully completes the challenge.</para>
-          <para>This member is deprecated. see BiometricPrompt.Builder#setDeviceCredentialAllowed(boolean)</para>
+          <para>This member is deprecated. see <c>android.hardware.biometrics.BiometricPrompt.Builder#setAllowedAuthenticators(int)</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager#createConfirmDeviceCredentialIntent(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.createConfirmDeviceCredentialIntent(java.lang.CharSequence, java.lang.CharSequence)</code>.</a>
@@ -184,7 +186,7 @@
             if enrolled) for the current user of the device. The caller is expected to launch this
             activity using <c>android.app.Activity#startActivityForResult(Intent, int)</c> and check for
             <c>android.app.Activity#RESULT_OK</c> if the user successfully completes the challenge.</para>
-          <para>This member is deprecated. see BiometricPrompt.Builder#setDeviceCredentialAllowed(boolean)</para>
+          <para>This member is deprecated. see <c>android.hardware.biometrics.BiometricPrompt.Builder#setAllowedAuthenticators(int)</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager#createConfirmDeviceCredentialIntent(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.createConfirmDeviceCredentialIntent(java.lang.CharSequence, java.lang.CharSequence)</code>.</a>
@@ -273,13 +275,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>If keyguard screen is showing or in restricted key input mode (i.</summary>
-        <returns>
-          <c>true</c> if in keyguard restricted input mode.</returns>
+        <summary>Returns whether the lock screen is showing.</summary>
+        <returns>the value of <c>#isKeyguardLocked()</c></returns>
         <remarks>
-          <para>If keyguard screen is showing or in restricted key input mode (i.e. in
-            keyguard password emergency screen). When in such mode, certain keys,
-            such as the Home key and the right soft keys, don't work.</para>
+          <para>Returns whether the lock screen is showing.</para>
+          <para>This is exactly the same as <c>#isKeyguardLocked()</c>.</para>
           <para>This member is deprecated. Use <c>#isKeyguardLocked()</c> instead.</para>
           <para>
             <format type="text/html">
@@ -319,14 +319,31 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns whether the device is currently locked and requires a PIN, pattern or
-            password to unlock.</summary>
+        <summary>Returns whether the device is currently locked for the user.</summary>
         <value>
-          <c>true</c> if unlocking the device currently requires a PIN, pattern or
-            password.</value>
+          <c>true</c> if the device is currently locked for the user</value>
         <remarks>
-          <para>Returns whether the device is currently locked and requires a PIN, pattern or
-            password to unlock.</para>
+          <para>Returns whether the device is currently locked for the user.</para>
+          <para>This method returns the device locked state for the <c>Context</c>'s user. The device is
+            considered to be locked for a user when the user's apps are currently inaccessible and some
+            form of lock screen authentication is required to regain access to them. The lock screen
+            authentication typically uses PIN, pattern, password, or biometric. Some devices may support
+            additional methods, such as unlock using a paired smartwatch. "Swipe" does not count as
+            authentication; if the lock screen is dismissible with swipe, for example due to the lock
+            screen being set to Swipe or due to the device being kept unlocked by being near a trusted
+            bluetooth device or in a trusted location, the device is considered unlocked.
+            &lt;div class="note"&gt;</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; In the case of multiple full users, each user can have their own lock screen
+            authentication configured. The device-locked state may differ between different users. For
+            example, the device may be unlocked for the current user, but locked for a non-current user
+            if lock screen authentication would be required to access that user's apps after switching to
+            that user.</para>
+          <para>In the case of a profile, when the device goes to the main lock screen, up to two layers of
+            authentication may be required to regain access to the profile's apps: one to unlock the main
+            lock screen, and one to unlock the profile (when a separate profile challenge is required).
+            For a profile, the device is considered to be locked as long as any challenge remains, either
+            the parent user's challenge (when applicable) or the profile's challenge (when applicable).
+            &lt;/div&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager#isDeviceLocked()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isDeviceLocked()</code>.</a>
@@ -364,14 +381,18 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns whether the device is secured with a PIN, pattern or
-            password.</summary>
+        <summary>Returns whether the user has a secure lock screen.</summary>
         <value>
-          <c>true</c> if a PIN, pattern or password was set.</value>
+          <c>true</c> if the user has a secure lock screen</value>
         <remarks>
-          <para>Returns whether the device is secured with a PIN, pattern or
-            password.</para>
-          <para>See also <c>#isKeyguardSecure</c> which treats SIM locked states as secure.</para>
+          <para>Returns whether the user has a secure lock screen.</para>
+          <para>This returns <c>true</c> if the <c>Context</c>'s user has a secure lock screen. A full user
+            or a profile that uses a separate challenge has a secure lock screen if its lock screen is
+            set to PIN, pattern, or password, as opposed to swipe or none. A profile that uses a unified
+            challenge is considered to have a secure lock screen if and only if its parent user has a
+            secure lock screen.</para>
+          <para>This method does not consider whether the lock screen is currently showing or not.</para>
+          <para>See also <c>#isKeyguardSecure()</c> which includes locked SIM cards.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager#isDeviceSecure()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isDeviceSecure()</code>.</a>
@@ -405,11 +426,31 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return whether the keyguard is currently locked.</summary>
+        <summary>Returns whether the lock screen (also known as Keyguard) is showing.</summary>
         <value>
-          <c>true</c> if the keyguard is locked.</value>
+          <c>true</c> if the lock screen is showing</value>
         <remarks>
-          <para>Return whether the keyguard is currently locked.</para>
+          <para>Returns whether the lock screen (also known as Keyguard) is showing.</para>
+          <para>Specifically, this returns <c>true</c> in the following cases:
+            &lt;ul&gt;
+              &lt;li&gt;The lock screen is showing in the foreground.&lt;/li&gt;
+              &lt;li&gt;The lock screen is showing, but it is occluded by an activity that is showing on top of
+              it. A common example is the phone app receiving a call or making an emergency call.&lt;/li&gt;
+              &lt;li&gt;The lock screen was showing but is temporarily disabled as a result of <see href="https://developer.android.com/work/dpc/dedicated-devices/lock-task-mode">lock task
+              mode</see> or an app using the deprecated <c>KeyguardLock</c> API.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>"Showing" refers to a logical state of the UI, regardless of whether the screen happens to be
+            on. When the power button is pressed on an unlocked device, the lock screen starts "showing"
+            immediately when the screen turns off.</para>
+          <para>This method does not distinguish a lock screen that is requiring authentication (e.g. with
+            PIN, pattern, password, or biometric) from a lock screen that is trivially dismissible (e.g.
+            with swipe). It also does not distinguish a lock screen requesting a SIM card PIN from a
+            normal device lock screen. Finally, it always returns the global lock screen state and does
+            not consider the <c>Context</c>'s user specifically.</para>
+          <para>Note that <c>isKeyguardLocked()</c> is confusingly named and probably should be called
+            <c>isKeyguardShowing()</c>. On many devices, the lock screen displays an <i>unlocked</i>
+            padlock icon when it is trivially dismissible. As mentioned above, <c>isKeyguardLocked()</c>
+            actually returns <c>true</c> in this case, not <c>false</c> as might be expected. <c>#isDeviceLocked()</c> is an alternative API that has slightly different semantics.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager#isKeyguardLocked()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isKeyguardLocked()</code>.</a>
@@ -444,14 +485,22 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return whether the keyguard is secured by a PIN, pattern or password or a SIM card
-            is currently locked.</summary>
+        <summary>Returns whether the user has a secure lock screen or there is a locked SIM card.</summary>
         <value>
-          <c>true</c> if a PIN, pattern or password is set or a SIM card is locked.</value>
+          <c>true</c> if the user has a secure lock screen or there is a locked SIM card</value>
         <remarks>
-          <para>Return whether the keyguard is secured by a PIN, pattern or password or a SIM card
-            is currently locked.</para>
-          <para>See also <c>#isDeviceSecure()</c> which ignores SIM locked states.</para>
+          <para>Returns whether the user has a secure lock screen or there is a locked SIM card.</para>
+          <para>Specifically, this returns <c>true</c> if at least one of the following is true:
+            &lt;ul&gt;
+              &lt;li&gt;The <c>Context</c>'s user has a secure lock screen. A full user or a profile that uses
+              a separate challenge has a secure lock screen if its lock screen is set to PIN, pattern, or
+              password, as opposed to swipe or none. A profile that uses a unified challenge is
+              considered to have a secure lock screen if and only if its parent user has a secure lock
+              screen.&lt;/li&gt;
+              &lt;li&gt;At least one SIM card is currently locked and requires a PIN.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>This method does not consider whether the lock screen is currently showing or not.</para>
+          <para>See also <c>#isDeviceSecure()</c> which excludes locked SIM cards.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/KeyguardManager#isKeyguardSecure()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isKeyguardSecure()</code>.</a>
@@ -605,7 +654,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="activity" Type="Android.App.Activity" />
-        <Parameter Name="callback" Type="Android.App.KeyguardManager+KeyguardDismissCallback" />
+        <Parameter Name="callback" Type="Android.App.KeyguardManager+KeyguardDismissCallback">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="activity">The activity requesting the dismissal. The activity must be either visible

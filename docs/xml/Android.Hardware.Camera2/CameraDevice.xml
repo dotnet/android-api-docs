@@ -29,6 +29,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/hardware/camera2/CameraDevice", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/hardware/camera2/CameraDevice", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>The CameraDevice class is a representation of a single camera connected to an
@@ -441,7 +445,14 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="physicalCameraIdSet" Type="System.Collections.Generic.ICollection&lt;System.String&gt;" />
+        <Parameter Name="physicalCameraIdSet" Type="System.Collections.Generic.ICollection&lt;System.String&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="templateType">An enumeration selecting the use case for this request. Not all template
@@ -520,9 +531,10 @@
             &lt;li&gt;For accessing through an OpenGL texture via a <c>android.graphics.SurfaceTexture
               SurfaceTexture</c>: Set the size of the SurfaceTexture with <c>android.graphics.SurfaceTexture#setDefaultBufferSize</c> to be one of the sizes returned by
               <c>StreamConfigurationMap#getOutputSizes(Class) getOutputSizes(SurfaceTexture.class)</c>
-              before creating a Surface from the SurfaceTexture with <c>Surface#Surface</c>. If the size
-              is not set by the application, it will be set to be the smallest supported size less than
-              1080p, by the camera device.&lt;/li&gt;
+              before creating a Surface from the SurfaceTexture with
+              <c>Surface#Surface(SurfaceTexture)</c>. If the size is not set by the application,
+              it will be set to be the smallest supported size less than 1080p, by the camera
+              device.&lt;/li&gt;
             
             &lt;li&gt;For recording with <c>android.media.MediaCodec</c>: Call
               <c>android.media.MediaCodec#createInputSurface</c> after configuring
@@ -535,14 +547,6 @@
               <c>StreamConfigurationMap#getOutputSizes(Class) getOutputSizes(MediaRecorder.class)</c>,
               or configuring it to use one of the supported
               <c>android.media.CamcorderProfile CamcorderProfiles</c>.&lt;/li&gt;
-            
-            &lt;li&gt;For efficient YUV processing with <c>android.renderscript</c>:
-              Create a RenderScript
-              <c>android.renderscript.Allocation Allocation</c> with a supported YUV
-              type, the IO_INPUT flag, and one of the sizes returned by
-              <c>StreamConfigurationMap#getOutputSizes(Class) getOutputSizes(Allocation.class)</c>,
-              Then obtain the Surface with
-              <c>android.renderscript.Allocation#getSurface</c>.&lt;/li&gt;
             
             &lt;li&gt;For access to RAW, uncompressed YUV, or compressed JPEG data in the application: Create an
               <c>android.media.ImageReader</c> object with one of the supported output formats given by
@@ -576,6 +580,9 @@
             output rate from the device.</para>
           <para>Configuring a session with an empty or null list will close the current session, if
             any. This can be used to release the current session's target surfaces for another use.</para>
+          <para>This function throws an <c>IllegalArgumentException</c> if called with a
+            SessionConfiguration lacking state callbacks or valid output surfaces. The only exceptions
+            are deferred SurfaceView or SurfaceTexture outputs. See <c>OutputConfiguration#OutputConfiguration(Size, Class)</c> for details.</para>
           <para>&lt;h3&gt;Regular capture&lt;/h3&gt;</para>
           <para>While any of the sizes from <c>StreamConfigurationMap#getOutputSizes</c> can be used when
             a single output stream is configured, a given camera device may not be able to support all
@@ -614,12 +621,13 @@
             MP PRIV]</c>, or targets <c>[8 MP PRIV, 2 MP YUV]</c> would not be guaranteed to work, unless
             some other row of the table lists such a combination.</para>
           <para>&lt;style scoped&gt;
-             #rb { border-right-width: thick; }&lt;/style&gt;</para>
+             #rb { border-right-width: thick; }&lt;/style&gt;
+            
+            &lt;h5&gt;LEGACY-level guaranteed configurations&lt;/h5&gt;</para>
           <para>Legacy devices (<c>CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL</c><c>==</c><c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY LEGACY</c>) support at
             least the following stream combinations:
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;LEGACY-level guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt; &lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;  &lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Simple preview, GPU video processing, or no-preview video recording.&lt;/td&gt; &lt;/tr&gt;
@@ -631,12 +639,12 @@
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Preview plus in-app processing.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Still capture plus in-app processing.&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;LIMITED-level additional guaranteed configurations&lt;/h5&gt;</para>
           <para>Limited-level (<c>CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL</c><c>==</c><c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED LIMITED</c>) devices
             support at least the following stream combinations in addition to those for
             <c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY LEGACY</c> devices:
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;LIMITED-level additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>RECORD</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;High-resolution video recording with preview.&lt;/td&gt; &lt;/tr&gt;
@@ -646,12 +654,12 @@
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>RECORD</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>RECORD</c>&lt;/td&gt; &lt;td&gt;High-resolution in-app processing with video snapshot.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Two-input in-app processing with still capture.&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;FULL-level additional guaranteed configurations&lt;/h5&gt;</para>
           <para>FULL-level (<c>CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL</c><c>==</c><c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_FULL FULL</c>) devices
             support at least the following stream combinations in addition to those for
             <c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED LIMITED</c> devices:
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;FULL-level additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Maximum-resolution GPU processing with preview.&lt;/td&gt; &lt;/tr&gt;
@@ -661,6 +669,7 @@
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>640x480</c>&lt;/td&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Standard video recording plus maximum-resolution in-app processing.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>640x480</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Preview plus two-input maximum-resolution in-app processing.&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;RAW-capability additional guaranteed configurations&lt;/h5&gt;</para>
           <para>RAW-capability (<c>CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES</c> includes
             <c>CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_RAW RAW</c>) devices additionally support
             at least the following stream combinations on both
@@ -668,7 +677,6 @@
             <c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED LIMITED</c> devices:
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;RAW-capability additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;No-preview DNG capture.&lt;/td&gt; &lt;/tr&gt;
@@ -680,6 +688,7 @@
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Still capture with simultaneous JPEG and DNG.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;In-app processing with simultaneous JPEG and DNG.&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;BURST-capability additional guaranteed configurations&lt;/h5&gt;</para>
           <para>BURST-capability (<c>CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES</c> includes
             <c>CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE BURST_CAPTURE</c>) devices
             support at least the below stream combinations in addition to those for
@@ -689,13 +698,13 @@
             support the BURST_CAPTURE capability.
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="5"&gt;BURST-capability additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Maximum-resolution GPU processing with preview.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Maximum-resolution in-app processing with preview.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;Maximum-resolution two-input in-app processing.&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;LEVEL-3 additional guaranteed configurations&lt;/h5&gt;</para>
           <para>LEVEL-3 (<c>CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL</c><c>==</c><c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_3 LEVEL_3</c>)
             support at least the following stream combinations in addition to the combinations for
             <c>CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_FULL FULL</c> and for
@@ -703,19 +712,18 @@
             <c>CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_RAW RAW</c>):
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="11"&gt;LEVEL-3 additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 4&lt;/th&gt;&lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>640x480</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;In-app viewfinder analysis with dynamic selection of output format.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>640x480</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td&gt;In-app viewfinder analysis with dynamic selection of output format.&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;</para>
-          <para>BACKWARD_COMPATIBLE devices capable of streaming concurrently with other devices as described by
-            <c>android.hardware.camera2.CameraManager#getConcurrentCameraIds</c> have the
+          <para>&lt;h5&gt;Concurrent stream guaranteed configurations&lt;/h5&gt;</para>
+          <para>BACKWARD_COMPATIBLE devices capable of streaming concurrently with other devices as
+            described by <c>android.hardware.camera2.CameraManager#getConcurrentCameraIds</c> have the
             following guaranteed streams (when streaming concurrently with other devices)</para>
           <para>Note: The sizes mentioned for these concurrent streams are the maximum sizes guaranteed
             to be supported. Sizes smaller than these, obtained by <c>StreamConfigurationMap#getOutputSizes</c> for a particular format, are supported as well.</para>
           <para>&lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="5"&gt;Concurrent stream guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>s1440p</c>&lt;/td&gt;  &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;In-app video / image processing.&lt;/td&gt; &lt;/tr&gt;
@@ -723,8 +731,7 @@
             &lt;tr&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>s1440p</c>&lt;/td&gt;  &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;No viewfinder still image capture.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV / PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>s720p</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>s1440p</c>&lt;/td&gt; &lt;td&gt; Standard still imaging.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV / PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>s720p</c>&lt;/td&gt; &lt;td&gt;<c>YUV / PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>s1440p</c>&lt;/td&gt; &lt;td&gt;In-app video / processing with preview.&lt;/td&gt; &lt;/tr&gt;
-            &lt;/table&gt;&lt;br&gt;
-            &lt;/p&gt;</para>
+            &lt;/table&gt;&lt;br&gt;</para>
           <para>Devices which are not backwards-compatible, support a mandatory single stream of size sVGA with image format <c>DEPTH16</c> during concurrent operation.</para>
           <para>For guaranteed concurrent stream configurations:</para>
           <para>sVGA refers to the camera device's maximum resolution for that format from <c>StreamConfigurationMap#getOutputSizes</c> or
@@ -745,6 +752,7 @@
             streams with <c>HEIC</c> in all guaranteed stream combinations for the device's hardware
             level and capabilities. Calling createCaptureSession with both JPEG and HEIC outputs is not
             supported.</para>
+          <para>&lt;h5&gt;LEGACY-level additional guaranteed combinations with multi-resolution outputs&lt;/h5&gt;</para>
           <para>Devices capable of multi-resolution output for a particular format (
             <c>android.hardware.camera2.params.MultiResolutionStreamConfigurationMap#getOutputInfo</c>
             returns a non-empty list) support using <c>MultiResolutionImageReader</c> for MAXIMUM
@@ -755,25 +763,25 @@
             stream combinations (<c>MULTI_RES</c> in the Max size column refers to a <c>MultiResolutionImageReader</c> created based on the variable max resolutions supported):
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;LEGACY-level additional guaranteed combinations with MultiResolutionoutputs&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt; &lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;  &lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MULTI_RES</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Simple preview, GPU video processing, or no-preview video recording.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MULTI_RES</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;No-viewfinder still image capture.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MULTI_RES</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Standard still imaging.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MULTI_RES</c>&lt;/td&gt; &lt;td&gt;Still capture plus in-app processing.&lt;/td&gt; &lt;/tr&gt;
-            &lt;/table&gt;&lt;br&gt;
-            &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;LIMITED-level additional guaranteed configurations with MultiResolutionoutputs&lt;/th&gt;&lt;/tr&gt;
+            &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;LIMITED-level additional guaranteed configurations with multi-resolution outputs&lt;/h5&gt;</para>
+          <para>&lt;table&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MULTI_RES</c>&lt;/td&gt; &lt;td&gt;Two-input in-app processing with still capture.&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;
             The same logic applies to other hardware levels and capabilities.</para>
+          <para>&lt;h5&gt;Additional guaranteed combinations for ULTRA_HIGH_RESOLUTION sensors&lt;/h5&gt;</para>
           <para>Devices with the ULTRA_HIGH_RESOLUTION_SENSOR capability have some additional guarantees
-            which clients can take advantage of :</para>
-          <para>&lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="10"&gt;Additional guaranteed combinations for ULTRA_HIGH_RESOLUTION sensors&lt;/th&gt;&lt;/tr&gt;
+            which clients can take advantage of:
+            
+            &lt;table&gt;
             &lt;tr&gt; &lt;th colspan="3" id="rb"&gt;Target 1&lt;/th&gt; &lt;th colspan="3" id="rb"&gt;Target 2&lt;/th&gt;  &lt;th colspan="3" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt; SC Map&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt; SC Map&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt; &lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt; SC Map&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV / JPEG / RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAX_RES</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAX</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>DEFAULT</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td colspan="3" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Ultra high res still image capture with preview&lt;/td&gt; &lt;/tr&gt;
@@ -785,15 +793,16 @@
             <c>StreamConfigurationMap#getOutputSizes</c> and <c>StreamConfigurationMap#getHighResolutionOutputSizes</c>.
             Note: The same capture request must not mix targets from
             <c>StreamConfigurationMap</c>s corresponding to different sensor pixel modes.</para>
+          <para>&lt;h5&gt;10-bit output additional guaranteed configurations&lt;/h5&gt;</para>
           <para>10-bit output capable
-            <c>CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT</c>
-            devices support at least the following stream combinations:</para>
-          <para>&lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;10-bit output additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
+            <c>CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT</c>
+            devices support at least the following stream combinations:
+            
+            &lt;table&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;/tr&gt;
-            &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; }&lt;/td&gt; &lt;td colspan="4" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Simple preview, GPU video processing, or no-preview video recording.&lt;/td&gt; &lt;/tr&gt;
-            &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; }&lt;/td&gt; &lt;td colspan="4" id="rb"&gt;&lt;/td&gt; &lt;td&gt;In-application video/image processing.&lt;/td&gt; &lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;/td&gt; &lt;td colspan="4" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Simple preview, GPU video processing, or no-preview video recording.&lt;/td&gt; &lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;/td&gt; &lt;td colspan="4" id="rb"&gt;&lt;/td&gt; &lt;td&gt;In-application video/image processing.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Standard still imaging.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Maximum-resolution in-app processing with preview.&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt; &lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Maximum-resolution two-input in-app processing.&lt;/td&gt; &lt;/tr&gt;
@@ -833,13 +842,13 @@
             supported sizes.
             Camera clients that register a Jpeg/R output within a stream combination that doesn't fit
             in the mandatory stream table above can call
-            <c>CameraDevice#isSessionConfigurationSupported</c> to ensure that this particular
+            <c>#isSessionConfigurationSupported</c> to ensure that this particular
             configuration is supported.</para>
+          <para>&lt;h5&gt;STREAM_USE_CASE capability additional guaranteed configurations&lt;/h5&gt;</para>
           <para>Devices with the STREAM_USE_CASE capability (<c>CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES</c> includes <c>CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE</c>) support below additional
             stream combinations:
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="10"&gt;STREAM_USE_CASE capability additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="3" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="3" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="3" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Usecase&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Usecase&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Usecase&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>YUV / PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td colspan="3" id="rb"&gt;&lt;/td&gt; &lt;td colspan="3" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Simple preview or in-app image processing&lt;/td&gt; &lt;/tr&gt;
@@ -856,25 +865,26 @@
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV / PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>RECORD</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>VIDEO_RECORD</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>RECORD</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>STILL_CAPTURE</c>&lt;/td&gt; &lt;td&gt;Preview, video record and JPEG video snapshot&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>STILL_CAPTURE</c>&lt;/td&gt; &lt;td&gt;Preview, in-application image processing, and JPEG still image capture&lt;/td&gt; &lt;/tr&gt;
             &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;STREAM_USE_CASE_CROPPED_RAW capability additional guaranteed configurations&lt;/h5&gt;</para>
           <para>Devices that include the <c>CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_CROPPED_RAW</c>
             stream use-case in <c>CameraCharacteristics#SCALER_AVAILABLE_STREAM_USE_CASES</c>,
             support the additional stream combinations below:
             
             &lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="10"&gt;STREAM_USE_CASE_CROPPED_RAW capability additional guaranteed configurations&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;th colspan="3" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="3" id="rb"&gt;Target 2&lt;/th&gt;&lt;th colspan="3" id="rb"&gt;Target 3&lt;/th&gt; &lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Usecase&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Usecase&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Usecase&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>CROPPED_RAW</c>&lt;/td&gt; &lt;td colspan="3" id="rb"&gt;&lt;/td&gt; &lt;td colspan="3" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Cropped RAW still capture without preview&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>CROPPED_RAW</c>&lt;/td&gt; &lt;td colspan="3" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Preview with cropped RAW still capture&lt;/td&gt; &lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>YUV / JPEG</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>STILL_CAPTURE</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>CROPPED_RAW</c>&lt;/td&gt; &lt;td&gt;Preview with YUV / JPEG and cropped RAW still capture&lt;/td&gt; &lt;/tr&gt;
-            &lt;tr&gt; &lt;td&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>VIDEO_RECORD / PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>CROPPED_RAW</c>&lt;/td&gt; &lt;td&gt;Video recording with preview and cropped RAW still capture&lt;/td&gt; &lt;/tr&gt;</para>
-          <para>For devices where <c>CameraCharacteristics#CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES</c>
-            includes <c>CameraMetadata#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION</c>,
+            &lt;tr&gt; &lt;td&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>PREVIEW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>VIDEO_RECORD / PREVIEW</c>&lt;/td&gt; &lt;td&gt;<c>RAW</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>MAXIMUM</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>CROPPED_RAW</c>&lt;/td&gt; &lt;td&gt;Video recording with preview and cropped RAW still capture&lt;/td&gt; &lt;/tr&gt;
+            &lt;/table&gt;&lt;br&gt;</para>
+          <para>&lt;h5&gt;Preview stabilization guaranteed stream configurations&lt;/h5&gt;</para>
+          <para>For devices where
+            <c>CameraCharacteristics#CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES</c> includes
+            <c>CameraMetadata#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION</c>,
             the following stream combinations are guaranteed,
             for CaptureRequests where <c>CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE</c> is set to
-            <c>CameraMetadata#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION</c></para>
-          <para>&lt;table&gt;
-            &lt;tr&gt;&lt;th colspan="7"&gt;Preview stabilization guaranteed stream configurations&lt;/th&gt;&lt;/tr&gt;
+            <c>CameraMetadata#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION</c>&lt;table&gt;
             &lt;tr&gt;&lt;th colspan="2" id="rb"&gt;Target 1&lt;/th&gt;&lt;th colspan="2" id="rb"&gt;Target 2&lt;/th&gt;&lt;th rowspan="2"&gt;Sample use case(s)&lt;/th&gt; &lt;/tr&gt;
             &lt;tr&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;th id="rb"&gt;Max size&lt;/th&gt;&lt;/tr&gt;
             &lt;tr&gt; &lt;td&gt;<c>PRIV / YUV</c>&lt;/td&gt;&lt;td id="rb"&gt;<c>s1440p</c>&lt;/td&gt;&lt;td colspan="2" id="rb"&gt;&lt;/td&gt; &lt;td&gt;Stabilized preview, GPU video processing, or no-preview stabilized video recording.&lt;/td&gt; &lt;/tr&gt;
@@ -888,8 +898,8 @@
             resolution for that format or target from <c>StreamConfigurationMap#getOutputSizes(int)</c>.</para>
           <para>Since the capabilities of camera devices vary greatly, a given camera device may support
             target combinations with sizes outside of these guarantees, but this can only be tested for
-            by calling <c>#isSessionConfigurationSupported</c> or attempting to create a session with
-            such targets.</para>
+            by calling <c>#isSessionConfigurationSupported</c> or attempting
+            to create a session with such targets.</para>
           <para>Exception on 176x144 (QCIF) resolution:
             Camera devices usually have a fixed capability for downscaling from larger resolution to
             smaller, and the QCIF resolution sometimes is not fully supported due to this
@@ -1158,7 +1168,14 @@
       <Parameters>
         <Parameter Name="outputs" Type="System.Collections.Generic.IList&lt;Android.Views.Surface&gt;" />
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraCaptureSession+StateCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="outputs">To be added.</param>
@@ -1198,7 +1215,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="outputConfigurations" Type="System.Collections.Generic.IList&lt;Android.Hardware.Camera2.Params.OutputConfiguration&gt;" />
+        <Parameter Name="outputConfigurations" Type="System.Collections.Generic.IList&lt;Android.Hardware.Camera2.Params.OutputConfiguration&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraCaptureSession+StateCallback" />
         <Parameter Name="handler" Type="Android.OS.Handler" />
       </Parameters>
@@ -1252,7 +1276,14 @@
       <Parameters>
         <Parameter Name="outputs" Type="System.Collections.Generic.IList&lt;Android.Views.Surface&gt;" />
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraCaptureSession+StateCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="outputs">The new set of Surfaces that should be made available as
@@ -1386,7 +1417,14 @@
         <Parameter Name="inputConfig" Type="Android.Hardware.Camera2.Params.InputConfiguration" />
         <Parameter Name="outputs" Type="System.Collections.Generic.IList&lt;Android.Views.Surface&gt;" />
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraCaptureSession+StateCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="inputConfig">The configuration for the input <c>Surface</c></param>
@@ -1442,7 +1480,14 @@
         <Parameter Name="inputConfig" Type="Android.Hardware.Camera2.Params.InputConfiguration" />
         <Parameter Name="outputs" Type="System.Collections.Generic.IList&lt;Android.Hardware.Camera2.Params.OutputConfiguration&gt;" />
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraCaptureSession+StateCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="inputConfig">To be added.</param>
@@ -1589,8 +1634,16 @@
             mandatory stream combinations
             <c>android.hardware.camera2.params.MandatoryStreamCombination</c> are better suited for this
             purpose.</para>
-          <para>Note that session parameters will be ignored and calls to
-            <c>SessionConfiguration#setSessionParameters</c> are not required.</para>
+          <para>&lt;b&gt;NOTE:&lt;/b&gt;
+            For apps targeting <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> and above,
+            this method will automatically delegate to
+            <c>CameraDeviceSetup#isSessionConfigurationSupported</c> whenever possible. This
+            means that the output of this method will consider parameters set through
+            <c>SessionConfiguration#setSessionParameters</c> as well.</para>
+          <para>Session Parameters will be ignored for apps targeting &lt;=
+            <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, or if
+            <c>CameraManager#isCameraDeviceSetupSupported</c> returns false for the camera id
+            associated with this <c>CameraDevice</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraDevice.isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration)</code>.</a>

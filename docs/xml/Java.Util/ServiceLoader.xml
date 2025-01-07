@@ -36,125 +36,198 @@
   </Attributes>
   <Docs since="9">
     <param name="&lt;S&gt;&lt;S&gt;">The type of the service to be loaded by this loader</param>
-    <summary>A simple service-provider loading facility.</summary>
+    <summary>A facility to load implementations of a service.</summary>
     <remarks>
-      <para>A simple service-provider loading facility.</para>
-      <para>A <i>service</i> is a well-known set of interfaces and (usually
-            abstract) classes.  A <i>service provider</i> is a specific implementation
-            of a service.  The classes in a provider typically implement the interfaces
-            and subclass the classes defined in the service itself.  Service providers
-            can be installed in an implementation of the Java platform in the form of
-            extensions, that is, jar files placed into any of the usual extension
-            directories.  Providers can also be made available by adding them to the
-            application's class path or by some other platform-specific means.</para>
-      <para>For the purpose of loading, a service is represented by a single type,
-            that is, a single interface or abstract class.  (A concrete class can be
-            used, but this is not recommended.)  A provider of a given service contains
-            one or more concrete classes that extend this <i>service type</i> with data
-            and code specific to the provider.  The <i>provider class</i> is typically
-            not the entire provider itself but rather a proxy which contains enough
-            information to decide whether the provider is able to satisfy a particular
-            request together with code that can create the actual provider on demand.
-            The details of provider classes tend to be highly service-specific; no
-            single class or interface could possibly unify them, so no such type is
-            defined here.  The only requirement enforced by this facility is that
-            provider classes must have a zero-argument constructor so that they can be
-            instantiated during loading.</para>
-      <para>"format"&gt; A service provider is identified by placing a
-            &lt;i&gt;provider-configuration file&lt;/i&gt; in the resource directory
-            &lt;c&gt;META-INF/services&lt;/c&gt;.  The file's name is the fully-qualified binary name of the service's type.
-            The file contains a list of fully-qualified binary names of concrete
-            provider classes, one per line.  Space and tab characters surrounding each
-            name, as well as blank lines, are ignored.  The comment character is
-            <c>'#'</c> (<c>'&amp;#92;u0023'</c>,
-            &lt;font style="font-size:smaller;"&gt;NUMBER SIGN&lt;/font&gt;); on
-            each line all characters following the first comment character are ignored.
-            The file must be encoded in UTF-8.</para>
-      <para>If a particular concrete provider class is named in more than one
-            configuration file, or is named in the same configuration file more than
-            once, then the duplicates are ignored.  The configuration file naming a
-            particular provider need not be in the same jar file or other distribution
-            unit as the provider itself.  The provider must be accessible from the same
-            class loader that was initially queried to locate the configuration file;
-            note that this is not necessarily the class loader from which the file was
-            actually loaded.</para>
-      <para>Providers are located and instantiated lazily, that is, on demand.  A
-            service loader maintains a cache of the providers that have been loaded so
-            far.  Each invocation of the <c>#iterator iterator</c> method returns an
-            iterator that first yields all of the elements of the cache, in
+      <para>A facility to load implementations of a service.</para>
+      <para>A <i>service</i> is a well-known interface or class for which zero, one,
+            or many service providers exist. A <i>service provider</i> (or just
+            <i>provider</i>) is a class that implements or subclasses the well-known
+            interface or class. A <c>ServiceLoader</c> is an object that locates and
+            loads service providers deployed in the run time environment at a time of an
+            application's choosing. Application code refers only to the service, not to
+            service providers, and is assumed to be capable of choosing between multiple
+            service providers (based on the functionality they expose through the service),
+            and handling the possibility that no service providers are located.
+            
+            &lt;h2&gt; Obtaining a service loader &lt;/h2&gt;</para>
+      <para>An application obtains a service loader for a given service by invoking
+            one of the static <c>load</c> methods of <c>ServiceLoader</c>. &lt;!--If the
+            application is a module, then its module declaration must have a <i>uses</i>
+            directive that specifies the service; this helps to locate providers and ensure
+            they will execute reliably. In addition, if the application module does not
+            contain the service, then its module declaration must have a <i>requires</i>
+            directive that specifies the module which exports the service. It is strongly
+            recommended that the application module does &lt;b&gt;not&lt;/b&gt; require modules which
+            contain providers of the service.--/&gt;</para>
+      <para>A service loader can be used to locate and instantiate providers of the
+            service by means of the <c>#iterator() iterator</c> method. <c>ServiceLoader</c>
+            also defines the <c>#stream() stream</c> method to obtain a stream of providers
+            that can be inspected and filtered without instantiating them.</para>
+      <para>As an example, suppose the service is <c>com.example.CodecFactory</c>, an
+            interface that defines methods for producing encoders and decoders:</para>
+      <code lang="text/java">{@code
+                package com.example;
+                public interface CodecFactory {
+                    Encoder getEncoder(String encodingName);
+                    Decoder getDecoder(String encodingName);
+                }
+            }</code>
+      <para>The following code obtains a service loader for the <c>CodecFactory</c>
+            service, then uses its iterator (created automatically by the enhanced-for
+            loop) to yield instances of the service providers that are located:</para>
+      <code lang="text/java">{@code
+                ServiceLoader&lt;CodecFactory&gt; loader = ServiceLoader.load(CodecFactory.class);
+                for (CodecFactory factory : loader) {
+                    Encoder enc = factory.getEncoder("PNG");
+                    if (enc != null)
+                        ... use enc to encode a PNG file
+                        break;
+                    }
+            }</code>
+      <para>Sometimes an application may wish to inspect a service provider before
+            instantiating it, in order to determine if an instance of that service
+            provider would be useful. For example, a service provider for <c>CodecFactory</c> that is capable of producing a "PNG" encoder may be annotated
+            with <c>@PNG</c>. The following code uses service loader's <c>stream</c>
+            method to yield instances of <c>Provider&lt;CodecFactory&gt;</c> in contrast to
+            how the iterator yields instances of <c>CodecFactory</c>:</para>
+      <code lang="text/java">{@code
+                ServiceLoader&lt;CodecFactory&gt; loader = ServiceLoader.load(CodecFactory.class);
+                Set&lt;CodecFactory&gt; pngFactories = loader
+                       .stream()                                              // Note a below
+                       .filter(p -&gt; p.type().isAnnotationPresent(PNG.class))  // Note b
+                       .map(Provider::get)                                    // Note c
+                       .collect(Collectors.toSet());
+            }</code>
+      <para>&lt;ol type="a"&gt;
+              &lt;li&gt; A stream of <c>Provider&lt;CodecFactory&gt;</c> objects &lt;/li&gt;
+              &lt;li&gt; <c>p.type()</c> yields a <c>Class&lt;CodecFactory&gt;</c>&lt;/li&gt;
+              &lt;li&gt; <c>get()</c> yields an instance of <c>CodecFactory</c>&lt;/li&gt;
+            &lt;/ol&gt;
+            
+            &lt;h2&gt; Designing services &lt;/h2&gt;</para>
+      <para>A service is a single type, usually an interface or abstract class. A
+            concrete class can be used, but this is not recommended. The type may have
+            any accessibility. The methods of a service are highly domain-specific, so
+            this API specification cannot give concrete advice about their form or
+            function. However, there are two general guidelines:
+            &lt;ol&gt;
+              &lt;li&gt;</para>
+      <para>A service should declare as many methods as needed to allow service
+              providers to communicate their domain-specific properties and other
+              quality-of-implementation factors. An application which obtains a service
+              loader for the service may then invoke these methods on each instance of
+              a service provider, in order to choose the best provider for the
+              application.</para>
+      <para>&lt;/li&gt;
+              &lt;li&gt;</para>
+      <para>A service should express whether its service providers are intended
+              to be direct implementations of the service or to be an indirection
+              mechanism such as a "proxy" or a "factory". Service providers tend to be
+              indirection mechanisms when domain-specific objects are relatively
+              expensive to instantiate; in this case, the service should be designed
+              so that service providers are abstractions which create the "real"
+              implementation on demand. For example, the <c>CodecFactory</c> service
+              expresses through its name that its service providers are factories
+              for codecs, rather than codecs themselves, because it may be expensive
+              or complicated to produce certain codecs.</para>
+      <para>&lt;/li&gt;
+            &lt;/ol&gt;
+            
+            &lt;h2&gt; "developing-service-providers"&gt;Developing service providers&lt;/h2&gt;</para>
+      <para>A service provider is a single type, usually a concrete class. An
+            interface or abstract class is permitted because it may declare a static
+            provider method, discussed later. The type must be public and must not be
+            an inner class.</para>
+      <para>A service provider and its supporting code may be developed in a module,
+            which is then deployed on the application module path or in a modular
+            image. Alternatively, a service provider and its supporting code may be
+            packaged as a JAR file and deployed on the application class path. The
+            advantage of developing a service provider in a module is that the provider
+            can be fully encapsulated to hide all details of its implementation.</para>
+      <para>An application that obtains a service loader for a given service is
+            indifferent to whether providers of the service are deployed in modules or
+            packaged as JAR files. The application instantiates service providers via
+            the service loader's iterator, or via <c>Provider Provider</c> objects in
+            the service loader's stream, without knowledge of the service providers'
+            locations.
+            
+            &lt;h2&gt; Deploying service providers on the class path &lt;/h2&gt;
+            
+            A service provider that is packaged as a JAR file for the class path is
+            identified by placing a <i>provider-configuration file</i> in the resource
+            directory <c>META-INF/services</c>. The name of the provider-configuration
+            file is the fully qualified binary name of the service. The provider-configuration
+            file contains a list of fully qualified binary names of service providers, one
+            per line.</para>
+      <para>For example, suppose the service provider
+            <c>com.example.impl.StandardCodecs</c> is packaged in a JAR file for the
+            class path. The JAR file will contain a provider-configuration file named:
+            
+            &lt;blockquote&gt;<c>META-INF/services/com.example.CodecFactory</c>&lt;/blockquote&gt;
+            
+            that contains the line:
+            
+            &lt;blockquote&gt;<c>com.example.impl.StandardCodecs # Standard codecs</c>&lt;/blockquote&gt;</para>
+      <para>"format"&gt;The provider-configuration file must be encoded in UTF-8. 
+            Space and tab characters surrounding each service provider's name, as well as
+            blank lines, are ignored. The comment character is <c>'#'</c>
+            (<c>U+0023</c>&lt;span style="font-size:smaller;"&gt;NUMBER SIGN&lt;/span&gt;);
+            on each line all characters following the first comment character are ignored.
+            If a service provider class name is listed more than once in a
+            provider-configuration file then the duplicate is ignored. If a service
+            provider class is named in more than one configuration file then the duplicate
+            is ignored.</para>
+      <para>A service provider that is mentioned in a provider-configuration file may
+            be located in the same JAR file as the provider-configuration file or in a
+            different JAR file. The service provider must be visible from the class loader
+            that is initially queried to locate the provider-configuration file; this is
+            not necessarily the class loader which ultimately locates the
+            provider-configuration file.
+            
+            &lt;h2&gt; Timing of provider discovery &lt;/h2&gt;</para>
+      <para>Service providers are loaded and instantiated lazily, that is, on demand.
+            A service loader maintains a cache of the providers that have been loaded so
+            far. Each invocation of the <c>iterator</c> method returns an <c>Iterator</c>
+            that first yields all of the elements cached from previous iteration, in
             instantiation order, and then lazily locates and instantiates any remaining
-            providers, adding each one to the cache in turn.  The cache can be cleared
-            via the <c>#reload reload</c> method.</para>
-      <para>Service loaders always execute in the security context of the caller.
-            Trusted system code should typically invoke the methods in this class, and
-            the methods of the iterators which they return, from within a privileged
-            security context.</para>
+            providers, adding each one to the cache in turn. Similarly, each invocation
+            of the stream method returns a <c>Stream</c> that first processes all
+            providers loaded by previous stream operations, in load order, and then lazily
+            locates any remaining providers. Caches are cleared via the <c>#reload
+            reload</c> method.
+            
+            &lt;h2&gt; "errors"&gt;Errors&lt;/h2&gt;</para>
+      <para>When using the service loader's <c>iterator</c>, the <c>Iterator#hasNext() hasNext</c> and <c>Iterator#next() next</c> methods will
+            fail with <c>ServiceConfigurationError</c> if an error occurs locating,
+            loading or instantiating a service provider. When processing the service
+            loader's stream then <c>ServiceConfigurationError</c> may be thrown by any
+            method that causes a service provider to be located or loaded.</para>
+      <para>When loading or instantiating a service provider in a module, <c>ServiceConfigurationError</c> can be thrown for the following reasons:</para>
+      <para>When reading a provider-configuration file, or loading or instantiating
+            a provider class named in a provider-configuration file, then <c>ServiceConfigurationError</c> can be thrown for the following reasons:
+            
+            &lt;ul&gt;
+            
+              &lt;li&gt; The format of the provider-configuration file violates the format specified above; &lt;/li&gt;
+            
+              &lt;li&gt; An <c>IOException IOException</c> occurs while reading the
+              provider-configuration file; &lt;/li&gt;
+            
+              &lt;li&gt; A service provider cannot be loaded; &lt;/li&gt;
+            
+              &lt;li&gt; A service provider is not assignable to the service's interface or
+              class, or does not define a provider constructor, or cannot be
+              instantiated. &lt;/li&gt;
+            
+            &lt;/ul&gt;
+            
+            &lt;h2&gt; Concurrency &lt;/h2&gt;</para>
       <para>Instances of this class are not safe for use by multiple concurrent
-            threads.</para>
+            threads.
+            
+            &lt;h3&gt; Null handling &lt;/h3&gt;</para>
       <para>Unless otherwise specified, passing a <c>null</c> argument to any
             method in this class will cause a <c>NullPointerException</c> to be thrown.</para>
-      <para>&lt;span style="font-weight: bold; padding-right: 1em"&gt;Example&lt;/span&gt;
-            Suppose we have a service type <c>com.example.CodecSet</c> which is
-            intended to represent sets of encoder/decoder pairs for some protocol.  In
-            this case it is an abstract class with two abstract methods:
-            
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">public abstract Encoder getEncoder(String encodingName);
-            public abstract Decoder getDecoder(String encodingName);</code>
-      <para>&lt;/blockquote&gt;
-            
-            Each method returns an appropriate object or <c>null</c> if the provider
-            does not support the given encoding.  Typical providers support more than
-            one encoding.</para>
-      <para>If <c>com.example.impl.StandardCodecs</c> is an implementation of the
-            <c>CodecSet</c> service then its jar file also contains a file named
-            
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">META-INF/services/com.example.CodecSet</code>
-      <para>&lt;/blockquote&gt;</para>
-      <para>This file contains the single line:
-            
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">com.example.impl.StandardCodecs    # Standard codecs</code>
-      <para>&lt;/blockquote&gt;</para>
-      <para>The <c>CodecSet</c> class creates and saves a single service instance
-            at initialization:
-            
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">private static ServiceLoader&amp;lt;CodecSet&amp;gt; codecSetLoader
-                = ServiceLoader.load(CodecSet.class);</code>
-      <para>&lt;/blockquote&gt;</para>
-      <para>To locate an encoder for a given encoding name it defines a static
-            factory method which iterates through the known and available providers,
-            returning only when it has located a suitable encoder or has run out of
-            providers.
-            
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">public static Encoder getEncoder(String encodingName) {
-                for (CodecSet cp : codecSetLoader) {
-                    Encoder enc = cp.getEncoder(encodingName);
-                    if (enc != null)
-                        return enc;
-                }
-                return null;
-            }</code>
-      <para>&lt;/blockquote&gt;</para>
-      <para>A <c>getDecoder</c> method is defined similarly.</para>
-      <para>&lt;span style="font-weight: bold; padding-right: 1em"&gt;Usage Note&lt;/span&gt; If
-            the class path of a class loader that is used for provider loading includes
-            remote network URLs then those URLs will be dereferenced in the process of
-            searching for provider-configuration files.</para>
-      <para>This activity is normal, although it may cause puzzling entries to be
-            created in web-server logs.  If a web server is not configured correctly,
-            however, then this activity may cause the provider-loading algorithm to fail
-            spuriously.</para>
-      <para>A web server should return an HTTP 404 (Not Found) response when a
-            requested resource does not exist.  Sometimes, however, web servers are
-            erroneously configured to return an HTTP 200 (OK) response along with a
-            helpful HTML error page in such cases.  This will cause a <c>ServiceConfigurationError</c> to be thrown when this class attempts to parse
-            the HTML page as a provider-configuration file.  The best solution to this
-            problem is to fix the misconfigured web server to return the correct
-            response code (HTTP 404) along with the HTML error page.</para>
       <para>Added in 1.6.</para>
       <para>
         <format type="text/html">
@@ -319,6 +392,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -358,7 +435,6 @@
         <Parameter Name="service" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="&lt;S&gt;&lt;S&gt;">the class of the service type</param>
         <param name="service">The interface or abstract class representing the service</param>
         <summary>Creates a new service loader for the given service type, using the
             current thread's java.</summary>
@@ -420,7 +496,6 @@
         <Parameter Name="loader" Type="Java.Lang.ClassLoader" />
       </Parameters>
       <Docs>
-        <param name="&lt;S&gt;&lt;S&gt;">the class of the service type</param>
         <param name="service">The interface or abstract class representing the service</param>
         <param name="loader">The class loader to be used to load provider-configuration files
                     and provider classes, or <c>null</c> if the system class
@@ -472,7 +547,6 @@
         <Parameter Name="service" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="&lt;S&gt;&lt;S&gt;">the class of the service type</param>
         <param name="service">The interface or abstract class representing the service</param>
         <summary>Creates a new service loader for the given service type, using the
             extension class loader.</summary>
@@ -599,6 +673,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

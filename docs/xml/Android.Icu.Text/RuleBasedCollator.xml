@@ -17,19 +17,132 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/RuleBasedCollator", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>RuleBasedCollator is a concrete subclass of Collator.</summary>
     <remarks>
+      <para>RuleBasedCollator is a concrete subclass of Collator. It allows customization of the Collator via user-specified rule
+            sets. RuleBasedCollator is designed to be fully compliant to the <see href="https://www.unicode.org/reports/tr10/">Unicode Collation Algorithm (UCA)</see> and conforms to ISO 14651.</para>
+      <para>A Collator is thread-safe only when frozen. See <c>#isFrozen()</c> and <c>android.icu.util.Freezable</c>.</para>
+      <para>Users are strongly encouraged to read the <see href="https://unicode-org.github.io/icu/userguide/collation">User
+            Guide</see> for more information about the collation service before using this class.</para>
+      <para>Create a RuleBasedCollator from a locale by calling the getInstance(Locale) factory method in the base class
+            Collator. Collator.getInstance(Locale) creates a RuleBasedCollator object based on the collation rules defined by the
+            argument locale. If a customized collation ordering or attributes is required, use the RuleBasedCollator(String)
+            constructor with the appropriate rules. The customized RuleBasedCollator will base its ordering on the CLDR root collation, while
+            re-adjusting the attributes and orders of the characters in the specified rule accordingly.</para>
+      <para>RuleBasedCollator provides correct collation orders for most locales supported in ICU. If specific data for a locale
+            is not available, the orders eventually falls back to the
+            <see href="http://www.unicode.org/reports/tr35/tr35-collation.html#Root_Collation">CLDR root sort order</see>.</para>
+      <para>For information about the collation rule syntax and details about customization, please refer to the <see href="https://unicode-org.github.io/icu/userguide/collation/customization">Collation customization</see>
+            section of the User Guide.</para>
+      <para>&lt;strong&gt;Note&lt;/strong&gt; that there are some differences between the Collation rule syntax used in Java and ICU4J:
+            
+            &lt;ul&gt;
+            &lt;li&gt;According to the JDK documentation: &lt;br&gt;
+            <i>Modifier '!' : Turns on Thai/Lao vowel-consonant swapping. If this rule is in force when a Thai vowel of the range
+            &amp;#92;U0E40-&amp;#92;U0E44 precedes a Thai consonant of the range &amp;#92;U0E01-&amp;#92;U0E2E OR a Lao vowel of the range
+            &amp;#92;U0EC0-&amp;#92;U0EC4 precedes a Lao consonant of the range &amp;#92;U0E81-&amp;#92;U0EAE then the vowel is placed after the
+            consonant for collation purposes.
+            &lt;br&gt;
+            If a rule is without the modifier '!', the Thai/Lao vowel-consonant swapping is not turned on.
+            </i>&lt;br&gt;
+            ICU4J's RuleBasedCollator does not support turning off the Thai/Lao vowel-consonant swapping, since the UCA clearly
+            states that it has to be supported to ensure a correct sorting order. If a '!' is encountered, it is ignored.&lt;/li&gt;
+            &lt;li&gt;As mentioned in the documentation of the base class Collator, compatibility decomposition mode is not supported.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>&lt;strong&gt;Examples&lt;/strong&gt;</para>
+      <para>Creating Customized RuleBasedCollators: &lt;blockquote&gt;</para>
+      <code lang="text/java">String simple = "&amp;amp; a &amp;lt; b &amp;lt; c &amp;lt; d";
+            RuleBasedCollator simpleCollator = new RuleBasedCollator(simple);
+            
+            String norwegian = "&amp;amp; a , A &amp;lt; b , B &amp;lt; c , C &amp;lt; d , D &amp;lt; e , E "
+                               + "&amp;lt; f , F &amp;lt; g , G &amp;lt; h , H &amp;lt; i , I &amp;lt; j , "
+                               + "J &amp;lt; k , K &amp;lt; l , L &amp;lt; m , M &amp;lt; n , N &amp;lt; "
+                               + "o , O &amp;lt; p , P &amp;lt; q , Q &amp;lt;r , R &amp;lt;s , S &amp;lt; "
+                               + "t , T &amp;lt; u , U &amp;lt; v , V &amp;lt; w , W &amp;lt; x , X "
+                               + "&amp;lt; y , Y &amp;lt; z , Z &amp;lt; &amp;#92;u00E5 = a&amp;#92;u030A "
+                               + ", &amp;#92;u00C5 = A&amp;#92;u030A ; aa , AA &amp;lt; &amp;#92;u00E6 "
+                               + ", &amp;#92;u00C6 &amp;lt; &amp;#92;u00F8 , &amp;#92;u00D8";
+            RuleBasedCollator norwegianCollator = new RuleBasedCollator(norwegian);
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Concatenating rules to combine <c>Collator</c>s: &lt;blockquote&gt;</para>
+      <code lang="text/java">// Create an en_US Collator object
+            RuleBasedCollator en_USCollator = (RuleBasedCollator)
+                Collator.getInstance(new Locale("en", "US", ""));
+            // Create a da_DK Collator object
+            RuleBasedCollator da_DKCollator = (RuleBasedCollator)
+                Collator.getInstance(new Locale("da", "DK", ""));
+            // Combine the two
+            // First, get the collation rules from en_USCollator
+            String en_USRules = en_USCollator.getRules();
+            // Second, get the collation rules from da_DKCollator
+            String da_DKRules = da_DKCollator.getRules();
+            RuleBasedCollator newCollator =
+                                        new RuleBasedCollator(en_USRules + da_DKRules);
+            // newCollator has the combined rules
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Making changes to an existing RuleBasedCollator to create a new <c>Collator</c> object, by appending changes to
+            the existing rule: &lt;blockquote&gt;</para>
+      <code lang="text/java">// Create a new Collator object with additional rules
+            String addRules = "&amp;amp; C &amp;lt; ch, cH, Ch, CH";
+            RuleBasedCollator myCollator =
+                new RuleBasedCollator(en_USCollator.getRules() + addRules);
+            // myCollator contains the new rules
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            How to change the order of non-spacing accents: &lt;blockquote&gt;</para>
+      <code lang="text/java">// old rule with main accents
+            String oldRules = "= &amp;#92;u0301 ; &amp;#92;u0300 ; &amp;#92;u0302 ; &amp;#92;u0308 "
+                            + "; &amp;#92;u0327 ; &amp;#92;u0303 ; &amp;#92;u0304 ; &amp;#92;u0305 "
+                            + "; &amp;#92;u0306 ; &amp;#92;u0307 ; &amp;#92;u0309 ; &amp;#92;u030A "
+                            + "; &amp;#92;u030B ; &amp;#92;u030C ; &amp;#92;u030D ; &amp;#92;u030E "
+                            + "; &amp;#92;u030F ; &amp;#92;u0310 ; &amp;#92;u0311 ; &amp;#92;u0312 "
+                            + "&amp;lt; a , A ; ae, AE ; &amp;#92;u00e6 , &amp;#92;u00c6 "
+                            + "&amp;lt; b , B &amp;lt; c, C &amp;lt; e, E &amp;amp; C &amp;lt; d , D";
+            // change the order of accent characters
+            String addOn = "&amp;amp; &amp;#92;u0300 ; &amp;#92;u0308 ; &amp;#92;u0302";
+            RuleBasedCollator myCollator = new RuleBasedCollator(oldRules + addOn);
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Putting in a new primary ordering before the default setting, e.g. sort English characters before or after Japanese
+            characters in the Japanese <c>Collator</c>: &lt;blockquote&gt;</para>
+      <code lang="text/java">// get en_US Collator rules
+            RuleBasedCollator en_USCollator
+                                   = (RuleBasedCollator)Collator.getInstance(Locale.US);
+            // add a few Japanese characters to sort before English characters
+            // suppose the last character before the first base letter 'a' in
+            // the English collation rule is &amp;#92;u2212
+            String jaString = "&amp;amp; &amp;#92;u2212 &amp;lt;&amp;#92;u3041, &amp;#92;u3042 &amp;lt;&amp;#92;u3043, "
+                              + "&amp;#92;u3044";
+            RuleBasedCollator myJapaneseCollator
+                         = new RuleBasedCollator(en_USCollator.getRules() + jaString);
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>This class is not subclassable</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -57,10 +170,24 @@
         <Parameter Name="rules" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="rules">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="rules">the collation rules to build the collation table from.</param>
+        <summary>Constructor that takes the argument rules for customization.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructor that takes the argument rules for customization.
+            The collator will be based on the CLDR root collation, with the
+            attributes and re-ordering of the characters specified in the argument rules.</para>
+          <para>See the User Guide's section on <see href="https://unicode-org.github.io/icu/userguide/collation/customization">
+            Collation Customization</see> for details on the rule syntax.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#RuleBasedCollator(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.RuleBasedCollator(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -96,10 +223,41 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="shifted">true if SHIFTED behavior for alternate handling is desired, false for the NON_IGNORABLE behavior.</param>
+        <summary>Checks if the alternate handling behavior is the UCA defined SHIFTED or NON_IGNORABLE. -or- Sets the alternate handling for QUATERNARY strength to be either shifted or non-ignorable.</summary>
+        <value>true or false</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Checks if the alternate handling behavior is the UCA defined SHIFTED or NON_IGNORABLE. If return value is true,
+            then the alternate handling attribute for the Collator is SHIFTED. Otherwise if return value is false, then the
+            alternate handling attribute for the Collator is NON_IGNORABLE See setAlternateHandlingShifted(boolean) for more
+            details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#isAlternateHandlingShifted()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.isAlternateHandlingShifted()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the alternate handling for QUATERNARY strength to be either shifted or non-ignorable. See the UCA definition
+            on <see href="https://www.unicode.org/reports/tr10/#Variable_Weighting">Variable Weighting</see>. This
+            attribute will only be effective when QUATERNARY strength is set. If the mode is set to
+            false, it corresponds to the NON_IGNORABLE mode in UCA. In the NON_IGNORABLE mode, the RuleBasedCollator treats all
+            the code points with non-ignorable primary weights in the same way. If the mode is set to true, the behavior
+            corresponds to SHIFTED defined in UCA, this causes code points with PRIMARY orders that are equal or below the
+            variable top value to be ignored in PRIMARY order and moved to the QUATERNARY order.
+            The default setting in a Collator object depends on the locale data loaded from the
+            resources. For most locales, the default is false, but for others, such as "th",
+            the default could be true.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setAlternateHandlingShifted(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setAlternateHandlingShifted(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -135,10 +293,38 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="flag">true if case level sorting is required, false otherwise</param>
+        <summary>Checks if case level is set to true. -or- When case level is set to true, an additional weight is formed between the SECONDARY and TERTIARY weight, known
+            as the case level.</summary>
+        <value>the case level mode</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Checks if case level is set to true. See setCaseLevel(boolean) for details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#isCaseLevel()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.isCaseLevel()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>When case level is set to true, an additional weight is formed between the SECONDARY and TERTIARY weight, known
+            as the case level. The case level is used to distinguish large and small Japanese Kana characters. Case level
+            could also be used in other situations. For example to distinguish certain Pinyin characters. If the value
+            is false, it means the case level is not generated. The contents of the case level are affected by the case
+            first mode. A simple way to ignore accent differences in a string is to set the strength to PRIMARY and enable
+            case level. The default setting in a Collator object depends
+            on the locale data loaded from the resources.</para>
+          <para>See the section on <see href="https://unicode-org.github.io/icu/userguide/collation/architecture">case
+            level</see> for more information.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setCaseLevel(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setCaseLevel(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -170,12 +356,36 @@
         <Parameter Name="target" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the source text String.</param>
+        <param name="target">the target text String.</param>
+        <summary>Compares the source text String to the target text String according to the collation rules, strength and
+            decomposition mode for this RuleBasedCollator.</summary>
+        <returns>Returns an integer value. Value is less than zero if source is less than target, value is zero if source
+                    and target are equal, value is greater than zero if source is greater than target.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compares the source text String to the target text String according to the collation rules, strength and
+            decomposition mode for this RuleBasedCollator. Returns an integer less than, equal to or greater than zero
+            depending on whether the source String is less than, equal to or greater than the target String. See the Collator
+            class description for an example of use.</para>
+          <para>General recommendation: &lt;br&gt;
+            If comparison are to be done to the same String multiple times, it would be more efficient to generate
+            CollationKeys for the Strings and use CollationKey.compareTo(CollationKey) for the comparisons. If speed
+            performance is critical and object instantiation is to be reduced, further optimization may be achieved by
+            generating a simpler key of the form RawCollationKey and reusing this RawCollationKey object with the method
+            RuleBasedCollator.getRawCollationKey. Internal byte representation can be directly accessed via RawCollationKey
+            and stored for future use. Like CollationKey, RawCollationKey provides a method RawCollationKey.compareTo for key
+            comparisons. If the each Strings are compared to only once, using the method RuleBasedCollator.compare(String,
+            String) will have a better performance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#compare(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.compare(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -211,10 +421,33 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="flag">true to set the French collation on, false to set it off</param>
+        <summary>Checks if French Collation is set to true. -or- Sets the mode for the direction of SECONDARY weights to be used in French collation.</summary>
+        <value>true if French Collation is set to true, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Checks if French Collation is set to true. See setFrenchCollation(boolean) for details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#isFrenchCollation()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.isFrenchCollation()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the mode for the direction of SECONDARY weights to be used in French collation. If set to false,
+            which treats SECONDARY weights in the order they appear. If set to true, the SECONDARY weights will be sorted
+            backwards. See the section on <see href="https://unicode-org.github.io/icu/userguide/collation/architecture">
+            French collation</see> for more information. The default setting in a Collator object depends on the
+            locale data loaded from the resources. For example, for "fr_CA" locale, the default is true.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setFrenchCollation(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setFrenchCollation(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -246,10 +479,21 @@
       </Parameters>
       <Docs>
         <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Return a CollationElementIterator for the given UCharacterIterator.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a CollationElementIterator for the given UCharacterIterator. The source iterator's integrity will be
+            preserved since a new copy will be created for use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getCollationElementIterator(android.icu.text.UCharacterIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getCollationElementIterator(android.icu.text.UCharacterIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -281,10 +525,21 @@
       </Parameters>
       <Docs>
         <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Return a CollationElementIterator for the given CharacterIterator.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a CollationElementIterator for the given CharacterIterator. The source iterator's integrity will be
+            preserved since a new copy will be created for use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getCollationElementIterator(java.text.CharacterIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getCollationElementIterator(java.text.CharacterIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -316,10 +571,20 @@
       </Parameters>
       <Docs>
         <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Return a CollationElementIterator for the given String.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a CollationElementIterator for the given String.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getCollationElementIterator(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getCollationElementIterator(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -350,11 +615,28 @@
         <Parameter Name="source" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the text String to be transformed into a collation key.</param>
+        <summary>Get a Collation key for the argument String source from this RuleBasedCollator.</summary>
+        <returns>the CollationKey for the given String based on this RuleBasedCollator's collation rules. If the source
+                    String is null, a null CollationKey is returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get a Collation key for the argument String source from this RuleBasedCollator.</para>
+          <para>General recommendation: &lt;br&gt;
+            If comparison are to be done to the same String multiple times, it would be more efficient to generate
+            CollationKeys for the Strings and use CollationKey.compareTo(CollationKey) for the comparisons. If the each
+            Strings are compared to only once, using the method RuleBasedCollator.compare(String, String) will have a better
+            performance.</para>
+          <para>See the class documentation for an explanation about CollationKeys.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getCollationKey(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getCollationKey(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -387,12 +669,22 @@
         <Parameter Name="addPrefixes" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="contractions">To be added.</param>
-        <param name="expansions">To be added.</param>
-        <param name="addPrefixes">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="contractions">if not null, set to contain contractions</param>
+        <param name="expansions">if not null, set to contain expansions</param>
+        <param name="addPrefixes">add the prefix contextual elements to contractions</param>
+        <summary>Gets unicode sets containing contractions and/or expansions of a collator</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets unicode sets containing contractions and/or expansions of a collator</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getContractionsAndExpansions(android.icu.text.UnicodeSet,%20android.icu.text.UnicodeSet,%20boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getContractionsAndExpansions(android.icu.text.UnicodeSet, android.icu.text.UnicodeSet, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -423,11 +715,30 @@
         <Parameter Name="fullrules" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="fullrules">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="fullrules">true if the rules that defines the full set of collation order is required, otherwise false for
+                       returning only the tailored rules</param>
+        <summary>Returns current rules.</summary>
+        <returns>the current rules that defines this Collator.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns current rules.
+            The argument defines whether full rules (root collation + tailored) rules are returned
+            or just the tailoring.</para>
+          <para>The root collation rules are an <i>approximation</i> of the root collator's sort order.
+            They are almost never used or useful at runtime and can be removed from the data.
+            See <see href="https://unicode-org.github.io/icu/userguide/collation/customization#building-on-existing-locales">User Guide:
+            Collation Customization, Building on Existing Locales</see></para>
+          <para>
+            <c>#getRules()</c> should normally be used instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getRules(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getRules(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -449,6 +760,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -494,10 +809,35 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="lowerfirst">true for sorting lower cased characters before upper cased characters, false to ignore case
+                       preferences.</param>
+        <summary>Return true if a lowercase character is sorted before the corresponding uppercase character. -or- Sets the orders of lower cased characters to sort before upper cased characters, in strength TERTIARY.</summary>
+        <value>true lower cased characters are sorted before upper cased characters, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Return true if a lowercase character is sorted before the corresponding uppercase character. See
+            setCaseFirst(boolean) for details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#isLowerCaseFirst()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.isLowerCaseFirst()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the orders of lower cased characters to sort before upper cased characters, in strength TERTIARY.
+            If true is set, the RuleBasedCollator will sort lower cased characters before the upper
+            cased ones. Otherwise, if false is set, the RuleBasedCollator will ignore case preferences.
+            The default default setting in a Collator object depends on the locale data loaded from
+            the resources.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setLowerCaseFirst(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setLowerCaseFirst(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -533,10 +873,42 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="flag">true to turn numeric collation on and false to turn it off</param>
+        <summary>Method to retrieve the numeric collation value. -or- &lt;strong&gt;[icu]&lt;/strong&gt; When numeric collation is turned on, this Collator makes
+            substrings of digits sort according to their numeric values.</summary>
+        <value>true if numeric collation is turned on, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Method to retrieve the numeric collation value. When numeric collation is turned on, this Collator generates a
+            collation key for the numeric value of substrings of digits. This is a way to get '100' to sort AFTER '2'</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getNumericCollation()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getNumericCollation()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; When numeric collation is turned on, this Collator makes
+            substrings of digits sort according to their numeric values.</para>
+          <para>This is a way to get '100' to sort AFTER '2'. Note that the longest
+            digit substring that can be treated as a single unit is
+            254 digits (not counting leading zeros). If a digit substring is
+            longer than that, the digits beyond the limit will be treated as a
+            separate digit substring.</para>
+          <para>A "digit" in this sense is a code point with General_Category=Nd,
+            which does not include circled numbers, roman numerals, etc.
+            Only a contiguous digit substring is considered, that is,
+            non-negative integers without separators.
+            There is no support for plus/minus signs, decimals, exponents, etc.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setNumericCollation(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setNumericCollation(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -564,10 +936,23 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the collation tailoring rules for this RuleBasedCollator.</summary>
+        <value>the collation tailoring rules</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the collation tailoring rules for this RuleBasedCollator.
+            Equivalent to String getRules(false).</para>
+          <para>On Android, the returned string will be empty unless this instance was
+            constructed using <c>#RuleBasedCollator(String)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getRules()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getRules()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -596,9 +981,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Sets the alternate handling mode to the initial mode set during construction of the RuleBasedCollator.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the alternate handling mode to the initial mode set during construction of the RuleBasedCollator. See
+            setAlternateHandling(boolean) for more details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setAlternateHandlingDefault()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setAlternateHandlingDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -627,9 +1023,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Sets the case first mode to the initial mode set during construction of the RuleBasedCollator.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the case first mode to the initial mode set during construction of the RuleBasedCollator. See
+            setUpperCaseFirst(boolean) and setLowerCaseFirst(boolean) for more details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setCaseFirstDefault()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setCaseFirstDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -658,9 +1065,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Sets the case level mode to the initial mode set during construction of the RuleBasedCollator.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the case level mode to the initial mode set during construction of the RuleBasedCollator. See
+            setCaseLevel(boolean) for more details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setCaseLevelDefault()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setCaseLevelDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -689,9 +1107,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Sets the decomposition mode to the initial mode set during construction of the RuleBasedCollator.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the decomposition mode to the initial mode set during construction of the RuleBasedCollator. See
+            setDecomposition(int) for more details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setDecompositionDefault()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setDecompositionDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -720,9 +1149,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Sets the French collation mode to the initial mode set during construction of the RuleBasedCollator.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the French collation mode to the initial mode set during construction of the RuleBasedCollator. See
+            setFrenchCollation(boolean) for more details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setFrenchCollationDefault()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setFrenchCollationDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -751,9 +1191,19 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Method to set numeric collation to its default value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Method to set numeric collation to its default value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setNumericCollationDefault()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setNumericCollationDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -782,9 +1232,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Sets the collation strength to the initial mode set during the construction of the RuleBasedCollator.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the collation strength to the initial mode set during the construction of the RuleBasedCollator. See
+            setStrength(int) for more details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setStrengthDefault()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setStrengthDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -838,6 +1299,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -874,10 +1339,20 @@
         <ReturnType>Android.Icu.Util.VersionInfo</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the UCA version of this collator object.</summary>
+        <value>the version object associated with this collator</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the UCA version of this collator object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getUCAVersion()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getUCAVersion()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -913,10 +1388,35 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="upperfirst">true to sort uppercase characters before lowercase characters, false to sort lowercase characters
+                       before uppercase characters</param>
+        <summary>Return true if an uppercase character is sorted before the corresponding lowercase character. -or- Sets whether uppercase characters sort before lowercase characters or vice versa, in strength TERTIARY.</summary>
+        <value>true if upper cased characters are sorted before lower cased characters, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Return true if an uppercase character is sorted before the corresponding lowercase character. See
+            setCaseFirst(boolean) for details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#isUpperCaseFirst()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.isUpperCaseFirst()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets whether uppercase characters sort before lowercase characters or vice versa, in strength TERTIARY.
+            If false, lowercase characters sort before uppercase characters. If true, sort upper case
+            characters first. The default setting in a Collator object depends on the
+            locale data loaded from the resources. For most locales, the default is false,
+            but for others, such as "da" or "mt", the default could be true.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#setUpperCaseFirst(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.setUpperCaseFirst(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -944,10 +1444,20 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Gets the variable top value of a Collator.</summary>
+        <value>the variable top primary weight</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Gets the variable top value of a Collator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getVariableTop()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getVariableTop()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -975,10 +1485,20 @@
         <ReturnType>Android.Icu.Util.VersionInfo</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the version of this collator object.</summary>
+        <value>the version object associated with this collator</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the version of this collator object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getVersion()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getVersion()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

@@ -17,19 +17,35 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/aware/SubscribeDiscoverySession", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>A class representing a Aware subscribe session.</summary>
     <remarks>
+      <para>A class representing a Aware subscribe session. Created when
+            <c>WifiAwareSession#subscribe(SubscribeConfig,
+            DiscoverySessionCallback, android.os.Handler)</c>
+            is called and a discovery session is created and returned in
+            <c>DiscoverySessionCallback#onSubscribeStarted(SubscribeDiscoverySession)</c>.
+            See baseline functionality of all discovery sessions in <c>DiscoverySession</c>.
+            This object allows updating an existing/running subscribe discovery session using
+            <c>#updateSubscribe(SubscribeConfig)</c>.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/aware/SubscribeDiscoverySession" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/aware/SubscribeDiscoverySession" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.SubscribeDiscoverySession</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -176,10 +192,31 @@
         <Parameter Name="subscribeConfig" Type="Android.Net.Wifi.Aware.SubscribeConfig" />
       </Parameters>
       <Docs>
-        <param name="subscribeConfig">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subscribeConfig">The new discovery subscribe session configuration
+                                   (<c>SubscribeConfig</c>).</param>
+        <summary>Re-configure the currently active subscribe session.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Re-configure the currently active subscribe session. The
+            <c>DiscoverySessionCallback</c> is not replaced - the same listener used
+            at creation is still used. The results of the configuration are returned using
+            <c>DiscoverySessionCallback</c>:
+            &lt;ul&gt;
+                &lt;li&gt;<c>DiscoverySessionCallback#onSessionConfigUpdated()</c>: configuration
+                update succeeded.
+                &lt;li&gt;<c>DiscoverySessionCallback#onSessionConfigFailed()</c>: configuration
+                update failed. The subscribe discovery session is still running using its previous
+                configuration (i.e. update failure does not terminate the session).
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/SubscribeDiscoverySession#updateSubscribe(android.net.wifi.aware.SubscribeConfig)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.SubscribeDiscoverySession.updateSubscribe(android.net.wifi.aware.SubscribeConfig)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

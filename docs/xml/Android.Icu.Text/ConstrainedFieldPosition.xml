@@ -17,13 +17,33 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/ConstrainedFieldPosition", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Represents a span of a string containing a given field.</summary>
+    <remarks>
+      <para>Represents a span of a string containing a given field.</para>
+      <para>This class differs from FieldPosition in the following ways:</para>
+      <para>1. It has information on the field category.
+              2. It allows you to set constraints to use when iterating over field positions.
+              3. It is used for the newer FormattedValue APIs.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -47,8 +67,21 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes a CategoryFieldPosition.</summary>
+        <remarks>
+          <para>Initializes a CategoryFieldPosition.</para>
+          <para>By default, the CategoryFieldPosition has no iteration constraints.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#ConstrainedFieldPosition()" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.ConstrainedFieldPosition()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -99,9 +132,34 @@
         <Parameter Name="classConstraint" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="classConstraint">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="classConstraint">The field class to fix when iterating.</param>
+        <summary>Sets a constraint on the field class.</summary>
+        <remarks>
+          <para>Sets a constraint on the field class.
+            
+            When this instance of ConstrainedFieldPosition is passed to <c>FormattedValue#nextPosition</c>, positions are
+            skipped unless the field is an instance of the class constraint, including subclasses.
+            
+            Any previously set constraints are cleared.
+            
+            For example, to loop over only the number-related fields:</para>
+          <code lang="text/java">ConstrainedFieldPosition cfpos;
+            cfpos.constrainClass(NumberFormat.Field.class);
+            while (fmtval.nextPosition(cfpos)) {
+              // handle the number-related field position
+            }
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#constrainClass(java.lang.Class%3C?%3E)" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.constrainClass(java.lang.Class&lt;?&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ConstrainField">
@@ -189,9 +247,22 @@
         <ReturnType>Java.Lang.Object</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the value associated with the current field position.</summary>
+        <value>The value for the current position. Might be null.</value>
+        <remarks>
+          <para>Gets the value associated with the current field position. The field value is often not set.</para>
+          <para>The return value is well-defined only after FormattedValue#nextPosition returns true.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#getFieldValue()" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.getFieldValue()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Int64IterationContext">
@@ -226,9 +297,33 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <param name="context">The new iteration context.</param>
+        <summary>Gets an int64 that FormattedValue implementations may use for storage. -or- Sets an int64 that FormattedValue implementations may use for storage.</summary>
+        <value>The current iteration context from <c>#setInt64IterationContext</c>.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Gets an int64 that FormattedValue implementations may use for storage.</para>
+          <para>The initial value is zero.</para>
+          <para>Users of FormattedValue should not need to call this method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#getInt64IterationContext()" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.getInt64IterationContext()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets an int64 that FormattedValue implementations may use for storage.</para>
+          <para>Intended to be used by FormattedValue implementations.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#setInt64IterationContext(long)" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.setInt64IterationContext(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -249,6 +344,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -284,9 +383,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the EXCLUSIVE end index stored for the current position.</summary>
+        <value>The end index saved in the instance.</value>
+        <remarks>
+          <para>Gets the EXCLUSIVE end index stored for the current position.</para>
+          <para>The return value is well-defined only after FormattedValue#nextPosition returns true.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#getLimit()" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.getLimit()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MatchesField">
@@ -349,8 +461,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Resets this ConstrainedFieldPosition to its initial state, as if it were newly created:</summary>
+        <remarks>
+          <para>Resets this ConstrainedFieldPosition to its initial state, as if it were newly created:</para>
+          <para>- Removes any constraints that may have been set on the instance.
+            - Resets the iteration position.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#reset()" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.reset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetState">
@@ -415,9 +541,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the INCLUSIVE start index for the current position.</summary>
+        <value>The start index saved in the instance.</value>
+        <remarks>
+          <para>Gets the INCLUSIVE start index for the current position.</para>
+          <para>The return value is well-defined only after FormattedValue#nextPosition returns true.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#getStart()" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.getStart()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -467,6 +606,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

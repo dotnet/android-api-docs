@@ -17,13 +17,33 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/http/BidirectionalStream", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Class for bidirectional sending and receiving of data over HTTP/2 or QUIC connections.</summary>
+    <remarks>
+      <para>Class for bidirectional sending and receiving of data over HTTP/2 or QUIC connections. Created by
+            <c>Builder</c>.
+            
+            Note: There are ordering restrictions on methods of <c>BidirectionalStream</c>;
+            please see individual methods for description of restrictions.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -97,8 +117,27 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Cancels the stream.</summary>
+        <remarks>
+          <para>Cancels the stream. Can be called at any time after <c>#start</c>. <c>Callback#onCanceled onCanceled()</c> will be invoked when cancelation is complete and no further
+            callback methods will be invoked. If the stream has completed or has not started, calling
+            <c>cancel()</c> has no effect and <c>onCanceled()</c> will not be invoked. If the <c>Executor</c> passed in during
+            <c>BidirectionalStream</c> construction runs tasks on a single thread, and <c>cancel()</c>
+            is called on that thread, no listener methods (besides <c>onCanceled()</c>) will be invoked
+            after
+            <c>cancel()</c> is called. Otherwise, at most one callback method may be invoked after
+            <c>cancel()</c> has completed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#cancel()" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.cancel()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Flush">
@@ -126,8 +165,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Flushes pending writes.</summary>
+        <remarks>
+          <para>Flushes pending writes. This method should not be invoked before <c>Callback#onStreamReady onStreamReady()</c>. For previously delayed <c>#write write()</c>s, a
+            corresponding <c>Callback#onWriteCompleted onWriteCompleted()</c> will be invoked when the
+            buffer is sent.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#flush()" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.flush()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HasTrafficStatsTag">
@@ -389,9 +442,31 @@
         <Parameter Name="buffer" Type="Java.Nio.ByteBuffer" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="buffer">the <c>ByteBuffer</c> to read data into. Must be a direct ByteBuffer. The
+            embedder must not read or modify buffer's position, limit, or data between its position and
+            limit until <c>Callback#onReadCompleted onReadCompleted()</c>, <c>Callback#onCanceled
+            onCanceled()</c>, or <c>Callback#onFailed onFailed()</c> are invoked.</param>
+        <summary>Reads data from the stream into the provided buffer.</summary>
+        <remarks>
+          <para>Reads data from the stream into the provided buffer. Can only be called at most once in
+            response to each invocation of the <c>Callback#onStreamReady onStreamReady()</c>/ <c>Callback#onResponseHeadersReceived onResponseHeadersReceived()</c> and <c>Callback#onReadCompleted onReadCompleted()</c> methods of the <c>Callback</c>. Each call will
+            result in an invocation of one of the <c>Callback Callback</c>'s <c>Callback#onReadCompleted onReadCompleted()</c> method if data is read, or its <c>Callback#onFailed onFailed()</c> method if there's an error.
+            
+            An attempt to read data into <c>buffer</c> starting at <c>buffer.position()</c> is begun.
+            At most <c>buffer.remaining()</c> bytes are read. <c>buffer.position()</c> is updated upon
+            invocation of <c>Callback#onReadCompleted onReadCompleted()</c> to indicate how much data
+            was read.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#read(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.read(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Start">
@@ -419,8 +494,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts the stream, all callbacks go to the <c>callback</c> argument passed to <c>BidirectionalStream.Builder</c>'s constructor.</summary>
+        <remarks>
+          <para>Starts the stream, all callbacks go to the <c>callback</c> argument passed to <c>BidirectionalStream.Builder</c>'s constructor. Should only be called once.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#start()" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.start()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StreamPriorityHighest">
@@ -452,8 +539,20 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Highest stream priority.</summary>
+        <remarks>
+          <para>Highest stream priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#STREAM_PRIORITY_HIGHEST" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.STREAM_PRIORITY_HIGHEST</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StreamPriorityIdle">
@@ -485,8 +584,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Lowest stream priority.</summary>
+        <remarks>
+          <para>Lowest stream priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#STREAM_PRIORITY_IDLE" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.STREAM_PRIORITY_IDLE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StreamPriorityLow">
@@ -518,8 +629,20 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Low stream priority.</summary>
+        <remarks>
+          <para>Low stream priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#STREAM_PRIORITY_LOW" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.STREAM_PRIORITY_LOW</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StreamPriorityLowest">
@@ -551,8 +674,20 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Very low stream priority.</summary>
+        <remarks>
+          <para>Very low stream priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#STREAM_PRIORITY_LOWEST" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.STREAM_PRIORITY_LOWEST</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StreamPriorityMedium">
@@ -584,8 +719,21 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Medium stream priority.</summary>
+        <remarks>
+          <para>Medium stream priority. Passed to <c>Builder#setPriority</c>. This is the
+            default priority given to the stream.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#STREAM_PRIORITY_MEDIUM" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.STREAM_PRIORITY_MEDIUM</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -732,10 +880,35 @@
         <Parameter Name="endOfStream" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="endOfStream">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="buffer">the <c>ByteBuffer</c> to write data from. Must be a direct ByteBuffer. The
+            embedder must not read or modify buffer's position, limit, or data between its position and
+            limit until <c>Callback#onWriteCompleted onWriteCompleted()</c>, <c>Callback#onCanceled
+            onCanceled()</c>, or <c>Callback#onFailed onFailed()</c> are invoked. Can be empty when <c>endOfStream</c> is <c>true</c>.</param>
+        <param name="endOfStream">if <c>true</c>, then <c>buffer</c> is the last buffer to be written, and
+            once written, stream is closed from the client side, resulting in half-closed stream or a
+            fully closed stream if the remote side has already closed.</param>
+        <summary>Attempts to write data from the provided buffer into the stream.</summary>
+        <remarks>
+          <para>Attempts to write data from the provided buffer into the stream. If auto flush is disabled,
+            data will be sent only after <c>#flush flush()</c> is called. Each call will result in an
+            invocation of one of the <c>Callback Callback</c>'s <c>Callback#onWriteCompleted
+            onWriteCompleted()</c> method if data is sent, or its <c>Callback#onFailed onFailed()</c>
+            method if there's an error.
+            
+            An attempt to write data from <c>buffer</c> starting at <c>buffer.position()</c> is begun.
+            <c>buffer.remaining()</c> bytes will be written. <c>Callback#onWriteCompleted
+            onWriteCompleted()</c> will be invoked only when the full ByteBuffer is written.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/BidirectionalStream#write(java.nio.ByteBuffer,%20boolean)" title="Reference documentation">Java documentation for <code>android.net.http.BidirectionalStream.write(java.nio.ByteBuffer, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

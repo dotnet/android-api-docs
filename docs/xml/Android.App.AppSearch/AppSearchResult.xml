@@ -21,6 +21,10 @@
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "ValueType" })&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -29,6 +33,7 @@
     <param name="&lt;ValueType&gt;&lt;ValueType&gt;">The type of result object for successful calls.</param>
     <summary>Information about the success or failure of an AppSearch call.</summary>
     <remarks>
+      <para>Information about the success or failure of an AppSearch call.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult</code>.</a>
@@ -54,6 +59,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
         </Attribute>
@@ -69,6 +78,10 @@
         <summary>Returns the error message associated with this result.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns the error message associated with this result.</para>
+          <para>If <c>#isSuccess</c> is <c>true</c>, the error message is always <c>null</c>. The error
+            message may be <c>null</c> even if <c>#isSuccess</c> is <c>false</c>. See the
+            documentation of the particular <c>AppSearchSession</c> call producing this <c>AppSearchResult</c> for what is returned by <c>#getErrorMessage</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#getErrorMessage()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.getErrorMessage()</code>.</a>
@@ -109,6 +122,7 @@
         <summary>Returns <c>true</c> if <c>#getResultCode</c> equals <c>AppSearchResult#RESULT_OK</c>.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns <c>true</c> if <c>#getResultCode</c> equals <c>AppSearchResult#RESULT_OK</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#isSuccess()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.isSuccess()</code>.</a>
@@ -181,13 +195,24 @@
       <Parameters>
         <Parameter Name="resultCode" Type="System.Int32">
           <Attributes>
-            <Attribute>
+            <Attribute FrameworkAlternate="net-android-34.0">
               <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "ResultOk", "ResultUnknownError", "ResultInternalError", "ResultInvalidArgument", "ResultIoError", "ResultOutOfSpace", "ResultNotFound", "ResultInvalidSchema", "ResultSecurityError" }, Type="Android.App.AppSearch.AppSearchResult")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "ResultOk", "ResultUnknownError", "ResultInternalError", "ResultInvalidArgument", "ResultIoError", "ResultOutOfSpace", "ResultNotFound", "ResultInvalidSchema", "ResultSecurityError" }, Type="Android.App.AppSearch.AppSearchResult")&gt;]</AttributeName>
             </Attribute>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "ResultOk", "ResultUnknownError", "ResultInternalError", "ResultInvalidArgument", "ResultIoError", "ResultOutOfSpace", "ResultNotFound", "ResultInvalidSchema", "ResultSecurityError", "ResultDenied", "ResultRateLimited" }, Type="Android.App.AppSearch.AppSearchResult")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "ResultOk", "ResultUnknownError", "ResultInternalError", "ResultInvalidArgument", "ResultIoError", "ResultOutOfSpace", "ResultNotFound", "ResultInvalidSchema", "ResultSecurityError", "ResultDenied", "ResultRateLimited" }, Type="Android.App.AppSearch.AppSearchResult")&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="errorMessage" Type="System.String" />
+        <Parameter Name="errorMessage" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="resultCode">One of the constants documented in <c>AppSearchResult#getResultCode</c>.</param>
@@ -195,6 +220,7 @@
         <summary>Creates a new failed <c>AppSearchResult</c>.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Creates a new failed <c>AppSearchResult</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#newFailedResult(int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.newFailedResult(int, java.lang.String)</code>.</a>
@@ -236,7 +262,14 @@
         <ReturnType>Android.App.AppSearch.AppSearchResult</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="value" Type="Java.Lang.Object" />
+        <Parameter Name="value" Type="Java.Lang.Object">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="value">An optional value to associate with the successful result of the operation being
@@ -244,6 +277,7 @@
         <summary>Creates a new successful <c>AppSearchResult</c>.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Creates a new successful <c>AppSearchResult</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#newSuccessfulResult(ValueType)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.newSuccessfulResult(ValueType)</code>.</a>
@@ -284,9 +318,56 @@
         <summary>Returns one of the <c>RESULT</c> constants defined in <c>AppSearchResult</c>.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns one of the <c>RESULT</c> constants defined in <c>AppSearchResult</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#getResultCode()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.getResultCode()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResultDenied">
+      <MemberSignature Language="C#" Value="public const Android.App.AppSearch.AppSearchResultCode ResultDenied = 9;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AppSearch.AppSearchResultCode ResultDenied = (9)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AppSearch.AppSearchResult.ResultDenied" />
+      <MemberSignature Language="F#" Value="val mutable ResultDenied : Android.App.AppSearch.AppSearchResultCode" Usage="Android.App.AppSearch.AppSearchResult.ResultDenied" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("RESULT_DENIED", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("RESULT_DENIED", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AppSearch.AppSearchResultCode enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AppSearch.AppSearchResultCode enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppSearch.AppSearchResultCode</ReturnType>
+      </ReturnValue>
+      <MemberValue>9</MemberValue>
+      <Docs>
+        <summary>The requested operation is denied for the caller.</summary>
+        <remarks>
+          <para>The requested operation is denied for the caller. This error is logged and returned for
+            denylist rejections.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_DENIED" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_DENIED</code>.</a>
             </format>
           </para>
           <para>
@@ -328,6 +409,8 @@
       <Docs>
         <summary>An internal error occurred within AppSearch, which the caller cannot address.</summary>
         <remarks>
+          <para>An internal error occurred within AppSearch, which the caller cannot address.</para>
+          <para>This error may be considered similar to <c>IllegalStateException</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_INTERNAL_ERROR" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_INTERNAL_ERROR</code>.</a>
@@ -372,6 +455,8 @@
       <Docs>
         <summary>The caller supplied invalid arguments to the call.</summary>
         <remarks>
+          <para>The caller supplied invalid arguments to the call.</para>
+          <para>This error may be considered similar to <c>IllegalArgumentException</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_INVALID_ARGUMENT" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_INVALID_ARGUMENT</code>.</a>
@@ -416,6 +501,7 @@
       <Docs>
         <summary>The caller supplied a schema which is invalid or incompatible with the previous schema.</summary>
         <remarks>
+          <para>The caller supplied a schema which is invalid or incompatible with the previous schema.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_INVALID_SCHEMA" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_INVALID_SCHEMA</code>.</a>
@@ -460,6 +546,8 @@
       <Docs>
         <summary>An issue occurred reading or writing to storage.</summary>
         <remarks>
+          <para>An issue occurred reading or writing to storage. The call might succeed if repeated.</para>
+          <para>This error may be considered similar to <c>java.io.IOException</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_IO_ERROR" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_IO_ERROR</code>.</a>
@@ -504,6 +592,7 @@
       <Docs>
         <summary>An entity the caller requested to interact with does not exist in the system.</summary>
         <remarks>
+          <para>An entity the caller requested to interact with does not exist in the system.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_NOT_FOUND" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_NOT_FOUND</code>.</a>
@@ -548,6 +637,7 @@
       <Docs>
         <summary>The call was successful.</summary>
         <remarks>
+          <para>The call was successful.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_OK" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_OK</code>.</a>
@@ -592,9 +682,56 @@
       <Docs>
         <summary>Storage is out of space, and no more space could be reclaimed.</summary>
         <remarks>
+          <para>Storage is out of space, and no more space could be reclaimed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_OUT_OF_SPACE" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_OUT_OF_SPACE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ResultRateLimited">
+      <MemberSignature Language="C#" Value="public const Android.App.AppSearch.AppSearchResultCode ResultRateLimited = 10;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AppSearch.AppSearchResultCode ResultRateLimited = (10)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AppSearch.AppSearchResult.ResultRateLimited" />
+      <MemberSignature Language="F#" Value="val mutable ResultRateLimited : Android.App.AppSearch.AppSearchResultCode" Usage="Android.App.AppSearch.AppSearchResult.ResultRateLimited" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("RESULT_RATE_LIMITED", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("RESULT_RATE_LIMITED", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AppSearch.AppSearchResultCode enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AppSearch.AppSearchResultCode enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppSearch.AppSearchResultCode</ReturnType>
+      </ReturnValue>
+      <MemberValue>10</MemberValue>
+      <Docs>
+        <summary>The caller has hit AppSearch's rate limit and the requested operation has been rejected.</summary>
+        <remarks>
+          <para>The caller has hit AppSearch's rate limit and the requested operation has been rejected. The
+            caller is recommended to reschedule tasks with exponential backoff.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_RATE_LIMITED" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_RATE_LIMITED</code>.</a>
             </format>
           </para>
           <para>
@@ -636,6 +773,7 @@
       <Docs>
         <summary>The caller requested an operation it does not have privileges for.</summary>
         <remarks>
+          <para>The caller requested an operation it does not have privileges for.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_SECURITY_ERROR" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_SECURITY_ERROR</code>.</a>
@@ -680,6 +818,7 @@
       <Docs>
         <summary>An unknown error occurred while processing the call.</summary>
         <remarks>
+          <para>An unknown error occurred while processing the call.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#RESULT_UNKNOWN_ERROR" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.RESULT_UNKNOWN_ERROR</code>.</a>
@@ -705,6 +844,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
         </Attribute>
@@ -720,6 +863,9 @@
         <summary>Returns the result value associated with this result, if it was successful.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns the result value associated with this result, if it was successful.</para>
+          <para>See the documentation of the particular <c>AppSearchSession</c> call producing this
+            <c>AppSearchResult</c> for what is placed in the result value by that call.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchResult#getResultValue()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchResult.getResultValue()</code>.</a>

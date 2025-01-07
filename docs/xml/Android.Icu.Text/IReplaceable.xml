@@ -25,14 +25,59 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>Replaceable</c> is an interface representing a
+            string of characters that supports the replacement of a range of
+            itself with a new string of characters.</summary>
     <remarks>
       <para>
+        <c>Replaceable</c> is an interface representing a
+            string of characters that supports the replacement of a range of
+            itself with a new string of characters.  It is used by APIs that
+            change a piece of text while retaining metadata.  Metadata is data
+            other than the Unicode characters returned by char32At().  One
+            example of metadata is style attributes; another is an edit
+            history, marking each character with an author and revision number.</para>
+      <para>An implicit aspect of the <c>Replaceable</c> API is that
+            during a replace operation, new characters take on the metadata of
+            the old characters.  For example, if the string "the &lt;b&gt;bold&lt;/b&gt;
+            font" has range (4, 8) replaced with "strong", then it becomes "the
+            &lt;b&gt;strong&lt;/b&gt; font".</para>
+      <para>
+        <c>Replaceable</c> specifies ranges using a start
+            offset and a limit offset.  The range of characters thus specified
+            includes the characters at offset start..limit-1.  That is, the
+            start offset is inclusive, and the limit offset is exclusive.</para>
+      <para>
+        <c>Replaceable</c> also includes API to access characters
+            in the string: <c>length()</c>, <c>charAt()</c>,
+            <c>char32At()</c>, and <c>extractBetween()</c>.</para>
+      <para>For a subclass to support metadata, typical behavior of
+            <c>replace()</c> is the following:
+            &lt;ul&gt;
+              &lt;li&gt;Set the metadata of the new text to the metadata of the first
+              character replaced&lt;/li&gt;
+              &lt;li&gt;If no characters are replaced, use the metadata of the
+              previous character&lt;/li&gt;
+              &lt;li&gt;If there is no previous character (i.e. start == 0), use the
+              following character&lt;/li&gt;
+              &lt;li&gt;If there is no following character (i.e. the replaceable was
+              empty), use default metadata&lt;br&gt;
+              &lt;li&gt;If the code point U+FFFF is seen, it should be interpreted as
+              a special marker having no metadata&lt;li&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+            If this is not the behavior, the subclass should document any differences.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/Replaceable" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/Replaceable" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -63,11 +108,29 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="offset">an integer between 0 and <c>length()</c>-1
+            inclusive</param>
+        <summary>Returns the 32-bit code point at the given 16-bit offset into
+            the text.</summary>
+        <returns>32-bit code point of text at given offset</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the 32-bit code point at the given 16-bit offset into
+            the text.  This assumes the text is stored as 16-bit code units
+            with surrogate pairs intermixed.  If the offset of a leading or
+            trailing code unit of a surrogate pair is given, return the
+            code point of the surrogate pair.</para>
+          <para>Most subclasses can return
+            <c>android.icu.text.UTF16.charAt(this, offset)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Replaceable#char32At(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable.char32At(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -98,11 +161,22 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="offset">an integer between 0 and <c>length()</c>-1
+            inclusive</param>
+        <summary>Returns the 16-bit code unit at the given offset into the text.</summary>
+        <returns>16-bit code unit of text at given offset</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the 16-bit code unit at the given offset into the text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Replaceable#charAt(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable.charAt(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -135,12 +209,34 @@
         <Parameter Name="dest" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="limit">To be added.</param>
-        <param name="dest">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="start">the beginning index, inclusive; <c>0 &amp;lt;= start &amp;lt;=
+            limit</c>.</param>
+        <param name="limit">the ending index, exclusive; <c>start &amp;lt;= limit &amp;lt;=
+            length()</c>.</param>
+        <param name="dest">the destination index.  The characters from
+            <c>start..limit-1</c> will be copied to <c>dest</c>.
+            Implementations of this method may assume that <c>dest &amp;lt;= start ||
+            dest &amp;gt;= limit</c>.</param>
+        <summary>Copies a substring of this object, retaining metadata.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Copies a substring of this object, retaining metadata.
+            This method is used to duplicate or reorder substrings.
+            The destination index must not overlap the source range.
+            If <c>hasMetaData()</c> returns false, subclasses
+            may use the naive implementation:</para>
+          <code lang="text/java">char[] text = new char[limit - start];
+            getChars(start, limit, text, 0);
+            replace(dest, dest, text, 0, limit - start);</code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Replaceable#copy(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable.copy(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -174,13 +270,33 @@
         <Parameter Name="dstStart" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="srcStart">To be added.</param>
-        <param name="srcLimit">To be added.</param>
-        <param name="dst">To be added.</param>
-        <param name="dstStart">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="srcStart">the beginning index to copy, inclusive; <c>0
+            &amp;lt;= start &amp;lt;= limit</c>.</param>
+        <param name="srcLimit">the ending index to copy, exclusive;
+            <c>start &amp;lt;= limit &amp;lt;= length()</c>.</param>
+        <param name="dst">the destination array.</param>
+        <param name="dstStart">the start offset in the destination array.</param>
+        <summary>Copies characters from this object into the destination
+            character array.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Copies characters from this object into the destination
+            character array.  The first character to be copied is at index
+            <c>srcStart</c>; the last character to be copied is at
+            index <c>srcLimit-1</c> (thus the total number of
+            characters to be copied is <c>srcLimit-srcStart</c>). The
+            characters are copied into the subarray of <c>dst</c>
+            starting at index <c>dstStart</c> and ending at index
+            <c>dstStart + (srcLimit-srcStart) - 1</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Replaceable#getChars(int,%20int,%20char[],%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable.getChars(int, int, char[], int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -240,10 +356,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the number of 16-bit code units in the text.</summary>
+        <returns>number of 16-bit code units in text</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the number of 16-bit code units in the text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Replaceable#length()" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable.length()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -276,12 +402,32 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="limit">To be added.</param>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="start">the beginning index, inclusive; <c>0 &amp;lt;= start
+            &amp;lt;= limit</c>.</param>
+        <param name="limit">the ending index, exclusive; <c>start &amp;lt;= limit
+            &amp;lt;= length()</c>.</param>
+        <param name="text">the text to replace characters <c>start</c>
+            to <c>limit - 1</c></param>
+        <summary>Replaces a substring of this object with the given text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Replaces a substring of this object with the given text.</para>
+          <para>Subclasses must ensure that if the text between start and
+            limit is equal to the replacement text, that replace has no
+            effect. That is, any metadata
+            should be unaffected. In addition, subclasses are encouraged to
+            check for initial and trailing identical characters, and make a
+            smaller replacement if possible. This will preserve as much
+            metadata as possible.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Replaceable#replace(int,%20int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable.replace(int, int, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -316,14 +462,35 @@
         <Parameter Name="charsLen" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="limit">To be added.</param>
-        <param name="chars">To be added.</param>
-        <param name="charsStart">To be added.</param>
-        <param name="charsLen">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="start">the beginning index, inclusive; <c>0 &amp;lt;= start
+            &amp;lt;= limit</c>.</param>
+        <param name="limit">the ending index, exclusive; <c>start &amp;lt;= limit
+            &amp;lt;= length()</c>.</param>
+        <param name="chars">the text to replace characters <c>start</c>
+            to <c>limit - 1</c></param>
+        <param name="charsStart">the beginning index into <c>chars</c>,
+            inclusive; <c>0 &amp;lt;= start &amp;lt;= limit</c>.</param>
+        <param name="charsLen">the number of characters of <c>chars</c>.</param>
+        <summary>Replaces a substring of this object with the given text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Replaces a substring of this object with the given text.</para>
+          <para>Subclasses must ensure that if the text between start and
+            limit is equal to the replacement text, that replace has no
+            effect. That is, any metadata
+            should be unaffected. In addition, subclasses are encouraged to
+            check for initial and trailing identical characters, and make a
+            smaller replacement if possible. This will preserve as much
+            metadata as possible.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Replaceable#replace(int,%20int,%20char[],%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Replaceable.replace(int, int, char[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

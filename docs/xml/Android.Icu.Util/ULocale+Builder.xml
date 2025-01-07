@@ -17,19 +17,54 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/util/ULocale$Builder", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>Builder</c> is used to build instances of <c>ULocale</c>
+            from values configured by the setters.</summary>
     <remarks>
       <para>
+        <c>Builder</c> is used to build instances of <c>ULocale</c>
+            from values configured by the setters.  Unlike the <c>ULocale</c>
+            constructors, the <c>Builder</c> checks if a value configured by a
+            setter satisfies the syntax requirements defined by the <c>ULocale</c>
+            class.  A <c>ULocale</c> object created by a <c>Builder</c> is
+            well-formed and can be transformed to a well-formed IETF BCP 47 language tag
+            without losing information.</para>
+      <para>&lt;b&gt;Note:&lt;/b&gt; The <c>ULocale</c> class does not provide any
+            syntactic restrictions on variant, while BCP 47 requires each variant
+            subtag to be 5 to 8 alphanumerics or a single numeric followed by 3
+            alphanumerics.  The method <c>setVariant</c> throws
+            <c>IllformedLocaleException</c> for a variant that does not satisfy
+            this restriction. If it is necessary to support such a variant, use a
+            ULocale constructor.  However, keep in mind that a <c>ULocale</c>
+            object created this way might lose the variant information when
+            transformed to a BCP 47 language tag.</para>
+      <para>The following example shows how to create a <c>Locale</c> object
+            with the <c>Builder</c>.
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">ULocale aLocale = new Builder().setLanguage("sr").setScript("Latn").setRegion("RS").build();
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>Builders can be reused; <c>clear()</c> resets all
+            fields to their default values.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/util/ULocale$Builder" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/util/ULocale.Builder" title="Reference documentation">Java documentation for <code>android.icu.util.ULocale.Builder</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -54,9 +89,21 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constructs an empty Builder.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs an empty Builder. The default value of all
+            fields, extensions, and private use information is the
+            empty string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ULocale.Builder#ULocale$Builder()" title="Reference documentation">Java documentation for <code>android.icu.util.ULocale.Builder.ULocale$Builder()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -120,10 +167,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns an instance of <c>ULocale</c> created from the fields set
+            on this builder.</summary>
+        <returns>a new Locale</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns an instance of <c>ULocale</c> created from the fields set
+            on this builder.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ULocale.Builder#build()" title="Reference documentation">Java documentation for <code>android.icu.util.ULocale.Builder.build()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -209,6 +268,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -590,6 +653,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

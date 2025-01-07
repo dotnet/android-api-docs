@@ -17,13 +17,45 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/http/DnsOptions", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>A class configuring the host resolution functionality.</summary>
+    <remarks>
+      <para>A class configuring the host resolution functionality. Note that while we refer to <c>DNS</c> as the most common mechanism being used for brevity, settings apply to other means of
+            resolving hostnames like hosts file resolution.</para>
+      <para>Hostnames can be resolved in two ways - either by using the system resolver (using <c>getaddrinfo</c> provided by system libraries), or by using a custom resolver which is tailored
+            for the HTTP networking stack.</para>
+      <para>The built-in stack provides several advantages over using the global system resolver:
+            
+            &lt;ul&gt;
+              &lt;li&gt;It has been tailored to the needs of the HTTP networking stack, particularly speed and
+                  stability.
+              &lt;li&gt;<c>getaddrinfo</c> is a blocking call which requires dedicating worker threads and makes
+                  cancellation impossible (we need to abandon the thread until the call completes)
+              &lt;li&gt;The <c>getaddrinfo</c> interface gives no insight into the root cause of failures
+              &lt;li&gt;<c>struct addrinfo</c> provides no TTL (Time To Live) of the returned addresses. This
+                  restricts flexibility of handling caching (e.g. allowing the use of stale DNS records) and
+                  requires us to either rely on OS DNS caches, or be extremely conservative with the TTL.
+            &lt;/ul&gt;</para>
+      <para>Most configuration in this class is only applicable if the built-in DNS resolver is used.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/http/DnsOptions" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="DnsOptionDisabled">
@@ -55,8 +87,20 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Option is disabled.</summary>
+        <remarks>
+          <para>Option is disabled.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#DNS_OPTION_DISABLED" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.DNS_OPTION_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DnsOptionEnabled">
@@ -88,8 +132,20 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Option is enabled.</summary>
+        <remarks>
+          <para>Option is enabled.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#DNS_OPTION_ENABLED" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.DNS_OPTION_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DnsOptionUnspecified">
@@ -121,8 +177,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Option is unspecified, platform default value will be used.</summary>
+        <remarks>
+          <para>Option is unspecified, platform default value will be used.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#DNS_OPTION_UNSPECIFIED" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.DNS_OPTION_UNSPECIFIED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStaleDnsOptions">
@@ -208,9 +276,21 @@
         <ReturnType>Android.Net.Http.DnsOption</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>See <c>Builder#setPersistHostCache(int)</c></summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>See <c>Builder#setPersistHostCache(int)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#getPersistHostCache()" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.getPersistHostCache()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PersistHostCachePeriod">
@@ -225,6 +305,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -237,9 +321,21 @@
         <ReturnType>Java.Time.Duration</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>See <c>Builder#setPersistHostCachePeriod</c></summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>See <c>Builder#setPersistHostCachePeriod</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#getPersistHostCachePeriod()" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.getPersistHostCachePeriod()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PreestablishConnectionsToStaleDnsResults">
@@ -266,9 +362,21 @@
         <ReturnType>Android.Net.Http.DnsOption</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>See <c>Builder#setPreestablishConnectionsToStaleDnsResults(int)</c></summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>See <c>Builder#setPreestablishConnectionsToStaleDnsResults(int)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#getPreestablishConnectionsToStaleDnsResults()" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.getPreestablishConnectionsToStaleDnsResults()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StaleDns">
@@ -295,9 +403,21 @@
         <ReturnType>Android.Net.Http.DnsOption</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>See <c>Builder#setStaleDns(int)</c></summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>See <c>Builder#setStaleDns(int)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#getStaleDns()" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.getStaleDns()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -382,9 +502,21 @@
         <ReturnType>Android.Net.Http.DnsOption</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>See <c>Builder#setUseHttpStackDnsResolver(int)</c></summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>See <c>Builder#setUseHttpStackDnsResolver(int)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/DnsOptions#getUseHttpStackDnsResolver()" title="Reference documentation">Java documentation for <code>android.net.http.DnsOptions.getUseHttpStackDnsResolver()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

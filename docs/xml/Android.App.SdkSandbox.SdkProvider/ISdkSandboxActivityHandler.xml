@@ -25,8 +25,26 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>This is used to notify the SDK when an <c>Activity</c> is created for it.</summary>
+    <remarks>
+      <para>This is used to notify the SDK when an <c>Activity</c> is created for it.</para>
+      <para>When an SDK wants to start an <c>Activity</c>, it should register an implementation of this
+            class by calling <c>SdkSandboxController#registerSdkSandboxActivityHandler(SdkSandboxActivityHandler)</c> that will
+            return an <c>android.os.IBinder</c> identifier for the registered <c>SdkSandboxActivityHandler</c> to The SDK.</para>
+      <para>The SDK should be notified about the <c>Activity</c> creation by calling <c>SdkSandboxActivityHandler#onActivityCreated(Activity)</c> which happens when the caller app calls
+            <c>android.app.sdksandbox.SdkSandboxManager#startSdkSandboxActivity(Activity, IBinder)</c> using
+            the same <c>IBinder</c> identifier for the registered <c>SdkSandboxActivityHandler</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/sdksandbox/sdkprovider/SdkSandboxActivityHandler" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="OnActivityCreated">
@@ -56,9 +74,31 @@
         <Parameter Name="activity" Type="Android.App.Activity" />
       </Parameters>
       <Docs>
-        <param name="activity">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="activity">the <c>Activity</c> gets created</param>
+        <summary>Notifies SDK when an <c>Activity</c> gets created.</summary>
+        <remarks>
+          <para>Notifies SDK when an <c>Activity</c> gets created.</para>
+          <para>This function is called synchronously from the main thread of the <c>Activity</c> that is
+            getting created.</para>
+          <para>SDK is expected to call <c>Activity#setContentView(View)</c> to the passed <c>Activity</c> object to populate the view.</para>
+          <para>If SDK registers lifecycle callbacks over the passed <c>Activity</c> object using <c>Activity#registerActivityLifecycleCallbacks(
+            android.app.Application.ActivityLifecycleCallbacks)</c>, it is important to note that <c>android.app.Application.ActivityLifecycleCallbacks#onActivityPreCreated(Activity, Bundle)</c>
+            and <c>android.app.Application.ActivityLifecycleCallbacks#onActivityCreated(Activity,
+            Bundle)</c> will not be triggered as <c>#onActivityCreated(Activity)</c> is called at the
+            <c>Activity</c> creation stage. Then to know about the Activity state, SDKs should override
+            <c>android.app.Application.ActivityLifecycleCallbacks#onActivityPostCreated(Activity,
+            Bundle)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/sdkprovider/SdkSandboxActivityHandler#onActivityCreated(android.app.Activity)" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler.onActivityCreated(android.app.Activity)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

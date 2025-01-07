@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/usage/NetworkStatsManager", ApiSince=23, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,51 @@
   <Docs>
     <summary>Provides access to network usage history and statistics.</summary>
     <remarks>
+      <para>Provides access to network usage history and statistics. Usage data is collected in
+            discrete bins of time called 'Buckets'. See <c>NetworkStats.Bucket</c> for details.</para>
+      <para>Queries can define a time interval in the form of start and end timestamps (Long.MIN_VALUE and
+            Long.MAX_VALUE can be used to simulate open ended intervals). By default, apps can only obtain
+            data about themselves. See the below note for special cases in which apps can obtain data about
+            other applications.
+            &lt;h3&gt;
+            Summary queries
+            &lt;/h3&gt;
+            <c>#querySummaryForDevice</c></para>
+      <para>
+        <c>#querySummaryForUser</c>
+      </para>
+      <para>
+        <c>#querySummary</c>
+      </para>
+      <para>These queries aggregate network usage across the whole interval. Therefore there will be only one
+            bucket for a particular key, state, metered and roaming combination. In case of the user-wide
+            and device-wide summaries a single bucket containing the totalised network usage is returned.
+            &lt;h3&gt;
+            History queries
+            &lt;/h3&gt;
+            <c>#queryDetailsForUid</c></para>
+      <para>
+        <c>#queryDetails</c>
+      </para>
+      <para>These queries do not aggregate over time but do aggregate over state, metered and roaming.
+            Therefore there can be multiple buckets for a particular key. However, all Buckets will have
+            <c>state</c><c>NetworkStats.Bucket#STATE_ALL</c>,
+            <c>defaultNetwork</c><c>NetworkStats.Bucket#DEFAULT_NETWORK_ALL</c>,
+            <c>metered</c><c>NetworkStats.Bucket#METERED_ALL</c>,
+            <c>roaming</c><c>NetworkStats.Bucket#ROAMING_ALL</c>.</para>
+      <para>&lt;b&gt;NOTE:&lt;/b&gt; Calling <c>#querySummaryForDevice</c> or accessing stats for apps other than the
+            calling app requires the permission <c>android.Manifest.permission#PACKAGE_USAGE_STATS</c>,
+            which is a system-level permission and will not be granted to third-party apps. However,
+            declaring the permission implies intention to use the API and the user of the device can grant
+            permission through the Settings application.</para>
+      <para>Profile owner apps are automatically granted permission to query data on the profile they manage
+            (that is, for any query except <c>#querySummaryForDevice</c>). Device owner apps and carrier-
+            privileged apps likewise get access to usage data for all users on the device.</para>
+      <para>In addition to tethering usage, usage by removed users and apps, and usage by the system
+            is also included in the results for callers with one of these higher levels of access.</para>
+      <para>&lt;b&gt;NOTE:&lt;/b&gt; Prior to API level <c>android.os.Build.VERSION_CODES#N</c>, all calls to these APIs required
+            the above permission, even to access an app's own data usage, and carrier-privileged apps were
+            not included.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/usage/NetworkStatsManager" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStatsManager</code>.</a>
@@ -148,6 +197,19 @@
         <returns>Statistics object or null if permissions are insufficient or error happened during
                     statistics collection.</returns>
         <remarks>
+          <para>Query network usage statistics details. Result filtered to include only uids belonging to
+            calling user. Result is aggregated over state but not aggregated over time, uid, tag,
+            metered, nor roaming. This means buckets' start and end timestamps are going to be between
+            'startTime' and 'endTime' parameters. State is going to be
+            <c>NetworkStats.Bucket#STATE_ALL</c>, uid will vary,
+            tag <c>NetworkStats.Bucket#TAG_NONE</c>,
+            default network is going to be <c>NetworkStats.Bucket#DEFAULT_NETWORK_ALL</c>,
+            metered is going to be <c>NetworkStats.Bucket#METERED_ALL</c>,
+            and roaming is going to be <c>NetworkStats.Bucket#ROAMING_ALL</c>.</para>
+          <para>Only includes buckets that atomically occur in the inclusive time range. Doesn't
+            interpolate across partial buckets. Since bucket length is in the order of hours, this
+            method cannot be used to measure data usage on a fine grained time scale.
+            This may take a long time, and apps should avoid calling this on their main thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStatsManager#queryDetails(int,%20java.lang.String,%20long,%20long)" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStatsManager.queryDetails(int, java.lang.String, long, long)</code>.</a>
@@ -193,20 +255,41 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="subscriberId" Type="System.String" />
+        <Parameter Name="subscriberId" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="startTime" Type="System.Int64" />
         <Parameter Name="endTime" Type="System.Int64" />
         <Parameter Name="uid" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="networkType">To be added.</param>
-        <param name="subscriberId">To be added.</param>
-        <param name="startTime">To be added.</param>
-        <param name="endTime">To be added.</param>
-        <param name="uid">To be added.</param>
+        <param name="networkType">As defined in <c>ConnectivityManager</c>, e.g.
+                       <c>ConnectivityManager#TYPE_MOBILE</c>, <c>ConnectivityManager#TYPE_WIFI</c>
+                       etc.</param>
+        <param name="subscriberId">If applicable, the subscriber id of the network interface.
+                                &lt;p&gt;Starting with API level 29, the <c>subscriberId</c> is guarded by
+                                additional restrictions. Calling apps that do not meet the new
+                                requirements to access the <c>subscriberId</c> can provide a <c>null</c> value when querying for the mobile network type to receive usage
+                                for all mobile networks. For additional details see <c>TelephonyManager#getSubscriberId()</c>.
+                                &lt;p&gt;Starting with API level 31, calling apps can provide a
+                                <c>subscriberId</c> with wifi network type to receive usage for
+                                wifi networks which is under the given subscription if applicable.
+                                Otherwise, pass <c>null</c> when querying all wifi networks.</param>
+        <param name="startTime">Start of period. Defined in terms of "Unix time", see
+                       <c>java.lang.System#currentTimeMillis</c>.</param>
+        <param name="endTime">End of period. Defined in terms of "Unix time", see
+                       <c>java.lang.System#currentTimeMillis</c>.</param>
+        <param name="uid">UID of app</param>
         <summary>Query network usage statistics details for a given uid.</summary>
-        <returns>To be added.</returns>
+        <returns>Statistics which is described above.</returns>
         <remarks>
+          <para>Query network usage statistics details for a given uid.
+            This may take a long time, and apps should avoid calling this on their main thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStatsManager#queryDetailsForUid(int,%20java.lang.String,%20long,%20long,%20int)" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStatsManager.queryDetailsForUid(int, java.lang.String, long, long, int)</code>.</a>
@@ -252,22 +335,56 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="subscriberId" Type="System.String" />
+        <Parameter Name="subscriberId" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="startTime" Type="System.Int64" />
         <Parameter Name="endTime" Type="System.Int64" />
         <Parameter Name="uid" Type="System.Int32" />
         <Parameter Name="tag" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="networkType">To be added.</param>
-        <param name="subscriberId">To be added.</param>
-        <param name="startTime">To be added.</param>
-        <param name="endTime">To be added.</param>
-        <param name="uid">To be added.</param>
-        <param name="tag">To be added.</param>
+        <param name="networkType">As defined in <c>ConnectivityManager</c>, e.g.
+                       <c>ConnectivityManager#TYPE_MOBILE</c>, <c>ConnectivityManager#TYPE_WIFI</c>
+                       etc.</param>
+        <param name="subscriberId">If applicable, the subscriber id of the network interface.
+                                &lt;p&gt;Starting with API level 29, the <c>subscriberId</c> is guarded by
+                                additional restrictions. Calling apps that do not meet the new
+                                requirements to access the <c>subscriberId</c> can provide a <c>null</c> value when querying for the mobile network type to receive usage
+                                for all mobile networks. For additional details see <c>TelephonyManager#getSubscriberId()</c>.
+                                &lt;p&gt;Starting with API level 31, calling apps can provide a
+                                <c>subscriberId</c> with wifi network type to receive usage for
+                                wifi networks which is under the given subscription if applicable.
+                                Otherwise, pass <c>null</c> when querying all wifi networks.</param>
+        <param name="startTime">Start of period. Defined in terms of "Unix time", see
+                       <c>java.lang.System#currentTimeMillis</c>.</param>
+        <param name="endTime">End of period. Defined in terms of "Unix time", see
+                       <c>java.lang.System#currentTimeMillis</c>.</param>
+        <param name="uid">UID of app</param>
+        <param name="tag">TAG of interest. Use <c>NetworkStats.Bucket#TAG_NONE</c> for aggregated data
+                       across all the tags.</param>
         <summary>Query network usage statistics details for a given uid and tag.</summary>
-        <returns>To be added.</returns>
+        <returns>Statistics which is described above.</returns>
         <remarks>
+          <para>Query network usage statistics details for a given uid and tag.
+            
+            This may take a long time, and apps should avoid calling this on their main thread.
+            Only usable for uids belonging to calling user. Result is not aggregated over time.
+            This means buckets' start and end timestamps are going to be between 'startTime' and
+            'endTime' parameters. The uid is going to be the same as the 'uid' parameter, the tag
+            the same as the 'tag' parameter, and the state the same as the 'state' parameter.
+            defaultNetwork is going to be <c>NetworkStats.Bucket#DEFAULT_NETWORK_ALL</c>,
+            metered is going to be <c>NetworkStats.Bucket#METERED_ALL</c>, and
+            roaming is going to be <c>NetworkStats.Bucket#ROAMING_ALL</c>.</para>
+          <para>Only includes buckets that atomically occur in the inclusive time range. Doesn't
+            interpolate across partial buckets. Since bucket length is in the order of hours, this
+            method cannot be used to measure data usage on a fine grained time scale.
+            This may take a long time, and apps should avoid calling this on their main thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStatsManager#queryDetailsForUidTag(int,%20java.lang.String,%20long,%20long,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStatsManager.queryDetailsForUidTag(int, java.lang.String, long, long, int, int)</code>.</a>
@@ -313,7 +430,14 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="subscriberId" Type="System.String" />
+        <Parameter Name="subscriberId" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="startTime" Type="System.Int64" />
         <Parameter Name="endTime" Type="System.Int64" />
         <Parameter Name="uid" Type="System.Int32" />
@@ -345,12 +469,26 @@
         <param name="endTime">End of period. Defined in terms of "Unix time", see
                        <c>java.lang.System#currentTimeMillis</c>.</param>
         <param name="uid">UID of app</param>
-        <param name="tag">TAG of interest. Use <c>NetworkStats.Bucket#TAG_NONE</c> for no tags.</param>
+        <param name="tag">TAG of interest. Use <c>NetworkStats.Bucket#TAG_NONE</c> for aggregated data
+                       across all the tags.</param>
         <param name="state">state of interest. Use <c>NetworkStats.Bucket#STATE_ALL</c> to aggregate
                        traffic from all states.</param>
         <summary>Query network usage statistics details for a given uid, tag, and state.</summary>
-        <returns>Statistics object or null if an error happened during statistics collection.</returns>
+        <returns>Statistics which is described above.</returns>
         <remarks>
+          <para>Query network usage statistics details for a given uid, tag, and state.
+            
+            Only usable for uids belonging to calling user. Result is not aggregated over time.
+            This means buckets' start and end timestamps are going to be between 'startTime' and
+            'endTime' parameters. The uid is going to be the same as the 'uid' parameter, the tag
+            the same as the 'tag' parameter, and the state the same as the 'state' parameter.
+            defaultNetwork is going to be <c>NetworkStats.Bucket#DEFAULT_NETWORK_ALL</c>,
+            metered is going to be <c>NetworkStats.Bucket#METERED_ALL</c>, and
+            roaming is going to be <c>NetworkStats.Bucket#ROAMING_ALL</c>.</para>
+          <para>Only includes buckets that atomically occur in the inclusive time range. Doesn't
+            interpolate across partial buckets. Since bucket length is in the order of hours, this
+            method cannot be used to measure data usage on a fine grained time scale.
+            This may take a long time, and apps should avoid calling this on their main thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStatsManager#queryDetailsForUidTagState(int,%20java.lang.String,%20long,%20long,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStatsManager.queryDetailsForUidTagState(int, java.lang.String, long, long, int, int, int)</code>.</a>
@@ -421,6 +559,13 @@
         <returns>Statistics object or null if permissions are insufficient or error happened during
                     statistics collection.</returns>
         <remarks>
+          <para>Query network usage statistics summaries. Result filtered to include only uids belonging to
+            calling user. Result is aggregated over time, hence all buckets will have the same start and
+            end timestamps. Not aggregated over state, uid, default network, metered, or roaming. This
+            means buckets' start and end timestamps are going to be the same as the 'startTime' and
+            'endTime' parameters. State, uid, metered, and roaming are going to vary, and tag is going to
+            be the same.
+            This may take a long time, and apps should avoid calling this on their main thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStatsManager#querySummary(int,%20java.lang.String,%20long,%20long)" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStatsManager.querySummary(int, java.lang.String, long, long)</code>.</a>
@@ -606,7 +751,14 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="subscriberId" Type="System.String" />
+        <Parameter Name="subscriberId" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="thresholdBytes" Type="System.Int64" />
         <Parameter Name="callback" Type="Android.App.Usage.NetworkStatsManager+UsageCallback" />
       </Parameters>
@@ -664,7 +816,14 @@
         </Parameter>
         <Parameter Name="subscriberId" Type="System.String" />
         <Parameter Name="thresholdBytes" Type="System.Int64" />
-        <Parameter Name="callback" Type="Android.App.Usage.NetworkStatsManager+UsageCallback" />
+        <Parameter Name="callback" Type="Android.App.Usage.NetworkStatsManager+UsageCallback">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="handler" Type="Android.OS.Handler" />
       </Parameters>
       <Docs>

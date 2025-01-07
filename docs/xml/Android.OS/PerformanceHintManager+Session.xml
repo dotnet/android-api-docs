@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/os/PerformanceHintManager$Session", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -40,19 +44,20 @@
     <remarks>
       <para>A Session represents a group of threads with an inter-related workload such that hints for
             their performance should be considered as a unit. The threads in a given session should be
-            long-life and not created or destroyed dynamically.</para>
-      <para>Each session is expected to have a periodic workload with a target duration for each
-            cycle. The cycle duration is likely greater than the target work duration to allow other
-            parts of the pipeline to run within the available budget. For example, a renderer thread may
-            work at 60hz in order to produce frames at the display's frame but have a target work
-            duration of only 6ms.</para>
-      <para>Any call in this class will change its internal data, so you must do your own thread
-            safety to protect from racing.</para>
-      <para>Note that the target work duration can be <c>#updateTargetWorkDuration(long) updated</c>
-            if workloads change.</para>
-      <para>After each cycle of work, the client is expected to
-            <c>#reportActualWorkDuration(long) report</c> the actual time taken to complete.</para>
-      <para>All timings should be in <c>SystemClock#elapsedRealtimeNanos()</c>.</para>
+            long-lived and not created or destroyed dynamically.
+            
+            The work duration API can be used with periodic workloads to dynamically adjust thread
+            performance and keep the work on schedule while optimizing the available power budget.
+            When using the work duration API, the starting target duration should be specified
+            while creating the session, but can later be adjusted with
+            <c>#updateTargetWorkDuration(long)</c>. While using the work duration API, the client is be
+            expected to call <c>#reportActualWorkDuration(long)</c> each cycle to report the actual
+            time taken to complete to the system.
+            
+            Any call in this class will change its internal data, so you must do your own thread
+            safety to protect from racing.
+            
+            All timings should be in <c>SystemClock#uptimeNanos()</c>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/os/PerformanceHintManager.Session" title="Reference documentation">Java documentation for <code>android.os.PerformanceHintManager.Session</code>.</a>
@@ -165,6 +170,53 @@
       </Docs>
     </Member>
     <Member MemberName="ReportActualWorkDuration">
+      <MemberSignature Language="C#" Value="public virtual void ReportActualWorkDuration (Android.OS.WorkDuration workDuration);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ReportActualWorkDuration(class Android.OS.WorkDuration workDuration) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.PerformanceHintManager.Session.ReportActualWorkDuration(Android.OS.WorkDuration)" />
+      <MemberSignature Language="F#" Value="abstract member ReportActualWorkDuration : Android.OS.WorkDuration -&gt; unit&#xA;override this.ReportActualWorkDuration : Android.OS.WorkDuration -&gt; unit" Usage="session.ReportActualWorkDuration workDuration" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("reportActualWorkDuration", "(Landroid/os/WorkDuration;)V", "GetReportActualWorkDuration_Landroid_os_WorkDuration_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reportActualWorkDuration", "(Landroid/os/WorkDuration;)V", "GetReportActualWorkDuration_Landroid_os_WorkDuration_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="workDuration" Type="Android.OS.WorkDuration" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="workDuration">the work duration of each component.</param>
+        <summary>Reports the work duration for the last cycle of work.</summary>
+        <remarks>
+          <para>Reports the work duration for the last cycle of work.</para>
+          <para>The system will attempt to adjust the core placement of the threads within the thread
+            group and/or the frequency of the core on which they are run to bring the actual duration
+            close to the target duration.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/PerformanceHintManager.Session#reportActualWorkDuration(android.os.WorkDuration)" title="Reference documentation">Java documentation for <code>android.os.PerformanceHintManager.Session.reportActualWorkDuration(android.os.WorkDuration)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ReportActualWorkDuration">
       <MemberSignature Language="C#" Value="public virtual void ReportActualWorkDuration (long actualDurationNanos);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ReportActualWorkDuration(int64 actualDurationNanos) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.OS.PerformanceHintManager.Session.ReportActualWorkDuration(System.Int64)" />
@@ -212,6 +264,52 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="SetPreferPowerEfficiency">
+      <MemberSignature Language="C#" Value="public virtual void SetPreferPowerEfficiency (bool enabled);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetPreferPowerEfficiency(bool enabled) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.PerformanceHintManager.Session.SetPreferPowerEfficiency(System.Boolean)" />
+      <MemberSignature Language="F#" Value="abstract member SetPreferPowerEfficiency : bool -&gt; unit&#xA;override this.SetPreferPowerEfficiency : bool -&gt; unit" Usage="session.SetPreferPowerEfficiency enabled" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setPreferPowerEfficiency", "(Z)V", "GetSetPreferPowerEfficiency_ZHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setPreferPowerEfficiency", "(Z)V", "GetSetPreferPowerEfficiency_ZHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="enabled" Type="System.Boolean" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="enabled">The flag that sets whether this session uses power-efficient scheduling.</param>
+        <summary>This tells the session that these threads can be
+            safely scheduled to prefer power efficiency over performance.</summary>
+        <remarks>
+          <para>This tells the session that these threads can be
+            safely scheduled to prefer power efficiency over performance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/PerformanceHintManager.Session#setPreferPowerEfficiency(boolean)" title="Reference documentation">Java documentation for <code>android.os.PerformanceHintManager.Session.setPreferPowerEfficiency(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="SetThreads">
       <MemberSignature Language="C#" Value="public virtual void SetThreads (int[] tids);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetThreads(int32[] tids) cil managed" />
@@ -240,7 +338,7 @@
       </Parameters>
       <Docs>
         <param name="tids">The list of threads to be associated with this session. They must be
-                part of this app's thread group.</param>
+                part of this app's thread group</param>
         <summary>Set a list of threads to the performance hint session.</summary>
         <remarks>
           <para>Set a list of threads to the performance hint session. This operation will replace
@@ -345,9 +443,9 @@
       </Parameters>
       <Docs>
         <param name="targetDurationNanos">the new desired duration in nanoseconds</param>
-        <summary>Updates this session's target duration for each cycle of work.</summary>
+        <summary>Updates this session's target total duration for each cycle of work.</summary>
         <remarks>
-          <para>Updates this session's target duration for each cycle of work.</para>
+          <para>Updates this session's target total duration for each cycle of work.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/PerformanceHintManager.Session#updateTargetWorkDuration(long)" title="Reference documentation">Java documentation for <code>android.os.PerformanceHintManager.Session.updateTargetWorkDuration(long)</code>.</a>

@@ -17,19 +17,232 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/MessageFormat", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.MessageFormat</c>.</summary>
     <remarks>
+      <para>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.MessageFormat</c>.&amp;nbsp;Methods, fields, and other functionality specific to ICU are labeled '&lt;strong&gt;[icu]&lt;/strong&gt;'.</para>
+      <para>MessageFormat prepares strings for display to users,
+            with optional arguments (variables/placeholders).
+            The arguments can occur in any order, which is necessary for translation
+            into languages with different grammars.</para>
+      <para>A MessageFormat is constructed from a &lt;em&gt;pattern&lt;/em&gt; string
+            with arguments in {curly braces} which will be replaced by formatted values.</para>
+      <para>
+        <c>MessageFormat</c> differs from the other <c>Format</c>
+            classes in that you create a <c>MessageFormat</c> object with one
+            of its constructors (not with a <c>getInstance</c> style factory
+            method). Factory methods aren't necessary because <c>MessageFormat</c>
+            itself doesn't implement locale-specific behavior. Any locale-specific
+            behavior is defined by the pattern that you provide and the
+            subformats used for inserted arguments.</para>
+      <para>Arguments can be named (using identifiers) or numbered (using small ASCII-digit integers).
+            Some of the API methods work only with argument numbers and throw an exception
+            if the pattern has named arguments (see <c>#usesNamedArguments()</c>).</para>
+      <para>An argument might not specify any format type. In this case,
+            a Number value is formatted with a default (for the locale) NumberFormat,
+            a Date value is formatted with a default (for the locale) DateFormat,
+            and for any other value its toString() value is used.</para>
+      <para>An argument might specify a "simple" type for which the specified
+            Format object is created, cached and used.</para>
+      <para>An argument might have a "complex" type with nested MessageFormat sub-patterns.
+            During formatting, one of these sub-messages is selected according to the argument value
+            and recursively formatted.</para>
+      <para>After construction, a custom Format object can be set for
+            a top-level argument, overriding the default formatting and parsing behavior
+            for that argument.
+            However, custom formatting can be achieved more simply by writing
+            a typeless argument in the pattern string
+            and supplying it with a preformatted string value.</para>
+      <para>When formatting, MessageFormat takes a collection of argument values
+            and writes an output string.
+            The argument values may be passed as an array
+            (when the pattern contains only numbered arguments)
+            or as a Map (which works for both named and numbered arguments).</para>
+      <para>Each argument is matched with one of the input values by array index or map key
+            and formatted according to its pattern specification
+            (or using a custom Format object if one was set).
+            A numbered pattern argument is matched with a map key that contains that number
+            as an ASCII-decimal-digit string (without leading zero).
+            
+            &lt;h3&gt;"patterns"&gt;Patterns and Their Interpretation&lt;/h3&gt;
+            
+            <c>MessageFormat</c> uses patterns of the following form:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">message = messageText (argument messageText)*
+            argument = noneArg | simpleArg | complexArg
+            complexArg = choiceArg | pluralArg | selectArg | selectordinalArg
+            
+            noneArg = '{' argNameOrNumber '}'
+            simpleArg = '{' argNameOrNumber ',' argType [',' argStyle] '}'
+            choiceArg = '{' argNameOrNumber ',' "choice" ',' choiceStyle '}'
+            pluralArg = '{' argNameOrNumber ',' "plural" ',' pluralStyle '}'
+            selectArg = '{' argNameOrNumber ',' "select" ',' selectStyle '}'
+            selectordinalArg = '{' argNameOrNumber ',' "selectordinal" ',' pluralStyle '}'
+            
+            choiceStyle: see {@link ChoiceFormat}
+            pluralStyle: see {@link PluralFormat}
+            selectStyle: see {@link SelectFormat}
+            
+            argNameOrNumber = argName | argNumber
+            argName = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
+            argNumber = '0' | ('1'..'9' ('0'..'9')*)
+            
+            argType = "number" | "date" | "time" | "spellout" | "ordinal" | "duration"
+            argStyle = "short" | "medium" | "long" | "full" | "integer" | "currency" | "percent" | argStyleText
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            &lt;ul&gt;
+              &lt;li&gt;messageText can contain quoted literal strings including syntax characters.
+                  A quoted literal string begins with an ASCII apostrophe and a syntax character
+                  (usually a {curly brace}) and continues until the next single apostrophe.
+                  A double ASCII apostrophe inside or outside of a quoted string represents
+                  one literal apostrophe.
+              &lt;li&gt;Quotable syntax characters are the {curly braces} in all messageText parts,
+                  plus the '#' sign in a messageText immediately inside a pluralStyle,
+                  and the '|' symbol in a messageText immediately inside a choiceStyle.
+              &lt;li&gt;See also <c>MessagePattern.ApostropheMode</c>&lt;li&gt;In argStyleText, every single ASCII apostrophe begins and ends quoted literal text,
+                  and unquoted {curly braces} must occur in matched pairs.
+            &lt;/ul&gt;</para>
+      <para>Recommendation: Use the real apostrophe (single quote) character \\u2019 for
+            human-readable text, and use the ASCII apostrophe (\\u0027 ' )
+            only in program syntax, like quoting in MessageFormat.
+            See the annotations for U+0027 Apostrophe in The Unicode Standard.</para>
+      <para>The <c>choice</c> argument type is deprecated.
+            Use <c>plural</c> arguments for proper plural selection,
+            and <c>select</c> arguments for simple selection among a fixed set of choices.</para>
+      <para>The <c>argType</c> and <c>argStyle</c> values are used to create
+            a <c>Format</c> instance for the format element. The following
+            table shows how the values map to Format instances. Combinations not
+            shown in the table are illegal. Any <c>argStyleText</c> must
+            be a valid pattern string for the Format subclass used.
+            
+            &lt;table border=1&gt;
+               &lt;tr&gt;
+                  &lt;th&gt;argType
+                  &lt;th&gt;argStyle
+                  &lt;th&gt;resulting Format object
+               &lt;tr&gt;
+                  &lt;td colspan=2&gt;<i>(none)</i>&lt;td&gt;<c>null</c>&lt;tr&gt;
+                  &lt;td rowspan=5&gt;<c>number</c>&lt;td&gt;<i>(none)</i>&lt;td&gt;<c>NumberFormat.getInstance(getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>integer</c>&lt;td&gt;<c>NumberFormat.getIntegerInstance(getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>currency</c>&lt;td&gt;<c>NumberFormat.getCurrencyInstance(getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>percent</c>&lt;td&gt;<c>NumberFormat.getPercentInstance(getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<i>argStyleText</i>&lt;td&gt;<c>new DecimalFormat(argStyleText, new DecimalFormatSymbols(getLocale()))</c>&lt;tr&gt;
+                  &lt;td rowspan=6&gt;<c>date</c>&lt;td&gt;<i>(none)</i>&lt;td&gt;<c>DateFormat.getDateInstance(DateFormat.DEFAULT, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>short</c>&lt;td&gt;<c>DateFormat.getDateInstance(DateFormat.SHORT, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>medium</c>&lt;td&gt;<c>DateFormat.getDateInstance(DateFormat.DEFAULT, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>long</c>&lt;td&gt;<c>DateFormat.getDateInstance(DateFormat.LONG, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>full</c>&lt;td&gt;<c>DateFormat.getDateInstance(DateFormat.FULL, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<i>argStyleText</i>&lt;td&gt;<c>new SimpleDateFormat(argStyleText, getLocale())</c>&lt;tr&gt;
+                  &lt;td rowspan=6&gt;<c>time</c>&lt;td&gt;<i>(none)</i>&lt;td&gt;<c>DateFormat.getTimeInstance(DateFormat.DEFAULT, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>short</c>&lt;td&gt;<c>DateFormat.getTimeInstance(DateFormat.SHORT, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>medium</c>&lt;td&gt;<c>DateFormat.getTimeInstance(DateFormat.DEFAULT, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>long</c>&lt;td&gt;<c>DateFormat.getTimeInstance(DateFormat.LONG, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>full</c>&lt;td&gt;<c>DateFormat.getTimeInstance(DateFormat.FULL, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<i>argStyleText</i>&lt;td&gt;<c>new SimpleDateFormat(argStyleText, getLocale())</c>&lt;tr&gt;
+                  &lt;td&gt;<c>spellout</c>&lt;td&gt;<i>argStyleText (optional)</i>&lt;td&gt;<c>new RuleBasedNumberFormat(getLocale(), RuleBasedNumberFormat.SPELLOUT)
+                      &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;.setDefaultRuleset(argStyleText);</c>&lt;tr&gt;
+                  &lt;td&gt;<c>ordinal</c>&lt;td&gt;<i>argStyleText (optional)</i>&lt;td&gt;<c>new RuleBasedNumberFormat(getLocale(), RuleBasedNumberFormat.ORDINAL)
+                      &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;.setDefaultRuleset(argStyleText);</c>&lt;tr&gt;
+                  &lt;td&gt;<c>duration</c>&lt;td&gt;<i>argStyleText (optional)</i>&lt;td&gt;<c>new RuleBasedNumberFormat(getLocale(), RuleBasedNumberFormat.DURATION)
+                      &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;.setDefaultRuleset(argStyleText);</c>&lt;/table&gt;
+            
+            &lt;h4&gt;"diffsjdk"&gt;Differences from java.text.MessageFormat&lt;/h4&gt;</para>
+      <para>The ICU MessageFormat supports both named and numbered arguments,
+            while the JDK MessageFormat only supports numbered arguments.
+            Named arguments make patterns more readable.</para>
+      <para>ICU implements a more user-friendly apostrophe quoting syntax.
+            In message text, an apostrophe only begins quoting literal text
+            if it immediately precedes a syntax character (mostly {curly braces}).&lt;br&gt;
+            In the JDK MessageFormat, an apostrophe always begins quoting,
+            which requires common text like "don't" and "aujourd'hui"
+            to be written with doubled apostrophes like "don''t" and "aujourd''hui".
+            For more details see <c>MessagePattern.ApostropheMode</c>.</para>
+      <para>ICU does not create a ChoiceFormat object for a choiceArg, pluralArg or selectArg
+            but rather handles such arguments itself.
+            The JDK MessageFormat does create and use a ChoiceFormat object
+            (<c>new ChoiceFormat(argStyleText)</c>).
+            The JDK does not support plural and select arguments at all.
+            
+            &lt;h4&gt;Usage Information&lt;/h4&gt;</para>
+      <para>Here are some examples of usage:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">Object[] arguments = {
+                7,
+                new Date(System.currentTimeMillis()),
+                "a disturbance in the Force"
+            };
+            
+            String result = MessageFormat.format(
+                "At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.",
+                arguments);
+            
+            &lt;em&gt;output&lt;/em&gt;: At 12:30 PM on Jul 3, 2053, there was a disturbance
+                      in the Force on planet 7.
+            
+            </code>
+      <para>&lt;/blockquote&gt;
+            Typically, the message format will come from resources, and the
+            arguments will be dynamically set at runtime.</para>
+      <para>Example 2:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">Object[] testArgs = { 3, "MyDisk" };
+            
+            MessageFormat form = new MessageFormat(
+                "The disk \"{1}\" contains {0} file(s).");
+            
+            System.out.println(form.format(testArgs));
+            
+            // output, with different testArgs
+            &lt;em&gt;output&lt;/em&gt;: The disk "MyDisk" contains 0 file(s).
+            &lt;em&gt;output&lt;/em&gt;: The disk "MyDisk" contains 1 file(s).
+            &lt;em&gt;output&lt;/em&gt;: The disk "MyDisk" contains 1,273 file(s).
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>For messages that include plural forms, you can use a plural argument:</para>
+      <code lang="text/java">MessageFormat msgFmt = new MessageFormat(
+                "{num_files, plural, " +
+                "=0{There are no files on disk \"{disk_name}\".}" +
+                "=1{There is one file on disk \"{disk_name}\".}" +
+                "other{There are # files on disk \"{disk_name}\".}}",
+                ULocale.ENGLISH);
+            Map args = new HashMap();
+            args.put("num_files", 0);
+            args.put("disk_name", "MyDisk");
+            System.out.println(msgFmt.format(args));
+            args.put("num_files", 3);
+            System.out.println(msgFmt.format(args));
+            
+            &lt;em&gt;output&lt;/em&gt;:
+            There are no files on disk "MyDisk".
+            There are 3 files on "MyDisk".
+            </code>
+      <para>See <c>PluralFormat</c> and <c>PluralRules</c> for details.
+            
+            &lt;h4&gt;"synchronization"&gt;Synchronization&lt;/h4&gt;</para>
+      <para>MessageFormats are not synchronized.
+            It is recommended to create separate format instances for each thread.
+            If multiple threads access a format concurrently, it must be synchronized
+            externally.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/MessageFormat" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/MessageFormat" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -57,10 +270,23 @@
         <Parameter Name="pattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">the pattern for this message format</param>
+        <summary>Constructs a MessageFormat for the default <c>FORMAT</c> locale and the
+            specified pattern.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a MessageFormat for the default <c>FORMAT</c> locale and the
+            specified pattern.
+            Sets the locale and calls applyPattern(pattern).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#MessageFormat(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.MessageFormat(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -112,11 +338,24 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">the pattern for this message format</param>
+        <param name="locale">the locale for this message format</param>
+        <summary>Constructs a MessageFormat for the specified locale and
+            pattern.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a MessageFormat for the specified locale and
+            pattern.
+            Sets the locale and calls applyPattern(pattern).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#MessageFormat(java.lang.String,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.MessageFormat(java.lang.String, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -145,11 +384,24 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">the pattern for this message format</param>
+        <param name="locale">the locale for this message format</param>
+        <summary>Constructs a MessageFormat for the specified locale and
+            pattern.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a MessageFormat for the specified locale and
+            pattern.
+            Sets the locale and calls applyPattern(pattern).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#MessageFormat(java.lang.String,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.MessageFormat(java.lang.String, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -211,10 +463,23 @@
         <Parameter Name="pttrn" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pttrn">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pttrn">the pattern for this message format</param>
+        <summary>Sets the pattern used by this message format.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the pattern used by this message format.
+            Parses the pattern and caches Format objects for simple argument types.
+            Patterns and their interpretation are specified in the
+            class description.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#applyPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.applyPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -266,6 +531,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
         </Attribute>
@@ -278,10 +547,21 @@
         <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the top-level argument names.</summary>
+        <value>a Set of argument names</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the top-level argument names. For more details, see
+            <c>#setFormatByArgumentName(String, Format)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#getArgumentNames()" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.getArgumentNames()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -312,11 +592,40 @@
         <Parameter Name="pattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="pattern">the 'apostrophe-friendly' pattern to convert</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Converts an 'apostrophe-friendly' pattern into a standard
+            pattern.</summary>
+        <returns>the standard equivalent of the original pattern</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Converts an 'apostrophe-friendly' pattern into a standard
+            pattern.
+            &lt;em&gt;This is obsolete for ICU 4.8 and higher MessageFormat pattern strings.&lt;/em&gt;
+            It can still be useful together with <c>java.text.MessageFormat</c>.</para>
+          <para>See the class description for more about apostrophes and quoting,
+            and differences between ICU and <c>java.text.MessageFormat</c>.</para>
+          <para>
+            <c>java.text.MessageFormat</c> and ICU 4.6 and earlier MessageFormat
+            treat all ASCII apostrophes as
+            quotes, which is problematic in some languages, e.g.
+            French, where apostrophe is commonly used.  This utility
+            assumes that only an unpaired apostrophe immediately before
+            a brace is a true quote.  Other unpaired apostrophes are paired,
+            and the resulting standard pattern string is returned.</para>
+          <para>&lt;b&gt;Note&lt;/b&gt;: It is not guaranteed that the returned pattern
+            is indeed a valid pattern.  The only effect is to convert
+            between patterns having different quoting semantics.</para>
+          <para>&lt;b&gt;Note&lt;/b&gt;: This method only works on top-level messageText,
+            not messageText nested inside a complexArg.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#autoQuoteApostrophe(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.autoQuoteApostrophe(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -350,6 +659,10 @@
             <Attribute>
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -389,15 +702,36 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="pattern" Type="System.String" />
-        <Parameter Name="arguments" Type="System.Collections.Generic.IDictionary&lt;System.String,Java.Lang.Object&gt;" />
+        <Parameter Name="arguments" Type="System.Collections.Generic.IDictionary&lt;System.String,Java.Lang.Object&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="pattern">To be added.</param>
         <param name="arguments">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Creates a MessageFormat with the given pattern and uses it to
+            format the given arguments.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Creates a MessageFormat with the given pattern and uses it to
+            format the given arguments.  The pattern must identifyarguments
+            by name instead of by number.</para>
+          <para />
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#format(java.lang.String,%20java.util.Map%3Cjava.lang.String,%20java.lang.Object%3E)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.format(java.lang.String, java.util.Map&lt;java.lang.String, java.lang.Object&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -430,13 +764,35 @@
         <Parameter Name="pos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="arguments">To be added.</param>
-        <param name="result">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="arguments">a map or array of objects to be formatted</param>
+        <param name="result">where text is appended</param>
+        <param name="pos">On input: an alignment field, if desired
+                       On output: the offsets of the alignment field</param>
+        <summary>Formats a map or array of objects and appends the <c>MessageFormat</c>'s
+            pattern, with format elements replaced by the formatted objects, to the
+            provided <c>StringBuffer</c>.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Formats a map or array of objects and appends the <c>MessageFormat</c>'s
+            pattern, with format elements replaced by the formatted objects, to the
+            provided <c>StringBuffer</c>.
+            This is equivalent to either of
+            &lt;blockquote&gt;
+                <c>{@link #format(java.lang.Object[], java.lang.StringBuffer,
+                java.text.FieldPosition) format}((Object[]) arguments, result, pos)</c><c>{@link #format(java.util.Map, java.lang.StringBuffer,
+                java.text.FieldPosition) format}((Map) arguments, result, pos)</c>&lt;/blockquote&gt;
+            A map must be provided if this format uses named arguments, otherwise
+            an IllegalArgumentException will be thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#format(java.lang.Object,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.format(java.lang.Object, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -464,18 +820,71 @@
         <ReturnType>Java.Lang.StringBuffer</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="arguments" Type="Java.Lang.Object[]" />
+        <Parameter Name="arguments" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="result" Type="Java.Lang.StringBuffer" />
         <Parameter Name="pos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="arguments">To be added.</param>
-        <param name="result">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="arguments">an array of objects to be formatted and substituted.</param>
+        <param name="result">where text is appended.</param>
+        <param name="pos">On input: an alignment field, if desired.
+                       On output: the offsets of the alignment field.</param>
+        <summary>Formats an array of objects and appends the <c>MessageFormat</c>'s
+            pattern, with arguments replaced by the formatted objects, to the
+            provided <c>StringBuffer</c>.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Formats an array of objects and appends the <c>MessageFormat</c>'s
+            pattern, with arguments replaced by the formatted objects, to the
+            provided <c>StringBuffer</c>.</para>
+          <para>The text substituted for the individual format elements is derived from
+            the current subformat of the format element and the
+            <c>arguments</c> element at the format element's argument index
+            as indicated by the first matching line of the following table. An
+            argument is <i>unavailable</i> if <c>arguments</c> is
+            <c>null</c> or has fewer than argumentIndex+1 elements.  When
+            an argument is unavailable no substitution is performed.
+            
+            &lt;table border=1&gt;
+               &lt;tr&gt;
+                  &lt;th&gt;argType or Format
+                  &lt;th&gt;value object
+                  &lt;th&gt;Formatted Text
+               &lt;tr&gt;
+                  &lt;td&gt;<i>any</i>&lt;td&gt;<i>unavailable</i>&lt;td&gt;<c>"{" + argNameOrNumber + "}"</c>&lt;tr&gt;
+                  &lt;td&gt;<i>any</i>&lt;td&gt;<c>null</c>&lt;td&gt;<c>"null"</c>&lt;tr&gt;
+                  &lt;td&gt;custom Format <c>!= null</c>&lt;td&gt;<i>any</i>&lt;td&gt;<c>customFormat.format(argument)</c>&lt;tr&gt;
+                  &lt;td&gt;noneArg, or custom Format <c>== null</c>&lt;td&gt;<c>instanceof Number</c>&lt;td&gt;<c>NumberFormat.getInstance(getLocale()).format(argument)</c>&lt;tr&gt;
+                  &lt;td&gt;noneArg, or custom Format <c>== null</c>&lt;td&gt;<c>instanceof Date</c>&lt;td&gt;<c>DateFormat.getDateTimeInstance(DateFormat.SHORT,
+                      DateFormat.SHORT, getLocale()).format(argument)</c>&lt;tr&gt;
+                  &lt;td&gt;noneArg, or custom Format <c>== null</c>&lt;td&gt;<c>instanceof String</c>&lt;td&gt;<c>argument</c>&lt;tr&gt;
+                  &lt;td&gt;noneArg, or custom Format <c>== null</c>&lt;td&gt;<i>any</i>&lt;td&gt;<c>argument.toString()</c>&lt;tr&gt;
+                  &lt;td&gt;complexArg
+                  &lt;td&gt;<i>any</i>&lt;td&gt;result of recursive formatting of a selected sub-message
+            &lt;/table&gt;</para>
+          <para>If <c>pos</c> is non-null, and refers to
+            <c>Field.ARGUMENT</c>, the location of the first formatted
+            string will be returned.
+            
+            This method is only supported when the format does not use named
+            arguments, otherwise an IllegalArgumentException is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#format(java.lang.Object[],%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.format(java.lang.Object[], java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -503,18 +912,50 @@
         <ReturnType>Java.Lang.StringBuffer</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="arguments" Type="System.Collections.Generic.IDictionary&lt;System.String,Java.Lang.Object&gt;" />
+        <Parameter Name="arguments" Type="System.Collections.Generic.IDictionary&lt;System.String,Java.Lang.Object&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="result" Type="Java.Lang.StringBuffer" />
         <Parameter Name="pos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="arguments">To be added.</param>
-        <param name="result">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="arguments">a map of objects to be formatted and substituted.</param>
+        <param name="result">where text is appended.</param>
+        <param name="pos">On input: an alignment field, if desired.
+                       On output: the offsets of the alignment field.</param>
+        <summary>Formats a map of objects and appends the <c>MessageFormat</c>'s
+            pattern, with arguments replaced by the formatted objects, to the
+            provided <c>StringBuffer</c>.</summary>
+        <returns>the passed-in StringBuffer</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Formats a map of objects and appends the <c>MessageFormat</c>'s
+            pattern, with arguments replaced by the formatted objects, to the
+            provided <c>StringBuffer</c>.</para>
+          <para>The text substituted for the individual format elements is derived from
+            the current subformat of the format element and the
+            <c>arguments</c> value corresponding to the format element's
+            argument name.</para>
+          <para>A numbered pattern argument is matched with a map key that contains that number
+            as an ASCII-decimal-digit string (without leading zero).</para>
+          <para>An argument is <i>unavailable</i> if <c>arguments</c> is
+            <c>null</c> or does not have a value corresponding to an argument
+            name in the pattern.  When an argument is unavailable no substitution
+            is performed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#format(java.util.Map%3Cjava.lang.String,%20java.lang.Object%3E,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.format(java.util.Map&lt;java.lang.String, java.lang.Object&gt;, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -545,11 +986,22 @@
         <Parameter Name="argumentName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="argumentName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="argumentName">The name of the desired argument.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the first top-level format associated with the given argument name.</summary>
+        <returns>the Format associated with the name, or null if there isn't one.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the first top-level format associated with the given argument name.
+            For more details, see <c>#setFormatByArgumentName(String, Format)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#getFormatByArgumentName(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.getFormatByArgumentName(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -575,13 +1027,43 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Text._Format[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the Format objects used for the format elements in the
+            previously set pattern string.</summary>
+        <returns>the formats used for the format elements in the pattern</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the Format objects used for the format elements in the
+            previously set pattern string.
+            The order of formats in the returned array corresponds to
+            the order of format elements in the pattern string.</para>
+          <para>Since the order of format elements in a pattern string often
+            changes during localization, it's generally better to use the
+            <c>#getFormatsByArgumentIndex()</c>
+            method, which assumes an order of formats corresponding to the
+            order of elements in the <c>arguments</c> array passed to
+            the <c>format</c> methods or the result array returned by
+            the <c>parse</c> methods.
+            
+            This method is only supported when exclusively numbers are used for
+            argument names. Otherwise an IllegalArgumentException is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#getFormats()" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.getFormats()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -607,13 +1089,47 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Text._Format[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the Format objects used for the values passed into
+            <c>format</c> methods or returned from <c>parse</c>
+            methods.</summary>
+        <returns>the formats used for the arguments within the pattern</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the Format objects used for the values passed into
+            <c>format</c> methods or returned from <c>parse</c>
+            methods. The indices of elements in the returned array
+            correspond to the argument indices used in the previously set
+            pattern string.
+            The order of formats in the returned array thus corresponds to
+            the order of elements in the <c>arguments</c> array passed
+            to the <c>format</c> methods or the result array returned
+            by the <c>parse</c> methods.</para>
+          <para>If an argument index is used for more than one format element
+            in the pattern string, then the format used for the last such
+            format element is returned in the array. If an argument index
+            is not used for any format element in the pattern string, then
+            null is returned in the array.
+            
+            This method is only supported when exclusively numbers are used for
+            argument names. Otherwise an IllegalArgumentException is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#getFormatsByArgumentIndex()" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.getFormatsByArgumentIndex()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -635,6 +1151,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -680,10 +1200,32 @@
         <ReturnType>Java.Util.Locale</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="locale">the locale to be used when creating or comparing subformats</param>
+        <summary>Returns the locale that's used when creating or comparing subformats. -or- Sets the locale to be used for creating argument Format objects.</summary>
+        <value>the locale used when creating or comparing subformats</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the locale that's used when creating or comparing subformats.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#getLocale()" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.getLocale()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the locale to be used for creating argument Format objects.
+            This affects subsequent calls to the <c>#applyPattern applyPattern</c>
+            method as well as to the <c>format</c> and
+            <c>#formatToCharacterIterator formatToCharacterIterator</c> methods.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setLocale(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setLocale(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -709,16 +1251,37 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Object[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="source" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">A <c>String</c> whose beginning should be parsed.</param>
+        <summary>Parses text from the beginning of the given string to produce an object
+            array.</summary>
+        <returns>An <c>Object</c> array parsed from the string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Parses text from the beginning of the given string to produce an object
+            array.
+            The method may not use the entire text of the given string.</para>
+          <para>See the <c>#parse(String, ParsePosition)</c> method for more information
+            on message parsing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#parse(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.parse(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -744,6 +1307,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Object[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="source" Type="System.String" />
@@ -752,10 +1321,43 @@
       <Docs>
         <param name="source">To be added.</param>
         <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Parses the string.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Parses the string.</para>
+          <para>Caveats: The parse may fail in a number of circumstances.
+            For example:
+            &lt;ul&gt;
+            &lt;li&gt;If one of the arguments does not occur in the pattern.
+            &lt;li&gt;If the format of an argument loses information, such as
+                with a choice format where a large number formats to "many".
+            &lt;li&gt;Does not yet handle recursion (where
+                the substituted strings contain {n} references.)
+            &lt;li&gt;Will not always find a match (or the correct match)
+                if some part of the parse is ambiguous.
+                For example, if the pattern "{1},{2}" is used with the
+                string arguments {"a,b", "c"}, it will format as "a,b,c".
+                When the result is parsed, it will return {"a", "b,c"}.
+            &lt;li&gt;If a single argument is parsed more than once in the string,
+                then the later parse wins.
+            &lt;/ul&gt;
+            When the parse fails, use ParsePosition.getErrorIndex() to find out
+            where in the string did the parsing failed. The returned error
+            index is the starting offset of the sub-patterns that the string
+            is comparing with. For example, if the parsing string "AAA {0} BBB"
+            is comparing against the pattern "AAD {0} BBB", the error index is
+            0. When an error occurs, the call to this method will return null.
+            If the source is null, return an empty array.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#parse(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.parse(java.lang.String, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -787,12 +1389,38 @@
         <Parameter Name="pos" Type="Java.Text.ParsePosition" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">A <c>String</c>, part of which should be parsed.</param>
+        <param name="pos">A <c>ParsePosition</c> object with index and error
+                       index information as described above.</param>
+        <summary>Parses text from a string to produce an object array or Map.</summary>
+        <returns>An <c>Object</c> parsed from the string, either an
+                    array of Object, or a Map, depending on whether named
+                    arguments are used.  This can be queried using <c>usesNamedArguments</c>.
+                    In case of error, returns null.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Parses text from a string to produce an object array or Map.</para>
+          <para>The method attempts to parse text starting at the index given by
+            <c>pos</c>.
+            If parsing succeeds, then the index of <c>pos</c> is updated
+            to the index after the last character used (parsing does not necessarily
+            use all characters up to the end of the string), and the parsed
+            object array is returned. The updated <c>pos</c> can be used to
+            indicate the starting point for the next call to this method.
+            If an error occurs, then the index of <c>pos</c> is not
+            changed, the error index of <c>pos</c> is set to the index of
+            the character where the error occurred, and null is returned.</para>
+          <para>See the <c>#parse(String, ParsePosition)</c> method for more information
+            on message parsing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#parseObject(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.parseObject(java.lang.String, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -818,16 +1446,36 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IDictionary&lt;System.String,Java.Lang.Object&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="source" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">A <c>String</c> whose beginning should be parsed.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Parses text from the beginning of the given string to produce a map from
+            argument to values.</summary>
+        <returns>A <c>Map</c> parsed from the string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Parses text from the beginning of the given string to produce a map from
+            argument to values. The method may not use the entire text of the given string.</para>
+          <para>See the <c>#parse(String, ParsePosition)</c> method for more information on
+            message parsing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#parseToMap(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.parseToMap(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -853,18 +1501,39 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IDictionary&lt;System.String,Java.Lang.Object&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="source" Type="System.String" />
         <Parameter Name="pos" Type="Java.Text.ParsePosition" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the text to parse</param>
+        <param name="pos">the position at which to start parsing.  on return,
+                   contains the result of the parse.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Parses the string, returning the results in a Map.</summary>
+        <returns>a Map containing key/value pairs for each parsed argument.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Parses the string, returning the results in a Map.
+            This is similar to the version that returns an array
+            of Object.  This supports both named and numbered
+            arguments-- if numbered, the keys in the map are the
+            corresponding ASCII-decimal-digit strings (e.g. "0", "1", "2"...).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#parseToMap(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.parseToMap(java.lang.String, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -896,11 +1565,30 @@
         <Parameter Name="newFormat" Type="Java.Text._Format" />
       </Parameters>
       <Docs>
-        <param name="formatElementIndex">To be added.</param>
-        <param name="newFormat">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="formatElementIndex">the index of a format element within the pattern</param>
+        <param name="newFormat">the format to use for the specified format element</param>
+        <summary>Sets the Format object to use for the format element with the given
+            format element index within the previously set pattern string.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the Format object to use for the format element with the given
+            format element index within the previously set pattern string.
+            The format element index is the zero-based number of the format
+            element counting from the start of the pattern string.</para>
+          <para>Since the order of format elements in a pattern string often
+            changes during localization, it is generally better to use the
+            <c>#setFormatByArgumentIndex setFormatByArgumentIndex</c>
+            method, which accesses format elements based on the argument
+            index they specify.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setFormat(int,%20java.text.Format)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setFormat(int, java.text.Format)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -932,11 +1620,36 @@
         <Parameter Name="newFormat" Type="Java.Text._Format" />
       </Parameters>
       <Docs>
-        <param name="argumentIndex">To be added.</param>
-        <param name="newFormat">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="argumentIndex">the argument index for which to use the new format</param>
+        <param name="newFormat">the new format to use</param>
+        <summary>Sets the Format object to use for the format elements within the
+            previously set pattern string that use the given argument
+            index.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the Format object to use for the format elements within the
+            previously set pattern string that use the given argument
+            index.
+            The argument index is part of the format element definition and
+            represents an index into the <c>arguments</c> array passed
+            to the <c>format</c> methods or the result array returned
+            by the <c>parse</c> methods.</para>
+          <para>If the argument index is used for more than one format element
+            in the pattern string, then the new format is used for all such
+            format elements. If the argument index is not used for any format
+            element in the pattern string, then the new format is ignored.
+            
+            This method is only supported when exclusively numbers are used for
+            argument names. Otherwise an IllegalArgumentException is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setFormatByArgumentIndex(int,%20java.text.Format)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setFormatByArgumentIndex(int, java.text.Format)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -968,11 +1681,33 @@
         <Parameter Name="newFormat" Type="Java.Text._Format" />
       </Parameters>
       <Docs>
-        <param name="argumentName">To be added.</param>
-        <param name="newFormat">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="argumentName">the name of the argument to change</param>
+        <param name="newFormat">the new format to use</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Sets the Format object to use for the format elements within the
+            previously set pattern string that use the given argument
+            name.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Sets the Format object to use for the format elements within the
+            previously set pattern string that use the given argument
+            name.</para>
+          <para>If the argument name is used for more than one format element
+            in the pattern string, then the new format is used for all such
+            format elements. If the argument name is not used for any format
+            element in the pattern string, then the new format is ignored.</para>
+          <para>This API may be used on formats that do not use named arguments.
+            In this case <c>argumentName</c> should be a String that names
+            an argument index, e.g. "0", "1", "2"... etc.  If it does not name
+            a valid index, the format will be ignored.  No error is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setFormatByArgumentName(java.lang.String,%20java.text.Format)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setFormatByArgumentName(java.lang.String, java.text.Format)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1000,13 +1735,45 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="newFormats" Type="Java.Text._Format[]" />
+        <Parameter Name="newFormats" Type="Java.Text._Format[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="newFormats">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="newFormats">the new formats to use</param>
+        <summary>Sets the Format objects to use for the format elements in the
+            previously set pattern string.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the Format objects to use for the format elements in the
+            previously set pattern string.
+            The order of formats in <c>newFormats</c> corresponds to
+            the order of format elements in the pattern string.</para>
+          <para>If more formats are provided than needed by the pattern string,
+            the remaining ones are ignored. If fewer formats are provided
+            than needed, then only the first <c>newFormats.length</c>
+            formats are replaced.</para>
+          <para>Since the order of format elements in a pattern string often
+            changes during localization, it is generally better to use the
+            <c>#setFormatsByArgumentIndex setFormatsByArgumentIndex</c>
+            method, which assumes an order of formats corresponding to the
+            order of elements in the <c>arguments</c> array passed to
+            the <c>format</c> methods or the result array returned by
+            the <c>parse</c> methods.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setFormats(java.text.Format[])" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setFormats(java.text.Format[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1034,13 +1801,50 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="newFormats" Type="Java.Text._Format[]" />
+        <Parameter Name="newFormats" Type="Java.Text._Format[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="newFormats">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="newFormats">the new formats to use</param>
+        <summary>Sets the Format objects to use for the values passed into
+            <c>format</c> methods or returned from <c>parse</c>
+            methods.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the Format objects to use for the values passed into
+            <c>format</c> methods or returned from <c>parse</c>
+            methods. The indices of elements in <c>newFormats</c>
+            correspond to the argument indices used in the previously set
+            pattern string.
+            The order of formats in <c>newFormats</c> thus corresponds to
+            the order of elements in the <c>arguments</c> array passed
+            to the <c>format</c> methods or the result array returned
+            by the <c>parse</c> methods.</para>
+          <para>If an argument index is used for more than one format element
+            in the pattern string, then the corresponding new format is used
+            for all such format elements. If an argument index is not used
+            for any format element in the pattern string, then the
+            corresponding new format is ignored. If fewer formats are provided
+            than needed, then only the formats for argument indices less
+            than <c>newFormats.length</c> are replaced.
+            
+            This method is only supported if the format does not use
+            named arguments, otherwise an IllegalArgumentException is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setFormatsByArgumentIndex(java.text.Format[])" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setFormatsByArgumentIndex(java.text.Format[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1068,13 +1872,45 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="newFormats" Type="System.Collections.Generic.IDictionary&lt;System.String,Java.Text._Format&gt;" />
+        <Parameter Name="newFormats" Type="System.Collections.Generic.IDictionary&lt;System.String,Java.Text._Format&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="newFormats">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="newFormats">a map from String to Format providing new
+                   formats for named arguments.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Sets the Format objects to use for the values passed into
+            <c>format</c> methods or returned from <c>parse</c>
+            methods.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Sets the Format objects to use for the values passed into
+            <c>format</c> methods or returned from <c>parse</c>
+            methods. The keys in <c>newFormats</c> are the argument
+            names in the previously set pattern string, and the values
+            are the formats.</para>
+          <para>Only argument names from the pattern string are considered.
+            Extra keys in <c>newFormats</c> that do not correspond
+            to an argument name are ignored.  Similarly, if there is no
+            format in newFormats for an argument name, the formatter
+            for that argument remains unchanged.</para>
+          <para>This may be called on formats that do not use named arguments.
+            In this case the map will be queried for key Strings that
+            represent argument indices, e.g. "0", "1", "2" etc.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setFormatsByArgumentName(java.util.Map%3Cjava.lang.String,%20java.text.Format%3E)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setFormatsByArgumentName(java.util.Map&lt;java.lang.String, java.text.Format&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1105,10 +1941,23 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">the locale to be used when creating or comparing subformats</param>
+        <summary>Sets the locale to be used for creating argument Format objects.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the locale to be used for creating argument Format objects.
+            This affects subsequent calls to the <c>#applyPattern applyPattern</c>
+            method as well as to the <c>format</c> and
+            <c>#formatToCharacterIterator formatToCharacterIterator</c> methods.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#setLocale(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.setLocale(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1162,6 +2011,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -1199,10 +2052,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the applied pattern string.</summary>
+        <returns>the pattern string</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the applied pattern string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#toPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.toPattern()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1230,10 +2093,20 @@
         <ReturnType>Android.Icu.Util.ULocale</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the locale that's used when creating argument Format objects.</summary>
+        <value>the locale used when creating or comparing subformats</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the locale that's used when creating argument Format objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#getULocale()" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.getULocale()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1262,10 +2135,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns true if this MessageFormat uses named arguments,
+            and false otherwise.</summary>
+        <returns>true if named arguments are used.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns true if this MessageFormat uses named arguments,
+            and false otherwise.  See class description.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#usesNamedArguments()" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.usesNamedArguments()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

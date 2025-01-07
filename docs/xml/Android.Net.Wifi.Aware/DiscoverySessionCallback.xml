@@ -17,19 +17,35 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/aware/DiscoverySessionCallback", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Base class for Aware session events callbacks.</summary>
     <remarks>
+      <para>Base class for Aware session events callbacks. Should be extended by
+            applications wanting notifications. The callbacks are set when a
+            publish or subscribe session is created using
+            <c>WifiAwareSession#publish(PublishConfig, DiscoverySessionCallback,
+            android.os.Handler)</c> or
+            <c>WifiAwareSession#subscribe(SubscribeConfig, DiscoverySessionCallback,
+            android.os.Handler)</c>.</para>
+      <para>A single callback is set at session creation - it cannot be replaced.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -141,9 +157,21 @@
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The bootstrapping peer handle</param>
+        <summary>Callback indicating that a Bootstrapping method negotiation failed.</summary>
+        <remarks>
+          <para>Callback indicating that a Bootstrapping method negotiation failed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onBootstrappingFailed(android.net.wifi.aware.PeerHandle)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onBootstrappingFailed(android.net.wifi.aware.PeerHandle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnBootstrappingSucceeded">
@@ -181,10 +209,23 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="method">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The bootstrapping peer handle</param>
+        <param name="method">The bootstrapping method accept by the peer</param>
+        <summary>Callback indicating that a Bootstrapping method negotiation succeeded.</summary>
+        <remarks>
+          <para>Callback indicating that a Bootstrapping method negotiation succeeded.
+            The follow-up out-of-band bootstrapping can start</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onBootstrappingSucceeded(android.net.wifi.aware.PeerHandle,%20int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onBootstrappingSucceeded(android.net.wifi.aware.PeerHandle, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnMessageReceived">
@@ -215,11 +256,23 @@
         <Parameter Name="message" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="message">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="peerHandle">An opaque handle to the peer matching our discovery operation.</param>
+        <param name="message">A byte array containing the message.</param>
+        <summary>Called when a message is received from a discovery session peer - in response to the
+            peer's <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a message is received from a discovery session peer - in response to the
+            peer's <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onMessageReceived(android.net.wifi.aware.PeerHandle,%20byte[])" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onMessageReceived(android.net.wifi.aware.PeerHandle, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -250,10 +303,26 @@
         <Parameter Name="messageId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="messageId">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="messageId">The arbitrary message ID specified when sending the message.</param>
+        <summary>Called when message transmission initiated with
+            <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c> fails.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when message transmission initiated with
+            <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c> fails. E.g. when no ACK is
+            received from the peer.</para>
+          <para>Note that either this callback or
+            <c>DiscoverySessionCallback#onMessageSendSucceeded(int)</c> will be received
+            - never both.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onMessageSendFailed(int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onMessageSendFailed(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -284,10 +353,28 @@
         <Parameter Name="messageId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="messageId">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="messageId">The arbitrary message ID specified when sending the message.</param>
+        <summary>Called in response to
+            <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c>
+            when a message is transmitted successfully - i.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called in response to
+            <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c>
+            when a message is transmitted successfully - i.e. when it was received successfully by the
+            peer (corresponds to an ACK being received).</para>
+          <para>Note that either this callback or
+            <c>DiscoverySessionCallback#onMessageSendFailed(int)</c> will be
+            received - never both.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onMessageSendSucceeded(int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onMessageSendSucceeded(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -318,9 +405,21 @@
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The pairing peer handle.</param>
+        <summary>Callback indicating that a pairing setup process failed.</summary>
+        <remarks>
+          <para>Callback indicating that a pairing setup process failed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onPairingSetupFailed(android.net.wifi.aware.PeerHandle)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onPairingSetupFailed(android.net.wifi.aware.PeerHandle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnPairingSetupRequestReceived">
@@ -351,10 +450,22 @@
         <Parameter Name="requestId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="requestId">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The peer's handle where the request is from</param>
+        <param name="requestId">The ID of the Aware pairing session</param>
+        <summary>Callback indicating that a pairing request is received from peer.</summary>
+        <remarks>
+          <para>Callback indicating that a pairing request is received from peer.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onPairingSetupRequestReceived(android.net.wifi.aware.PeerHandle,%20int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onPairingSetupRequestReceived(android.net.wifi.aware.PeerHandle, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnPairingSetupSucceeded">
@@ -385,10 +496,25 @@
         <Parameter Name="alias" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="alias">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The pairing peer handle.</param>
+        <param name="alias">This is the paired device alias set by the caller.
+                              <c>DiscoverySession#initiatePairingRequest(PeerHandle, String, int, String)</c>
+                              or
+                              <c>DiscoverySession#acceptPairingRequest(int, PeerHandle, String, int, String)</c></param>
+        <summary>Callback indicating that a pairing setup process succeeded.</summary>
+        <remarks>
+          <para>Callback indicating that a pairing setup process succeeded.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onPairingSetupSucceeded(android.net.wifi.aware.PeerHandle,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onPairingSetupSucceeded(android.net.wifi.aware.PeerHandle, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnPairingVerificationFailed">
@@ -418,9 +544,21 @@
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The pairing peer handle</param>
+        <summary>Callback indicating that a pairing verification process failed.</summary>
+        <remarks>
+          <para>Callback indicating that a pairing verification process failed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onPairingVerificationFailed(android.net.wifi.aware.PeerHandle)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onPairingVerificationFailed(android.net.wifi.aware.PeerHandle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnPairingVerificationSucceed">
@@ -451,10 +589,25 @@
         <Parameter Name="alias" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="alias">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">The pairing peer handle</param>
+        <param name="alias">This is the paired device alias set by the caller.
+                              <c>DiscoverySession#initiatePairingRequest(PeerHandle, String, int, String)</c>
+                              or
+                              <c>DiscoverySession#acceptPairingRequest(int, PeerHandle, String, int, String)</c></param>
+        <summary>Callback indicating that a pairing verification process succeeded.</summary>
+        <remarks>
+          <para>Callback indicating that a pairing verification process succeeded.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onPairingVerificationSucceed(android.net.wifi.aware.PeerHandle,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onPairingVerificationSucceed(android.net.wifi.aware.PeerHandle, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnPublishStarted">
@@ -484,10 +637,25 @@
         <Parameter Name="session" Type="Android.Net.Wifi.Aware.PublishDiscoverySession" />
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="session">The <c>PublishDiscoverySession</c> used to control the
+                       discovery session.</param>
+        <summary>Called when a publish operation is started successfully in response to a
+            <c>WifiAwareSession#publish(PublishConfig, DiscoverySessionCallback,
+            android.os.Handler)</c> operation.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a publish operation is started successfully in response to a
+            <c>WifiAwareSession#publish(PublishConfig, DiscoverySessionCallback,
+            android.os.Handler)</c> operation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onPublishStarted(android.net.wifi.aware.PublishDiscoverySession)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onPublishStarted(android.net.wifi.aware.PublishDiscoverySession)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -518,9 +686,25 @@
         <Parameter Name="info" Type="Android.Net.Wifi.Aware.ServiceDiscoveryInfo" />
       </Parameters>
       <Docs>
-        <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="info">A <c>ServiceDiscoveryInfo</c> structure containing information on the discovery
+                        session and the discovered peer.</param>
+        <summary>Called when a subscribe operation results in a service discovery.</summary>
+        <remarks>
+          <para>Called when a subscribe operation results in a service discovery.</para>
+          <para>Note: This method supersedes <c>#onServiceDiscovered(PeerHandle, byte[], List)</c> and
+            provides additional information - including cipher suite type and security context of the
+            peer. Both the legacy and the new callback will be triggered on discovery.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onServiceDiscovered(android.net.wifi.aware.ServiceDiscoveryInfo)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onServiceDiscovered(android.net.wifi.aware.ServiceDiscoveryInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnServiceDiscovered">
@@ -549,15 +733,45 @@
       <Parameters>
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
         <Parameter Name="serviceSpecificInfo" Type="System.Byte[]" />
-        <Parameter Name="matchFilter" Type="System.Collections.Generic.IList&lt;System.Byte[]&gt;" />
+        <Parameter Name="matchFilter" Type="System.Collections.Generic.IList&lt;System.Byte[]&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="serviceSpecificInfo">To be added.</param>
-        <param name="matchFilter">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="peerHandle">An opaque handle to the peer matching our discovery operation.</param>
+        <param name="serviceSpecificInfo">The service specific information (arbitrary
+                       byte array) provided by the peer as part of its discovery
+                       configuration.</param>
+        <param name="matchFilter">The filter which resulted in this service discovery. For
+            <c>PublishConfig#PUBLISH_TYPE_UNSOLICITED</c>,
+            <c>SubscribeConfig#SUBSCRIBE_TYPE_PASSIVE</c> discovery sessions this is the publisher's
+                               match filter. For <c>PublishConfig#PUBLISH_TYPE_SOLICITED</c>,
+                               <c>SubscribeConfig#SUBSCRIBE_TYPE_ACTIVE</c> discovery sessions this
+                               is the subscriber's match filter.</param>
+        <summary>Called when a subscribe operation results in a service discovery.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a subscribe operation results in a service discovery.</para>
+          <para>Note that this method and
+            <c>#onServiceDiscoveredWithinRange(PeerHandle, byte[], List, int)</c> may be called
+            multiple times per service discovery.</para>
+          <para>Note: This method is superseded by <c>#onServiceDiscovered(ServiceDiscoveryInfo)</c> which
+            returns more information. Note that both legacy and new callback will be triggered on
+            discovery.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onServiceDiscovered(android.net.wifi.aware.PeerHandle,%20byte[],%20java.util.List%3Cbyte[]%3E)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onServiceDiscovered(android.net.wifi.aware.PeerHandle, byte[], java.util.List&lt;byte[]&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -589,10 +803,36 @@
         <Parameter Name="distanceMm" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="info">To be added.</param>
-        <param name="distanceMm">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="info">A <c>ServiceDiscoveryInfo</c> which indicate service config of the descovery
+                        sessions.</param>
+        <param name="distanceMm">The measured distance to the Publisher in mm. Note: the measured distance
+                              may be negative for very close devices.</param>
+        <summary>Called when a subscribe operation results in a
+            service discovery.</summary>
+        <remarks>
+          <para>Called when a subscribe operation results in a
+            service discovery. Called when a Subscribe service was configured with a range requirement
+            <c>SubscribeConfig.Builder#setMinDistanceMm(int)</c> and/or
+            <c>SubscribeConfig.Builder#setMaxDistanceMm(int)</c> and the Publish service was configured
+            with <c>PublishConfig.Builder#setRangingEnabled(boolean)</c>.</para>
+          <para>If either Publisher or Subscriber does not enable Ranging, or if Ranging is temporarily
+            disabled by the underlying device, service discovery proceeds without ranging and the
+            <c>#onServiceDiscovered(PeerHandle, byte[], List)</c> is called.</para>
+          <para>Note: This method supersedes
+            <c>#onServiceDiscoveredWithinRange(PeerHandle, byte[], List, int)</c> and provides
+            additional information - including cipher suite type and security context of the peer. Both
+            the legacy and the new callback will be triggered on discovery.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onServiceDiscoveredWithinRange(android.net.wifi.aware.ServiceDiscoveryInfo,%20int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onServiceDiscoveredWithinRange(android.net.wifi.aware.ServiceDiscoveryInfo, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnServiceDiscoveredWithinRange">
@@ -621,16 +861,56 @@
       <Parameters>
         <Parameter Name="peerHandle" Type="Android.Net.Wifi.Aware.PeerHandle" />
         <Parameter Name="serviceSpecificInfo" Type="System.Byte[]" />
-        <Parameter Name="matchFilter" Type="System.Collections.Generic.IList&lt;System.Byte[]&gt;" />
+        <Parameter Name="matchFilter" Type="System.Collections.Generic.IList&lt;System.Byte[]&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="distanceMm" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="serviceSpecificInfo">To be added.</param>
-        <param name="matchFilter">To be added.</param>
-        <param name="distanceMm">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">An opaque handle to the peer matching our discovery operation.</param>
+        <param name="serviceSpecificInfo">The service specific information (arbitrary
+                       byte array) provided by the peer as part of its discovery
+                       configuration.</param>
+        <param name="matchFilter">The filter which resulted in this service discovery. For
+            <c>PublishConfig#PUBLISH_TYPE_UNSOLICITED</c>,
+            <c>SubscribeConfig#SUBSCRIBE_TYPE_PASSIVE</c> discovery sessions this is the publisher's
+                               match filter. For <c>PublishConfig#PUBLISH_TYPE_SOLICITED</c>,
+                               <c>SubscribeConfig#SUBSCRIBE_TYPE_ACTIVE</c> discovery sessions this
+                               is the subscriber's match filter.</param>
+        <param name="distanceMm">The measured distance to the Publisher in mm. Note: the measured distance
+                              may be negative for very close devices.</param>
+        <summary>Called when a subscribe operation results in a
+            service discovery.</summary>
+        <remarks>
+          <para>Called when a subscribe operation results in a
+            service discovery. Called when a Subscribe service was configured with a range requirement
+            <c>SubscribeConfig.Builder#setMinDistanceMm(int)</c> and/or
+            <c>SubscribeConfig.Builder#setMaxDistanceMm(int)</c> and the Publish service was configured
+            with <c>PublishConfig.Builder#setRangingEnabled(boolean)</c>.</para>
+          <para>If either Publisher or Subscriber does not enable Ranging, or if Ranging is temporarily
+            disabled by the underlying device, service discovery proceeds without ranging and the
+            <c>#onServiceDiscovered(PeerHandle, byte[], List)</c> is called.</para>
+          <para>Note that this method and <c>#onServiceDiscovered(PeerHandle, byte[], List)</c> may be
+            called multiple times per service discovery.</para>
+          <para>Note: This method is superseded by
+            <c>#onServiceDiscoveredWithinRange(ServiceDiscoveryInfo, int)</c> which returns more
+            information. Note that both legacy and new callback will be triggered on discovery.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onServiceDiscoveredWithinRange(android.net.wifi.aware.PeerHandle,%20byte[],%20java.util.List%3Cbyte[]%3E,%20int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onServiceDiscoveredWithinRange(android.net.wifi.aware.PeerHandle, byte[], java.util.List&lt;byte[]&gt;, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnServiceLost">
@@ -668,10 +948,27 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="peerHandle">To be added.</param>
-        <param name="reason">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerHandle">An opaque handle to the peer matching our discovery operation.</param>
+        <param name="reason">Discovered service lost reason code. One of
+                          <c>WifiAwareManager#WIFI_AWARE_DISCOVERY_LOST_REASON_PEER_NOT_VISIBLE</c>,
+                          WifiAwareManager#WIFI_AWARE_DISCOVERY_LOST_REASON_UNKNOWN</param>
+        <summary>Called when the discovered service is not available.</summary>
+        <remarks>
+          <para>Called when the discovered service is not available. All further operations on this
+            discovery session will fail. If the service is available again,
+            <c>#onServiceDiscovered(PeerHandle, byte[], List)</c> or
+            <c>#onServiceDiscoveredWithinRange(PeerHandle, byte[], List, int)</c> will be called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onServiceLost(android.net.wifi.aware.PeerHandle,%20int)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onServiceLost(android.net.wifi.aware.PeerHandle, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSessionConfigFailed">
@@ -699,9 +996,33 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Called when a publish or subscribe discovery session cannot be created:
+            <c>WifiAwareSession#publish(PublishConfig, DiscoverySessionCallback,
+            android.os.Handler)</c> or
+            <c>WifiAwareSession#subscribe(SubscribeConfig, DiscoverySessionCallback,
+            android.os.Handler)</c>, or when a configuration update fails:
+            <c>PublishDiscoverySession#updatePublish(PublishConfig)</c> or
+            <c>SubscribeDiscoverySession#updateSubscribe(SubscribeConfig)</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a publish or subscribe discovery session cannot be created:
+            <c>WifiAwareSession#publish(PublishConfig, DiscoverySessionCallback,
+            android.os.Handler)</c> or
+            <c>WifiAwareSession#subscribe(SubscribeConfig, DiscoverySessionCallback,
+            android.os.Handler)</c>, or when a configuration update fails:
+            <c>PublishDiscoverySession#updatePublish(PublishConfig)</c> or
+            <c>SubscribeDiscoverySession#updateSubscribe(SubscribeConfig)</c>.</para>
+          <para>For discovery session updates failure leaves the session running with its previous
+                configuration - the discovery session is not terminated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onSessionConfigFailed()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onSessionConfigFailed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -730,9 +1051,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Called when a publish or subscribe discovery session configuration update request
+            succeeds.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a publish or subscribe discovery session configuration update request
+            succeeds. Called in response to
+            <c>PublishDiscoverySession#updatePublish(PublishConfig)</c> or
+            <c>SubscribeDiscoverySession#updateSubscribe(SubscribeConfig)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onSessionConfigUpdated()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onSessionConfigUpdated()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -761,9 +1096,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Called when a discovery session (publish or subscribe) terminates.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a discovery session (publish or subscribe) terminates. Termination may be due
+            to user-request (either directly through <c>DiscoverySession#close()</c> or
+            application-specified expiration, e.g. <c>PublishConfig.Builder#setTtlSec(int)</c>
+            or <c>SubscribeConfig.Builder#setTtlSec(int)</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onSessionTerminated()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onSessionTerminated()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -794,10 +1142,25 @@
         <Parameter Name="session" Type="Android.Net.Wifi.Aware.SubscribeDiscoverySession" />
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="session">The <c>SubscribeDiscoverySession</c> used to control the
+                       discovery session.</param>
+        <summary>Called when a subscribe operation is started successfully in response to a
+            <c>WifiAwareSession#subscribe(SubscribeConfig, DiscoverySessionCallback,
+            android.os.Handler)</c> operation.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a subscribe operation is started successfully in response to a
+            <c>WifiAwareSession#subscribe(SubscribeConfig, DiscoverySessionCallback,
+            android.os.Handler)</c> operation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySessionCallback#onSubscribeStarted(android.net.wifi.aware.SubscribeDiscoverySession)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.DiscoverySessionCallback.onSubscribeStarted(android.net.wifi.aware.SubscribeDiscoverySession)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

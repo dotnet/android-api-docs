@@ -17,13 +17,31 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/provider/CloudMediaProviderContract", ApiSince=33, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Defines the contract between a cloud media provider and the OS.</summary>
+    <remarks>
+      <para>Defines the contract between a cloud media provider and the OS.</para>
+      <para>To create a cloud media provider, extend <c>CloudMediaProvider</c>, which
+            provides a foundational implementation of this contract.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="ExtraAlbumId">
@@ -50,8 +68,23 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Limits the query results to only media items matching the given album id.</summary>
+        <remarks>
+          <para>Limits the query results to only media items matching the given album id.</para>
+          <para>If the provider handled the album filter, they must also add the <c>#EXTRA_ALBUM_ID</c>
+            key to the array of <c>ContentResolver#EXTRA_HONORED_ARGS</c> as part of the returned
+            <c>Cursor#setExtras</c><c>Bundle</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_ALBUM_ID" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_ALBUM_ID</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraLoopingPlaybackEnabled">
@@ -78,8 +111,21 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Indicates whether to enable looping playback of media items.</summary>
+        <remarks>
+          <para>Indicates whether to enable looping playback of media items.</para>
+          <para>In case this is not present, the default value should be false.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_LOOPING_PLAYBACK_ENABLED" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_LOOPING_PLAYBACK_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraMediaCollectionId">
@@ -106,8 +152,73 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+          <c>MediaCollectionInfo#MEDIA_COLLECTION_ID</c> on which the media or album query occurred.</summary>
+        <remarks>
+          <para>
+            <c>MediaCollectionInfo#MEDIA_COLLECTION_ID</c> on which the media or album query occurred.</para>
+          <para>Providers must set this token as part of the <c>Cursor#setExtras</c><c>Bundle</c> returned from the cursors on query.
+            This allows the OS to verify that the returned results match the
+            <c>MediaCollectionInfo#MEDIA_COLLECTION_ID</c> queried via
+            <c>CloudMediaProvider#onGetMediaCollectionInfo</c>. If the collection differs, the OS will
+            ignore the result and may try again.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_MEDIA_COLLECTION_ID" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_MEDIA_COLLECTION_ID</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraPageSize">
+      <MemberSignature Language="C#" Value="public const string ExtraPageSize;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraPageSize" />
+      <MemberSignature Language="DocId" Value="F:Android.Provider.CloudMediaProviderContract.ExtraPageSize" />
+      <MemberSignature Language="F#" Value="val mutable ExtraPageSize : string" Usage="Android.Provider.CloudMediaProviderContract.ExtraPageSize" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_PAGE_SIZE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_PAGE_SIZE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The maximum number of query results that should be included in a batch when syncing metadata
+            with cloud provider.</summary>
+        <remarks>
+          <para>The maximum number of query results that should be included in a batch when syncing metadata
+            with cloud provider.
+            
+            This extra can be passed as a <c>Bundle</c> parameter to the media or album query methods.
+            
+            It is optional for the provider to honor this extra and return results at max page size.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_PAGE_SIZE" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_PAGE_SIZE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraPageToken">
@@ -134,8 +245,27 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Opaque pagination token to retrieve the next page (cursor) from a media or album query.</summary>
+        <remarks>
+          <para>Opaque pagination token to retrieve the next page (cursor) from a media or album query.</para>
+          <para>Providers can optionally set this token as part of the <c>Cursor#setExtras</c><c>Bundle</c>. If a token is set, the OS can pass it as a <c>Bundle</c> parameter when
+            querying for media or albums to fetch subsequent pages. The provider can keep returning
+            pagination tokens until the last page at which point it should not set a token on the
+            <c>Cursor</c>.</para>
+          <para>If the provider handled the page token as part of the query, they must add
+            the <c>#EXTRA_PAGE_TOKEN</c> key to the array of <c>ContentResolver#EXTRA_HONORED_ARGS</c>
+            as part of the returned <c>Cursor#setExtras</c><c>Bundle</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_PAGE_TOKEN" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_PAGE_TOKEN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraPreviewThumbnail">
@@ -162,8 +292,23 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Forces the <c>CloudMediaProvider#onOpenPreview</c> file descriptor to return a thumbnail
+            image.</summary>
+        <remarks>
+          <para>Forces the <c>CloudMediaProvider#onOpenPreview</c> file descriptor to return a thumbnail
+            image. This is only useful for videos where the OS can either request a video or image
+            for preview.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_PREVIEW_THUMBNAIL" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_PREVIEW_THUMBNAIL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraSurfaceControllerAudioMuteEnabled">
@@ -190,8 +335,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Indicates whether to mute audio during preview of media items.</summary>
+        <remarks>
+          <para>Indicates whether to mute audio during preview of media items.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_SURFACE_CONTROLLER_AUDIO_MUTE_ENABLED" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_SURFACE_CONTROLLER_AUDIO_MUTE_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraSyncGeneration">
@@ -218,8 +375,45 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Generation number to fetch the latest media or album metadata changes from the media
+            collection.</summary>
+        <remarks>
+          <para>Generation number to fetch the latest media or album metadata changes from the media
+            collection.</para>
+          <para>The provider should associate a monotonically increasing sync generation to each media
+            item change (insertion/deletion/update). This is useful to quickly identify exactly which
+            media items have changed since a previous point in time.</para>
+          <para>Providers should also associate a separate monotonically increasing sync generation
+            for album changes (insertion/deletion/update). This album sync generation, should record
+            both changes to the album metadata itself and changes to the media items contained in the
+            album. E.g. a direct change to an album's
+            <c>CloudMediaProviderContract.AlbumColumns#DISPLAY_NAME</c> will increase the
+            album sync generation, likewise adding a photo to that album should also increase the
+            sync generation.</para>
+          <para>Note that multiple media (or album) items can share a sync generation as long as the entire
+            change appears atomic from the perspective of the query APIs. E.g. each item in a batch photo
+            sync from the cloud can have the same sync generation if they were all synced atomically into
+            the collection from the perspective of an external observer.</para>
+          <para>This extra can be passed as a <c>Bundle</c> parameter to the media or album query methods
+            and the provider should only return items with a sync generation that is strictly greater
+            than the one provided in the filter.</para>
+          <para>If the provider supports this filter, it must support the respective
+            <c>CloudMediaProvider#onGetMediaCollectionInfo</c> methods to return the <c>count</c> and
+            <c>max generation</c> for media or albums.</para>
+          <para>If the provider handled the generation, they must add the
+            <c>#EXTRA_SYNC_GENERATION</c> key to the array of <c>ContentResolver#EXTRA_HONORED_ARGS</c>
+            as part of the returned <c>Cursor#setExtras</c><c>Bundle</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#EXTRA_SYNC_GENERATION" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.EXTRA_SYNC_GENERATION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -275,8 +469,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Permission required to protect <c>CloudMediaProvider</c> instances.</summary>
+        <remarks>
+          <para>Permission required to protect <c>CloudMediaProvider</c> instances. Providers should
+            require this in the <c>permission</c> attribute in their <c>&lt;provider&gt;</c> tag.
+            The OS will not connect to a provider without this protection.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#MANAGE_CLOUD_MEDIA_PROVIDERS_PERMISSION" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.MANAGE_CLOUD_MEDIA_PROVIDERS_PERMISSION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ProviderInterface">
@@ -303,8 +511,23 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>
+          <c>Intent</c> action used to identify <c>CloudMediaProvider</c> instances.</summary>
+        <remarks>
+          <para>
+            <c>Intent</c> action used to identify <c>CloudMediaProvider</c> instances. This
+            is used in the <c>&lt;intent-filter&gt;</c> of the <c>&lt;provider&gt;</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProviderContract#PROVIDER_INTERFACE" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProviderContract.PROVIDER_INTERFACE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

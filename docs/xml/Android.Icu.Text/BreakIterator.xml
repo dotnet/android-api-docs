@@ -30,19 +30,199 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/BreakIterator", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.BreakIterator</c>.</summary>
     <remarks>
+      <para>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.BreakIterator</c>.&amp;nbsp;Methods, fields, and other functionality specific to ICU are labeled '&lt;strong&gt;[icu]&lt;/strong&gt;'.</para>
+      <para>A class that locates boundaries in text.  This class defines a protocol for
+            objects that break up a piece of natural-language text according to a set
+            of criteria.  Instances or subclasses of BreakIterator can be provided, for
+            example, to break a piece of text into words, sentences, or logical characters
+            according to the conventions of some language or group of languages.
+            
+            We provide five built-in types of BreakIterator:
+            &lt;ul&gt;&lt;li&gt;getTitleInstance() returns a BreakIterator that locates boundaries
+            between title breaks.
+            &lt;li&gt;getSentenceInstance() returns a BreakIterator that locates boundaries
+            between sentences.  This is useful for triple-click selection, for example.
+            &lt;li&gt;getWordInstance() returns a BreakIterator that locates boundaries between
+            words.  This is useful for double-click selection or "find whole words" searches.
+            This type of BreakIterator makes sure there is a boundary position at the
+            beginning and end of each legal word.  (Numbers count as words, too.)  Whitespace
+            and punctuation are kept separate from real words.
+            &lt;li&gt;getLineInstance() returns a BreakIterator that locates positions where it is
+            legal for a text editor to wrap lines.  This is similar to word breaking, but
+            not the same: punctuation and whitespace are generally kept with words (you don't
+            want a line to start with whitespace, for example), and some special characters
+            can force a position to be considered a line-break position or prevent a position
+            from being a line-break position.
+            &lt;li&gt;getCharacterInstance() returns a BreakIterator that locates boundaries between
+            logical characters.  Because of the structure of the Unicode encoding, a logical
+            character may be stored internally as more than one Unicode code point.  (A with an
+            umlaut may be stored as an a followed by a separate combining umlaut character,
+            for example, but the user still thinks of it as one character.)  This iterator allows
+            various processes (especially text editors) to treat as characters the units of text
+            that a user would think of as characters, rather than the units of text that the
+            computer sees as "characters".&lt;/ul&gt;
+            The text boundary positions are found according to the rules
+            described in Unicode Standard Annex #29, Text Boundaries, and
+            Unicode Standard Annex #14, Line Breaking Properties.  These
+            are available at http://www.unicode.org/reports/tr14/ and
+            http://www.unicode.org/reports/tr29/.</para>
+      <para>BreakIterator's interface follows an "iterator" model (hence the name), meaning it
+            has a concept of a "current position" and methods like first(), last(), next(),
+            and previous() that update the current position.  All BreakIterators uphold the
+            following invariants:
+            &lt;ul&gt;&lt;li&gt;The beginning and end of the text are always treated as boundary positions.
+            &lt;li&gt;The current position of the iterator is always a boundary position (random-
+            access methods move the iterator to the nearest boundary position before or
+            after the specified position, not <i>to</i> the specified position).
+            &lt;li&gt;DONE is used as a flag to indicate when iteration has stopped.  DONE is only
+            returned when the current position is the end of the text and the user calls next(),
+            or when the current position is the beginning of the text and the user calls
+            previous().
+            &lt;li&gt;Break positions are numbered by the positions of the characters that follow
+            them.  Thus, under normal circumstances, the position before the first character
+            is 0, the position after the first character is 1, and the position after the
+            last character is 1 plus the length of the string.
+            &lt;li&gt;The client can change the position of an iterator, or the text it analyzes,
+            at will, but cannot change the behavior.  If the user wants different behavior, he
+            must instantiate a new iterator.&lt;/ul&gt;
+            
+            BreakIterator accesses the text it analyzes through a CharacterIterator, which makes
+            it possible to use BreakIterator to analyze text in any text-storage vehicle that
+            provides a CharacterIterator interface.
+            
+            &lt;b&gt;Note:&lt;/b&gt;  Some types of BreakIterator can take a long time to create, and
+            instances of BreakIterator are not currently cached by the system.  For
+            optimal performance, keep instances of BreakIterator around as long as makes
+            sense.  For example, when word-wrapping a document, don't create and destroy a
+            new BreakIterator for each line.  Create one break iterator for the whole document
+            (or whatever stretch of text you're wrapping) and use it to do the whole job of
+            wrapping the text.</para>
+      <para>&lt;strong&gt;Examples&lt;/strong&gt;:</para>
+      <para>Creating and using text boundaries
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">public static void main(String args[]) {
+                 if (args.length == 1) {
+                     String stringToExamine = args[0];
+                     //print each word in order
+                     BreakIterator boundary = BreakIterator.getWordInstance();
+                     boundary.setText(stringToExamine);
+                     printEachForward(boundary, stringToExamine);
+                     //print each sentence in reverse order
+                     boundary = BreakIterator.getSentenceInstance(Locale.US);
+                     boundary.setText(stringToExamine);
+                     printEachBackward(boundary, stringToExamine);
+                     printFirst(boundary, stringToExamine);
+                     printLast(boundary, stringToExamine);
+                 }
+            }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Print each element in order
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">public static void printEachForward(BreakIterator boundary, String source) {
+                int start = boundary.first();
+                for (int end = boundary.next();
+                     end != BreakIterator.DONE;
+                     start = end, end = boundary.next()) {
+                     System.out.println(source.substring(start,end));
+                }
+            }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Print each element in reverse order
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">public static void printEachBackward(BreakIterator boundary, String source) {
+                int end = boundary.last();
+                for (int start = boundary.previous();
+                     start != BreakIterator.DONE;
+                     end = start, start = boundary.previous()) {
+                    System.out.println(source.substring(start,end));
+                }
+            }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Print first element
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">public static void printFirst(BreakIterator boundary, String source) {
+                int start = boundary.first();
+                int end = boundary.next();
+                System.out.println(source.substring(start,end));
+            }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Print last element
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">public static void printLast(BreakIterator boundary, String source) {
+                int end = boundary.last();
+                int start = boundary.previous();
+                System.out.println(source.substring(start,end));
+            }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Print the element at a specified position
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">public static void printAt(BreakIterator boundary, int pos, String source) {
+                int end = boundary.following(pos);
+                int start = boundary.previous();
+                System.out.println(source.substring(start,end));
+            }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            Find the next word
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">public static int nextWordStartAfter(int pos, String text) {
+                BreakIterator wb = BreakIterator.getWordInstance();
+                wb.setText(text);
+                int wordStart = wb.following(pos);
+                for (;;) {
+                    int wordLimit = wb.next();
+                    if (wordLimit == BreakIterator.DONE) {
+                        return BreakIterator.DONE;
+                    }
+                    int wordStatus = wb.getRuleStatus();
+                    if (wordStatus != BreakIterator.WORD_NONE) {
+                        return wordStart;
+                    }
+                    wordStart = wordLimit;
+                 }
+            }
+            </code>
+      <para>The iterator returned by <c>#getWordInstance</c> is unique in that
+            the break positions it returns don't represent both the start and end of the
+            thing being iterated over.  That is, a sentence-break iterator returns breaks
+            that each represent the end of one sentence and the beginning of the next.
+            With the word-break iterator, the characters between two boundaries might be a
+            word, or they might be the punctuation or whitespace between two words.  The
+            above code uses <c>#getRuleStatus</c> to identify and ignore boundaries associated
+            with punctuation or other non-word characters.
+            &lt;/blockquote&gt;</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/BreakIterator" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/BreakIterator" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -67,9 +247,20 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Default constructor.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Default constructor.  There is no state that is carried by this abstract
+            base class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#BreakIterator()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.BreakIterator()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -120,10 +311,24 @@
         <ReturnType>Android.Icu.Text.BreakIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a new instance of BreakIterator that locates logical-character
+            boundaries.</summary>
+        <value>A new instance of BreakIterator that locates logical-character
+            boundaries.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates logical-character
+            boundaries.  This function assumes that the text being analyzed is
+            in the default locale's language.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getCharacterInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getCharacterInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -152,10 +357,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Clone method.</summary>
+        <returns>The clone.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Clone method.  Creates another BreakIterator with the same behavior and
+            current state as this one.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#clone()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.clone()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -184,10 +400,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Return the iterator's current position.</summary>
+        <returns>The iterator's current position.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the iterator's current position.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#current()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.current()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -216,9 +442,21 @@
       </ReturnValue>
       <MemberValue>-1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>DONE is returned by previous() and next() after all valid
+            boundaries have been returned.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>DONE is returned by previous() and next() after all valid
+            boundaries have been returned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#DONE" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.DONE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -247,10 +485,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Set the iterator to the first boundary position.</summary>
+        <returns>The character offset of the beginning of the stretch of text
+            being broken.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set the iterator to the first boundary position.  This is always the beginning
+            index of the text this iterator iterates over.  For example, if
+            the iterator iterates over a whole string, this function will
+            always return 0.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#first()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.first()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -281,11 +533,29 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="offset">The character position to start searching from.</param>
+        <summary>Sets the iterator's current iteration position to be the first
+            boundary position following the specified position.</summary>
+        <returns>The position of the first boundary position following
+            "offset" (whether or not "offset" itself is a boundary position),
+            or DONE if "offset" is the past-the-end offset.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the iterator's current iteration position to be the first
+            boundary position following the specified position.  (Whether the
+            specified position is itself a boundary position or not doesn't
+            matter-- this function always moves the iteration position to the
+            first boundary after the specified position.)  If the specified
+            position is the past-the-end position, returns DONE.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#following(int)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.following(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -311,13 +581,30 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Util.Locale[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns a list of locales for which BreakIterators can be used.</summary>
+        <returns>An array of Locales.  All of the locales in the array can
+            be used when creating a BreakIterator.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a list of locales for which BreakIterators can be used.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getAvailableLocales()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getAvailableLocales()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -348,11 +635,24 @@
         <Parameter Name="where" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being analyzed.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates logical-character
+            boundaries.</summary>
+        <returns>A new instance of BreakIterator that locates logical-character
+            boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates logical-character
+            boundaries.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getCharacterInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getCharacterInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -383,11 +683,24 @@
         <Parameter Name="where" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being analyzed.</param>
+        <summary>Returns a new instance of BreakIterator that locates logical-character
+            boundaries.</summary>
+        <returns>A new instance of BreakIterator that locates logical-character
+            boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates logical-character
+            boundaries.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getCharacterInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getCharacterInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -418,11 +731,24 @@
         <Parameter Name="where" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being broken.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates legal line-
+            wrapping positions.</summary>
+        <returns>A new instance of BreakIterator that locates legal
+            line-wrapping positions.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates legal line-
+            wrapping positions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getLineInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getLineInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -453,11 +779,24 @@
         <Parameter Name="where" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being broken.</param>
+        <summary>Returns a new instance of BreakIterator that locates legal line-
+            wrapping positions.</summary>
+        <returns>A new instance of BreakIterator that locates legal
+            line-wrapping positions.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates legal line-
+            wrapping positions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getLineInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getLineInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -488,11 +827,32 @@
         <Parameter Name="fillInArray" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="fillInArray">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="fillInArray">an array to be filled in with the status values.</param>
+        <summary>For RuleBasedBreakIterators, get the status (tag) values from the break rule(s)
+            that determined the the boundary at the current iteration position.</summary>
+        <returns>The number of rule status values from rules that determined
+                             the the boundary at the current iteration position.
+                             In the event that the array is too small, the return value
+                             is the total number of status values that were available,
+                             not the reduced number that were actually returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>For RuleBasedBreakIterators, get the status (tag) values from the break rule(s)
+            that determined the the boundary at the current iteration position.</para>
+          <para>For break iterator types that do not support rule status,
+            no values are returned.</para>
+          <para>If the size  of the output array is insufficient to hold the data,
+             the output will be truncated to the available length.  No exception
+             will be thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getRuleStatusVec(int[])" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getRuleStatusVec(int[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -523,11 +883,21 @@
         <Parameter Name="where" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being analyzed.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates sentence boundaries.</summary>
+        <returns>A new instance of BreakIterator that locates sentence boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates sentence boundaries.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getSentenceInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getSentenceInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -558,11 +928,21 @@
         <Parameter Name="where" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being analyzed.</param>
+        <summary>Returns a new instance of BreakIterator that locates sentence boundaries.</summary>
+        <returns>A new instance of BreakIterator that locates sentence boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates sentence boundaries.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getSentenceInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getSentenceInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -597,11 +977,25 @@
         <Parameter Name="where" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being analyzed.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates title boundaries.</summary>
+        <returns>A new instance of BreakIterator that locates title boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates title boundaries.
+            The iterator returned locates title boundaries as described for
+            Unicode 3.2 only. For Unicode 4.0 and above title boundary iteration,
+            please use Word Boundary iterator.<c>#getWordInstance</c></para>
+          <para>This member is deprecated. ICU 64 Use <c>#getWordInstance</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getTitleInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getTitleInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -636,11 +1030,25 @@
         <Parameter Name="where" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A Locale specifying the language of the text being analyzed.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates title boundaries.</summary>
+        <returns>A new instance of BreakIterator that locates title boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates title boundaries.
+            The iterator returned locates title boundaries as described for
+            Unicode 3.2 only. For Unicode 4.0 and above title boundary iteration,
+            please use Word Boundary iterator.<c>#getWordInstance</c></para>
+          <para>This member is deprecated. ICU 64 Use <c>#getWordInstance</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getTitleInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getTitleInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -671,11 +1079,22 @@
         <Parameter Name="where" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A locale specifying the language of the text to be
+            analyzed.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates word boundaries.</summary>
+        <returns>An instance of BreakIterator that locates word boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates word boundaries.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getWordInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getWordInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -706,11 +1125,22 @@
         <Parameter Name="where" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="where">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="where">A locale specifying the language of the text to be
+            analyzed.</param>
+        <summary>Returns a new instance of BreakIterator that locates word boundaries.</summary>
+        <returns>An instance of BreakIterator that locates word boundaries.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates word boundaries.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getWordInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getWordInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -741,11 +1171,24 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="offset">the offset to check.</param>
+        <summary>Return true if the specified position is a boundary position.</summary>
+        <returns>True if "offset" is a boundary position.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return true if the specified position is a boundary position.  If the
+            function returns true, the current iteration position is set to the
+            specified position; if the function returns false, the current
+            iteration position is set as though following() had been called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#isBoundary(int)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.isBoundary(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -770,6 +1213,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -812,9 +1259,19 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt;</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#KIND_CHARACTER" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.KIND_CHARACTER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -847,9 +1304,19 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt;</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#KIND_LINE" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.KIND_LINE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -882,9 +1349,19 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt;</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#KIND_SENTENCE" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.KIND_SENTENCE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -917,9 +1394,20 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt;</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt;</para>
+          <para>This member is deprecated. ICU 64 Use <c>#getWordInstance</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#KIND_TITLE" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.KIND_TITLE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -952,9 +1440,19 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt;</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#KIND_WORD" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.KIND_WORD</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -983,10 +1481,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Set the iterator to the last boundary position.</summary>
+        <returns>The character offset of the end of the stretch of text
+            being broken.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set the iterator to the last boundary position.  This is always the "past-the-end"
+            index of the text this iterator iterates over.  For example, if the
+            iterator iterates over a whole string (call it "text"), this function
+            will always return text.length().</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#last()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.last()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1014,10 +1526,24 @@
         <ReturnType>Android.Icu.Text.BreakIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a new instance of BreakIterator that locates legal line-
+            wrapping positions.</summary>
+        <value>A new instance of BreakIterator that locates legal
+            line-wrapping positions.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates legal line-
+            wrapping positions.  This function assumes the text being broken
+            is in the default locale's language.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getLineInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getLineInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1046,10 +1572,26 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Advances the iterator forward one boundary.</summary>
+        <returns>The position of the first boundary position following the
+            iteration position.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Advances the iterator forward one boundary.  The current iteration
+            position is updated to point to the next boundary position after the
+            current position, and this is also the value that is returned.  If
+            the current position is equal to the value returned by last(), or to
+            DONE, this function returns DONE and sets the current position to
+            DONE.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#next()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.next()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1080,11 +1622,30 @@
         <Parameter Name="n" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="n">The number of boundaries to advance over (if positive, moves
+            forward; if negative, moves backwards).</param>
+        <summary>Move the iterator by the specified number of steps in the text.</summary>
+        <returns>The position of the boundary n boundaries from the current
+            iteration position, or DONE if moving n boundaries causes the iterator
+            to advance off either end of the text.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Move the iterator by the specified number of steps in the text.
+            A positive number moves the iterator forward; a negative number
+            moves the iterator backwards. If this causes the iterator
+            to move off either end of the text, this function returns DONE;
+            otherwise, this function returns the position of the appropriate
+            boundary.  Calling this function is equivalent to calling next() or
+            previous() n times.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#next(int)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.next(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1115,11 +1676,29 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="offset">The character position to start searching from.</param>
+        <summary>Sets the iterator's current iteration position to be the last
+            boundary position preceding the specified position.</summary>
+        <returns>The position of the last boundary position preceding
+            "offset" (whether of not "offset" itself is a boundary position),
+            or DONE if "offset" is the starting offset of the iterator.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the iterator's current iteration position to be the last
+            boundary position preceding the specified position.  (Whether the
+            specified position is itself a boundary position or not doesn't
+            matter-- this function always moves the iteration position to the
+            last boundary before the specified position.)  If the specified
+            position is the starting position, returns DONE.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#preceding(int)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.preceding(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1148,10 +1727,26 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Move the iterator backward one boundary.</summary>
+        <returns>The position of the last boundary position preceding the
+            iteration position.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Move the iterator backward one boundary.  The current iteration
+            position is updated to point to the last boundary position before
+            the current position, and this is also the value that is returned.  If
+            the current position is equal to the value returned by first(), or to
+            DONE, this function returns DONE and sets the current position to
+            DONE.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#previous()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.previous()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1179,10 +1774,26 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>For RuleBasedBreakIterators, return the status tag from the
+            break rule that determined the boundary at the current iteration position.</summary>
+        <value>The status from the break rule that determined the boundary
+            at the current iteration position.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>For RuleBasedBreakIterators, return the status tag from the
+            break rule that determined the boundary at the current iteration position.</para>
+          <para>For break iterator types that do not support a rule status,
+            a default value of 0 is returned.</para>
+          <para />
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getRuleStatus()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getRuleStatus()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1210,10 +1821,22 @@
         <ReturnType>Android.Icu.Text.BreakIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a new instance of BreakIterator that locates sentence boundaries.</summary>
+        <value>A new instance of BreakIterator that locates sentence boundaries.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates sentence boundaries.
+            This function assumes the text being analyzed is in the default locale's
+            language.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getSentenceInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getSentenceInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1244,9 +1867,28 @@
         <Parameter Name="newText" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="newText">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="newText">A CharSequence containing the text to analyze with
+            this BreakIterator.</param>
+        <summary>Sets the iterator to analyze a new piece of text.</summary>
+        <remarks>
+          <para>Sets the iterator to analyze a new piece of text.  The new
+            piece of text is passed in as a CharSequence, and the current
+            iteration position is reset to the beginning of the text.
+            (The old text is dropped.)</para>
+          <para>The text underlying the CharSequence must not be be modified while
+            the BreakIterator holds a references to it. (As could possibly occur
+            with a StringBuilder, for example).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#setText(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.setText(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetText">
@@ -1276,10 +1918,24 @@
         <Parameter Name="newText" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="newText">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="newText">A String containing the text to analyze with
+            this BreakIterator.</param>
+        <summary>Sets the iterator to analyze a new piece of text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the iterator to analyze a new piece of text.  The new
+            piece of text is passed in as a String, and the current
+            iteration position is reset to the beginning of the string.
+            (The old text is dropped.)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#setText(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.setText(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1372,6 +2028,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -1412,10 +2072,25 @@
         <ReturnType>Android.Icu.Text.BreakIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates title boundaries.</summary>
+        <value>A new instance of BreakIterator that locates title boundaries.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a new instance of BreakIterator that locates title boundaries.
+            This function assumes the text being analyzed is in the default locale's
+            language. The iterator returned locates title boundaries as described for
+            Unicode 3.2 only. For Unicode 4.0 and above title boundary iteration,
+            please use a word boundary iterator. <c>#getWordInstance</c></para>
+          <para>This member is deprecated. ICU 64 Use <c>#getWordInstance</c> instead.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getTitleInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getTitleInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1448,9 +2123,19 @@
       </ReturnValue>
       <MemberValue>400</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words containing ideographic characters, lower limit</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words containing ideographic characters, lower limit</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_IDEO" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_IDEO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1483,9 +2168,19 @@
       </ReturnValue>
       <MemberValue>500</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words containing ideographic characters, upper limit</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words containing ideographic characters, upper limit</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_IDEO_LIMIT" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_IDEO_LIMIT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1513,10 +2208,22 @@
         <ReturnType>Android.Icu.Text.BreakIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a new instance of BreakIterator that locates word boundaries.</summary>
+        <value>An instance of BreakIterator that locates word boundaries.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a new instance of BreakIterator that locates word boundaries.
+            This function assumes that the text being analyzed is in the default
+            locale's language.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#getWordInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.getWordInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1549,9 +2256,19 @@
       </ReturnValue>
       <MemberValue>300</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words containing kana characters, lower limit</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words containing kana characters, lower limit</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_KANA" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_KANA</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1584,9 +2301,19 @@
       </ReturnValue>
       <MemberValue>400</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words containing kana characters, upper limit</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words containing kana characters, upper limit</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_KANA_LIMIT" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_KANA_LIMIT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1619,9 +2346,21 @@
       </ReturnValue>
       <MemberValue>200</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words that contain letters, excluding
+            hiragana, katakana or ideographic characters, lower limit.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words that contain letters, excluding
+            hiragana, katakana or ideographic characters, lower limit.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_LETTER" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_LETTER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1654,9 +2393,19 @@
       </ReturnValue>
       <MemberValue>300</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words containing letters, upper limit</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words containing letters, upper limit</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_LETTER_LIMIT" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_LETTER_LIMIT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1689,9 +2438,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for "words" that do not fit into any of other categories.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for "words" that do not fit into any of other categories.
+            Includes spaces and most punctuation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_NONE" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_NONE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1724,9 +2484,19 @@
       </ReturnValue>
       <MemberValue>100</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Upper bound for tags for uncategorized words.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Upper bound for tags for uncategorized words.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_NONE_LIMIT" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_NONE_LIMIT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1759,9 +2529,19 @@
       </ReturnValue>
       <MemberValue>100</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words that appear to be numbers, lower limit.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words that appear to be numbers, lower limit.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_NUMBER" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_NUMBER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1794,9 +2574,19 @@
       </ReturnValue>
       <MemberValue>200</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Tag value for words that appear to be numbers, upper limit.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tag value for words that appear to be numbers, upper limit.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BreakIterator#WORD_NUMBER_LIMIT" title="Reference documentation">Java documentation for <code>android.icu.text.BreakIterator.WORD_NUMBER_LIMIT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

@@ -27,6 +27,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/lang/Object", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Serializable]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Serializable&gt;]</AttributeName>
     </Attribute>
@@ -210,22 +214,6 @@
             primitive fields or references to immutable objects, then it is usually
             the case that no fields in the object returned by <c>super.clone</c>
             need to be modified.</para>
-          <para>The method <c>clone</c> for class <c>Object</c> performs a
-            specific cloning operation. First, if the class of this object does
-            not implement the interface <c>Cloneable</c>, then a
-            <c>CloneNotSupportedException</c> is thrown. Note that all arrays
-            are considered to implement the interface <c>Cloneable</c> and that
-            the return type of the <c>clone</c> method of an array type <c>T[]</c>
-            is <c>T[]</c> where T is any reference or primitive type.
-            Otherwise, this method creates a new instance of the class of this
-            object and initializes all its fields with exactly the contents of
-            the corresponding fields of this object, as if by assignment; the
-            contents of the fields are not themselves cloned. Thus, this method
-            performs a "shallow copy" of this object, not a "deep copy" operation.</para>
-          <para>The class <c>Object</c> does not itself implement the interface
-            <c>Cloneable</c>, so calling the <c>clone</c> method on an object
-            whose class is <c>Object</c> will result in throwing an
-            exception at run time.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/Object#clone()" title="Reference documentation">Java documentation for <code>java.lang.Object.clone()</code>.</a>
@@ -344,16 +332,11 @@
             &lt;li&gt;For any non-null reference value <c>x</c>,
                 <c>x.equals(null)</c> should return <c>false</c>.
             &lt;/ul&gt;</para>
-          <para>The <c>equals</c> method for class <c>Object</c> implements
-            the most discriminating possible equivalence relation on objects;
-            that is, for any non-null reference values <c>x</c> and
-            <c>y</c>, this method returns <c>true</c> if and only
-            if <c>x</c> and <c>y</c> refer to the same object
-            (<c>x == y</c> has the value <c>true</c>).</para>
-          <para>Note that it is generally necessary to override the <c>hashCode</c>
-            method whenever this method is overridden, so as to maintain the
-            general contract for the <c>hashCode</c> method, which states
-            that equal objects must have equal hash codes.</para>
+          <para>An equivalence relation partitions the elements it operates on
+            into <i>equivalence classes</i>; all the members of an
+            equivalence class are equal to each other. Members of an
+            equivalence class are substitutable for each other, at least
+            for some purposes.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/Object#equals(java.lang.Object)" title="Reference documentation">Java documentation for <code>java.lang.Object.equals(java.lang.Object)</code>.</a>
@@ -407,7 +390,14 @@
         <TypeParameter Name="T" />
       </TypeParameters>
       <Parameters>
-        <Parameter Name="value" Type="T[]" />
+        <Parameter Name="value" Type="T[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <typeparam name="T">To be added.</typeparam>
@@ -454,21 +444,15 @@
                 used in <c>equals</c> comparisons on the object is modified.
                 This integer need not remain consistent from one execution of an
                 application to another execution of the same application.
-            &lt;li&gt;If two objects are equal according to the <c>equals(Object)</c>
-                method, then calling the <c>hashCode</c> method on each of
-                the two objects must produce the same integer result.
+            &lt;li&gt;If two objects are equal according to the <c>#equals(Object) equals</c> method, then calling the <c>hashCode</c> method on each of the two objects must produce the
+                same integer result.
             &lt;li&gt;It is &lt;em&gt;not&lt;/em&gt; required that if two objects are unequal
-                according to the <c>java.lang.Object#equals(java.lang.Object)</c>
-                method, then calling the <c>hashCode</c> method on each of the
-                two objects must produce distinct integer results.  However, the
-                programmer should be aware that producing distinct integer results
-                for unequal objects may improve the performance of hash tables.
+                according to the <c>#equals(Object) equals</c> method, then
+                calling the <c>hashCode</c> method on each of the two objects
+                must produce distinct integer results.  However, the programmer
+                should be aware that producing distinct integer results for
+                unequal objects may improve the performance of hash tables.
             &lt;/ul&gt;</para>
-          <para>As much as is reasonably practical, the hashCode method defined
-            by class <c>Object</c> does return distinct integers for
-            distinct objects. (The hashCode may or may not be implemented
-            as some function of an object's memory address at some point
-            in time.)</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/Object#hashCode()" title="Reference documentation">Java documentation for <code>java.lang.Object.hashCode()</code>.</a>
@@ -496,6 +480,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>T</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <TypeParameters>
         <TypeParameter Name="T">
@@ -551,6 +541,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>T</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <TypeParameters>
         <TypeParameter Name="T">
@@ -818,7 +814,7 @@
             A subclass overrides the <c>finalize</c> method to dispose of
             system resources or to perform other cleanup.</para>
           <para>The general contract of <c>finalize</c> is that it is invoked
-            if and when the Java&amp;trade; virtual
+            if and when the Java virtual
             machine has determined that there is no longer any
             means by which this object can be accessed by any thread that has
             not yet died, except as a result of an action taken by the
@@ -1063,6 +1059,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Java.Lang.Object[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="value" Type="Java.Lang.Object" />
@@ -1494,6 +1496,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="value" Type="Java.Lang.Object" />
@@ -1582,14 +1590,21 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
         </Attributes>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="value" Type="Java.Lang.Object[]" />
+        <Parameter Name="value" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="value">To be added.</param>
@@ -1638,7 +1653,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
@@ -1700,7 +1715,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
@@ -1756,7 +1771,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
@@ -1812,7 +1827,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
@@ -1868,7 +1883,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
@@ -1924,7 +1939,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
@@ -2005,7 +2020,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
@@ -2061,14 +2076,21 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")&gt;]</AttributeName>
           </Attribute>
         </Attributes>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="value" Type="System.String[]" />
+        <Parameter Name="value" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="value">To be added.</param>
@@ -2292,6 +2314,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>T[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <TypeParameters>
         <TypeParameter Name="T" />
@@ -2330,22 +2358,7 @@
         <summary>Returns a string representation of the object.</summary>
         <returns>a string representation of the object.</returns>
         <remarks>
-          <para>Returns a string representation of the object. In general, the
-            <c>toString</c> method returns a string that
-            "textually represents" this object. The result should
-            be a concise but informative representation that is easy for a
-            person to read.
-            It is recommended that all subclasses override this method.</para>
-          <para>The <c>toString</c> method for class <c>Object</c>
-            returns a string consisting of the name of the class of which the
-            object is an instance, the at-sign character `<c>@</c>', and
-            the unsigned hexadecimal representation of the hash code of the
-            object. In other words, this method returns a string equal to the
-            value of:
-            &lt;blockquote&gt;</para>
-          <code lang="text/java">getClass().getName() + '@' + Integer.toHexString(hashCode())
-            </code>
-          <para>&lt;/blockquote&gt;</para>
+          <para>Returns a string representation of the object.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/Object#toString()" title="Reference documentation">Java documentation for <code>java.lang.Object.toString()</code>.</a>
@@ -2527,7 +2540,7 @@
       </Parameters>
       <Docs>
         <param name="timeoutMillis">the maximum time to wait, in milliseconds</param>
-        <param name="nanos">additional time, in nanoseconds, in the range range 0-999999 inclusive</param>
+        <param name="nanos">additional time, in nanoseconds, in the range 0-999999 inclusive</param>
         <summary>Causes the current thread to wait until it is awakened, typically
             by being &lt;em&gt;notified&lt;/em&gt; or &lt;em&gt;interrupted&lt;/em&gt;, or until a
             certain amount of real time has elapsed.</summary>

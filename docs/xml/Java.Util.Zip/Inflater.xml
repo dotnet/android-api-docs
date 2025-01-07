@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/util/zip/Inflater", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/zip/Inflater", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>This class provides support for general purpose decompression using the
@@ -27,6 +31,10 @@
             protected by patents. It is fully described in the specifications at
             the java.util.zip
             package description.</para>
+      <para>This class inflates sequences of ZLIB compressed bytes. The input byte
+            sequence is provided in either byte array or byte buffer, via one of the
+            <c>setInput()</c> methods. The output byte sequence is written to the
+            output byte array or byte buffer passed to the <c>deflate()</c> methods.</para>
       <para>The following code fragment demonstrates a trivial compression
             and decompression of a string using <c>Deflater</c> and
             <c>Inflater</c>.
@@ -53,13 +61,14 @@
             
                 // Decode the bytes into a String
                 String outputString = new String(result, 0, resultLength, "UTF-8");
-            } catch(java.io.UnsupportedEncodingException ex) {
+            } catch (java.io.UnsupportedEncodingException ex) {
                 // handle
             } catch (java.util.zip.DataFormatException ex) {
                 // handle
             }
             </code>
       <para>&lt;/blockquote&gt;</para>
+      <para>Added in 1.1.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/java/util/zip/Inflater" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater</code>.</a>
@@ -313,11 +322,10 @@
       <Docs>
         <summary>Closes the decompressor and discards any unprocessed input.</summary>
         <remarks>
-          <para>Closes the decompressor and discards any unprocessed input.
-            This method should be called when the decompressor is no longer
-            being used, but will also be called automatically by the finalize()
-            method. Once this method is called, the behavior of the Inflater
-            object is undefined.</para>
+          <para>Closes the decompressor and discards any unprocessed input.</para>
+          <para>This method should be called when the decompressor is no longer
+            being used. Once this method is called, the behavior of the
+            Inflater object is undefined.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/zip/Inflater#end()" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.end()</code>.</a>
@@ -375,10 +383,79 @@
       </Docs>
     </Member>
     <Member MemberName="Inflate">
-      <MemberSignature Language="C#" Value="public virtual int Inflate (byte[]? b);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Inflate(unsigned int8[] b) cil managed" />
+      <MemberSignature Language="C#" Value="public virtual int Inflate (Java.Nio.ByteBuffer? output);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Inflate(class Java.Nio.ByteBuffer output) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.Inflate(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member Inflate : Java.Nio.ByteBuffer -&gt; int&#xA;override this.Inflate : Java.Nio.ByteBuffer -&gt; int" Usage="inflater.Inflate output" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("inflate", "(Ljava/nio/ByteBuffer;)I", "GetInflate_Ljava_nio_ByteBuffer_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("inflate", "(Ljava/nio/ByteBuffer;)I", "GetInflate_Ljava_nio_ByteBuffer_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="output" Type="Java.Nio.ByteBuffer" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="output">the buffer for the uncompressed data</param>
+        <summary>Uncompresses bytes into specified buffer.</summary>
+        <returns>the actual number of uncompressed bytes</returns>
+        <remarks>
+          <para>Uncompresses bytes into specified buffer. Returns actual number
+            of bytes uncompressed. A return value of 0 indicates that
+            needsInput() or needsDictionary() should be called in order to
+            determine if more input data or a preset dictionary is required.
+            In the latter case, getAdler() can be used to get the Adler-32
+            value of the dictionary required.</para>
+          <para>On success, the position of the given <c>output</c> byte buffer will be
+            advanced by as many bytes as were produced by the operation, which is equal
+            to the number returned by this method.  Note that the position of the
+            <c>output</c> buffer will be advanced even in the event that a
+            <c>DataFormatException</c> is thrown.</para>
+          <para>The #getRemaining() remaining byte count will be reduced by
+            the number of consumed input bytes.  If the <c>#setInput(ByteBuffer)</c>
+            method was called to provide a buffer for input, the input buffer's position
+            will be advanced the number of consumed bytes.</para>
+          <para>These byte totals, as well as
+            the #getBytesRead() total bytes read
+            and the #getBytesWritten() total bytes written
+            values, will be updated even in the event that a <c>DataFormatException</c>
+            is thrown to reflect the amount of data consumed and produced before the
+            exception occurred.</para>
+          <para>Added in 11.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/zip/Inflater#inflate(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.inflate(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Inflate">
+      <MemberSignature Language="C#" Value="public virtual int Inflate (byte[]? b);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Inflate(unsigned int8[] b) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.Inflate(System.Byte[])" />
-      <MemberSignature Language="F#" Value="abstract member Inflate : byte[] -&gt; int&#xA;override this.Inflate : byte[] -&gt; int" Usage="inflater.Inflate b" />
+      <MemberSignature Language="F#" Value="abstract member Inflate : byte[] -&gt; int&#xA;override this.Inflate : byte[] -&gt; int" Usage="inflater.Inflate b" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public virtual int Inflate (byte[]? output);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Inflate(unsigned int8[] output) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member Inflate : byte[] -&gt; int&#xA;override this.Inflate : byte[] -&gt; int" Usage="inflater.Inflate output" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -394,10 +471,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0" />
+        <Parameter Name="output" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0" />
       </Parameters>
       <Docs>
         <param name="b">the buffer for the uncompressed data</param>
+        <param name="output">the buffer for the uncompressed data</param>
         <summary>Uncompresses bytes into specified buffer.</summary>
         <returns>the actual number of uncompressed bytes</returns>
         <remarks>
@@ -407,6 +486,16 @@
             determine if more input data or a preset dictionary is required.
             In the latter case, getAdler() can be used to get the Adler-32
             value of the dictionary required.</para>
+          <para>The #getRemaining() remaining byte count will be reduced by
+            the number of consumed input bytes.  If the <c>#setInput(ByteBuffer)</c>
+            method was called to provide a buffer for input, the input buffer's position
+            will be advanced the number of consumed bytes.</para>
+          <para>These byte totals, as well as
+            the #getBytesRead() total bytes read
+            and the #getBytesWritten() total bytes written
+            values, will be updated even in the event that a <c>DataFormatException</c>
+            is thrown to reflect the amount of data consumed and produced before the
+            exception occurred.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/zip/Inflater#inflate(byte[])" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.inflate(byte[])</code>.</a>
@@ -425,10 +514,13 @@
       </Docs>
     </Member>
     <Member MemberName="Inflate">
-      <MemberSignature Language="C#" Value="public virtual int Inflate (byte[]? b, int off, int len);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Inflate(unsigned int8[] b, int32 off, int32 len) cil managed" />
+      <MemberSignature Language="C#" Value="public virtual int Inflate (byte[]? b, int off, int len);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Inflate(unsigned int8[] b, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.Inflate(System.Byte[],System.Int32,System.Int32)" />
-      <MemberSignature Language="F#" Value="abstract member Inflate : byte[] * int * int -&gt; int&#xA;override this.Inflate : byte[] * int * int -&gt; int" Usage="inflater.Inflate (b, off, len)" />
+      <MemberSignature Language="F#" Value="abstract member Inflate : byte[] * int * int -&gt; int&#xA;override this.Inflate : byte[] * int * int -&gt; int" Usage="inflater.Inflate (b, off, len)" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public virtual int Inflate (byte[]? output, int off, int len);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Inflate(unsigned int8[] output, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member Inflate : byte[] * int * int -&gt; int&#xA;override this.Inflate : byte[] * int * int -&gt; int" Usage="inflater.Inflate (output, off, len)" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -444,12 +536,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
-        <Parameter Name="off" Type="System.Int32" />
-        <Parameter Name="len" Type="System.Int32" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0" />
+        <Parameter Name="output" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="off" Type="System.Int32" Index="1" />
+        <Parameter Name="len" Type="System.Int32" Index="2" />
       </Parameters>
       <Docs>
         <param name="b">the buffer for the uncompressed data</param>
+        <param name="output">the buffer for the uncompressed data</param>
         <param name="off">the start offset of the data</param>
         <param name="len">the maximum number of uncompressed bytes</param>
         <summary>Uncompresses bytes into specified buffer.</summary>
@@ -461,6 +555,20 @@
             determine if more input data or a preset dictionary is required.
             In the latter case, getAdler() can be used to get the Adler-32
             value of the dictionary required.</para>
+          <para>If the <c>#setInput(ByteBuffer)</c> method was called to provide a buffer
+            for input, the input buffer's position will be advanced by the number of bytes
+            consumed by this operation, even in the event that a <c>DataFormatException</c>
+            is thrown.</para>
+          <para>The #getRemaining() remaining byte count will be reduced by
+            the number of consumed input bytes.  If the <c>#setInput(ByteBuffer)</c>
+            method was called to provide a buffer for input, the input buffer's position
+            will be advanced the number of consumed bytes.</para>
+          <para>These byte totals, as well as
+            the #getBytesRead() total bytes read
+            and the #getBytesWritten() total bytes written
+            values, will be updated even in the event that a <c>DataFormatException</c>
+            is thrown to reflect the amount of data consumed and produced before the
+            exception occurred.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/zip/Inflater#inflate(byte[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.inflate(byte[], int, int)</code>.</a>
@@ -478,10 +586,49 @@
       </Docs>
     </Member>
     <Member MemberName="InflateAsync">
-      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; InflateAsync (byte[]? b);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; InflateAsync(unsigned int8[] b) cil managed" />
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; InflateAsync (Java.Nio.ByteBuffer? output);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; InflateAsync(class Java.Nio.ByteBuffer output) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.InflateAsync(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="member this.InflateAsync : Java.Nio.ByteBuffer -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="inflater.InflateAsync output" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Threading.Tasks.Task&lt;System.Int32&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="output" Type="Java.Nio.ByteBuffer" Index="0" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="output">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InflateAsync">
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; InflateAsync (byte[]? b);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; InflateAsync(unsigned int8[] b) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.InflateAsync(System.Byte[])" />
-      <MemberSignature Language="F#" Value="member this.InflateAsync : byte[] -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="inflater.InflateAsync b" />
+      <MemberSignature Language="F#" Value="member this.InflateAsync : byte[] -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="inflater.InflateAsync b" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; InflateAsync (byte[]? output);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; InflateAsync(unsigned int8[] output) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="member this.InflateAsync : byte[] -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="inflater.InflateAsync output" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -491,10 +638,26 @@
         <ReturnType>System.Threading.Tasks.Task&lt;System.Int32&gt;</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-34.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="output" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="b">To be added.</param>
+        <param name="output">To be added.</param>
         <summary>To be added.</summary>
         <returns>To be added.</returns>
         <remarks>
@@ -503,10 +666,13 @@
       </Docs>
     </Member>
     <Member MemberName="InflateAsync">
-      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; InflateAsync (byte[]? b, int off, int len);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; InflateAsync(unsigned int8[] b, int32 off, int32 len) cil managed" />
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; InflateAsync (byte[]? b, int off, int len);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; InflateAsync(unsigned int8[] b, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.InflateAsync(System.Byte[],System.Int32,System.Int32)" />
-      <MemberSignature Language="F#" Value="member this.InflateAsync : byte[] * int * int -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="inflater.InflateAsync (b, off, len)" />
+      <MemberSignature Language="F#" Value="member this.InflateAsync : byte[] * int * int -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="inflater.InflateAsync (b, off, len)" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public System.Threading.Tasks.Task&lt;int&gt; InflateAsync (byte[]? output, int off, int len);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Threading.Tasks.Task`1&lt;int32&gt; InflateAsync(unsigned int8[] output, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="member this.InflateAsync : byte[] * int * int -&gt; System.Threading.Tasks.Task&lt;int&gt;" Usage="inflater.InflateAsync (output, off, len)" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -516,12 +682,28 @@
         <ReturnType>System.Threading.Tasks.Task&lt;System.Int32&gt;</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
-        <Parameter Name="off" Type="System.Int32" />
-        <Parameter Name="len" Type="System.Int32" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-34.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="output" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="off" Type="System.Int32" Index="1" />
+        <Parameter Name="len" Type="System.Int32" Index="2" />
       </Parameters>
       <Docs>
         <param name="b">To be added.</param>
+        <param name="output">To be added.</param>
         <param name="off">To be added.</param>
         <param name="len">To be added.</param>
         <summary>To be added.</summary>
@@ -549,6 +731,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -626,8 +812,8 @@
         <returns>true if no data remains in the input buffer</returns>
         <remarks>
           <para>Returns true if no data remains in the input buffer. This can
-            be used to determine if #setInput should be called in order
-            to provide more input.</para>
+            be used to determine if one of the <c>setInput()</c> methods should be
+            called in order to provide more input.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/zip/Inflater#needsInput()" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.needsInput()</code>.</a>
@@ -721,10 +907,63 @@
       </Docs>
     </Member>
     <Member MemberName="SetDictionary">
-      <MemberSignature Language="C#" Value="public virtual void SetDictionary (byte[]? b);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDictionary(unsigned int8[] b) cil managed" />
+      <MemberSignature Language="C#" Value="public virtual void SetDictionary (Java.Nio.ByteBuffer? dictionary);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDictionary(class Java.Nio.ByteBuffer dictionary) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.SetDictionary(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member SetDictionary : Java.Nio.ByteBuffer -&gt; unit&#xA;override this.SetDictionary : Java.Nio.ByteBuffer -&gt; unit" Usage="inflater.SetDictionary dictionary" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setDictionary", "(Ljava/nio/ByteBuffer;)V", "GetSetDictionary_Ljava_nio_ByteBuffer_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setDictionary", "(Ljava/nio/ByteBuffer;)V", "GetSetDictionary_Ljava_nio_ByteBuffer_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dictionary" Type="Java.Nio.ByteBuffer" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="dictionary">the dictionary data bytes</param>
+        <summary>Sets the preset dictionary to the bytes in the given buffer.</summary>
+        <remarks>
+          <para>Sets the preset dictionary to the bytes in the given buffer. Should be
+            called when inflate() returns 0 and needsDictionary() returns true
+            indicating that a preset dictionary is required. The method getAdler()
+            can be used to get the Adler-32 value of the dictionary needed.</para>
+          <para>The bytes in given byte buffer will be fully consumed by this method.  On
+            return, its position will equal its limit.</para>
+          <para>Added in 11.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/zip/Inflater#setDictionary(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.setDictionary(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetDictionary">
+      <MemberSignature Language="C#" Value="public virtual void SetDictionary (byte[]? b);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDictionary(unsigned int8[] b) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.SetDictionary(System.Byte[])" />
-      <MemberSignature Language="F#" Value="abstract member SetDictionary : byte[] -&gt; unit&#xA;override this.SetDictionary : byte[] -&gt; unit" Usage="inflater.SetDictionary b" />
+      <MemberSignature Language="F#" Value="abstract member SetDictionary : byte[] -&gt; unit&#xA;override this.SetDictionary : byte[] -&gt; unit" Usage="inflater.SetDictionary b" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public virtual void SetDictionary (byte[]? dictionary);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDictionary(unsigned int8[] dictionary) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member SetDictionary : byte[] -&gt; unit&#xA;override this.SetDictionary : byte[] -&gt; unit" Usage="inflater.SetDictionary dictionary" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -740,10 +979,12 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0" />
+        <Parameter Name="dictionary" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0" />
       </Parameters>
       <Docs>
         <param name="b">the dictionary data bytes</param>
+        <param name="dictionary">the dictionary data bytes</param>
         <summary>Sets the preset dictionary to the given array of bytes.</summary>
         <remarks>
           <para>Sets the preset dictionary to the given array of bytes. Should be
@@ -765,10 +1006,13 @@
       </Docs>
     </Member>
     <Member MemberName="SetDictionary">
-      <MemberSignature Language="C#" Value="public virtual void SetDictionary (byte[]? b, int off, int len);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDictionary(unsigned int8[] b, int32 off, int32 len) cil managed" />
+      <MemberSignature Language="C#" Value="public virtual void SetDictionary (byte[]? b, int off, int len);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDictionary(unsigned int8[] b, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.SetDictionary(System.Byte[],System.Int32,System.Int32)" />
-      <MemberSignature Language="F#" Value="abstract member SetDictionary : byte[] * int * int -&gt; unit&#xA;override this.SetDictionary : byte[] * int * int -&gt; unit" Usage="inflater.SetDictionary (b, off, len)" />
+      <MemberSignature Language="F#" Value="abstract member SetDictionary : byte[] * int * int -&gt; unit&#xA;override this.SetDictionary : byte[] * int * int -&gt; unit" Usage="inflater.SetDictionary (b, off, len)" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public virtual void SetDictionary (byte[]? dictionary, int off, int len);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetDictionary(unsigned int8[] dictionary, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member SetDictionary : byte[] * int * int -&gt; unit&#xA;override this.SetDictionary : byte[] * int * int -&gt; unit" Usage="inflater.SetDictionary (dictionary, off, len)" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -784,12 +1028,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
-        <Parameter Name="off" Type="System.Int32" />
-        <Parameter Name="len" Type="System.Int32" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0" />
+        <Parameter Name="dictionary" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="off" Type="System.Int32" Index="1" />
+        <Parameter Name="len" Type="System.Int32" Index="2" />
       </Parameters>
       <Docs>
         <param name="b">the dictionary data bytes</param>
+        <param name="dictionary">the dictionary data bytes</param>
         <param name="off">the start offset of the data</param>
         <param name="len">the length of the data</param>
         <summary>Sets the preset dictionary to the given array of bytes.</summary>
@@ -813,10 +1059,70 @@
       </Docs>
     </Member>
     <Member MemberName="SetInput">
-      <MemberSignature Language="C#" Value="public virtual void SetInput (byte[]? b);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetInput(unsigned int8[] b) cil managed" />
+      <MemberSignature Language="C#" Value="public virtual void SetInput (Java.Nio.ByteBuffer? input);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetInput(class Java.Nio.ByteBuffer input) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.SetInput(Java.Nio.ByteBuffer)" />
+      <MemberSignature Language="F#" Value="abstract member SetInput : Java.Nio.ByteBuffer -&gt; unit&#xA;override this.SetInput : Java.Nio.ByteBuffer -&gt; unit" Usage="inflater.SetInput input" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setInput", "(Ljava/nio/ByteBuffer;)V", "GetSetInput_Ljava_nio_ByteBuffer_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setInput", "(Ljava/nio/ByteBuffer;)V", "GetSetInput_Ljava_nio_ByteBuffer_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="input" Type="Java.Nio.ByteBuffer" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="input">the input data bytes</param>
+        <summary>Sets input data for decompression.</summary>
+        <remarks>
+          <para>Sets input data for decompression.</para>
+          <para>One of the <c>setInput()</c> methods should be called whenever
+            <c>needsInput()</c> returns true indicating that more input data
+            is required.</para>
+          <para>The given buffer's position will be advanced as inflate
+            operations are performed, up to the buffer's limit.
+            The input buffer may be modified (refilled) between inflate
+            operations; doing so is equivalent to creating a new buffer
+            and setting it with this method.</para>
+          <para>Modifying the input buffer's contents, position, or limit
+            concurrently with an inflate operation will result in
+            undefined behavior, which may include incorrect operation
+            results or operation failure.</para>
+          <para>Added in 11.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/zip/Inflater#setInput(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.setInput(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetInput">
+      <MemberSignature Language="C#" Value="public virtual void SetInput (byte[]? b);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetInput(unsigned int8[] b) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.SetInput(System.Byte[])" />
-      <MemberSignature Language="F#" Value="abstract member SetInput : byte[] -&gt; unit&#xA;override this.SetInput : byte[] -&gt; unit" Usage="inflater.SetInput b" />
+      <MemberSignature Language="F#" Value="abstract member SetInput : byte[] -&gt; unit&#xA;override this.SetInput : byte[] -&gt; unit" Usage="inflater.SetInput b" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public virtual void SetInput (byte[]? input);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetInput(unsigned int8[] input) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member SetInput : byte[] -&gt; unit&#xA;override this.SetInput : byte[] -&gt; unit" Usage="inflater.SetInput input" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -832,15 +1138,18 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0" />
+        <Parameter Name="input" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0" />
       </Parameters>
       <Docs>
         <param name="b">the input data bytes</param>
+        <param name="input">the input data bytes</param>
         <summary>Sets input data for decompression.</summary>
         <remarks>
-          <para>Sets input data for decompression. Should be called whenever
-            needsInput() returns true indicating that more input data is
-            required.</para>
+          <para>Sets input data for decompression.</para>
+          <para>One of the <c>setInput()</c> methods should be called whenever
+            <c>needsInput()</c> returns true indicating that more input data
+            is required.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/zip/Inflater#setInput(byte[])" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.setInput(byte[])</code>.</a>
@@ -856,10 +1165,13 @@
       </Docs>
     </Member>
     <Member MemberName="SetInput">
-      <MemberSignature Language="C#" Value="public virtual void SetInput (byte[]? b, int off, int len);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetInput(unsigned int8[] b, int32 off, int32 len) cil managed" />
+      <MemberSignature Language="C#" Value="public virtual void SetInput (byte[]? b, int off, int len);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetInput(unsigned int8[] b, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.Zip.Inflater.SetInput(System.Byte[],System.Int32,System.Int32)" />
-      <MemberSignature Language="F#" Value="abstract member SetInput : byte[] * int * int -&gt; unit&#xA;override this.SetInput : byte[] * int * int -&gt; unit" Usage="inflater.SetInput (b, off, len)" />
+      <MemberSignature Language="F#" Value="abstract member SetInput : byte[] * int * int -&gt; unit&#xA;override this.SetInput : byte[] * int * int -&gt; unit" Usage="inflater.SetInput (b, off, len)" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public virtual void SetInput (byte[]? input, int off, int len);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetInput(unsigned int8[] input, int32 off, int32 len) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member SetInput : byte[] * int * int -&gt; unit&#xA;override this.SetInput : byte[] * int * int -&gt; unit" Usage="inflater.SetInput (input, off, len)" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -875,19 +1187,22 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="b" Type="System.Byte[]" />
-        <Parameter Name="off" Type="System.Int32" />
-        <Parameter Name="len" Type="System.Int32" />
+        <Parameter Name="b" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-34.0" />
+        <Parameter Name="input" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="off" Type="System.Int32" Index="1" />
+        <Parameter Name="len" Type="System.Int32" Index="2" />
       </Parameters>
       <Docs>
         <param name="b">the input data bytes</param>
+        <param name="input">the input data bytes</param>
         <param name="off">the start offset of the input data</param>
         <param name="len">the length of the input data</param>
         <summary>Sets input data for decompression.</summary>
         <remarks>
-          <para>Sets input data for decompression. Should be called whenever
-            needsInput() returns true indicating that more input data is
-            required.</para>
+          <para>Sets input data for decompression.</para>
+          <para>One of the <c>setInput()</c> methods should be called whenever
+            <c>needsInput()</c> returns true indicating that more input data
+            is required.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/zip/Inflater#setInput(byte[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.util.zip.Inflater.setInput(byte[], int, int)</code>.</a>
@@ -951,6 +1266,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

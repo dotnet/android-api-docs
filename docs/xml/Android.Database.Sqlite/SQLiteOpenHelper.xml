@@ -29,6 +29,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/database/sqlite/SQLiteOpenHelper", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/database/sqlite/SQLiteOpenHelper", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>A helper class to manage database creation and version management.</summary>
@@ -43,11 +47,10 @@
             to avoid blocking application startup with long-running database upgrades.</para>
       <para>For an example, see the NotePadProvider class in the NotePad sample application,
             in the &lt;em&gt;samples/&lt;/em&gt; directory of the SDK.</para>
-      <para>&lt;p class="note"&gt;&lt;strong&gt;Note:&lt;/strong&gt; this class assumes
-            monotonically increasing version numbers for upgrades.&lt;/p&gt;
-            
-            &lt;p class="note"&gt;&lt;strong&gt;Note:&lt;/strong&gt; the <c>AutoCloseable</c> interface was
-            first added in the <c>android.os.Build.VERSION_CODES#Q</c> release.&lt;/p&gt;</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; this class assumes
+            monotonically increasing version numbers for upgrades.</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; the <c>AutoCloseable</c> interface was
+            first added in the <c>android.os.Build.VERSION_CODES#Q</c> release.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper" title="Reference documentation">Java documentation for <code>android.database.sqlite.SQLiteOpenHelper</code>.</a>
@@ -154,7 +157,14 @@
         <Parameter Name="context" Type="Android.Content.Context" />
         <Parameter Name="name" Type="System.String" />
         <Parameter Name="version" Type="System.Int32" />
-        <Parameter Name="openParams" Type="Android.Database.Sqlite.SQLiteDatabase+OpenParams" />
+        <Parameter Name="openParams" Type="Android.Database.Sqlite.SQLiteDatabase+OpenParams">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="context">to use for locating paths to the the database</param>
@@ -329,6 +339,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -627,9 +641,8 @@
             database object will be returned.  If the problem is fixed, a future call
             to <c>#getWritableDatabase</c> may succeed, in which case the read-only
             database object will be closed and the read/write object will be returned
-            in the future.
-            
-            &lt;p class="caution"&gt;Like <c>#getWritableDatabase</c>, this method may
+            in the future.</para>
+          <para>Like <c>#getWritableDatabase</c>, this method may
             take a long time to return, so you should not call it from the
             application main thread, including from
             <c>android.content.ContentProvider#onCreate ContentProvider.onCreate()</c>.</para>
@@ -901,6 +914,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -945,7 +962,7 @@
             (Make sure to call <c>#close</c> when you no longer need the database.)
             Errors such as bad permissions or a full disk may cause this method
             to fail, but future attempts may succeed if the problem is fixed.</para>
-          <para>&lt;p class="caution"&gt;Database upgrade may take a long time, you
+          <para>Database upgrade may take a long time, you
             should not call this method from the application main thread, including
             from <c>android.content.ContentProvider#onCreate ContentProvider.onCreate()</c>.</para>
           <para>

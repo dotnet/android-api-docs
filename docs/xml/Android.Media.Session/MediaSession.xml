@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/media/session/MediaSession", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/session/MediaSession", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>Allows interaction with media controllers, volume keys, media buttons, and
@@ -115,7 +119,14 @@
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
         <Parameter Name="tag" Type="System.String" />
-        <Parameter Name="sessionInfo" Type="Android.OS.Bundle" />
+        <Parameter Name="sessionInfo" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="context">The context to use to create the session.</param>
@@ -460,7 +471,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="e" Type="System.String" />
-        <Parameter Name="extras" Type="Android.OS.Bundle" />
+        <Parameter Name="extras" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="e">The name of the event to send</param>
@@ -773,15 +791,19 @@
       </Parameters>
       <Docs>
         <param name="mbr">The <c>PendingIntent</c> to send the media button event to.</param>
-        <summary>Set a pending intent for your media button receiver to allow restarting
-            playback after the session has been stopped.</summary>
+        <summary>Set a pending intent for your media button receiver to allow restarting playback after the
+            session has been stopped.</summary>
         <remarks>
-          <para>Set a pending intent for your media button receiver to allow restarting
-            playback after the session has been stopped. If your app is started in
-            this way an <c>Intent#ACTION_MEDIA_BUTTON</c> intent will be sent via
-            the pending intent.</para>
+          <para>Set a pending intent for your media button receiver to allow restarting playback after the
+            session has been stopped.</para>
+          <para>If your app is started in this way an <c>Intent#ACTION_MEDIA_BUTTON</c> intent will be
+            sent via the pending intent.</para>
+          <para>The provided <c>PendingIntent</c> must not target an activity. On apps targeting Android
+            V and above, passing an activity pending intent to this method causes an <c>IllegalArgumentException</c>. On apps targeting Android U and below, passing an activity pending
+            intent causes the call to be ignored. Refer to this <see href="https://developer.android.com/guide/components/activities/background-starts">guide</see>
+            for more information.</para>
           <para>The pending intent is recommended to be explicit to follow the security recommendation of
-            <c>PendingIntent#getActivity</c>.</para>
+            <c>PendingIntent#getService</c>.</para>
           <para>This member is deprecated. Use <c>#setMediaButtonBroadcastReceiver(ComponentName)</c> instead.</para>
           <para>
             <format type="text/html">
@@ -989,7 +1011,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="queue" Type="System.Collections.Generic.IList&lt;Android.Media.Session.MediaSession+QueueItem&gt;" />
+        <Parameter Name="queue" Type="System.Collections.Generic.IList&lt;Android.Media.Session.MediaSession+QueueItem&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="queue">A list of items in the play queue.</param>

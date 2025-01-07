@@ -1,8 +1,11 @@
 <Type Name="SplittableRandom" FullName="Java.Util.SplittableRandom">
-  <TypeSignature Language="C#" Value="public sealed class SplittableRandom : Java.Lang.Object" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit SplittableRandom extends Java.Lang.Object" />
+  <TypeSignature Language="C#" Value="public sealed class SplittableRandom : Java.Lang.Object" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit SplittableRandom extends Java.Lang.Object" FrameworkAlternate="net-android-34.0" />
   <TypeSignature Language="DocId" Value="T:Java.Util.SplittableRandom" />
-  <TypeSignature Language="F#" Value="type SplittableRandom = class&#xA;    inherit Object" />
+  <TypeSignature Language="F#" Value="type SplittableRandom = class&#xA;    inherit Object" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="C#" Value="public sealed class SplittableRandom : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Util.RandomGenerators.IRandomGenerator" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit SplittableRandom extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.RandomGenerators.IRandomGenerator, class System.IDisposable" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="F#" Value="type SplittableRandom = class&#xA;    inherit Object&#xA;    interface IRandomGenerator&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" FrameworkAlternate="net-android-35.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -10,11 +13,28 @@
   <Base>
     <BaseTypeName>Java.Lang.Object</BaseTypeName>
   </Base>
-  <Interfaces />
+  <Interfaces>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Java.Util.RandomGenerators.IRandomGenerator</InterfaceName>
+    </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
   <Attributes>
     <Attribute>
       <AttributeName Language="C#">[Android.Runtime.Register("java/util/SplittableRandom", ApiSince=24, DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/SplittableRandom", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute FrameworkAlternate="net-android-34.0">
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
@@ -22,15 +42,15 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>A generator of uniform pseudorandom values applicable for use in
-            (among other contexts) isolated parallel computations that may
-            generate subtasks.</summary>
+    <summary>A generator of uniform pseudorandom values (with period 2&lt;sup&gt;64&lt;/sup&gt;)
+            applicable for use in (among other contexts) isolated parallel
+            computations that may generate subtasks.</summary>
     <remarks>
-      <para>A generator of uniform pseudorandom values applicable for use in
-            (among other contexts) isolated parallel computations that may
-            generate subtasks. Class <c>SplittableRandom</c> supports methods for
-            producing pseudorandom numbers of type <c>int</c>, <c>long</c>,
-            and <c>double</c> with similar usages as for class
+      <para>A generator of uniform pseudorandom values (with period 2&lt;sup&gt;64&lt;/sup&gt;)
+            applicable for use in (among other contexts) isolated parallel
+            computations that may generate subtasks. Class <c>SplittableRandom</c>
+            supports methods for producing pseudorandom numbers of type <c>int</c>,
+            <c>long</c>, and <c>double</c> with similar usages as for class
             <c>java.util.Random</c> but differs in the following ways:
             
             &lt;ul&gt;
@@ -41,15 +61,15 @@
             3.31.1</see>.) These tests validate only the methods for certain
             types and ranges, but similar properties are expected to hold, at
             least approximately, for others as well. The &lt;em&gt;period&lt;/em&gt;
-            (length of any series of generated values before it repeats) is at
-            least 2&lt;sup&gt;64&lt;/sup&gt;.
+            (length of any series of generated values before it repeats) is
+            2&lt;sup&gt;64&lt;/sup&gt;. &lt;/li&gt;
             
-            &lt;li&gt;Method <c>#split</c> constructs and returns a new
+            &lt;li&gt; Method <c>#split</c> constructs and returns a new
             SplittableRandom instance that shares no mutable state with the
             current instance. However, with very high probability, the
             values collectively generated by the two objects have the same
             statistical properties as if the same quantity of values were
-            generated by a single thread using a single <c>SplittableRandom</c> object.
+            generated by a single thread using a single <c>SplittableRandom</c> object.  &lt;/li&gt;
             
             &lt;li&gt;Instances of SplittableRandom are &lt;em&gt;not&lt;/em&gt; thread-safe.
             They are designed to be split, not shared, across threads. For
@@ -59,7 +79,7 @@
             Subtask(aSplittableRandom.split()).fork()</c>.
             
             &lt;li&gt;This class provides additional methods for generating random
-            streams, that employ the above techniques when used in <c>stream.parallel()</c> mode.
+            streams, that employ the above techniques when used in <c>stream.parallel()</c> mode.&lt;/li&gt;
             
             &lt;/ul&gt;</para>
       <para>Instances of <c>SplittableRandom</c> are not cryptographically
@@ -174,6 +194,9 @@
       <MemberSignature Language="DocId" Value="P:Java.Util.SplittableRandom.JniPeerMembers" />
       <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Util.SplittableRandom.JniPeerMembers" />
       <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -186,6 +209,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -201,10 +228,15 @@
     </Member>
     <Member MemberName="NextBoolean">
       <MemberSignature Language="C#" Value="public bool NextBoolean ();" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool NextBoolean() cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool NextBoolean() cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextBoolean" />
-      <MemberSignature Language="F#" Value="member this.NextBoolean : unit -&gt; bool" Usage="splittableRandom.NextBoolean " />
+      <MemberSignature Language="F#" Value="member this.NextBoolean : unit -&gt; bool" Usage="splittableRandom.NextBoolean " FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool NextBoolean() cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextBoolean : unit -&gt; bool&#xA;override this.NextBoolean : unit -&gt; bool" Usage="splittableRandom.NextBoolean " FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextBoolean</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -243,10 +275,15 @@
     </Member>
     <Member MemberName="NextBytes">
       <MemberSignature Language="C#" Value="public void NextBytes (byte[]? bytes);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void NextBytes(unsigned int8[] bytes) cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void NextBytes(unsigned int8[] bytes) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextBytes(System.Byte[])" />
-      <MemberSignature Language="F#" Value="member this.NextBytes : byte[] -&gt; unit" Usage="splittableRandom.NextBytes bytes" />
+      <MemberSignature Language="F#" Value="member this.NextBytes : byte[] -&gt; unit" Usage="splittableRandom.NextBytes bytes" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void NextBytes(unsigned int8[] bytes) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextBytes : byte[] -&gt; unit&#xA;override this.NextBytes : byte[] -&gt; unit" Usage="splittableRandom.NextBytes bytes" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextBytes(System.Byte[])</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -269,9 +306,9 @@
       </Parameters>
       <Docs>
         <param name="bytes">the byte array to fill with pseudorandom bytes</param>
-        <summary>Fills a user-supplied byte array with generated pseudorandom bytes.</summary>
+        <summary>To be added</summary>
         <remarks>
-          <para>Fills a user-supplied byte array with generated pseudorandom bytes.</para>
+          <para>To be added</para>
           <para>Added in 10.</para>
           <para>
             <format type="text/html">
@@ -288,10 +325,15 @@
     </Member>
     <Member MemberName="NextDouble">
       <MemberSignature Language="C#" Value="public double NextDouble ();" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 NextDouble() cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 NextDouble() cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextDouble" />
-      <MemberSignature Language="F#" Value="member this.NextDouble : unit -&gt; double" Usage="splittableRandom.NextDouble " />
+      <MemberSignature Language="F#" Value="member this.NextDouble : unit -&gt; double" Usage="splittableRandom.NextDouble " FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextDouble() cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextDouble : unit -&gt; double&#xA;override this.NextDouble : unit -&gt; double" Usage="splittableRandom.NextDouble " FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextDouble</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -333,10 +375,15 @@
     </Member>
     <Member MemberName="NextDouble">
       <MemberSignature Language="C#" Value="public double NextDouble (double bound);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 NextDouble(float64 bound) cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 NextDouble(float64 bound) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextDouble(System.Double)" />
-      <MemberSignature Language="F#" Value="member this.NextDouble : double -&gt; double" Usage="splittableRandom.NextDouble bound" />
+      <MemberSignature Language="F#" Value="member this.NextDouble : double -&gt; double" Usage="splittableRandom.NextDouble bound" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextDouble(float64 bound) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextDouble : double -&gt; double&#xA;override this.NextDouble : double -&gt; double" Usage="splittableRandom.NextDouble bound" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextDouble(System.Double)</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -380,10 +427,15 @@
     </Member>
     <Member MemberName="NextDouble">
       <MemberSignature Language="C#" Value="public double NextDouble (double origin, double bound);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 NextDouble(float64 origin, float64 bound) cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance float64 NextDouble(float64 origin, float64 bound) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextDouble(System.Double,System.Double)" />
-      <MemberSignature Language="F#" Value="member this.NextDouble : double * double -&gt; double" Usage="splittableRandom.NextDouble (origin, bound)" />
+      <MemberSignature Language="F#" Value="member this.NextDouble : double * double -&gt; double" Usage="splittableRandom.NextDouble (origin, bound)" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextDouble(float64 origin, float64 bound) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextDouble : double * double -&gt; double&#xA;override this.NextDouble : double * double -&gt; double" Usage="splittableRandom.NextDouble (origin, bound)" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextDouble(System.Double,System.Double)</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -430,10 +482,15 @@
     </Member>
     <Member MemberName="NextInt">
       <MemberSignature Language="C#" Value="public int NextInt ();" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 NextInt() cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 NextInt() cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextInt" />
-      <MemberSignature Language="F#" Value="member this.NextInt : unit -&gt; int" Usage="splittableRandom.NextInt " />
+      <MemberSignature Language="F#" Value="member this.NextInt : unit -&gt; int" Usage="splittableRandom.NextInt " FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 NextInt() cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextInt : unit -&gt; int&#xA;override this.NextInt : unit -&gt; int" Usage="splittableRandom.NextInt " FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextInt</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -472,10 +529,15 @@
     </Member>
     <Member MemberName="NextInt">
       <MemberSignature Language="C#" Value="public int NextInt (int bound);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 NextInt(int32 bound) cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 NextInt(int32 bound) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextInt(System.Int32)" />
-      <MemberSignature Language="F#" Value="member this.NextInt : int -&gt; int" Usage="splittableRandom.NextInt bound" />
+      <MemberSignature Language="F#" Value="member this.NextInt : int -&gt; int" Usage="splittableRandom.NextInt bound" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 NextInt(int32 bound) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextInt : int -&gt; int&#xA;override this.NextInt : int -&gt; int" Usage="splittableRandom.NextInt bound" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextInt(System.Int32)</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -520,10 +582,15 @@
     </Member>
     <Member MemberName="NextInt">
       <MemberSignature Language="C#" Value="public int NextInt (int origin, int bound);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 NextInt(int32 origin, int32 bound) cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 NextInt(int32 origin, int32 bound) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextInt(System.Int32,System.Int32)" />
-      <MemberSignature Language="F#" Value="member this.NextInt : int * int -&gt; int" Usage="splittableRandom.NextInt (origin, bound)" />
+      <MemberSignature Language="F#" Value="member this.NextInt : int * int -&gt; int" Usage="splittableRandom.NextInt (origin, bound)" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 NextInt(int32 origin, int32 bound) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextInt : int * int -&gt; int&#xA;override this.NextInt : int * int -&gt; int" Usage="splittableRandom.NextInt (origin, bound)" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextInt(System.Int32,System.Int32)</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -570,10 +637,15 @@
     </Member>
     <Member MemberName="NextLong">
       <MemberSignature Language="C#" Value="public long NextLong ();" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 NextLong() cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 NextLong() cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextLong" />
-      <MemberSignature Language="F#" Value="member this.NextLong : unit -&gt; int64" Usage="splittableRandom.NextLong " />
+      <MemberSignature Language="F#" Value="member this.NextLong : unit -&gt; int64" Usage="splittableRandom.NextLong " FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 NextLong() cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextLong : unit -&gt; int64&#xA;override this.NextLong : unit -&gt; int64" Usage="splittableRandom.NextLong " FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextLong</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -612,10 +684,15 @@
     </Member>
     <Member MemberName="NextLong">
       <MemberSignature Language="C#" Value="public long NextLong (long bound);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 NextLong(int64 bound) cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 NextLong(int64 bound) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextLong(System.Int64)" />
-      <MemberSignature Language="F#" Value="member this.NextLong : int64 -&gt; int64" Usage="splittableRandom.NextLong bound" />
+      <MemberSignature Language="F#" Value="member this.NextLong : int64 -&gt; int64" Usage="splittableRandom.NextLong bound" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 NextLong(int64 bound) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextLong : int64 -&gt; int64&#xA;override this.NextLong : int64 -&gt; int64" Usage="splittableRandom.NextLong bound" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextLong(System.Int64)</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -660,10 +737,15 @@
     </Member>
     <Member MemberName="NextLong">
       <MemberSignature Language="C#" Value="public long NextLong (long origin, long bound);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 NextLong(int64 origin, int64 bound) cil managed" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int64 NextLong(int64 origin, int64 bound) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Java.Util.SplittableRandom.NextLong(System.Int64,System.Int64)" />
-      <MemberSignature Language="F#" Value="member this.NextLong : int64 * int64 -&gt; int64" Usage="splittableRandom.NextLong (origin, bound)" />
+      <MemberSignature Language="F#" Value="member this.NextLong : int64 * int64 -&gt; int64" Usage="splittableRandom.NextLong (origin, bound)" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 NextLong(int64 origin, int64 bound) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="abstract member NextLong : int64 * int64 -&gt; int64&#xA;override this.NextLong : int64 * int64 -&gt; int64" Usage="splittableRandom.NextLong (origin, bound)" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextLong(System.Int64,System.Int64)</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -809,6 +891,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

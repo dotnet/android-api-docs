@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/provider/Telephony$Sms", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/provider/Telephony$Sms", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
     <summary>Contains all text-based SMS messages.</summary>
@@ -48,6 +52,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("CONTENT_URI")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTENT_URI")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -136,15 +144,17 @@
         <remarks>
           <para>Used to determine the currently configured default SMS package.</para>
           <para>As of Android 11 apps will need specific permission to query other packages. To use
-            this method an app must include in their AndroidManifest:
+            this method an app must include in their AndroidManifest:</para>
+          <code lang="text/java">{@code
             &lt;queries&gt;
               &lt;intent&gt;
-                "android.provider.Telephony.SMS_DELIVER"/&gt;
+                &lt;action android:name="android.provider.Telephony.SMS_DELIVER"/&gt;
               &lt;/intent&gt;
             &lt;/queries&gt;
-            Which will allow them to query packages which declare intent filters that include
-            the &lt;c&gt;android.provider.Telephony.Sms.Intents#SMS_DELIVER_ACTION&lt;/c&gt; intent.
-            </para>
+            }</code>
+          <para>Which will allow them to query packages which declare intent filters that include
+            the <c>android.provider.Telephony.Sms.Intents#SMS_DELIVER_ACTION</c> intent.
+            &lt;/p&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/provider/Telephony.Sms#getDefaultSmsPackage(android.content.Context)" title="Reference documentation">Java documentation for <code>android.provider.Telephony.Sms.getDefaultSmsPackage(android.content.Context)</code>.</a>
