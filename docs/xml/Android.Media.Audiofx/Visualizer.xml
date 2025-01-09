@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/media/audiofx/Visualizer", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/audiofx/Visualizer", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="9">
     <summary>The Visualizer class enables application to retrieve part of the currently playing audio for
@@ -568,7 +572,7 @@
       <ReturnValue>
         <ReturnType>Android.Media.Audiofx.VisualizerStatus</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -714,7 +718,7 @@
       <ReturnValue>
         <ReturnType>Android.Media.Audiofx.VisualizerStatus</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -724,7 +728,8 @@
         <Parameter Name="waveform" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="waveform">array of bytes where the waveform should be returned</param>
+        <param name="waveform">array of bytes where the waveform should be returned, array length must be
+            at least equals to the capture size returned by <c>#getCaptureSize()</c>.</param>
         <summary>Returns a waveform capture of currently playing audio content.</summary>
         <returns>
           <c>#SUCCESS</c> in case of success,
@@ -937,9 +942,8 @@
             below). Minimum value depends on the resolution of audio samples used by the audio
             framework. The value of -9600mB is the minimum value for 16-bit audio systems and
             -14400mB or below for "high resolution" systems. Values for peak and RMS can be
-            retrieved with <c>#getMeasurementPeakRms(MeasurementPeakRms)</c>.
-            
-            &lt;p class=note&gt;&lt;strong&gt;Note:&lt;/strong&gt; when Visualizer effect is attached to the
+            retrieved with <c>#getMeasurementPeakRms(MeasurementPeakRms)</c>.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; when Visualizer effect is attached to the
             global session (with session ID 0), it is possible to observe RMS peaks higher than
             0 dBFS, for example in the case when there are multiple audio sources playing
             simultaneously. In this case <c>#getMeasurementPeakRms(MeasurementPeakRms)</c>
@@ -1189,7 +1193,7 @@
         <summary>Sets the capture size, i.</summary>
         <returns>
           <c>#SUCCESS</c> in case of success,
-            <c>#ERROR_BAD_VALUE</c> in case of failure.</returns>
+            <c>#ERROR_INVALID_OPERATION</c> if Visualizer effect enginer not enabled.</returns>
         <remarks>
           <para>Sets the capture size, i.e. the number of bytes returned by <c>#getWaveForm(byte[])</c> and
             <c>#getFft(byte[])</c> methods. The capture size must be a power of 2 in the range returned
@@ -1229,7 +1233,7 @@
       <ReturnValue>
         <ReturnType>Android.Media.Audiofx.VisualizerStatus</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -1287,7 +1291,7 @@
       <ReturnValue>
         <ReturnType>Android.Media.Audiofx.VisualizerStatus</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>

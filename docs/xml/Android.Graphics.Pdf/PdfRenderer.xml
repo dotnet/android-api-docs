@@ -29,11 +29,19 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/graphics/pdf/PdfRenderer", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/graphics/pdf/PdfRenderer", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute FrameworkAlternate="net-android-35.0">
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
-    <summary>This class enables rendering a PDF document.</summary>
+    <summary>This class enables rendering a PDF document and selecting, searching, fast scrolling,
+            annotations, etc.</summary>
     <remarks>
-      <para>This class enables rendering a PDF document. This class is not thread safe.</para>
+      <para>This class enables rendering a PDF document and selecting, searching, fast scrolling,
+            annotations, etc. from Android V. This class is thread safe and can be called by
+            multiple threads however only one thread will be executed at a time as the access is
+            synchronized by internal locking.</para>
       <para>If you want to render a PDF, you create a renderer and for every page you want
             to render, you open the page, render it, and close the page. After you are done
             with rendering, you close the renderer. After the renderer is closed it should not
@@ -64,8 +72,8 @@
       <para>If you are using this class to rasterize a PDF for printing or show a print
             preview, it is recommended that you respect the following contract in order
             to provide a consistent user experience when seeing a preview and printing,
-            i.e. the user sees a preview that is the same as the printout.</para>
-      <para>&lt;ul&gt;
+            i.e. the user sees a preview that is the same as the printout.
+            &lt;ul&gt;
             &lt;li&gt;
             Respect the property whether the document would like to be scaled for printing
             as per <c>#shouldScaleForPrinting()</c>.
@@ -97,10 +105,67 @@
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public PdfRenderer (Android.OS.ParcelFileDescriptor input);" />
-      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.OS.ParcelFileDescriptor input) cil managed" />
+      <MemberSignature Language="C#" Value="public PdfRenderer (Android.OS.ParcelFileDescriptor fileDescriptor, Android.Graphics.Pdf.LoadParams params);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.OS.ParcelFileDescriptor fileDescriptor, class Android.Graphics.Pdf.LoadParams params) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Graphics.Pdf.PdfRenderer.#ctor(Android.OS.ParcelFileDescriptor,Android.Graphics.Pdf.LoadParams)" />
+      <MemberSignature Language="F#" Value="new Android.Graphics.Pdf.PdfRenderer : Android.OS.ParcelFileDescriptor * Android.Graphics.Pdf.LoadParams -&gt; Android.Graphics.Pdf.PdfRenderer" Usage="new Android.Graphics.Pdf.PdfRenderer (fileDescriptor, params)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Landroid/os/ParcelFileDescriptor;Landroid/graphics/pdf/LoadParams;)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Landroid/os/ParcelFileDescriptor;Landroid/graphics/pdf/LoadParams;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="fileDescriptor" Type="Android.OS.ParcelFileDescriptor" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="params" Type="Android.Graphics.Pdf.LoadParams" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="fileDescriptor">Seekable file descriptor to read from.</param>
+        <param name="params">Instance of <c>LoadParams</c> specifying params for loading PDF
+                                  document.</param>
+        <summary>Creates a new instance of PdfRenderer class.</summary>
+        <remarks>
+          <para>Creates a new instance of PdfRenderer class.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; The provided file descriptor must be &lt;strong&gt;seekable&lt;/strong&gt;,
+            i.e. its data being randomly accessed, e.g. pointing to a file. If the password passed in
+            <c>android.graphics.pdf.LoadParams</c> is incorrect, the
+            <c>android.graphics.pdf.PdfRenderer</c> will throw a <c>SecurityException</c>.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; This class takes ownership of the passed in file descriptor
+            and is responsible for closing it when the renderer is closed.</para>
+          <para>If the file is from an untrusted source it is recommended to run the renderer in a separate,
+            isolated process with minimal permissions to limit the impact of security exploits.
+            &lt;strong&gt;Note:&lt;/strong&gt; The constructor should be instantiated on the
+            <c>android.annotation.WorkerThread</c> as it can be long-running while loading the document.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#PdfRenderer(android.os.ParcelFileDescriptor,%20android.graphics.pdf.LoadParams)" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.PdfRenderer(android.os.ParcelFileDescriptor, android.graphics.pdf.LoadParams)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public PdfRenderer (Android.OS.ParcelFileDescriptor input);" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.OS.ParcelFileDescriptor input) cil managed" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="DocId" Value="M:Android.Graphics.Pdf.PdfRenderer.#ctor(Android.OS.ParcelFileDescriptor)" />
-      <MemberSignature Language="F#" Value="new Android.Graphics.Pdf.PdfRenderer : Android.OS.ParcelFileDescriptor -&gt; Android.Graphics.Pdf.PdfRenderer" Usage="new Android.Graphics.Pdf.PdfRenderer input" />
+      <MemberSignature Language="F#" Value="new Android.Graphics.Pdf.PdfRenderer : Android.OS.ParcelFileDescriptor -&gt; Android.Graphics.Pdf.PdfRenderer" Usage="new Android.Graphics.Pdf.PdfRenderer input" FrameworkAlternate="net-android-34.0" />
+      <MemberSignature Language="C#" Value="public PdfRenderer (Android.OS.ParcelFileDescriptor fileDescriptor);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.OS.ParcelFileDescriptor fileDescriptor) cil managed" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="F#" Value="new Android.Graphics.Pdf.PdfRenderer : Android.OS.ParcelFileDescriptor -&gt; Android.Graphics.Pdf.PdfRenderer" Usage="new Android.Graphics.Pdf.PdfRenderer fileDescriptor" FrameworkAlternate="net-android-35.0" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -113,10 +178,12 @@
         </Attribute>
       </Attributes>
       <Parameters>
-        <Parameter Name="input" Type="Android.OS.ParcelFileDescriptor" />
+        <Parameter Name="input" Type="Android.OS.ParcelFileDescriptor" Index="0" FrameworkAlternate="net-android-34.0" />
+        <Parameter Name="fileDescriptor" Type="Android.OS.ParcelFileDescriptor" Index="0" FrameworkAlternate="net-android-35.0" />
       </Parameters>
       <Docs>
         <param name="input">Seekable file descriptor to read from.</param>
+        <param name="fileDescriptor">Seekable file descriptor to read from.</param>
         <summary>Creates a new instance.</summary>
         <remarks>
           <para>Creates a new instance.</para>
@@ -125,7 +192,10 @@
           <para>&lt;strong&gt;Note:&lt;/strong&gt; This class takes ownership of the passed in file descriptor
             and is responsible for closing it when the renderer is closed.</para>
           <para>If the file is from an untrusted source it is recommended to run the renderer in a separate,
-            isolated process with minimal permissions to limit the impact of security exploits.</para>
+            isolated process with minimal permissions to limit the impact of security exploits.
+            &lt;strong&gt;Note:&lt;/strong&gt; The constructor should be instantiated on the
+            <c>android.annotation.WorkerThread</c> as it can be long-running while loading the
+            document.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#PdfRenderer(android.os.ParcelFileDescriptor)" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.PdfRenderer(android.os.ParcelFileDescriptor)</code>.</a>
@@ -184,6 +254,137 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="DocumentLinearizationType">
+      <MemberSignature Language="C#" Value="public Android.Graphics.Pdf.PdfRendererDocumentLinearizedType DocumentLinearizationType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.Graphics.Pdf.PdfRendererDocumentLinearizedType DocumentLinearizationType" />
+      <MemberSignature Language="DocId" Value="P:Android.Graphics.Pdf.PdfRenderer.DocumentLinearizationType" />
+      <MemberSignature Language="F#" Value="member this.DocumentLinearizationType : Android.Graphics.Pdf.PdfRendererDocumentLinearizedType" Usage="Android.Graphics.Pdf.PdfRenderer.DocumentLinearizationType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDocumentLinearizationType", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDocumentLinearizationType", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererDocumentLinearizedType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the type of the PDF document.</summary>
+        <value>The PDF document type.</value>
+        <remarks>
+          <para>Gets the type of the PDF document.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#getDocumentLinearizationType()" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.getDocumentLinearizationType()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentLinearizedTypeLinearized">
+      <MemberSignature Language="C#" Value="public const Android.Graphics.Pdf.PdfRendererDocumentLinearizedType DocumentLinearizedTypeLinearized = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Graphics.Pdf.PdfRendererDocumentLinearizedType DocumentLinearizedTypeLinearized = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Graphics.Pdf.PdfRenderer.DocumentLinearizedTypeLinearized" />
+      <MemberSignature Language="F#" Value="val mutable DocumentLinearizedTypeLinearized : Android.Graphics.Pdf.PdfRendererDocumentLinearizedType" Usage="Android.Graphics.Pdf.PdfRenderer.DocumentLinearizedTypeLinearized" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_LINEARIZED_TYPE_LINEARIZED", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_LINEARIZED_TYPE_LINEARIZED", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererDocumentLinearizedType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererDocumentLinearizedType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererDocumentLinearizedType</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Represents a linearized PDF document.</summary>
+        <remarks>
+          <para>Represents a linearized PDF document.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#DOCUMENT_LINEARIZED_TYPE_LINEARIZED" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.DOCUMENT_LINEARIZED_TYPE_LINEARIZED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DocumentLinearizedTypeNonLinearized">
+      <MemberSignature Language="C#" Value="public const Android.Graphics.Pdf.PdfRendererDocumentLinearizedType DocumentLinearizedTypeNonLinearized = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Graphics.Pdf.PdfRendererDocumentLinearizedType DocumentLinearizedTypeNonLinearized = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.Graphics.Pdf.PdfRenderer.DocumentLinearizedTypeNonLinearized" />
+      <MemberSignature Language="F#" Value="val mutable DocumentLinearizedTypeNonLinearized : Android.Graphics.Pdf.PdfRendererDocumentLinearizedType" Usage="Android.Graphics.Pdf.PdfRenderer.DocumentLinearizedTypeNonLinearized" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DOCUMENT_LINEARIZED_TYPE_NON_LINEARIZED", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DOCUMENT_LINEARIZED_TYPE_NON_LINEARIZED", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererDocumentLinearizedType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererDocumentLinearizedType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererDocumentLinearizedType</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Represents a non-linearized PDF document.</summary>
+        <remarks>
+          <para>Represents a non-linearized PDF document.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#DOCUMENT_LINEARIZED_TYPE_NON_LINEARIZED" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.DOCUMENT_LINEARIZED_TYPE_NON_LINEARIZED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -206,6 +407,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -219,10 +424,11 @@
       </Docs>
     </Member>
     <Member MemberName="OpenPage">
-      <MemberSignature Language="C#" Value="public Android.Graphics.Pdf.PdfRenderer.Page? OpenPage (int index);" />
+      <MemberSignature Language="C#" Value="public Android.Graphics.Pdf.PdfRenderer.Page? OpenPage (int index);" FrameworkAlternate="net-android-34.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Graphics.Pdf.PdfRenderer/Page OpenPage(int32 index) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.Graphics.Pdf.PdfRenderer.OpenPage(System.Int32)" />
       <MemberSignature Language="F#" Value="member this.OpenPage : int -&gt; Android.Graphics.Pdf.PdfRenderer.Page" Usage="pdfRenderer.OpenPage index" />
+      <MemberSignature Language="C#" Value="public Android.Graphics.Pdf.PdfRenderer.Page OpenPage (int index);" FrameworkAlternate="net-android-35.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -285,6 +491,227 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#getPageCount()" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.getPageCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PdfFormType">
+      <MemberSignature Language="C#" Value="public Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormType" />
+      <MemberSignature Language="DocId" Value="P:Android.Graphics.Pdf.PdfRenderer.PdfFormType" />
+      <MemberSignature Language="F#" Value="member this.PdfFormType : Android.Graphics.Pdf.PdfRendererPdfFormType" Usage="Android.Graphics.Pdf.PdfRenderer.PdfFormType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPdfFormType", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPdfFormType", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererPdfFormType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the form type of the loaded PDF</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns the form type of the loaded PDF</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#getPdfFormType()" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.getPdfFormType()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PdfFormTypeAcroForm">
+      <MemberSignature Language="C#" Value="public const Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeAcroForm = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeAcroForm = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Graphics.Pdf.PdfRenderer.PdfFormTypeAcroForm" />
+      <MemberSignature Language="F#" Value="val mutable PdfFormTypeAcroForm : Android.Graphics.Pdf.PdfRendererPdfFormType" Usage="Android.Graphics.Pdf.PdfRenderer.PdfFormTypeAcroForm" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("PDF_FORM_TYPE_ACRO_FORM", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PDF_FORM_TYPE_ACRO_FORM", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererPdfFormType</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Represents a PDF with form fields specified using the AcroForm spec</summary>
+        <remarks>
+          <para>Represents a PDF with form fields specified using the AcroForm spec</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#PDF_FORM_TYPE_ACRO_FORM" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.PDF_FORM_TYPE_ACRO_FORM</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PdfFormTypeNone">
+      <MemberSignature Language="C#" Value="public const Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeNone = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeNone = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.Graphics.Pdf.PdfRenderer.PdfFormTypeNone" />
+      <MemberSignature Language="F#" Value="val mutable PdfFormTypeNone : Android.Graphics.Pdf.PdfRendererPdfFormType" Usage="Android.Graphics.Pdf.PdfRenderer.PdfFormTypeNone" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("PDF_FORM_TYPE_NONE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PDF_FORM_TYPE_NONE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererPdfFormType</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Represents a PDF without form fields</summary>
+        <remarks>
+          <para>Represents a PDF without form fields</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#PDF_FORM_TYPE_NONE" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.PDF_FORM_TYPE_NONE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PdfFormTypeXfaForeground">
+      <MemberSignature Language="C#" Value="public const Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeXfaForeground = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeXfaForeground = (3)" />
+      <MemberSignature Language="DocId" Value="F:Android.Graphics.Pdf.PdfRenderer.PdfFormTypeXfaForeground" />
+      <MemberSignature Language="F#" Value="val mutable PdfFormTypeXfaForeground : Android.Graphics.Pdf.PdfRendererPdfFormType" Usage="Android.Graphics.Pdf.PdfRenderer.PdfFormTypeXfaForeground" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("PDF_FORM_TYPE_XFA_FOREGROUND", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PDF_FORM_TYPE_XFA_FOREGROUND", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererPdfFormType</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>Represents a PDF with form fields specified using the XFAF subset of the XFA spec</summary>
+        <remarks>
+          <para>Represents a PDF with form fields specified using the XFAF subset of the XFA spec</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#PDF_FORM_TYPE_XFA_FOREGROUND" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.PDF_FORM_TYPE_XFA_FOREGROUND</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PdfFormTypeXfaFull">
+      <MemberSignature Language="C#" Value="public const Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeXfaFull = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Graphics.Pdf.PdfRendererPdfFormType PdfFormTypeXfaFull = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Graphics.Pdf.PdfRenderer.PdfFormTypeXfaFull" />
+      <MemberSignature Language="F#" Value="val mutable PdfFormTypeXfaFull : Android.Graphics.Pdf.PdfRendererPdfFormType" Usage="Android.Graphics.Pdf.PdfRenderer.PdfFormTypeXfaFull" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("PDF_FORM_TYPE_XFA_FULL", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PDF_FORM_TYPE_XFA_FULL", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.Pdf.PdfRendererPdfFormType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.Pdf.PdfRendererPdfFormType</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Represents a PDF with form fields specified using the entire XFA spec</summary>
+        <remarks>
+          <para>Represents a PDF with form fields specified using the entire XFA spec</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#PDF_FORM_TYPE_XFA_FULL" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.PDF_FORM_TYPE_XFA_FULL</code>.</a>
             </format>
           </para>
           <para>
@@ -386,6 +813,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -395,6 +826,59 @@
         <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Write">
+      <MemberSignature Language="C#" Value="public void Write (Android.OS.ParcelFileDescriptor destination, bool removePasswordProtection);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Write(class Android.OS.ParcelFileDescriptor destination, bool removePasswordProtection) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Graphics.Pdf.PdfRenderer.Write(Android.OS.ParcelFileDescriptor,System.Boolean)" />
+      <MemberSignature Language="F#" Value="member this.Write : Android.OS.ParcelFileDescriptor * bool -&gt; unit" Usage="pdfRenderer.Write (destination, removePasswordProtection)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("write", "(Landroid/os/ParcelFileDescriptor;Z)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("write", "(Landroid/os/ParcelFileDescriptor;Z)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="destination" Type="Android.OS.ParcelFileDescriptor" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="removePasswordProtection" Type="System.Boolean" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="destination">The writable <c>ParcelFileDescriptor</c></param>
+        <param name="removePasswordProtection">If true, removes password protection from the PDF before
+                                            saving.</param>
+        <summary>Saves the current state of the loaded PDF document to the given writable
+            <c>ParcelFileDescriptor</c>.</summary>
+        <remarks>
+          <para>Saves the current state of the loaded PDF document to the given writable
+            <c>ParcelFileDescriptor</c>. If the document is password-protected then setting
+            <c>removePasswordProtection</c> removes the protection before saving. The PDF document
+            should already be decrypted with the correct password before writing. Useful for printing or
+            sharing.
+            &lt;strong&gt;Note:&lt;/strong&gt; This method closes the provided file descriptor.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/pdf/PdfRenderer#write(android.os.ParcelFileDescriptor,%20boolean)" title="Reference documentation">Java documentation for <code>android.graphics.pdf.PdfRenderer.write(android.os.ParcelFileDescriptor, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

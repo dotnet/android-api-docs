@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/MediaParser$SeekMap", ApiSince=30, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android30.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android30.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,9 @@
   <Docs>
     <summary>Maps seek positions to <c>SeekPoint SeekPoints</c> in the stream.</summary>
     <remarks>
+      <para>Maps seek positions to <c>SeekPoint SeekPoints</c> in the stream.</para>
+      <para>A <c>SeekPoint</c> is a position in the stream from which a player may successfully start
+            playing media samples.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SeekMap</code>.</a>
@@ -65,6 +72,8 @@
             duration is unknown.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns the duration of the stream in microseconds or <c>#UNKNOWN_DURATION</c> if the
+            duration is unknown.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap#getDurationMicros()" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SeekMap.getDurationMicros()</code>.</a>
@@ -109,6 +118,14 @@
         <summary>Obtains <c>SeekPoint SeekPoints</c> for the specified seek time in microseconds.</summary>
         <returns>The corresponding <c>SeekPoint SeekPoints</c>.</returns>
         <remarks>
+          <para>Obtains <c>SeekPoint SeekPoints</c> for the specified seek time in microseconds.</para>
+          <para>
+            <c>getSeekPoints(timeMicros).first</c> contains the latest seek point for samples
+            with timestamp equal to or smaller than <c>timeMicros</c>.</para>
+          <para>
+            <c>getSeekPoints(timeMicros).second</c> contains the earliest seek point for samples
+            with timestamp equal to or greater than <c>timeMicros</c>. If a seek point exists for
+            <c>timeMicros</c>, the returned pair will contain the same <c>SeekPoint</c> twice.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap#getSeekPoints(long)" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SeekMap.getSeekPoints(long)</code>.</a>
@@ -149,6 +166,7 @@
         <summary>Returns whether seeking is supported.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns whether seeking is supported.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap#isSeekable()" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SeekMap.isSeekable()</code>.</a>
@@ -276,6 +294,7 @@
       <Docs>
         <summary>Returned by <c>#getDurationMicros()</c> when the duration is unknown.</summary>
         <remarks>
+          <para>Returned by <c>#getDurationMicros()</c> when the duration is unknown.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap#UNKNOWN_DURATION" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SeekMap.UNKNOWN_DURATION</code>.</a>

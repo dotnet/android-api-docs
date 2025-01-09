@@ -16,15 +16,21 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/webkit/SslErrorHandler", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/webkit/SslErrorHandler", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>Represents a request for handling an SSL error.</summary>
     <remarks>
-      <para>Represents a request for handling an SSL error. Instances of this class are
-            created by the WebView and passed to
-            <c>WebViewClient#onReceivedSslError</c>. The host application must call
-            either <c>#proceed</c> or <c>#cancel</c> to set the WebView's response
-            to the request.</para>
+      <para>Represents a request for handling an SSL error.</para>
+      <para>A <c>WebView</c> creates an instance of this class. The instance is
+            passed to <c>WebViewClient#onReceivedSslError(WebView, SslErrorHandler,
+            SslError)</c>.</para>
+      <para>The host application must call <c>#cancel()</c> or, contrary to secure
+            web communication standards, <c>#proceed()</c> to provide the web view's
+            response to the request.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/webkit/SslErrorHandler" title="Reference documentation">Java documentation for <code>android.webkit.SslErrorHandler</code>.</a>
@@ -83,11 +89,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Cancel this request and all pending requests for the WebView that had
-            the error.</summary>
+        <summary>Instructs the <c>WebView</c> that encountered the SSL certificate error
+            to terminate communication with the server.</summary>
         <remarks>
-          <para>Cancel this request and all pending requests for the WebView that had
-            the error.</para>
+          <para>Instructs the <c>WebView</c> that encountered the SSL certificate error
+            to terminate communication with the server. Cancels the current server
+            request and all pending requests for the <c>WebView</c>.</para>
+          <para>The host application must call this method to prevent a resource from
+            loading when an SSL certificate is invalid.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/SslErrorHandler#cancel()" title="Reference documentation">Java documentation for <code>android.webkit.SslErrorHandler.cancel()</code>.</a>
@@ -154,12 +163,15 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Proceed with the SSL certificate.</summary>
+        <summary>Instructs the <c>WebView</c> that encountered the SSL certificate error
+            to ignore the error and continue communicating with the server.</summary>
         <remarks>
-          <para>Proceed with the SSL certificate.</para>
-          <para>It is not recommended to proceed past SSL errors and this method should
-            generally not be used; see <c>WebViewClient#onReceivedSslError</c> for
-            more information.</para>
+          <para>Instructs the <c>WebView</c> that encountered the SSL certificate error
+            to ignore the error and continue communicating with the server.</para>
+          <para>&lt;b&gt;Warning:&lt;/b&gt; When an SSL error occurs, the host
+            application should always call <c>#cancel()</c> rather than
+            <c>proceed()</c> because an invalid SSL certificate means the connection
+            is not secure.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/SslErrorHandler#proceed()" title="Reference documentation">Java documentation for <code>android.webkit.SslErrorHandler.proceed()</code>.</a>

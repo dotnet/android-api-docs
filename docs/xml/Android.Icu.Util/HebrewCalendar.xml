@@ -17,19 +17,71 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/util/HebrewCalendar", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>HebrewCalendar</c> is a subclass of <c>Calendar</c>
+            that that implements the traditional Hebrew calendar.</summary>
     <remarks>
       <para>
+        <c>HebrewCalendar</c> is a subclass of <c>Calendar</c>
+            that that implements the traditional Hebrew calendar.
+            This is the civil calendar in Israel and the liturgical calendar
+            of the Jewish faith worldwide.</para>
+      <para>The Hebrew calendar is lunisolar and thus has a number of interesting
+            properties that distinguish it from the Gregorian.  Months start
+            on the day of (an arithmetic approximation of) each new moon.  Since the
+            solar year (approximately 365.24 days) is not an even multiple of
+            the lunar month (approximately 29.53 days) an extra "leap month" is
+            inserted in 7 out of every 19 years.  To make matters even more
+            interesting, the start of a year can be delayed by up to three days
+            in order to prevent certain holidays from falling on the Sabbath and
+            to prevent certain illegal year lengths.  Finally, the lengths of certain
+            months can vary depending on the number of days in the year.</para>
+      <para>The leap month is known as "Adar 1" and is inserted between the
+            months of Shevat and Adar in leap years.  Since the leap month does
+            not come at the end of the year, calculations involving
+            month numbers are particularly complex.  Users of this class should
+            make sure to use the <c>#roll roll</c> and <c>#add add</c> methods
+            rather than attempting to perform date arithmetic by manipulating
+            the fields directly.</para>
+      <para>&lt;b&gt;Note:&lt;/b&gt; In the traditional Hebrew calendar, days start at sunset.
+            However, in order to keep the time fields in this class
+            synchronized with those of the other calendars and with local clock time,
+            we treat days and months as beginning at midnight,
+            roughly 6 hours after the corresponding sunset.</para>
+      <para>If you are interested in more information on the rules behind the Hebrew
+            calendar, see one of the following references:
+            &lt;ul&gt;
+            &lt;li&gt;"<see href="http://www.amazon.com/exec/obidos/ASIN/0521564743">Calendrical Calculations</see>",
+                 by Nachum Dershowitz &amp;amp; Edward Reingold, Cambridge University Press, 1997, pages 85-91.
+            
+            &lt;li&gt;Hebrew Calendar Science and Myths,
+                 <see href="http://web.archive.org/web/20090423084613/http://www.geocities.com/Athens/1584/">
+                 http://web.archive.org/web/20090423084613/http://www.geocities.com/Athens/1584/</see>&lt;li&gt;The Calendar FAQ,
+                 <see href="http://www.faqs.org/faqs/calendars/faq/">
+                 http://www.faqs.org/faqs/calendars/faq/</see>&lt;/ul&gt;</para>
+      <para>This class should not be subclassed.</para>
+      <para>HebrewCalendar usually should be instantiated using
+            <c>android.icu.util.Calendar#getInstance(ULocale)</c> passing in a <c>ULocale</c>
+            with the tag <c>"@calendar=hebrew"</c>.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -54,9 +106,21 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constructs a default <c>HebrewCalendar</c> using the current time
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a default <c>HebrewCalendar</c> using the current time
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar()" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -84,10 +148,22 @@
         <Parameter Name="zone" Type="Android.Icu.Util.TimeZone" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">The time zone for the new calendar.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the given time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the given time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(android.icu.util.TimeZone)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(android.icu.util.TimeZone)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -115,10 +191,22 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">The locale for the new calendar.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the default time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the default time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -146,10 +234,22 @@
         <Parameter Name="date" Type="Java.Util.Date" />
       </Parameters>
       <Docs>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="date">The date to which the new calendar is set.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(java.util.Date)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -177,10 +277,22 @@
         <Parameter Name="aLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="aLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="aLocale">The locale for the new calendar.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the default time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the default time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -209,11 +321,23 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">The time zone for the new calendar.</param>
+        <param name="locale">The locale for the new calendar.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the given time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the given time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(android.icu.util.TimeZone,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(android.icu.util.TimeZone, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -242,11 +366,23 @@
         <Parameter Name="aLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <param name="aLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">The time zone for the new calendar.</param>
+        <param name="aLocale">The locale for the new calendar.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the given time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> based on the current time
+            in the given time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(android.icu.util.TimeZone,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(android.icu.util.TimeZone, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -299,12 +435,25 @@
         <Parameter Name="date" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="year">The value used to set the calendar's <c>#YEAR YEAR</c> time field.</param>
+        <param name="month">The value used to set the calendar's <c>#MONTH MONTH</c> time field.
+                             The value is 0-based. e.g., 0 for Tishri.</param>
+        <param name="date">The value used to set the calendar's <c>#DATE DATE</c> time field.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -337,15 +486,28 @@
         <Parameter Name="second" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="date">To be added.</param>
-        <param name="hour">To be added.</param>
-        <param name="minute">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="year">The value used to set the calendar's <c>#YEAR YEAR</c> time field.</param>
+        <param name="month">The value used to set the calendar's <c>#MONTH MONTH</c> time field.
+                             The value is 0-based. e.g., 0 for Tishri.</param>
+        <param name="date">The value used to set the calendar's <c>#DATE DATE</c> time field.</param>
+        <param name="hour">The value used to set the calendar's <c>#HOUR_OF_DAY HOUR_OF_DAY</c> time field.</param>
+        <param name="minute">The value used to set the calendar's <c>#MINUTE MINUTE</c> time field.</param>
+        <param name="second">The value used to set the calendar's <c>#SECOND SECOND</c> time field.</param>
+        <summary>Constructs a <c>HebrewCalendar</c> with the given date
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>HebrewCalendar</c> with the given date
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HebrewCalendar(int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HebrewCalendar(int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -374,9 +536,19 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for the Adar, the 7th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for the Adar, the 7th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#ADAR" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.ADAR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -405,9 +577,22 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Adar I, the 6th month of the Hebrew year
+            (present in leap years only).</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Adar I, the 6th month of the Hebrew year
+            (present in leap years only). In non-leap years, the calendar
+            jumps from Shevat (5th month) to Adar (7th month).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#ADAR_1" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.ADAR_1</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -436,9 +621,19 @@
       </ReturnValue>
       <MemberValue>11</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Av, the 12th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Av, the 12th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#AV" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.AV</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -467,9 +662,19 @@
       </ReturnValue>
       <MemberValue>12</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Elul, the 13th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Elul, the 13th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#ELUL" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.ELUL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -505,10 +710,20 @@
         <param name="eyear">To be added.</param>
         <param name="month">To be added.</param>
         <param name="useMonth">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Return JD of start of given month/year.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return JD of start of given month/year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#handleComputeMonthStart(int,%20int,%20boolean)" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.handleComputeMonthStart(int, int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -613,9 +828,19 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Heshvan, the 2nd month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Heshvan, the 2nd month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#HESHVAN" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.HESHVAN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -644,9 +869,19 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Iyar, the 9th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Iyar, the 9th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#IYAR" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.IYAR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -668,6 +903,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -706,9 +945,19 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Kislev, the 3rd month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Kislev, the 3rd month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#KISLEV" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.KISLEV</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -737,9 +986,19 @@
       </ReturnValue>
       <MemberValue>7</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Nisan, the 8th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Nisan, the 8th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#NISAN" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.NISAN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -768,9 +1027,19 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Shevat, the 5th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Shevat, the 5th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#SHEVAT" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.SHEVAT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -799,9 +1068,19 @@
       </ReturnValue>
       <MemberValue>9</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Sivan, the 10th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Sivan, the 10th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#SIVAN" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.SIVAN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -830,9 +1109,19 @@
       </ReturnValue>
       <MemberValue>10</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Tammuz, the 11th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Tammuz, the 11th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#TAMUZ" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.TAMUZ</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -861,9 +1150,19 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Tevet, the 4th month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Tevet, the 4th month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#TEVET" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.TEVET</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -917,6 +1216,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -954,9 +1257,19 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constant for Tishri, the 1st month of the Hebrew year.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constant for Tishri, the 1st month of the Hebrew year.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/HebrewCalendar#TISHRI" title="Reference documentation">Java documentation for <code>android.icu.util.HebrewCalendar.TISHRI</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

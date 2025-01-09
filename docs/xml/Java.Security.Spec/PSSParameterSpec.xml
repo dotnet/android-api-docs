@@ -29,37 +29,46 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/security/spec/PSSParameterSpec", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/security/spec/PSSParameterSpec", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>This class specifies a parameter spec for RSA-PSS signature scheme,
+    <summary>This class specifies a parameter spec for RSASSA-PSS signature scheme,
             as defined in the
-            <see href="http://www.ietf.org/rfc/rfc3447.txt">PKCS#1 v2.1</see>
-            standard.</summary>
+            <see href="https://tools.ietf.org/rfc/rfc8017.txt">PKCS#1 v2.2</see> standard.</summary>
     <remarks>
-      <para>This class specifies a parameter spec for RSA-PSS signature scheme,
+      <para>This class specifies a parameter spec for RSASSA-PSS signature scheme,
             as defined in the
-            <see href="http://www.ietf.org/rfc/rfc3447.txt">PKCS#1 v2.1</see>
-            standard.</para>
+            <see href="https://tools.ietf.org/rfc/rfc8017.txt">PKCS#1 v2.2</see> standard.</para>
       <para>Its ASN.1 definition in PKCS#1 standard is described below:</para>
       <code lang="text/java">RSASSA-PSS-params ::= SEQUENCE {
-              hashAlgorithm      [0] OAEP-PSSDigestAlgorithms  DEFAULT sha1,
-              maskGenAlgorithm   [1] PKCS1MGFAlgorithms  DEFAULT mgf1SHA1,
-              saltLength         [2] INTEGER  DEFAULT 20,
-              trailerField       [3] INTEGER  DEFAULT 1
+              hashAlgorithm      [0] HashAlgorithm      DEFAULT sha1,
+              maskGenAlgorithm   [1] MaskGenAlgorithm   DEFAULT mgf1SHA1,
+              saltLength         [2] INTEGER            DEFAULT 20,
+              trailerField       [3] TrailerField       DEFAULT trailerFieldBC(1)
             }
             </code>
       <para>where</para>
-      <code lang="text/java">OAEP-PSSDigestAlgorithms    ALGORITHM-IDENTIFIER ::= {
-              { OID id-sha1 PARAMETERS NULL   }|
-              { OID id-sha224 PARAMETERS NULL   }|
-              { OID id-sha256 PARAMETERS NULL }|
-              { OID id-sha384 PARAMETERS NULL }|
-              { OID id-sha512 PARAMETERS NULL },
+      <code lang="text/java">HashAlgorithm ::= AlgorithmIdentifier {
+              {OAEP-PSSDigestAlgorithms}
+            }
+            MaskGenAlgorithm ::= AlgorithmIdentifier { {PKCS1MGFAlgorithms} }
+            TrailerField ::= INTEGER { trailerFieldBC(1) }
+            
+            OAEP-PSSDigestAlgorithms    ALGORITHM-IDENTIFIER ::= {
+              { OID id-sha1       PARAMETERS NULL }|
+              { OID id-sha224     PARAMETERS NULL }|
+              { OID id-sha256     PARAMETERS NULL }|
+              { OID id-sha384     PARAMETERS NULL }|
+              { OID id-sha512     PARAMETERS NULL }|
+              { OID id-sha512-224 PARAMETERS NULL }|
+              { OID id-sha512-256 PARAMETERS NULL },
               ...  -- Allows for future expansion --
             }
-            
             PKCS1MGFAlgorithms    ALGORITHM-IDENTIFIER ::= {
-              { OID id-mgf1 PARAMETERS OAEP-PSSDigestAlgorithms },
+              { OID id-mgf1 PARAMETERS HashAlgorithm },
               ...  -- Allows for future expansion --
             }
             </code>
@@ -104,8 +113,8 @@
         <Parameter Name="saltLen" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="saltLen">the length of salt in bits to be used in PKCS#1
-            PSS encoding.</param>
+        <param name="saltLen">the length of salt in bytes to be used in PKCS#1
+                    PSS encoding</param>
         <summary>Creates a new <c>PSSParameterSpec</c>
             using the specified salt length and other default values as
             defined in PKCS#1.</summary>
@@ -176,14 +185,13 @@
         <Parameter Name="trailerField" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mdName">the algorithm name of the hash function.</param>
-        <param name="mgfName">the algorithm name of the mask generation
-            function.</param>
-        <param name="mgfSpec">the parameters for the mask generation
-            function. If null is specified, null will be returned by
-            getMGFParameters().</param>
-        <param name="saltLen">the length of salt.</param>
-        <param name="trailerField">the value of the trailer field.</param>
+        <param name="mdName">the algorithm name of the hash function</param>
+        <param name="mgfName">the algorithm name of the mask generation function</param>
+        <param name="mgfSpec">the parameters for the mask generation function.
+                    If null is specified, null will be returned by
+                    getMGFParameters().</param>
+        <param name="saltLen">the length of salt</param>
+        <param name="trailerField">the value of the trailer field</param>
         <summary>Creates a new <c>PSSParameterSpec</c> as defined in
             the PKCS #1 standard using the specified message digest,
             mask generation function, parameters for mask generation
@@ -230,10 +238,10 @@
         <ReturnType>Java.Security.Spec.PSSParameterSpec</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The PSS parameter set with all default values.</summary>
+        <summary>The PSS parameter set with all default values</summary>
         <value>To be added.</value>
         <remarks>
-          <para>The PSS parameter set with all default values.</para>
+          <para>The PSS parameter set with all default values</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -270,7 +278,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the message digest algorithm name.</summary>
-        <value>the message digest algorithm name.</value>
+        <value>the message digest algorithm name</value>
         <remarks>
           <para>Returns the message digest algorithm name.</para>
           <para>Added in 1.5.</para>
@@ -310,6 +318,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -343,7 +355,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the mask generation function algorithm name.</summary>
-        <value>the mask generation function algorithm name.</value>
+        <value>the mask generation function algorithm name</value>
         <remarks>
           <para>Returns the mask generation function algorithm name.</para>
           <para>Added in 1.5.</para>
@@ -382,7 +394,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the parameters for the mask generation function.</summary>
-        <value>the parameters for the mask generation function.</value>
+        <value>the parameters for the mask generation function</value>
         <remarks>
           <para>Returns the parameters for the mask generation function.</para>
           <para>Added in 1.5.</para>
@@ -420,10 +432,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the salt length in bits.</summary>
-        <value>the salt length.</value>
+        <summary>Returns the salt length in bytes.</summary>
+        <value>the salt length</value>
         <remarks>
-          <para>Returns the salt length in bits.</para>
+          <para>Returns the salt length in bytes.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#getSaltLength()" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.getSaltLength()</code>.</a>
@@ -488,6 +500,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -520,10 +536,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the value for the trailer field, i.</summary>
-        <value>the value for the trailer field, i.e. bc in PKCS#1 v2.1.</value>
+        <summary>Returns the value for the trailer field.</summary>
+        <value>the value for the trailer field</value>
         <remarks>
-          <para>Returns the value for the trailer field, i.e. bc in PKCS#1 v2.1.</para>
+          <para>Returns the value for the trailer field.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -537,6 +553,48 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="TrailerFieldBc">
+      <MemberSignature Language="C#" Value="public const int TrailerFieldBc = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int32 TrailerFieldBc = (1)" />
+      <MemberSignature Language="DocId" Value="F:Java.Security.Spec.PSSParameterSpec.TrailerFieldBc" />
+      <MemberSignature Language="F#" Value="val mutable TrailerFieldBc : int" Usage="Java.Security.Spec.PSSParameterSpec.TrailerFieldBc" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TRAILER_FIELD_BC", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TRAILER_FIELD_BC", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The <c>TrailerFieldBC</c> constant as defined in PKCS#1</summary>
+        <remarks>
+          <para>The <c>TrailerFieldBC</c> constant as defined in PKCS#1</para>
+          <para>Added in 11.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/spec/PSSParameterSpec#TRAILER_FIELD_BC" title="Reference documentation">Java documentation for <code>java.security.spec.PSSParameterSpec.TRAILER_FIELD_BC</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

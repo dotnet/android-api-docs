@@ -29,10 +29,17 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/bluetooth/BluetoothGattService", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothGattService", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="18">
     <summary>Represents a Bluetooth GATT Service</summary>
     <remarks>
+      <para>Represents a Bluetooth GATT Service</para>
+      <para>Gatt Service contains a collection of <c>BluetoothGattCharacteristic</c>, as well as
+            referenced services.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService</code>.</a>
@@ -76,11 +83,10 @@
       </Parameters>
       <Docs>
         <param name="uuid">The UUID for this service</param>
-        <param name="serviceType">The type of this service,
-            <c>BluetoothGattService#SERVICE_TYPE_PRIMARY</c>
-            or <c>BluetoothGattService#SERVICE_TYPE_SECONDARY</c></param>
+        <param name="serviceType">The type of this service, <c>BluetoothGattService#SERVICE_TYPE_PRIMARY</c> or <c>BluetoothGattService#SERVICE_TYPE_SECONDARY</c></param>
         <summary>Create a new BluetoothGattService.</summary>
         <remarks>
+          <para>Create a new BluetoothGattService.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#BluetoothGattService(java.util.UUID,%20int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.BluetoothGattService(java.util.UUID, int)</code>.</a>
@@ -145,6 +151,7 @@
         <summary>Add a characteristic to this service.</summary>
         <returns>true, if the characteristic was added to the service</returns>
         <remarks>
+          <para>Add a characteristic to this service.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#addCharacteristic(android.bluetooth.BluetoothGattCharacteristic)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.addCharacteristic(android.bluetooth.BluetoothGattCharacteristic)</code>.</a>
@@ -186,6 +193,7 @@
         <summary>Add an included service to this service.</summary>
         <returns>true, if the included service was added to the service</returns>
         <remarks>
+          <para>Add an included service to this service.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#addService(android.bluetooth.BluetoothGattService)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.addService(android.bluetooth.BluetoothGattService)</code>.</a>
@@ -212,6 +220,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getCharacteristics", "()Ljava/util/List;", "GetGetCharacteristicsHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCharacteristics", "()Ljava/util/List;", "GetGetCharacteristicsHandler")&gt;]</AttributeName>
         </Attribute>
@@ -223,6 +235,7 @@
         <summary>Returns a list of characteristics included in this service.</summary>
         <value>Characteristics included in this service</value>
         <remarks>
+          <para>Returns a list of characteristics included in this service.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#getCharacteristics()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.getCharacteristics()</code>.</a>
@@ -336,11 +349,17 @@
       </Parameters>
       <Docs>
         <param name="uuid">To be added.</param>
-        <summary>Returns a characteristic with a given UUID out of the list of
-            characteristics offered by this service.</summary>
+        <summary>Returns a characteristic with a given UUID out of the list of characteristics offered by this
+            service.</summary>
         <returns>GATT characteristic object or null if no characteristic with the given UUID was
-            found.</returns>
+                found.</returns>
         <remarks>
+          <para>Returns a characteristic with a given UUID out of the list of characteristics offered by this
+            service.</para>
+          <para>This is a convenience function to allow access to a given characteristic without
+            enumerating over the list returned by <c>#getCharacteristics</c> manually.</para>
+          <para>If a remote service offers multiple characteristics with the same UUID, the first instance
+            of a characteristic with the given UUID is returned.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#getCharacteristic(java.util.UUID)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.getCharacteristic(java.util.UUID)</code>.</a>
@@ -367,6 +386,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getIncludedServices", "()Ljava/util/List;", "GetGetIncludedServicesHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getIncludedServices", "()Ljava/util/List;", "GetGetIncludedServicesHandler")&gt;]</AttributeName>
         </Attribute>
@@ -378,6 +401,7 @@
         <summary>Get the list of included GATT services for this service.</summary>
         <value>List of included services or empty list if no included services were discovered.</value>
         <remarks>
+          <para>Get the list of included GATT services for this service.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#getIncludedServices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.getIncludedServices()</code>.</a>
@@ -415,6 +439,9 @@
         <summary>Returns the instance ID for this service</summary>
         <value>Instance ID of this service</value>
         <remarks>
+          <para>Returns the instance ID for this service</para>
+          <para>If a remote device offers multiple services with the same UUID (ex. multiple battery
+            services for different batteries), the instance ID is used to distuinguish services.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#getInstanceId()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.getInstanceId()</code>.</a>
@@ -451,6 +478,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -486,6 +517,7 @@
         <summary>List of characteristics included in this service.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>List of characteristics included in this service.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#mCharacteristics" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.mCharacteristics</code>.</a>
@@ -523,6 +555,7 @@
         <summary>List of included services for this service.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>List of included services for this service.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#mIncludedServices" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.mIncludedServices</code>.</a>
@@ -567,6 +600,7 @@
       <Docs>
         <summary>Primary service</summary>
         <remarks>
+          <para>Primary service</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#SERVICE_TYPE_PRIMARY" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.SERVICE_TYPE_PRIMARY</code>.</a>
@@ -611,6 +645,7 @@
       <Docs>
         <summary>Secondary service (included by primary services)</summary>
         <remarks>
+          <para>Secondary service (included by primary services)</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#SERVICE_TYPE_SECONDARY" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.SERVICE_TYPE_SECONDARY</code>.</a>
@@ -675,6 +710,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -710,6 +749,7 @@
         <summary>Get the type of this service (primary/secondary)</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Get the type of this service (primary/secondary)</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#getType()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.getType()</code>.</a>
@@ -747,6 +787,7 @@
         <summary>Returns the UUID of this service</summary>
         <value>UUID of this service</value>
         <remarks>
+          <para>Returns the UUID of this service</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattService#getUuid()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGattService.getUuid()</code>.</a>

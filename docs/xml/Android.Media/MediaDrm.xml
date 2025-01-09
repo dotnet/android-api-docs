@@ -29,6 +29,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/media/MediaDrm", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/MediaDrm", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="18">
     <summary>MediaDrm can be used to obtain keys for decrypting protected media streams, in
@@ -711,6 +715,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Media.MediaDrm+CryptoSession</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="sessionId" Type="System.Byte[]" />
@@ -772,8 +782,22 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="scope" Type="System.Byte[]" />
-        <Parameter Name="init" Type="System.Byte[]" />
-        <Parameter Name="mimeType" Type="System.String" />
+        <Parameter Name="init" Type="System.Byte[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="mimeType" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="keyType" Type="System.Int32">
           <Attributes>
             <Attribute>
@@ -782,7 +806,14 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="optionalParameters" Type="System.Collections.Generic.IDictionary&lt;System.String,System.String&gt;" />
+        <Parameter Name="optionalParameters" Type="System.Collections.Generic.IDictionary&lt;System.String,System.String&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="scope">may be a sessionId or a keySetId, depending on the specified keyType.
@@ -845,7 +876,7 @@
       <ReturnValue>
         <ReturnType>Android.Media.OfflineLicenseState</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -900,6 +931,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Media.MediaDrm+PlaybackComponent</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="sessionId" Type="System.Byte[]" />
@@ -943,7 +980,14 @@
         <ReturnType>System.Byte[]</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="propertyName" Type="System.String" />
+        <Parameter Name="propertyName" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="propertyName">To be added.</param>
@@ -1127,7 +1171,7 @@
       <ReturnValue>
         <ReturnType>Android.Media.SecurityLevel</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -1662,7 +1706,11 @@
           <para>Query if the given scheme identified by its UUID is supported on
             this device, and whether the DRM plugin is able to handle the
             media container format specified by mimeType at the requested
-            security level.</para>
+            security level.
+            
+            Calling this method while the application is running on the physical Android device or a
+            <c>android.companion.virtual.VirtualDevice</c> may lead to different results, based on
+            the different DRM capabilities of the devices.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaDrm#isCryptoSchemeSupported(java.util.UUID,%20java.lang.String,%20int)" title="Reference documentation">Java documentation for <code>android.media.MediaDrm.isCryptoSchemeSupported(java.util.UUID, java.lang.String, int)</code>.</a>
@@ -1961,7 +2009,12 @@
         <remarks>
           <para>Returns a value that may be passed as a parameter to <c>#openSession(int)</c>
             requesting that the session be opened at the maximum security level of
-            the device.</para>
+            the device.
+            
+            This security level is only valid for the application running on the physical Android
+            device (e.g. <c>android.content.Context#DEVICE_ID_DEFAULT</c>). While running on a
+            <c>android.companion.virtual.VirtualDevice</c> the maximum supported security level
+            might be different.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaDrm#getMaxSecurityLevel()" title="Reference documentation">Java documentation for <code>android.media.MediaDrm.getMaxSecurityLevel()</code>.</a>
@@ -2052,6 +2105,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
@@ -2306,7 +2363,11 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Open a new session with the MediaDrm object. A session ID is returned.
-            By default, sessions are opened at the native security level of the device.</para>
+            By default, sessions are opened at the native security level of the device.
+            
+            If the application is currently running on a <c>android.companion.virtual.VirtualDevice</c>
+            the security level will be adjusted accordingly to the maximum supported level for the
+            display.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaDrm#openSession()" title="Reference documentation">Java documentation for <code>android.media.MediaDrm.openSession()</code>.</a>
@@ -2372,7 +2433,11 @@
             determined by the license policy. If the requested level is not
             supported, the next lower supported security level will be set. The level
             can be queried using <c>#getSecurityLevel</c>. A session
-            ID is returned.</para>
+            ID is returned.
+            
+            If the application is currently running on a <c>android.companion.virtual.VirtualDevice</c>
+            the security level will be adjusted accordingly to the maximum supported level for the
+            display.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaDrm#openSession(int)" title="Reference documentation">Java documentation for <code>android.media.MediaDrm.openSession(int)</code>.</a>
@@ -2637,6 +2702,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Byte[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="scope" Type="System.Byte[]" />
@@ -4064,7 +4135,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
-        <Parameter Name="listener" Type="Android.Media.MediaDrm+IOnSessionLostStateListener" />
+        <Parameter Name="listener" Type="Android.Media.MediaDrm+IOnSessionLostStateListener">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="executor">To be added.</param>

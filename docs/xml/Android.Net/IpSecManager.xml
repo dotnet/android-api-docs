@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/IpSecManager", ApiSince=28, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,11 @@
   <Docs>
     <summary>This class contains methods for managing IPsec sessions.</summary>
     <remarks>
+      <para>This class contains methods for managing IPsec sessions. Once configured, the kernel will apply
+            confidentiality (encryption) and integrity (authentication) to IP traffic.</para>
+      <para>Note that not all aspects of IPsec are permitted by this API. Applications may create
+            transport mode security associations and apply them to individual sockets. Applications looking
+            to create an IPsec VPN should use <c>VpnManager</c> and <c>Ikev2VpnProfile</c>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/net/IpSecManager" title="Reference documentation">Java documentation for <code>android.net.IpSecManager</code>.</a>
@@ -167,6 +176,36 @@
         <param name="transform">a transport mode <c>IpSecTransform</c></param>
         <summary>Apply an IPsec transform to a socket.</summary>
         <remarks>
+          <para>Apply an IPsec transform to a socket.</para>
+          <para>This applies transport mode encapsulation to the given socket. Once applied, I/O on the
+            socket will be encapsulated according to the parameters of the <c>IpSecTransform</c>. When
+            the transform is removed from the socket by calling <c>#removeTransportModeTransforms</c>,
+            unprotected traffic can resume on that socket.</para>
+          <para>For security reasons, the destination address of any traffic on the socket must match the
+            remote <c>InetAddress</c> of the <c>IpSecTransform</c>. Attempts to send traffic to any
+            other IP address will result in an IOException. In addition, reads and writes on the socket
+            will throw IOException if the user deactivates the transform (by calling <c>IpSecTransform#close()</c>) without calling <c>#removeTransportModeTransforms</c>.</para>
+          <para>Note that when applied to TCP sockets, calling <c>IpSecTransform#close()</c> on an
+            applied transform before completion of graceful shutdown may result in the shutdown sequence
+            failing to complete. As such, applications requiring graceful shutdown MUST close the socket
+            prior to deactivating the applied transform. Socket closure may be performed asynchronously
+            (in batches), so the returning of a close function does not guarantee shutdown of a socket.
+            Setting an SO_LINGER timeout results in socket closure being performed synchronously, and is
+            sufficient to ensure shutdown.
+            
+            Specifically, if the transform is deactivated (by calling <c>IpSecTransform#close()</c>),
+            prior to the socket being closed, the standard [FIN - FIN/ACK - ACK], or the reset [RST]
+            packets are dropped due to the lack of a valid Transform. Similarly, if a socket without the
+            SO_LINGER option set is closed, the delayed/batched FIN packets may be dropped.
+            
+            &lt;h4&gt;Rekey Procedure&lt;/h4&gt;</para>
+          <para>When applying a new tranform to a socket in the outbound direction, the previous transform
+            will be removed and the new transform will take effect immediately, sending all traffic on
+            the new transform; however, when applying a transform in the inbound direction, traffic
+            on the old transform will continue to be decrypted and delivered until that transform is
+            deallocated by calling <c>IpSecTransform#close()</c>. This overlap allows lossless rekey
+            procedures where both transforms are valid until both endpoints are using the new transform
+            and all in-flight packets have been received.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#applyTransportModeTransform(java.io.FileDescriptor,%20int,%20android.net.IpSecTransform)" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.applyTransportModeTransform(java.io.FileDescriptor, int, android.net.IpSecTransform)</code>.</a>
@@ -221,6 +260,24 @@
         <param name="transform">a transport mode <c>IpSecTransform</c></param>
         <summary>Apply an IPsec transform to a datagram socket.</summary>
         <remarks>
+          <para>Apply an IPsec transform to a datagram socket.</para>
+          <para>This applies transport mode encapsulation to the given socket. Once applied, I/O on the
+            socket will be encapsulated according to the parameters of the <c>IpSecTransform</c>. When
+            the transform is removed from the socket by calling <c>#removeTransportModeTransforms</c>,
+            unprotected traffic can resume on that socket.</para>
+          <para>For security reasons, the destination address of any traffic on the socket must match the
+            remote <c>InetAddress</c> of the <c>IpSecTransform</c>. Attempts to send traffic to any
+            other IP address will result in an IOException. In addition, reads and writes on the socket
+            will throw IOException if the user deactivates the transform (by calling <c>IpSecTransform#close()</c>) without calling <c>#removeTransportModeTransforms</c>.
+            
+            &lt;h4&gt;Rekey Procedure&lt;/h4&gt;</para>
+          <para>When applying a new tranform to a socket in the outbound direction, the previous transform
+            will be removed and the new transform will take effect immediately, sending all traffic on
+            the new transform; however, when applying a transform in the inbound direction, traffic
+            on the old transform will continue to be decrypted and delivered until that transform is
+            deallocated by calling <c>IpSecTransform#close()</c>. This overlap allows lossless rekey
+            procedures where both transforms are valid until both endpoints are using the new transform
+            and all in-flight packets have been received.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#applyTransportModeTransform(java.net.DatagramSocket,%20int,%20android.net.IpSecTransform)" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.applyTransportModeTransform(java.net.DatagramSocket, int, android.net.IpSecTransform)</code>.</a>
@@ -275,6 +332,36 @@
         <param name="transform">a transport mode <c>IpSecTransform</c></param>
         <summary>Apply an IPsec transform to a stream socket.</summary>
         <remarks>
+          <para>Apply an IPsec transform to a stream socket.</para>
+          <para>This applies transport mode encapsulation to the given socket. Once applied, I/O on the
+            socket will be encapsulated according to the parameters of the <c>IpSecTransform</c>. When
+            the transform is removed from the socket by calling <c>#removeTransportModeTransforms</c>,
+            unprotected traffic can resume on that socket.</para>
+          <para>For security reasons, the destination address of any traffic on the socket must match the
+            remote <c>InetAddress</c> of the <c>IpSecTransform</c>. Attempts to send traffic to any
+            other IP address will result in an IOException. In addition, reads and writes on the socket
+            will throw IOException if the user deactivates the transform (by calling <c>IpSecTransform#close()</c>) without calling <c>#removeTransportModeTransforms</c>.</para>
+          <para>Note that when applied to TCP sockets, calling <c>IpSecTransform#close()</c> on an
+            applied transform before completion of graceful shutdown may result in the shutdown sequence
+            failing to complete. As such, applications requiring graceful shutdown MUST close the socket
+            prior to deactivating the applied transform. Socket closure may be performed asynchronously
+            (in batches), so the returning of a close function does not guarantee shutdown of a socket.
+            Setting an SO_LINGER timeout results in socket closure being performed synchronously, and is
+            sufficient to ensure shutdown.
+            
+            Specifically, if the transform is deactivated (by calling <c>IpSecTransform#close()</c>),
+            prior to the socket being closed, the standard [FIN - FIN/ACK - ACK], or the reset [RST]
+            packets are dropped due to the lack of a valid Transform. Similarly, if a socket without the
+            SO_LINGER option set is closed, the delayed/batched FIN packets may be dropped.
+            
+            &lt;h4&gt;Rekey Procedure&lt;/h4&gt;</para>
+          <para>When applying a new tranform to a socket in the outbound direction, the previous transform
+            will be removed and the new transform will take effect immediately, sending all traffic on
+            the new transform; however, when applying a transform in the inbound direction, traffic
+            on the old transform will continue to be decrypted and delivered until that transform is
+            deallocated by calling <c>IpSecTransform#close()</c>. This overlap allows lossless rekey
+            procedures where both transforms are valid until both endpoints are using the new transform
+            and all in-flight packets have been received.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#applyTransportModeTransform(java.net.Socket,%20int,%20android.net.IpSecTransform)" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.applyTransportModeTransform(java.net.Socket, int, android.net.IpSecTransform)</code>.</a>
@@ -320,6 +407,9 @@
         <summary>Used when applying a transform to direct traffic through an <c>IpSecTransform</c>
             towards the host.</summary>
         <remarks>
+          <para>Used when applying a transform to direct traffic through an <c>IpSecTransform</c>
+            towards the host.</para>
+          <para>See <c>#applyTransportModeTransform(Socket, int, IpSecTransform)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#DIRECTION_IN" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.DIRECTION_IN</code>.</a>
@@ -365,6 +455,9 @@
         <summary>Used when applying a transform to direct traffic through an <c>IpSecTransform</c>
             away from the host.</summary>
         <remarks>
+          <para>Used when applying a transform to direct traffic through an <c>IpSecTransform</c>
+            away from the host.</para>
+          <para>See <c>#applyTransportModeTransform(Socket, int, IpSecTransform)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#DIRECTION_OUT" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.DIRECTION_OUT</code>.</a>
@@ -522,6 +615,12 @@
         <param name="socket">a socket that previously had a transform applied to it</param>
         <summary>Remove an IPsec transform from a socket.</summary>
         <remarks>
+          <para>Remove an IPsec transform from a socket.</para>
+          <para>Once removed, traffic on the socket will not be encrypted. Removing transforms from a
+            socket allows the socket to be reused for communication in the clear.</para>
+          <para>If an <c>IpSecTransform</c> object applied to this socket was deallocated by calling
+            <c>IpSecTransform#close()</c>, then communication on the socket will fail until this method
+            is called.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#removeTransportModeTransforms(java.io.FileDescriptor)" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.removeTransportModeTransforms(java.io.FileDescriptor)</code>.</a>
@@ -565,6 +664,12 @@
         <param name="socket">a socket that previously had a transform applied to it</param>
         <summary>Remove an IPsec transform from a datagram socket.</summary>
         <remarks>
+          <para>Remove an IPsec transform from a datagram socket.</para>
+          <para>Once removed, traffic on the socket will not be encrypted. Removing transforms from a
+            socket allows the socket to be reused for communication in the clear.</para>
+          <para>If an <c>IpSecTransform</c> object applied to this socket was deallocated by calling
+            <c>IpSecTransform#close()</c>, then communication on the socket will fail until this method
+            is called.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#removeTransportModeTransforms(java.net.DatagramSocket)" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.removeTransportModeTransforms(java.net.DatagramSocket)</code>.</a>
@@ -608,6 +713,12 @@
         <param name="socket">a socket that previously had a transform applied to it</param>
         <summary>Remove an IPsec transform from a stream socket.</summary>
         <remarks>
+          <para>Remove an IPsec transform from a stream socket.</para>
+          <para>Once removed, traffic on the socket will not be encrypted. Removing transforms from a
+            socket allows the socket to be reused for communication in the clear.</para>
+          <para>If an <c>IpSecTransform</c> object applied to this socket was deallocated by calling
+            <c>IpSecTransform#close()</c>, then communication on the socket will fail until this method
+            is called.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecManager#removeTransportModeTransforms(java.net.Socket)" title="Reference documentation">Java documentation for <code>android.net.IpSecManager.removeTransportModeTransforms(java.net.Socket)</code>.</a>

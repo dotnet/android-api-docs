@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/graphics/SurfaceTexture", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/graphics/SurfaceTexture", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="11">
     <summary>Captures frames from an image stream as an OpenGL ES texture.</summary>
@@ -32,6 +36,9 @@
             destination of the older <c>android.hardware.Camera</c> API. Doing so will cause all the
             frames from the image stream to be sent to the SurfaceTexture object rather than to the device's
             display.</para>
+      <para>A typical pattern is to use SurfaceTexture to render frames to a <c>TextureView</c>; however,
+            a TextureView is not <i>required</i> for using the texture object. The texture object may be used
+            as part of an OpenGL ES shader.</para>
       <para>When sampling from the texture one should first transform the texture coordinates using the
             matrix queried via <c>#getTransformMatrix(float[])</c>.  The transform matrix may change each
             time <c>#updateTexImage</c> is called, so it should be re-queried each time the texture image
@@ -541,7 +548,7 @@
             <c>IGraphicBufferProducer</c> interface will fail with the <c>NO_INIT</c>
             error.</para>
           <para>Note that while calling this method causes all the buffers to be freed
-            from the perspective of the the SurfaceTexture, if there are additional
+            from the perspective of the SurfaceTexture, if there are additional
             references on the buffers (e.g. if a buffer is referenced by a client or
             by OpenGL ES as a texture) then those buffer will remain allocated.</para>
           <para>Always call this method when you are done with SurfaceTexture. Failing
@@ -582,9 +589,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Releases the the texture content.</summary>
+        <summary>Releases the texture content.</summary>
         <remarks>
-          <para>Releases the the texture content. This is needed in single buffered mode to allow the image
+          <para>Releases the texture content. This is needed in single buffered mode to allow the image
             content producer to take ownership of the image buffer.</para>
           <para>For more information see <c>#SurfaceTexture(int, boolean)</c>.</para>
           <para>

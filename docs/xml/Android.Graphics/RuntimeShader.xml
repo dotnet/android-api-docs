@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/graphics/RuntimeShader", ApiSince=33, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
     </Attribute>
@@ -46,10 +50,10 @@
              possible antialiasing logic for border pixels).&lt;/li&gt;
              &lt;li&gt;Logic for the <c>Shader</c>, <c>ColorFilter</c>, and <c>BlendMode</c> on the
              <c>Paint</c>.&lt;/li&gt;
-             &lt;li&gt;Color space conversion code, as part of Android’s color management.&lt;/li&gt;
+             &lt;li&gt;Color space conversion code, as part of Android's color management.&lt;/li&gt;
             &lt;/ul&gt;</para>
       <para>A <c>RuntimeShader</c>, like other <c>Shader</c> types, effectively contributes a function
-            to the GPU’s fragment shader.</para>
+            to the GPU's fragment shader.</para>
       <para>&lt;h3&gt;AGSL Shader Execution&lt;/h3&gt;</para>
       <para>Just like a GLSL shader, an AGSL shader begins execution in a main function. Unlike GLSL, the
             function receives as an input parameter the position of the pixel within the <c>Canvas</c> or
@@ -68,10 +72,10 @@
       <para>Android Graphics and by extension <c>RuntimeShader</c> are color managed.  The working
             <c>ColorSpace</c> for an AGSL shader is defined to be the color space of the destination, which
             in most cases is determined by <c>Window#setColorMode(int)</c>.</para>
-      <para>When authoring an AGSL shader, you won’t know what the working color space is. For many
+      <para>When authoring an AGSL shader, you won't know what the working color space is. For many
             effects, this is fine because by default color inputs are automatically converted into the
             working color space. For certain effects, it may be important to do some math in a fixed, known
-            color space. A common example is lighting – to get physically accurate lighting, math should be
+            color space. A common example is lighting - to get physically accurate lighting, math should be
             done in a linear color space. To help with this, AGSL provides two intrinsic functions that
             convert colors between the working color space and the
             <c>ColorSpace.Named#LINEAR_EXTENDED_SRGB</c> color space:</para>
@@ -80,13 +84,13 @@
       <para>&lt;h3&gt;AGSL and Premultiplied Alpha&lt;/h3&gt;</para>
       <para>When dealing with transparent colors, there are two (common) possible representations:
             straight (unassociated) alpha and premultiplied (associated) alpha. In ASGL the color returned
-            by the main function is expected to be premultiplied.  AGSL’s use of premultiplied alpha
+            by the main function is expected to be premultiplied.  AGSL's use of premultiplied alpha
             implies:</para>
       <para>&lt;ul&gt;
              &lt;li&gt;If your AGSL shader will return transparent colors, be sure to multiply the RGB by A.  The
              resulting color should be [R*A, G*A, B*A, A], not [R, G, B, A].&lt;/li&gt;
              &lt;li&gt;For more complex shaders, you must understand which of your colors are premultiplied vs.
-             straight. Many operations don’t make sense if you mix both kinds of color together.&lt;/li&gt;
+             straight. Many operations don't make sense if you mix both kinds of color together.&lt;/li&gt;
             &lt;/ul&gt;
             
             &lt;h3&gt;Uniforms&lt;/h3&gt;</para>
@@ -196,7 +200,7 @@
             <c>RuntimeShader#setInputShader(String, Shader)</c> with the desired shader. The value of a
             shader uniform is undefined if it is declared in the AGSL shader but not initialized.</para>
       <para>Although most <c>BitmapShader</c>s contain colors that should be color managed, some contain
-            data that isn’t actually colors. This includes bitmaps storing normals, material properties
+            data that isn't actually colors. This includes bitmaps storing normals, material properties
             (e.g. roughness), heightmaps, or any other purely mathematical data that happens to be stored in
             a bitmap. When using these kinds of shaders in AGSL, you probably want to initialize them with
             <c>#setInputBuffer(String, BitmapShader)</c>. Shaders initialized this way work much like
@@ -208,7 +212,7 @@
             &lt;/ul&gt;</para>
       <para>In addition, when sampling from a <c>BitmapShader</c> be aware that the shader does not use
             normalized coordinates (like a texture in GLSL). It uses (0, 0) in the upper-left corner, and
-            (width, height) in the bottom-right corner. Normally, this is exactly what you want. If you’re
+            (width, height) in the bottom-right corner. Normally, this is exactly what you want. If you're
             evaluating the shader with coordinates based on the ones passed to your AGSL program, the scale
             is correct. However, if you want to adjust those coordinates (to do some kind of re-mapping of
             the bitmap), remember that the coordinates are local to the canvas.</para>

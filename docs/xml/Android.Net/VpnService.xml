@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/VpnService", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/VpnService", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="14">
     <summary>VpnService is a base class for applications to extend and build their
@@ -341,9 +345,8 @@
           <para>Invoked when the application is revoked. At this moment, the VPN
             interface is already deactivated by the system. The application should
             close the file descriptor and shut down gracefully. The default
-            implementation of this method is calling <c>Service#stopSelf()</c>.
-            
-            &lt;p class="note"&gt;Calls to this method may not happen on the main thread
+            implementation of this method is calling <c>Service#stopSelf()</c>.</para>
+          <para>Calls to this method may not happen on the main thread
             of the process.</para>
           <para>
             <format type="text/html">
@@ -544,9 +547,8 @@
             outside of VPN. For example, a VPN tunnel should protect itself if its
             destination is covered by VPN routes. Otherwise its outgoing packets
             will be sent back to the VPN interface and cause an infinite loop. This
-            method will fail if the application is not prepared or is revoked.
-            
-            &lt;p class="note"&gt;The socket is NOT closed by this method.</para>
+            method will fail if the application is not prepared or is revoked.</para>
+          <para>The socket is NOT closed by this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/VpnService#protect(int)" title="Reference documentation">Java documentation for <code>android.net.VpnService.protect(int)</code>.</a>
@@ -685,7 +687,14 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="networks" Type="Android.Net.Network[]" />
+        <Parameter Name="networks" Type="Android.Net.Network[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="networks">An array of networks the VPN uses to tunnel traffic to/from its servers.</param>
@@ -693,9 +702,32 @@
         <returns>
           <c>true</c> on success.</returns>
         <remarks>
+          <para>Sets the underlying networks used by the VPN for its upstream connections.</para>
+          <para>Used by the system to know the actual networks that carry traffic for apps affected by
+            this VPN in order to present this information to the user (e.g., via status bar icons).</para>
+          <para>This method only needs to be called if the VPN has explicitly bound its underlying
+            communications channels &amp;mdash; such as the socket(s) passed to <c>#protect(int)</c> &amp;mdash;
+            to a <c>Network</c> using APIs such as <c>Network#bindSocket(Socket)</c> or
+            <c>Network#bindSocket(DatagramSocket)</c>. The VPN should call this method every time
+            the set of <c>Network</c>s it is using changes.</para>
+          <para>
+            <c>networks</c> is one of the following:
+            &lt;ul&gt;
+            &lt;li&gt;&lt;strong&gt;a non-empty array&lt;/strong&gt;: an array of one or more <c>Network</c>s, in
+            decreasing preference order. For example, if this VPN uses both wifi and mobile (cellular)
+            networks to carry app traffic, but prefers or uses wifi more than mobile, wifi should appear
+            first in the array.&lt;/li&gt;
+            &lt;li&gt;&lt;strong&gt;an empty array&lt;/strong&gt;: a zero-element array, meaning that the VPN has no
+            underlying network connection, and thus, app traffic will not be sent or received.&lt;/li&gt;
+            &lt;li&gt;&lt;strong&gt;null&lt;/strong&gt;: (default) signifies that the VPN uses whatever is the system's
+            default network. I.e., it doesn't use the <c>bindSocket</c> or <c>bindDatagramSocket</c>
+            APIs mentioned above to send traffic over specific channels.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>This call will succeed only if the VPN is currently established. For setting this value
+            when the VPN has not yet been established, see <c>Builder#setUnderlyingNetworks</c>.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/net/VpnService#setUnderlyingNetworks(.*Network[])" title="Reference documentation">Java documentation for <code>android.net.VpnService.setUnderlyingNetworks(.*Network[])</code>.</a>
+              <a href="https://developer.android.com/reference/android/net/VpnService#setUnderlyingNetworks(android.net.Network[])" title="Reference documentation">Java documentation for <code>android.net.VpnService.setUnderlyingNetworks(android.net.Network[])</code>.</a>
             </format>
           </para>
           <para>

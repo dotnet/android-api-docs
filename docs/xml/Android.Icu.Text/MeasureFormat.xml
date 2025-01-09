@@ -17,19 +17,72 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/MeasureFormat", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>A formatter for Measure objects.</summary>
     <remarks>
+      <para>A formatter for Measure objects.</para>
+      <para>&lt;strong&gt;IMPORTANT:&lt;/strong&gt; New users are strongly encouraged to see if
+            <c>NumberFormatter</c> fits their use case.  Although not deprecated, this
+            class, MeasureFormat, is provided for backwards compatibility only, and has
+            much more limited capabilities.
+            &lt;hr&gt;</para>
+      <para>To format a Measure object, first create a formatter object using a MeasureFormat factory method. Then
+            use that object's format or formatMeasures methods.
+            
+            Here is sample code:</para>
+      <code lang="text/java">MeasureFormat fmtFr = MeasureFormat.getInstance(ULocale.FRENCH, FormatWidth.SHORT);
+            Measure measure = new Measure(23, MeasureUnit.CELSIUS);
+            
+            // Output: 23 °C
+            System.out.println(fmtFr.format(measure));
+            
+            Measure measureF = new Measure(70, MeasureUnit.FAHRENHEIT);
+            
+            // Output: 70 °F
+            System.out.println(fmtFr.format(measureF));
+            
+            MeasureFormat fmtFrFull = MeasureFormat.getInstance(ULocale.FRENCH, FormatWidth.WIDE);
+            // Output: 70 pieds et 5,3 pouces
+            System.out.println(fmtFrFull.formatMeasures(new Measure(70, MeasureUnit.FOOT),
+                    new Measure(5.3, MeasureUnit.INCH)));
+            
+            // Output: 1 pied et 1 pouce
+            System.out.println(
+                    fmtFrFull.formatMeasures(new Measure(1, MeasureUnit.FOOT), new Measure(1, MeasureUnit.INCH)));
+            
+            MeasureFormat fmtFrNarrow = MeasureFormat.getInstance(ULocale.FRENCH, FormatWidth.NARROW);
+            // Output: 1′ 1″
+            System.out.println(fmtFrNarrow.formatMeasures(new Measure(1, MeasureUnit.FOOT),
+                    new Measure(1, MeasureUnit.INCH)));
+            
+            MeasureFormat fmtEn = MeasureFormat.getInstance(ULocale.ENGLISH, FormatWidth.WIDE);
+            
+            // Output: 1 inch, 2 feet
+            fmtEn.formatMeasures(new Measure(1, MeasureUnit.INCH), new Measure(2, MeasureUnit.FOOT));
+            </code>
+      <para>This class does not do conversions from one unit to another. It simply formats whatever units it is
+            given</para>
+      <para>This class is immutable and thread-safe so long as its deprecated subclass, TimeUnitFormat, is never
+            used. TimeUnitFormat is not thread-safe, and is mutable. Although this class has existing subclasses,
+            this class does not support new sub-classes.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -80,10 +133,20 @@
         <ReturnType>Android.Icu.Text.MeasureFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Return a formatter for CurrencyAmount objects in the default <c>FORMAT</c> locale.</summary>
+        <value>a formatter object</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a formatter for CurrencyAmount objects in the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#getCurrencyFormat()" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.getCurrencyFormat()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -115,10 +178,22 @@
       </Parameters>
       <Docs>
         <param name="other">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Two MeasureFormats, a and b, are equal if and only if they have the same formatWidth, locale, and
+            equal number formats.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Two MeasureFormats, a and b, are equal if and only if they have the same formatWidth, locale, and
+            equal number formats.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#equals(java.lang.Object)" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.equals(java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -151,13 +226,30 @@
         <Parameter Name="fpos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <param name="toAppendTo">To be added.</param>
-        <param name="fpos">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="obj">must be a Collection&amp;lt;? extends Measure&amp;gt;, Measure[], or Measure object.</param>
+        <param name="toAppendTo">Formatted string appended here.</param>
+        <param name="fpos">Identifies a field in the formatted text.</param>
+        <summary>Able to format Collection&amp;lt;? extends Measure&amp;gt;, Measure[], and Measure by delegating to
+            formatMeasures.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Able to format Collection&amp;lt;? extends Measure&amp;gt;, Measure[], and Measure by delegating to
+            formatMeasures. If the pos argument identifies a NumberFormat field, then its indices are set to
+            the beginning and end of the first such field encountered. MeasureFormat itself does not supply
+            any fields.
+            
+            Calling a <c>formatMeasures</c> method is preferred over calling this method as they give
+            better performance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#format(java.lang.Object,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.format(java.lang.Object, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -191,14 +283,25 @@
         <Parameter Name="pos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="measure">To be added.</param>
-        <param name="perUnit">To be added.</param>
-        <param name="appendTo">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="measure">the measure object. In above example, 3.5 meters.</param>
+        <param name="perUnit">the per unit. In above example, it is MeasureUnit.SECOND</param>
+        <param name="appendTo">formatted string appended here.</param>
+        <param name="pos">The field position.</param>
+        <summary>Formats a single measure per unit.</summary>
+        <returns>appendTo.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Formats a single measure per unit.</para>
+          <para>An example of such a formatted string is "3.5 meters per second."</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#formatMeasurePerUnit(android.icu.util.Measure,%20android.icu.util.MeasureUnit,%20java.lang.StringBuilder,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.formatMeasurePerUnit(android.icu.util.Measure, android.icu.util.MeasureUnit, java.lang.StringBuilder, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -231,6 +334,10 @@
             <Attribute>
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -276,6 +383,10 @@
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
             </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
@@ -317,11 +428,21 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">desired locale</param>
+        <summary>Return a formatter for CurrencyAmount objects in the given locale.</summary>
+        <returns>a formatter object</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a formatter for CurrencyAmount objects in the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#getCurrencyFormat(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.getCurrencyFormat(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -352,11 +473,21 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">desired <c>java.util.Locale</c></param>
+        <summary>Return a formatter for CurrencyAmount objects in the given <c>java.util.Locale</c>.</summary>
+        <returns>a formatter object</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a formatter for CurrencyAmount objects in the given <c>java.util.Locale</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#getCurrencyFormat(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.getCurrencyFormat(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -385,10 +516,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#hashCode()" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.hashCode()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -571,10 +712,25 @@
         <Parameter Name="unit" Type="Android.Icu.Util.MeasureUnit" />
       </Parameters>
       <Docs>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="unit">The unit for which to get a display name.</param>
+        <summary>Gets the display name of the specified <c>MeasureUnit</c> corresponding to the current locale and
+            format width.</summary>
+        <returns>The display name in the locale and width specified in <c>MeasureFormat#getInstance</c>,
+                    or null if there is no display name available for the specified unit.</returns>
+        <remarks>
+          <para>Gets the display name of the specified <c>MeasureUnit</c> corresponding to the current locale and
+            format width.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#getUnitDisplayName(android.icu.util.MeasureUnit)" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.getUnitDisplayName(android.icu.util.MeasureUnit)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -595,6 +751,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -632,10 +792,20 @@
         <ReturnType>Android.Icu.Util.ULocale</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Get the locale of this instance.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the locale of this instance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#getLocale()" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.getLocale()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -663,10 +833,20 @@
         <ReturnType>Android.Icu.Text.NumberFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Get a copy of the number format.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get a copy of the number format.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#getNumberFormat()" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.getNumberFormat()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -700,10 +880,20 @@
       <Docs>
         <param name="source">To be added.</param>
         <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Parses text from a string to produce a <c>Measure</c>.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Parses text from a string to produce a <c>Measure</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/MeasureFormat#parseObject(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MeasureFormat.parseObject(java.lang.String, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -756,6 +946,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

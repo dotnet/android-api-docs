@@ -30,19 +30,30 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/aware/WifiAwareSession", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>This class represents a Wi-Fi Aware session - an attachment to the Wi-Fi Aware service through
+            which the app can execute discovery operations.</summary>
     <remarks>
+      <para>This class represents a Wi-Fi Aware session - an attachment to the Wi-Fi Aware service through
+            which the app can execute discovery operations.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareSession" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareSession" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareSession</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -97,9 +108,26 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Destroy the Wi-Fi Aware service session and, if no other applications are attached to Aware,
+            also disable Aware.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Destroy the Wi-Fi Aware service session and, if no other applications are attached to Aware,
+            also disable Aware. This method destroys all outstanding operations - i.e. all publish and
+            subscribes are terminated, and any outstanding data-links are shut-down. However, it is
+            good practice to destroy these discovery sessions and connections explicitly before a
+            session-wide destroy.</para>
+          <para>An application may re-attach after a destroy using
+            <c>WifiAwareManager#attach(AttachCallback, Handler)</c> .</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareSession#close()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareSession.close()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -129,6 +157,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.NetworkSpecifier</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="role" Type="Android.Net.Wifi.Aware.WifiAwareDataPathRole">
@@ -142,12 +176,44 @@
         <Parameter Name="peer" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="role">To be added.</param>
-        <param name="peer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="role">The role of this device:
+                         <c>WifiAwareManager#WIFI_AWARE_DATA_PATH_ROLE_INITIATOR</c> or
+                         <c>WifiAwareManager#WIFI_AWARE_DATA_PATH_ROLE_RESPONDER</c></param>
+        <param name="peer">The MAC address of the peer's Aware discovery interface. On a RESPONDER this
+                         value is used to gate the acceptance of a connection request from only that
+                         peer.</param>
+        <summary>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an unencrypted WiFi Aware connection (link) to the specified peer.</summary>
+        <returns>A <c>NetworkSpecifier</c> to be used to construct
+            <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> to pass to
+            <c>android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest,
+            android.net.ConnectivityManager.NetworkCallback)</c>
+            [or other varieties of that API].</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an unencrypted WiFi Aware connection (link) to the specified peer. The
+            <c>android.net.NetworkRequest.Builder#addTransportType(int)</c> should be set to
+            <c>android.net.NetworkCapabilities#TRANSPORT_WIFI_AWARE</c>.</para>
+          <para>This API is targeted for applications which can obtain the peer MAC address using OOB
+                (out-of-band) discovery. Aware discovery does not provide the MAC address of the peer -
+                when using Aware discovery use the alternative network specifier method -
+                <c>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder</c>.</para>
+          <para>To set up an encrypted link use the
+            <c>#createNetworkSpecifierPassphrase(int, byte[], String)</c> API.</para>
+          <para>This member is deprecated. Please use in-band data-path setup, refer to
+            <c>WifiAwareNetworkSpecifier.Builder</c>,
+            <c>#publish(PublishConfig, DiscoverySessionCallback, Handler)</c> and
+            <c>#subscribe(SubscribeConfig, DiscoverySessionCallback, Handler)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareSession#createNetworkSpecifierOpen(int,%20byte[])" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareSession.createNetworkSpecifierOpen(int, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -177,6 +243,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.NetworkSpecifier</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="role" Type="Android.Net.Wifi.Aware.WifiAwareDataPathRole">
@@ -191,13 +263,45 @@
         <Parameter Name="passphrase" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="role">To be added.</param>
-        <param name="peer">To be added.</param>
-        <param name="passphrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="role">The role of this device:
+                         <c>WifiAwareManager#WIFI_AWARE_DATA_PATH_ROLE_INITIATOR</c> or
+                         <c>WifiAwareManager#WIFI_AWARE_DATA_PATH_ROLE_RESPONDER</c></param>
+        <param name="peer">The MAC address of the peer's Aware discovery interface. On a RESPONDER this
+                         value is used to gate the acceptance of a connection request from only that
+                         peer.</param>
+        <param name="passphrase">The passphrase to be used to encrypt the link. The PMK is generated from
+                              the passphrase. Use <c>#createNetworkSpecifierOpen(int, byte[])</c> to
+                              specify an open (unencrypted) link.</param>
+        <summary>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an encrypted WiFi Aware connection (link) to the specified peer.</summary>
+        <returns>A <c>NetworkSpecifier</c> to be used to construct
+            <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> to pass to
+            <c>android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest,
+            android.net.ConnectivityManager.NetworkCallback)</c>
+            [or other varieties of that API].</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create a <c>android.net.NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> for
+            an encrypted WiFi Aware connection (link) to the specified peer. The
+            <c>android.net.NetworkRequest.Builder#addTransportType(int)</c> should be set to
+            <c>android.net.NetworkCapabilities#TRANSPORT_WIFI_AWARE</c>.</para>
+          <para>This API is targeted for applications which can obtain the peer MAC address using OOB
+                (out-of-band) discovery. Aware discovery does not provide the MAC address of the peer -
+                when using Aware discovery use the alternative network specifier method -
+                <c>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder</c>.</para>
+          <para>This member is deprecated. Please use in-band data-path setup, refer to
+            <c>WifiAwareNetworkSpecifier.Builder</c>,
+            <c>#publish(PublishConfig, DiscoverySessionCallback, Handler)</c> and
+            <c>#subscribe(SubscribeConfig, DiscoverySessionCallback, Handler)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareSession#createNetworkSpecifierPassphrase(int,%20byte[],%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareSession.createNetworkSpecifierPassphrase(int, byte[], java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -261,15 +365,62 @@
       <Parameters>
         <Parameter Name="publishConfig" Type="Android.Net.Wifi.Aware.PublishConfig" />
         <Parameter Name="callback" Type="Android.Net.Wifi.Aware.DiscoverySessionCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="publishConfig">To be added.</param>
-        <param name="callback">To be added.</param>
-        <param name="handler">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="publishConfig">The <c>PublishConfig</c> specifying the
+                       configuration of the requested publish session.</param>
+        <param name="callback">A <c>DiscoverySessionCallback</c> derived object to be used for
+                            session event callbacks.</param>
+        <param name="handler">The Handler on whose thread to execute the callbacks of the <c>callback</c> object. If a null is provided then the application's main thread will be used.</param>
+        <summary>Issue a request to the Aware service to create a new Aware publish discovery session, using
+            the specified <c>publishConfig</c> configuration.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Issue a request to the Aware service to create a new Aware publish discovery session, using
+            the specified <c>publishConfig</c> configuration. The results of the publish operation
+            are routed to the callbacks of <c>DiscoverySessionCallback</c>:
+            &lt;ul&gt;
+                &lt;li&gt;
+                <c>DiscoverySessionCallback#onPublishStarted(
+            PublishDiscoverySession)</c>
+                is called when the publish session is created and provides a handle to the session.
+                Further operations on the publish session can be executed on that object.
+                &lt;li&gt;<c>DiscoverySessionCallback#onSessionConfigFailed()</c> is called if the
+                publish operation failed.
+            &lt;/ul&gt;</para>
+          <para>Other results of the publish session operations will also be routed to callbacks
+            on the <c>callback</c> object. The resulting publish session can be modified using
+            <c>PublishDiscoverySession#updatePublish(PublishConfig)</c>.</para>
+          <para>The total count of currently available Wi-Fi Aware publish sessions is limited and is
+            available via the <c>AwareResources#getAvailablePublishSessionsCount()</c> method.</para>
+          <para>An application must use the <c>DiscoverySession#close()</c> to
+                 terminate the publish discovery session once it isn't needed. This will free
+                 resources as well terminate any on-air transmissions.</para>
+          <para>If targeting <c>android.os.Build.VERSION_CODES#TIRAMISU</c> or later, the application must
+            have <c>android.Manifest.permission#NEARBY_WIFI_DEVICES</c> with
+            android:usesPermissionFlags="neverForLocation". If the application does not declare
+            android:usesPermissionFlags="neverForLocation", then it must also have
+            <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.
+            
+            If targeting an earlier release than <c>android.os.Build.VERSION_CODES#TIRAMISU</c>, the
+            application must have <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareSession#publish(android.net.wifi.aware.PublishConfig,%20android.net.wifi.aware.DiscoverySessionCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareSession.publish(android.net.wifi.aware.PublishConfig, android.net.wifi.aware.DiscoverySessionCallback, android.os.Handler)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -299,15 +450,62 @@
       <Parameters>
         <Parameter Name="subscribeConfig" Type="Android.Net.Wifi.Aware.SubscribeConfig" />
         <Parameter Name="callback" Type="Android.Net.Wifi.Aware.DiscoverySessionCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="subscribeConfig">To be added.</param>
-        <param name="callback">To be added.</param>
-        <param name="handler">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="subscribeConfig">The <c>SubscribeConfig</c> specifying the
+                       configuration of the requested subscribe session.</param>
+        <param name="callback">A <c>DiscoverySessionCallback</c> derived object to be used for
+                            session event callbacks.</param>
+        <param name="handler">The Handler on whose thread to execute the callbacks of the <c>callback</c> object. If a null is provided then the application's main thread will be used.</param>
+        <summary>Issue a request to the Aware service to create a new Aware subscribe discovery session, using
+            the specified <c>subscribeConfig</c> configuration.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Issue a request to the Aware service to create a new Aware subscribe discovery session, using
+            the specified <c>subscribeConfig</c> configuration. The results of the subscribe
+            operation are routed to the callbacks of <c>DiscoverySessionCallback</c>:
+            &lt;ul&gt;
+                &lt;li&gt;
+             <c>DiscoverySessionCallback#onSubscribeStarted(
+            SubscribeDiscoverySession)</c>
+                is called when the subscribe session is created and provides a handle to the session.
+                Further operations on the subscribe session can be executed on that object.
+                &lt;li&gt;<c>DiscoverySessionCallback#onSessionConfigFailed()</c> is called if the
+                subscribe operation failed.
+            &lt;/ul&gt;</para>
+          <para>Other results of the subscribe session operations will also be routed to callbacks
+            on the <c>callback</c> object. The resulting subscribe session can be modified using
+            <c>SubscribeDiscoverySession#updateSubscribe(SubscribeConfig)</c>.</para>
+          <para>The total count of currently available Wi-Fi Aware subscribe sessions is limited and is
+            available via the <c>AwareResources#getAvailableSubscribeSessionsCount()</c> method.</para>
+          <para>An application must use the <c>DiscoverySession#close()</c> to
+                 terminate the subscribe discovery session once it isn't needed. This will free
+                 resources as well terminate any on-air transmissions.</para>
+          <para>If targeting <c>android.os.Build.VERSION_CODES#TIRAMISU</c> or later, the application must
+            have <c>android.Manifest.permission#NEARBY_WIFI_DEVICES</c> with
+            android:usesPermissionFlags="neverForLocation". If the application does not declare
+            android:usesPermissionFlags="neverForLocation", then it must also have
+            <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.
+            
+            If targeting an earlier release than <c>android.os.Build.VERSION_CODES#TIRAMISU</c>, the
+            application must have <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareSession#subscribe(android.net.wifi.aware.SubscribeConfig,%20android.net.wifi.aware.DiscoverySessionCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareSession.subscribe(android.net.wifi.aware.SubscribeConfig, android.net.wifi.aware.DiscoverySessionCallback, android.os.Handler)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

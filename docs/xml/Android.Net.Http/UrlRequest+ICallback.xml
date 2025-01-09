@@ -25,8 +25,26 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Users of the HTTP stack extend this class to receive callbacks indicating the
+            progress of a <c>UrlRequest</c> being processed.</summary>
+    <remarks>
+      <para>Users of the HTTP stack extend this class to receive callbacks indicating the
+            progress of a <c>UrlRequest</c> being processed. An instance of this class
+            is passed in to <c>UrlRequest.Builder</c>'s constructor when
+            constructing the <c>UrlRequest</c>.</para>
+      <para>Note:  All methods will be invoked on the thread of the <c>java.util.concurrent.Executor</c>
+            used during construction of the <c>UrlRequest</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/http/UrlRequest.Callback" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.Callback</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="OnCanceled">
@@ -54,13 +72,37 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="request" Type="Android.Net.Http.UrlRequest" />
-        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
+        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">Request that was canceled. &lt;strong&gt;This is not guaranteed to be the same
+                   object as the one received by other callbacks, nor is it guaranteed to be the one
+                   returned by <c>URLRequest.Builder#build</c>.&lt;/strong&gt; However, method calls on
+                   this object will have the same effects as calls on the original
+                   <c>URLRequest</c>.</param>
+        <param name="info">Response information. May be <c>null</c> if no response was received.</param>
+        <summary>Invoked if request was canceled via <c>UrlRequest#cancel</c>.</summary>
+        <remarks>
+          <para>Invoked if request was canceled via <c>UrlRequest#cancel</c>. Once invoked, no other
+            <c>Callback</c> methods will be invoked. Default implementation takes no action.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest.Callback#onCanceled(android.net.http.UrlRequest,%20android.net.http.UrlResponseInfo)" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.Callback.onCanceled(android.net.http.UrlRequest, android.net.http.UrlResponseInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnFailed">
@@ -88,15 +130,40 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="request" Type="Android.Net.Http.UrlRequest" />
-        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
+        <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="error" Type="Android.Net.Http.HttpException" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="info">To be added.</param>
-        <param name="error">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">Request that failed. &lt;strong&gt;This is not guaranteed to be the same
+                   object as the one received by other callbacks, nor is it guaranteed to be the one
+                   returned by <c>URLRequest.Builder#build</c>.&lt;/strong&gt; However, method calls on
+                   this object will have the same effects as calls on the original
+                   <c>URLRequest</c>.</param>
+        <param name="info">Response information. May be <c>null</c> if no response was received.</param>
+        <param name="error">information about error.</param>
+        <summary>Invoked if request failed for any reason after <c>UrlRequest#start</c>.</summary>
+        <remarks>
+          <para>Invoked if request failed for any reason after <c>UrlRequest#start</c>. Once invoked, no
+            other <c>Callback</c> methods will be invoked. <c>error</c> provides information about
+            the failure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest.Callback#onFailed(android.net.http.UrlRequest,%20android.net.http.UrlResponseInfo,%20android.net.http.HttpException)" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.Callback.onFailed(android.net.http.UrlRequest, android.net.http.UrlResponseInfo, android.net.http.HttpException)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnReadCompleted">
@@ -128,11 +195,36 @@
         <Parameter Name="byteBuffer" Type="Java.Nio.ByteBuffer" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="info">To be added.</param>
-        <param name="byteBuffer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">Request that received data. &lt;strong&gt;This is not guaranteed to be the same
+                   object as the one received by other callbacks, nor is it guaranteed to be the one
+                   returned by <c>URLRequest.Builder#build</c>.&lt;/strong&gt; However, method calls on
+                   this object will have the same effects as calls on the original
+                   <c>URLRequest</c>.</param>
+        <param name="info">Response information.</param>
+        <param name="byteBuffer">The buffer that was passed in to <c>UrlRequest#read
+                    UrlRequest.read()</c>,
+            now containing the received data. The buffer's position is updated to the end of the
+            received data. The buffer's limit is not changed.</param>
+        <summary>Invoked whenever part of the response body has been read.</summary>
+        <remarks>
+          <para>Invoked whenever part of the response body has been read. Only part of the buffer may be
+            populated, even if the entire response body has not yet been consumed.
+            
+            With the exception of <c>Callback#onCanceled onCanceled()</c>, no other <c>Callback</c>
+            method will be invoked for the request, including <c>Callback#onSucceeded
+            onSucceeded()</c> and <c>Callback#onFailed onFailed()</c>, until <c>UrlRequest#read
+            UrlRequest.read()</c> is called to attempt to continue reading the response body.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest.Callback#onReadCompleted(android.net.http.UrlRequest,%20android.net.http.UrlResponseInfo,%20java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.Callback.onReadCompleted(android.net.http.UrlRequest, android.net.http.UrlResponseInfo, java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnRedirectReceived">
@@ -164,11 +256,31 @@
         <Parameter Name="newLocationUrl" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="info">To be added.</param>
-        <param name="newLocationUrl">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">Request being redirected. &lt;strong&gt;This is not guaranteed to be the same
+                   object as the one received by other callbacks, nor is it guaranteed to be the one
+                   returned by <c>URLRequest.Builder#build</c>.&lt;/strong&gt; However, method calls on
+                   this object will have the same effects as calls on the original
+                   <c>URLRequest</c>.</param>
+        <param name="info">Response information.</param>
+        <param name="newLocationUrl">Location where request is redirected.</param>
+        <summary>Invoked whenever a redirect is encountered.</summary>
+        <remarks>
+          <para>Invoked whenever a redirect is encountered. This will only be invoked between the call to
+            <c>UrlRequest#start</c> and <c>Callback#onResponseStarted onResponseStarted()</c>. The
+            body of the redirect response, if it has one, will be ignored.
+            
+            The redirect will not be followed until the URLRequest's <c>UrlRequest#followRedirect</c> method is called, either synchronously or asynchronously.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest.Callback#onRedirectReceived(android.net.http.UrlRequest,%20android.net.http.UrlResponseInfo,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.Callback.onRedirectReceived(android.net.http.UrlRequest, android.net.http.UrlResponseInfo, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnResponseStarted">
@@ -199,10 +311,32 @@
         <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">Request that started to get response. &lt;strong&gt;This is not guaranteed to be
+                   the same object as the one received by other callbacks, nor is it guaranteed to be
+                   the one returned by <c>URLRequest.Builder#build</c>.&lt;/strong&gt; However, method
+                   calls on this object will have the same effects as calls on the original
+                   <c>URLRequest</c>.</param>
+        <param name="info">Response information.</param>
+        <summary>Invoked when the final set of headers, after all redirects, is received.</summary>
+        <remarks>
+          <para>Invoked when the final set of headers, after all redirects, is received. Will only be
+            invoked once for each request.
+            
+            With the exception of <c>Callback#onCanceled onCanceled()</c>, no other <c>Callback</c>
+            method will be invoked for the request, including <c>Callback#onSucceeded
+            onSucceeded()</c> and <c>Callback#onFailed onFailed()</c>, until <c>UrlRequest#read
+            UrlRequest.read()</c> is called to attempt to start reading the response body.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest.Callback#onResponseStarted(android.net.http.UrlRequest,%20android.net.http.UrlResponseInfo)" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.Callback.onResponseStarted(android.net.http.UrlRequest, android.net.http.UrlResponseInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSucceeded">
@@ -233,10 +367,27 @@
         <Parameter Name="info" Type="Android.Net.Http.UrlResponseInfo" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">Request that succeeded. &lt;strong&gt;This is not guaranteed to be the same
+                   object as the one received by other callbacks, nor is it guaranteed to be the one
+                   returned by <c>URLRequest.Builder#build</c>.&lt;/strong&gt; However, method calls on
+                   this object will have the same effects as calls on the original
+                   <c>URLRequest</c>.</param>
+        <param name="info">Response information.</param>
+        <summary>Invoked when request is completed successfully.</summary>
+        <remarks>
+          <para>Invoked when request is completed successfully. Once invoked, no other <c>Callback</c>
+            methods will be invoked.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest.Callback#onSucceeded(android.net.http.UrlRequest,%20android.net.http.UrlResponseInfo)" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.Callback.onSucceeded(android.net.http.UrlRequest, android.net.http.UrlResponseInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/IpSecAlgorithm", ApiSince=28, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
     </Attribute>
@@ -37,6 +41,7 @@
   <Docs>
     <summary>This class represents a single algorithm that can be used by an <c>IpSecTransform</c>.</summary>
     <remarks>
+      <para>This class represents a single algorithm that can be used by an <c>IpSecTransform</c>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm</code>.</a>
@@ -86,6 +91,10 @@
         <param name="key">key padded to a multiple of 8 bits.</param>
         <summary>Creates an IpSecAlgorithm of one of the supported types.</summary>
         <remarks>
+          <para>Creates an IpSecAlgorithm of one of the supported types. Supported algorithm names are
+            defined as constants in this class.</para>
+          <para>For algorithms that produce an integrity check value, the truncation length is a required
+            parameter. See <c>#IpSecAlgorithm(String algorithm, byte[] key, int truncLenBits)</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#IpSecAlgorithm(java.lang.String,%20byte[])" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.IpSecAlgorithm(java.lang.String, byte[])</code>.</a>
@@ -137,6 +146,10 @@
         <param name="truncLenBits">number of bits of output hash to use.</param>
         <summary>Creates an IpSecAlgorithm of one of the supported types.</summary>
         <remarks>
+          <para>Creates an IpSecAlgorithm of one of the supported types. Supported algorithm names are
+            defined as constants in this class.</para>
+          <para>This constructor only supports algorithms that use a truncation length. i.e.
+            Authentication and Authenticated Encryption algorithms.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#IpSecAlgorithm(java.lang.String,%20byte[],%20int)" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.IpSecAlgorithm(java.lang.String, byte[], int)</code>.</a>
@@ -179,6 +192,15 @@
       <Docs>
         <summary>AES-CMAC Authentication/Integrity Algorithm.</summary>
         <remarks>
+          <para>AES-CMAC Authentication/Integrity Algorithm.</para>
+          <para>Keys for this algorithm must be 128 bits in length.</para>
+          <para>The only valid truncation length is 96 bits.</para>
+          <para>This algorithm may be available on the device. Caller MUST check if it is supported before
+            using it by calling <c>#getSupportedAlgorithms()</c> and checking if this algorithm is
+            included in the returned algorithm set. The returned algorithm set will not change unless the
+            device is rebooted. <c>IllegalArgumentException</c> will be thrown if this algorithm is
+            requested on an unsupported device.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_AES_CMAC" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_AES_CMAC</code>.</a>
@@ -221,6 +243,15 @@
       <Docs>
         <summary>AES-XCBC Authentication/Integrity Algorithm.</summary>
         <remarks>
+          <para>AES-XCBC Authentication/Integrity Algorithm.</para>
+          <para>Keys for this algorithm must be 128 bits in length.</para>
+          <para>The only valid truncation length is 96 bits.</para>
+          <para>This algorithm may be available on the device. Caller MUST check if it is supported before
+            using it by calling <c>#getSupportedAlgorithms()</c> and checking if this algorithm is
+            included in the returned algorithm set. The returned algorithm set will not change unless the
+            device is rebooted. <c>IllegalArgumentException</c> will be thrown if this algorithm is
+            requested on an unsupported device.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_AES_XCBC" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_AES_XCBC</code>.</a>
@@ -263,6 +294,12 @@
       <Docs>
         <summary>AES-GCM Authentication/Integrity + Encryption/Ciphering Algorithm.</summary>
         <remarks>
+          <para>AES-GCM Authentication/Integrity + Encryption/Ciphering Algorithm.</para>
+          <para>Valid lengths for keying material are {160, 224, 288}.</para>
+          <para>As per <see href="https://tools.ietf.org/html/rfc4106#section-8.1">RFC4106 (Section
+            8.1)</see>, keying material consists of a 128, 192, or 256 bit AES key followed by a 32-bit
+            salt. RFC compliance requires that the salt must be unique per invocation with the same key.</para>
+          <para>Valid ICV (truncation) lengths are {64, 96, 128}.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_CRYPT_AES_GCM" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_CRYPT_AES_GCM</code>.</a>
@@ -305,6 +342,18 @@
       <Docs>
         <summary>ChaCha20-Poly1305 Authentication/Integrity + Encryption/Ciphering Algorithm.</summary>
         <remarks>
+          <para>ChaCha20-Poly1305 Authentication/Integrity + Encryption/Ciphering Algorithm.</para>
+          <para>Keys for this algorithm must be 288 bits in length.</para>
+          <para>As per <see href="https://tools.ietf.org/html/rfc7634#section-2">RFC7634 (Section 2)</see>,
+            keying material consists of a 256 bit key followed by a 32-bit salt. The salt is fixed per
+            security association.</para>
+          <para>The only valid ICV (truncation) length is 128 bits.</para>
+          <para>This algorithm may be available on the device. Caller MUST check if it is supported before
+            using it by calling <c>#getSupportedAlgorithms()</c> and checking if this algorithm is
+            included in the returned algorithm set. The returned algorithm set will not change unless the
+            device is rebooted. <c>IllegalArgumentException</c> will be thrown if this algorithm is
+            requested on an unsupported device.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_CRYPT_CHACHA20_POLY1305" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_CRYPT_CHACHA20_POLY1305</code>.</a>
@@ -347,6 +396,10 @@
       <Docs>
         <summary>MD5 HMAC Authentication/Integrity Algorithm.</summary>
         <remarks>
+          <para>MD5 HMAC Authentication/Integrity Algorithm. &lt;b&gt;This algorithm is not recommended for use in
+            new applications and is provided for legacy compatibility with 3gpp infrastructure.&lt;/b&gt;</para>
+          <para>Keys for this algorithm must be 128 bits in length.</para>
+          <para>Valid truncation lengths are multiples of 8 bits from 96 to 128.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_HMAC_MD5" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_HMAC_MD5</code>.</a>
@@ -389,6 +442,10 @@
       <Docs>
         <summary>SHA1 HMAC Authentication/Integrity Algorithm.</summary>
         <remarks>
+          <para>SHA1 HMAC Authentication/Integrity Algorithm. &lt;b&gt;This algorithm is not recommended for use in
+            new applications and is provided for legacy compatibility with 3gpp infrastructure.&lt;/b&gt;</para>
+          <para>Keys for this algorithm must be 160 bits in length.</para>
+          <para>Valid truncation lengths are multiples of 8 bits from 96 to 160.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_HMAC_SHA1" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_HMAC_SHA1</code>.</a>
@@ -431,6 +488,9 @@
       <Docs>
         <summary>SHA256 HMAC Authentication/Integrity Algorithm.</summary>
         <remarks>
+          <para>SHA256 HMAC Authentication/Integrity Algorithm.</para>
+          <para>Keys for this algorithm must be 256 bits in length.</para>
+          <para>Valid truncation lengths are multiples of 8 bits from 96 to 256.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_HMAC_SHA256" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_HMAC_SHA256</code>.</a>
@@ -473,6 +533,9 @@
       <Docs>
         <summary>SHA384 HMAC Authentication/Integrity Algorithm.</summary>
         <remarks>
+          <para>SHA384 HMAC Authentication/Integrity Algorithm.</para>
+          <para>Keys for this algorithm must be 384 bits in length.</para>
+          <para>Valid truncation lengths are multiples of 8 bits from 192 to 384.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_HMAC_SHA384" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_HMAC_SHA384</code>.</a>
@@ -515,6 +578,9 @@
       <Docs>
         <summary>SHA512 HMAC Authentication/Integrity Algorithm.</summary>
         <remarks>
+          <para>SHA512 HMAC Authentication/Integrity Algorithm.</para>
+          <para>Keys for this algorithm must be 512 bits in length.</para>
+          <para>Valid truncation lengths are multiples of 8 bits from 256 to 512.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#AUTH_HMAC_SHA512" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.AUTH_HMAC_SHA512</code>.</a>
@@ -542,6 +608,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("CREATOR", ApiSince=28)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
@@ -597,6 +667,8 @@
       <Docs>
         <summary>AES-CBC Encryption/Ciphering Algorithm.</summary>
         <remarks>
+          <para>AES-CBC Encryption/Ciphering Algorithm.</para>
+          <para>Valid lengths for this key are {128, 192, 256}.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#CRYPT_AES_CBC" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.CRYPT_AES_CBC</code>.</a>
@@ -639,6 +711,17 @@
       <Docs>
         <summary>AES-CTR Encryption/Ciphering Algorithm.</summary>
         <remarks>
+          <para>AES-CTR Encryption/Ciphering Algorithm.</para>
+          <para>Valid lengths for keying material are {160, 224, 288}.</para>
+          <para>As per <see href="https://tools.ietf.org/html/rfc3686#section-5.1">RFC3686 (Section
+            5.1)</see>, keying material consists of a 128, 192, or 256 bit AES key followed by a 32-bit
+            nonce. RFC compliance requires that the nonce must be unique per security association.</para>
+          <para>This algorithm may be available on the device. Caller MUST check if it is supported before
+            using it by calling <c>#getSupportedAlgorithms()</c> and checking if this algorithm is
+            included in the returned algorithm set. The returned algorithm set will not change unless the
+            device is rebooted. <c>IllegalArgumentException</c> will be thrown if this algorithm is
+            requested on an unsupported device.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#CRYPT_AES_CTR" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.CRYPT_AES_CTR</code>.</a>
@@ -680,9 +763,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Parcelable Implementation</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Parcelable Implementation</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#describeContents()" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.describeContents()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetKey">
@@ -713,6 +808,7 @@
         <summary>Get the key for this algorithm</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Get the key for this algorithm</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#getKey()" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.getKey()</code>.</a>
@@ -785,6 +881,7 @@
         <summary>Get the algorithm name</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Get the algorithm name</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#getName()" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.getName()</code>.</a>
@@ -825,6 +922,9 @@
         <summary>Returns supported IPsec algorithms for the current device.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns supported IPsec algorithms for the current device.</para>
+          <para>Some algorithms may not be supported on old devices. Callers MUST check if an algorithm is
+            supported before using it.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#getSupportedAlgorithms()" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.getSupportedAlgorithms()</code>.</a>
@@ -923,6 +1023,7 @@
         <summary>Get the truncation length of this algorithm, in bits</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Get the truncation length of this algorithm, in bits</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#getTruncationLengthBits()" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.getTruncationLengthBits()</code>.</a>
@@ -978,6 +1079,7 @@
         <param name="flags">To be added.</param>
         <summary>Write to parcel</summary>
         <remarks>
+          <para>Write to parcel</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/IpSecAlgorithm#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Java documentation for <code>android.net.IpSecAlgorithm.writeToParcel(android.os.Parcel, int)</code>.</a>

@@ -44,6 +44,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/nio/CharBuffer", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/nio/CharBuffer", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>A char buffer.</summary>
@@ -61,21 +65,33 @@
       <para>&lt;/li&gt;
             
               &lt;li&gt;</para>
-      <para>Relative <c>#get(char[]) &lt;i&gt;bulk get&lt;/i&gt;</c>
+      <para>Absolute and relative <c>#get(char[]) &lt;i&gt;bulk get&lt;/i&gt;</c>
               methods that transfer contiguous sequences of chars from this buffer
               into an array; and</para>
       <para>&lt;/li&gt;
             
               &lt;li&gt;</para>
-      <para>Relative <c>#put(char[]) &lt;i&gt;bulk put&lt;/i&gt;</c>
+      <para>Absolute and relative <c>#put(char[]) &lt;i&gt;bulk put&lt;/i&gt;</c>
               methods that transfer contiguous sequences of chars from a
-              char array,&amp;#32;a&amp;#32;string, or some other char
-              buffer into this buffer;&amp;#32;and</para>
+              char array,  string, or some other char
+              buffer into this buffer; and</para>
       <para>&lt;/li&gt;
             
             
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
               &lt;li&gt;</para>
-      <para>Methods for <c>#compact compacting</c>, <c>#duplicate duplicating</c>, and <c>#slice slicing</c>
+      <para>A method for <c>#compact compacting</c>
               a char buffer.</para>
       <para>&lt;/li&gt;
             
@@ -84,8 +100,14 @@
             &lt;i&gt;allocation&lt;/i&gt;</c>, which allocates space for the buffer's
             
             
+            
+            
+            
+            
+            
+            
             content, by <c>#wrap(char[]) &lt;i&gt;wrapping&lt;/i&gt;</c> an existing
-            char array or&amp;#32;string into a buffer, or by creating a
+            char array or string into a buffer, or by creating a
             &lt;i&gt;view&lt;/i&gt; of an existing byte buffer.</para>
       <para>Like a byte buffer, a char buffer is either &lt;i&gt;direct&lt;/i&gt; or &lt;i&gt;non-direct&lt;/i&gt;.  A
             char buffer created via the <c>wrap</c> methods of this class will
@@ -94,10 +116,28 @@
             a char buffer is direct may be determined by invoking the <c>#isDirect isDirect</c> method.</para>
       <para>This class implements the <c>CharSequence</c> interface so that
             character buffers may be used wherever character sequences are accepted, for
-            example in the regular-expression package <c><c>java.util.regex</c></c>.</para>
+            example in the regular-expression package <c>java.util.regex</c>.
+            The methods defined by <c>CharSequence</c> operate relative to the current
+            position of the buffer when they are invoked.</para>
       <para>Methods in this class that do not otherwise have a value to return are
             specified to return the buffer upon which they are invoked.  This allows
             method invocations to be chained.
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
             
             The sequence of statements
@@ -382,14 +422,14 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">the first char to write, must not be negative and not greater
-            than <c>csq.length()</c>.</param>
-        <param name="end">the last char to write (excluding), must be less than
-            <c>start</c> and not greater than <c>csq.length()</c>.</param>
         <param name="csq">The character sequence from which a subsequence will be
                     appended.  If <c>csq</c> is <c>null</c>, then characters
                     will be appended as if <c>csq</c> contained the four
                     characters <c>"null"</c>.</param>
+        <param name="start">the first char to write, must not be negative and not greater
+            than <c>csq.length()</c>.</param>
+        <param name="end">the last char to write (excluding), must be less than
+            <c>start</c> and not greater than <c>csq.length()</c>.</param>
         <summary>Appends a subsequence of the  specified character sequence  to this
             buffer&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</summary>
         <returns>This buffer</returns>
@@ -438,12 +478,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
         <param name="csq">The character sequence from which a subsequence will be
                     appended.  If <c>csq</c> is <c>null</c>, then characters
                     will be appended as if <c>csq</c> contained the four
                     characters <c>"null"</c>.</param>
+        <param name="start">To be added.</param>
+        <param name="end">To be added.</param>
         <summary>Appends a subsequence of the  specified character sequence  to this
             buffer&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</summary>
         <returns>This buffer</returns>
@@ -602,7 +642,7 @@
             position.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/CharBuffer#charAt(int)" title="Reference documentation">Java documentation for <code>java.nio.CharBuffer.charAt(int)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/CharBuffer#charAt(.*int)" title="Reference documentation">Java documentation for <code>java.nio.CharBuffer.charAt(.*int)</code>.</a>
             </format>
           </para>
           <para>
@@ -901,7 +941,7 @@
             index.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/CharBuffer#get(int)" title="Reference documentation">Java documentation for <code>java.nio.CharBuffer.get(int)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/CharBuffer#get(.*int)" title="Reference documentation">Java documentation for <code>java.nio.CharBuffer.get(.*int)</code>.</a>
             </format>
           </para>
           <para>
@@ -913,6 +953,41 @@
         <since version="Added in API level 1" />
         <exception cref="T:Java.Lang.IndexOutOfBoundsException">if index is invalid.
 </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Get">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.CharBuffer? Get (int index, char[]? dst);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.CharBuffer Get(int32 index, char[] dst) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.CharBuffer.Get(System.Int32,System.Char[])" />
+      <MemberSignature Language="F#" Value="abstract member Get : int * char[] -&gt; Java.Nio.CharBuffer&#xA;override this.Get : int * char[] -&gt; Java.Nio.CharBuffer" Usage="charBuffer.Get (index, dst)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("get", "(I[C)Ljava/nio/CharBuffer;", "GetGet_IarrayCHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("get", "(I[C)Ljava/nio/CharBuffer;", "GetGet_IarrayCHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.CharBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="dst" Type="System.Char[]" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <param name="dst">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Get">
@@ -987,6 +1062,45 @@
 </exception>
       </Docs>
     </Member>
+    <Member MemberName="Get">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.CharBuffer? Get (int index, char[]? dst, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.CharBuffer Get(int32 index, char[] dst, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.CharBuffer.Get(System.Int32,System.Char[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Get : int * char[] * int * int -&gt; Java.Nio.CharBuffer&#xA;override this.Get : int * char[] * int * int -&gt; Java.Nio.CharBuffer" Usage="charBuffer.Get (index, dst, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("get", "(I[CII)Ljava/nio/CharBuffer;", "GetGet_IarrayCIIHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("get", "(I[CII)Ljava/nio/CharBuffer;", "GetGet_IarrayCIIHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.CharBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="dst" Type="System.Char[]" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="offset" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="length" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <param name="dst">To be added.</param>
+        <param name="offset">To be added.</param>
+        <param name="length">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetEnumerator">
       <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerator&lt;char&gt; GetEnumerator ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IEnumerator`1&lt;char&gt; GetEnumerator() cil managed" />
@@ -1001,9 +1115,13 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
           <AttributeName Language="C#">[System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Nio.CharBuffer+&lt;GetEnumerator&gt;d__122))]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Nio.CharBuffer+&lt;GetEnumerator&gt;d__122))&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Nio.CharBuffer+&lt;GetEnumerator&gt;d__142))]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Nio.CharBuffer+&lt;GetEnumerator&gt;d__142))&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1068,6 +1186,9 @@
       <MemberSignature Language="DocId" Value="P:Java.Nio.CharBuffer.IsEmpty" />
       <MemberSignature Language="F#" Value="member this.IsEmpty : bool" Usage="Java.Nio.CharBuffer.IsEmpty" />
       <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">P:Java.Lang.ICharSequence.IsEmpty</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -1123,7 +1244,14 @@
         <ReturnType>Java.Lang.IAppendable</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="csq" Type="Java.Lang.ICharSequence" />
+        <Parameter Name="csq" Type="Java.Lang.ICharSequence">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="csq">To be added.</param>
@@ -1179,7 +1307,14 @@
         <ReturnType>Java.Lang.IAppendable</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="csq" Type="Java.Lang.ICharSequence" />
+        <Parameter Name="csq" Type="Java.Lang.ICharSequence">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="start" Type="System.Int32" />
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
@@ -1243,6 +1378,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1664,6 +1803,41 @@
       </Docs>
     </Member>
     <Member MemberName="Put">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.CharBuffer? Put (int index, char[]? src);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.CharBuffer Put(int32 index, char[] src) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.CharBuffer.Put(System.Int32,System.Char[])" />
+      <MemberSignature Language="F#" Value="abstract member Put : int * char[] -&gt; Java.Nio.CharBuffer&#xA;override this.Put : int * char[] -&gt; Java.Nio.CharBuffer" Usage="charBuffer.Put (index, src)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("put", "(I[C)Ljava/nio/CharBuffer;", "GetPut_IarrayCHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("put", "(I[C)Ljava/nio/CharBuffer;", "GetPut_IarrayCHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.CharBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="src" Type="System.Char[]" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <param name="src">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Put">
       <MemberSignature Language="C#" Value="public virtual Java.Nio.CharBuffer? Put (char[]? src, int offset, int length);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.CharBuffer Put(char[] src, int32 offset, int32 length) cil managed" />
       <MemberSignature Language="DocId" Value="M:Java.Nio.CharBuffer.Put(System.Char[],System.Int32,System.Int32)" />
@@ -1806,6 +1980,84 @@
         <exception cref="T:Java.Lang.IndexOutOfBoundsException">if either <c>start</c> or <c>end</c> is invalid.</exception>
         <exception cref="T:Java.Nio.ReadOnlyBufferException">if no changes may be made to the contents of this buffer.
 </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Put">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.CharBuffer? Put (int index, Java.Nio.CharBuffer? src, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.CharBuffer Put(int32 index, class Java.Nio.CharBuffer src, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.CharBuffer.Put(System.Int32,Java.Nio.CharBuffer,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Put : int * Java.Nio.CharBuffer * int * int -&gt; Java.Nio.CharBuffer&#xA;override this.Put : int * Java.Nio.CharBuffer * int * int -&gt; Java.Nio.CharBuffer" Usage="charBuffer.Put (index, src, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("put", "(ILjava/nio/CharBuffer;II)Ljava/nio/CharBuffer;", "GetPut_ILjava_nio_CharBuffer_IIHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("put", "(ILjava/nio/CharBuffer;II)Ljava/nio/CharBuffer;", "GetPut_ILjava_nio_CharBuffer_IIHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.CharBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="src" Type="Java.Nio.CharBuffer" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="offset" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="length" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <param name="src">To be added.</param>
+        <param name="offset">To be added.</param>
+        <param name="length">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Put">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.CharBuffer? Put (int index, char[]? src, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.CharBuffer Put(int32 index, char[] src, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.CharBuffer.Put(System.Int32,System.Char[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Put : int * char[] * int * int -&gt; Java.Nio.CharBuffer&#xA;override this.Put : int * char[] * int * int -&gt; Java.Nio.CharBuffer" Usage="charBuffer.Put (index, src, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("put", "(I[CII)Ljava/nio/CharBuffer;", "GetPut_IarrayCIIHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("put", "(I[CII)Ljava/nio/CharBuffer;", "GetPut_IarrayCIIHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.CharBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="src" Type="System.Char[]" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="offset" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="length" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">To be added.</param>
+        <param name="src">To be added.</param>
+        <param name="offset">To be added.</param>
+        <param name="length">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Read">
@@ -2156,6 +2408,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

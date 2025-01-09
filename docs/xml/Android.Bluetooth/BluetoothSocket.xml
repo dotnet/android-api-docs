@@ -29,10 +29,39 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/bluetooth/BluetoothSocket", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothSocket", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="5">
     <summary>A connected or connecting Bluetooth socket.</summary>
     <remarks>
+      <para>A connected or connecting Bluetooth socket.</para>
+      <para>The interface for Bluetooth Sockets is similar to that of TCP sockets: <c>java.net.Socket</c>
+            and <c>java.net.ServerSocket</c>. On the server side, use a <c>BluetoothServerSocket</c> to
+            create a listening server socket. When a connection is accepted by the <c>BluetoothServerSocket</c>, it will return a new <c>BluetoothSocket</c> to manage the connection. On
+            the client side, use a single <c>BluetoothSocket</c> to both initiate an outgoing connection and
+            to manage the connection.</para>
+      <para>The most common type of Bluetooth socket is RFCOMM, which is the type supported by the Android
+            APIs. RFCOMM is a connection-oriented, streaming transport over Bluetooth. It is also known as
+            the Serial Port Profile (SPP).</para>
+      <para>To create a <c>BluetoothSocket</c> for connecting to a known device, use <c>BluetoothDevice#createRfcommSocketToServiceRecord
+            BluetoothDevice.createRfcommSocketToServiceRecord()</c>. Then call <c>#connect()</c> to attempt a
+            connection to the remote device. This call will block until a connection is established or the
+            connection fails.</para>
+      <para>To create a <c>BluetoothSocket</c> as a server (or "host"), see the <c>BluetoothServerSocket</c> documentation.</para>
+      <para>Once the socket is connected, whether initiated as a client or accepted as a server, open the
+            IO streams by calling <c>#getInputStream</c> and <c>#getOutputStream</c> in order to retrieve
+            <c>java.io.InputStream</c> and <c>java.io.OutputStream</c> objects, respectively, which are
+            automatically connected to the socket.</para>
+      <para>
+        <c>BluetoothSocket</c> is thread safe. In particular, <c>#close</c> will always immediately
+            abort ongoing operations and close the socket.</para>
+      <para>&lt;div class="special reference"&gt;
+            
+            &lt;h3&gt;Developer Guides&lt;/h3&gt;</para>
+      <para>For more information about using Bluetooth, read the <see href="https://developer.android.com/guide/topics/connectivity/bluetooth.html">Bluetooth</see> developer guide. &lt;/div&gt;</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket</code>.</a>
@@ -106,6 +135,16 @@
       <Docs>
         <summary>Attempt to connect to a remote device.</summary>
         <remarks>
+          <para>Attempt to connect to a remote device.</para>
+          <para>This method will block until a connection is made or the connection fails. If this method
+            returns without an exception then this socket is now connected.</para>
+          <para>Creating new connections to remote Bluetooth devices should not be attempted while device
+            discovery is in progress. Device discovery is a heavyweight procedure on the Bluetooth
+            adapter and will significantly slow a device connection. Use <c>BluetoothAdapter#cancelDiscovery()</c> to cancel an ongoing discovery. Discovery is not managed
+            by the Activity, but is run as a system service, so an application should always call <c>BluetoothAdapter#cancelDiscovery()</c> even if it did not directly request a discovery, just to
+            be sure.</para>
+          <para>
+            <c>#close</c> can be used to abort this call from another thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#connect()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.connect()</code>.</a>
@@ -171,6 +210,7 @@
         <summary>Get the type of the underlying connection.</summary>
         <value>one of <c>#TYPE_RFCOMM</c>, <c>#TYPE_SCO</c> or <c>#TYPE_L2CAP</c></value>
         <remarks>
+          <para>Get the type of the underlying connection.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#getConnectionType()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.getConnectionType()</code>.</a>
@@ -196,6 +236,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getInputStream", "()Ljava/io/InputStream;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInputStream", "()Ljava/io/InputStream;", "")&gt;]</AttributeName>
         </Attribute>
@@ -207,6 +251,9 @@
         <summary>Get the input stream associated with this socket.</summary>
         <value>InputStream</value>
         <remarks>
+          <para>Get the input stream associated with this socket.</para>
+          <para>The input stream will be returned even if the socket is not yet connected, but operations
+            on that stream will throw IOException until the associated socket is connected.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#getInputStream()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.getInputStream()</code>.</a>
@@ -246,6 +293,8 @@
             remote device.</summary>
         <value>true if connected false if not connected</value>
         <remarks>
+          <para>Get the connection status of this socket, ie, whether there is an active connection with
+            remote device.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#isConnected()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.isConnected()</code>.</a>
@@ -321,6 +370,9 @@
         <summary>Get the maximum supported Receive packet size for the underlying transport.</summary>
         <value>the maximum supported Receive packet size for the underlying transport.</value>
         <remarks>
+          <para>Get the maximum supported Receive packet size for the underlying transport. Use this to
+            optimize the reads done on the input stream, as any call to read will return a maximum of
+            this amount of bytes - or for some transports a multiple of this value.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#getMaxReceivePacketSize()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.getMaxReceivePacketSize()</code>.</a>
@@ -361,6 +413,8 @@
         <summary>Get the maximum supported Transmit packet size for the underlying transport.</summary>
         <value>the maximum supported Transmit packet size for the underlying transport.</value>
         <remarks>
+          <para>Get the maximum supported Transmit packet size for the underlying transport. Use this to
+            optimize the writes done to the output socket, to avoid sending half full packets.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#getMaxTransmitPacketSize()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.getMaxTransmitPacketSize()</code>.</a>
@@ -386,6 +440,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getOutputStream", "()Ljava/io/OutputStream;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getOutputStream", "()Ljava/io/OutputStream;", "")&gt;]</AttributeName>
         </Attribute>
@@ -397,6 +455,9 @@
         <summary>Get the output stream associated with this socket.</summary>
         <value>OutputStream</value>
         <remarks>
+          <para>Get the output stream associated with this socket.</para>
+          <para>The output stream will be returned even if the socket is not yet connected, but operations
+            on that stream will throw IOException until the associated socket is connected.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#getOutputStream()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.getOutputStream()</code>.</a>
@@ -424,6 +485,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getRemoteDevice", "()Landroid/bluetooth/BluetoothDevice;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRemoteDevice", "()Landroid/bluetooth/BluetoothDevice;", "")&gt;]</AttributeName>
         </Attribute>
@@ -435,6 +500,7 @@
         <summary>Get the remote device this socket is connecting, or connected, to.</summary>
         <value>remote device</value>
         <remarks>
+          <para>Get the remote device this socket is connecting, or connected, to.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocket#getRemoteDevice()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothSocket.getRemoteDevice()</code>.</a>

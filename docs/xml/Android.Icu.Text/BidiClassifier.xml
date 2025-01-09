@@ -17,13 +17,44 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/BidiClassifier", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Overrides default Bidi class values with custom ones.</summary>
+    <remarks>
+      <para>Overrides default Bidi class values with custom ones.</para>
+      <para>The override mechanism requires to define a subclass of
+            <c>BidiClassifier</c> which overrides the <c>classifier</c>
+            method to assign customized Bidi classes.</para>
+      <para>This may be useful for assigning Bidi classes to PUA characters, or
+            for special application needs. For instance, an application may want to
+            handle all spaces like L or R characters (according to the base direction)
+            when creating the visual ordering of logical lines which are part of a report
+            organized in columns: there should not be interaction between adjacent
+            cells.</para>
+      <para>To start using this customized
+            classifier with a Bidi object, it must be specified by calling the
+            <c>Bidi.setCustomClassifier</c> method; after that, the method
+            <c>classify</c> of the custom <c>BidiClassifier</c> will be
+            called by the UBA implementation any time the class of a character is
+            to be determined.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/icu/text/BidiClassifier" title="Reference documentation">Java documentation for <code>android.icu.text.BidiClassifier</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -50,9 +81,21 @@
         <Parameter Name="context" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">Context for this classifier instance.
+                           May be null.</param>
         <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BidiClassifier#BidiClassifier(java.lang.Object)" title="Reference documentation">Java documentation for <code>android.icu.text.BidiClassifier.BidiClassifier(java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -103,10 +146,26 @@
         <Parameter Name="c" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="c">Code point to be classified.</param>
+        <summary>Gets customized Bidi class for the code point <c>c</c>.</summary>
+        <returns>An integer representing directional property / Bidi class for the
+                    given code point <c>c</c>, or UCharacter.getIntPropertyMaxValue(UProperty.BIDI_CLASS)+1
+                    to signify that there is no need to override the standard Bidi class for
+                    the given code point.</returns>
+        <remarks>
+          <para>Gets customized Bidi class for the code point <c>c</c>.</para>
+          <para>Default implementation, to be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BidiClassifier#classify(int)" title="Reference documentation">Java documentation for <code>android.icu.text.BidiClassifier.classify(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Context">
@@ -120,6 +179,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
@@ -141,9 +204,33 @@
         <ReturnType>Java.Lang.Object</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="context">Context for this classifier instance.
+                           May be null.</param>
+        <summary>Returns the current classifier context. -or- Sets classifier context, which can be used either by a caller or
+            callee for various purposes.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the current classifier context.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BidiClassifier#getContext()" title="Reference documentation">Java documentation for <code>android.icu.text.BidiClassifier.getContext()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets classifier context, which can be used either by a caller or
+            callee for various purposes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/BidiClassifier#setContext(java.lang.Object)" title="Reference documentation">Java documentation for <code>android.icu.text.BidiClassifier.setContext(java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

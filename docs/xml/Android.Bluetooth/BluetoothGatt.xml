@@ -29,10 +29,20 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/bluetooth/BluetoothGatt", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothGatt", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="18">
     <summary>Public API for the Bluetooth GATT Profile.</summary>
     <remarks>
+      <para>Public API for the Bluetooth GATT Profile.</para>
+      <para>This class provides Bluetooth GATT functionality to enable communication with Bluetooth Smart
+            or Smart Ready devices.</para>
+      <para>To connect to a remote peripheral device, create a <c>BluetoothGattCallback</c> and call
+            <c>BluetoothDevice#connectGatt</c> to get a instance of this class. GATT capable devices can be
+            discovered using the Bluetooth device discovery or BLE scan process.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt</code>.</a>
@@ -74,6 +84,9 @@
       <Docs>
         <summary>Cancels a reliable write transaction for a given device.</summary>
         <remarks>
+          <para>Cancels a reliable write transaction for a given device.</para>
+          <para>Calling this function will discard all queued characteristic write operations for a given
+            remote device.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#abortReliableWrite()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.abortReliableWrite()</code>.</a>
@@ -119,8 +132,9 @@
       </Parameters>
       <Docs>
         <param name="mDevice">To be added.</param>
-        <summary>Cancels a reliable write transaction for a given device.</summary>
+        <summary>This member is deprecated.</summary>
         <remarks>
+          <para>This member is deprecated. Use <c>#abortReliableWrite()</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#abortReliableWrite(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.abortReliableWrite(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -163,6 +177,15 @@
         <summary>Initiates a reliable write transaction for a given remote device.</summary>
         <returns>true, if the reliable write transaction has been initiated</returns>
         <remarks>
+          <para>Initiates a reliable write transaction for a given remote device.</para>
+          <para>Once a reliable write transaction has been initiated, all calls to <c>#writeCharacteristic</c> are sent to the remote device for verification and queued up for atomic
+            execution. The application will receive a <c>BluetoothGattCallback#onCharacteristicWrite</c>
+            callback in response to every <c>#writeCharacteristic(BluetoothGattCharacteristic,
+            byte[], int)</c> call and is responsible for verifying if the value has been transmitted
+            accurately.</para>
+          <para>After all characteristics have been queued up and verified, <c>#executeReliableWrite</c>
+            will execute all writes. If a characteristic was not written correctly, calling <c>#abortReliableWrite</c> will cancel the current transaction without committing any values on the
+            remote device.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#beginReliableWrite()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.beginReliableWrite()</code>.</a>
@@ -204,6 +227,9 @@
       <Docs>
         <summary>Close this Bluetooth GATT client.</summary>
         <remarks>
+          <para>Close this Bluetooth GATT client.</para>
+          <para>Application should call this method as early as possible after it is done with this GATT
+            client.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#close()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.close()</code>.</a>
@@ -246,6 +272,10 @@
         <summary>Connect back to remote device.</summary>
         <returns>true, if the connection attempt was initiated successfully</returns>
         <remarks>
+          <para>Connect back to remote device.</para>
+          <para>This method is used to re-connect to a remote device after the connection has been
+            dropped. If the device is not in range, the re-connection will be triggered once the device
+            is back in range.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#connect()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.connect()</code>.</a>
@@ -275,6 +305,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android33.0")&gt;]</AttributeName>
         </Attribute>
@@ -287,10 +321,11 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.Bluetooth.BluetoothDevice&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Not supported - please use <c>BluetoothManager#getConnectedDevices(int)</c>
-            with <c>BluetoothProfile#GATT</c> as argument</summary>
+        <summary>This member is deprecated.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>This member is deprecated. Not supported - please use <c>BluetoothManager#getConnectedDevices(int)</c> with
+                <c>BluetoothProfile#GATT</c> as argument</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#getConnectedDevices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.getConnectedDevices()</code>.</a>
@@ -336,9 +371,10 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>Connection parameter update - Use the connection parameters recommended by the
-            Bluetooth SIG.</summary>
+        <summary>Connection parameter update - Use the connection parameters recommended by the Bluetooth SIG.</summary>
         <remarks>
+          <para>Connection parameter update - Use the connection parameters recommended by the Bluetooth SIG.
+            This is the default value if no connection parameter update is requested.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_BALANCED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.CONNECTION_PRIORITY_BALANCED</code>.</a>
@@ -386,8 +422,23 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Connection parameter update - Request the priority preferred for Digital Car Key for a lower
+            latency connection.</summary>
+        <remarks>
+          <para>Connection parameter update - Request the priority preferred for Digital Car Key for a lower
+            latency connection. This connection parameter will consume more power than <c>BluetoothGatt#CONNECTION_PRIORITY_BALANCED</c>, so it is recommended that apps do not use this
+            unless it specifically fits their use case.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_DCK" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.CONNECTION_PRIORITY_DCK</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ConnectionPriorityHigh">
@@ -422,6 +473,9 @@
       <Docs>
         <summary>Connection parameter update - Request a high priority, low latency connection.</summary>
         <remarks>
+          <para>Connection parameter update - Request a high priority, low latency connection. An application
+            should only request high priority connection parameters to transfer large amounts of data
+            over LE quickly. Once the transfer is complete, the application should request <c>BluetoothGatt#CONNECTION_PRIORITY_BALANCED</c> connection parameters to reduce energy use.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_HIGH" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.CONNECTION_PRIORITY_HIGH</code>.</a>
@@ -467,6 +521,7 @@
       <Docs>
         <summary>Connection parameter update - Request low power, reduced data rate connection parameters.</summary>
         <remarks>
+          <para>Connection parameter update - Request low power, reduced data rate connection parameters.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER</code>.</a>
@@ -503,6 +558,7 @@
         <summary>Return the remote bluetooth device this GATT client targets to</summary>
         <value>remote bluetooth device</value>
         <remarks>
+          <para>Return the remote bluetooth device this GATT client targets to</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#getDevice()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.getDevice()</code>.</a>
@@ -542,9 +598,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Disconnects an established connection, or cancels a connection attempt
-            currently in progress.</summary>
+        <summary>Disconnects an established connection, or cancels a connection attempt currently in progress.</summary>
         <remarks>
+          <para>Disconnects an established connection, or cancels a connection attempt currently in progress.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#disconnect()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.disconnect()</code>.</a>
@@ -584,10 +640,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Discovers services offered by a remote device as well as their
-            characteristics and descriptors.</summary>
+        <summary>Discovers services offered by a remote device as well as their characteristics and
+            descriptors.</summary>
         <returns>true, if the remote service discovery has been started</returns>
         <remarks>
+          <para>Discovers services offered by a remote device as well as their characteristics and
+            descriptors.</para>
+          <para>This is an asynchronous operation. Once service discovery is completed, the <c>BluetoothGattCallback#onServicesDiscovered</c> callback is triggered. If the discovery was
+            successful, the remote services can be retrieved using the <c>#getServices</c> function.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#discoverServices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.discoverServices()</code>.</a>
@@ -630,6 +690,11 @@
         <summary>Executes a reliable write transaction for a given remote device.</summary>
         <returns>true, if the request to execute the transaction has been sent</returns>
         <remarks>
+          <para>Executes a reliable write transaction for a given remote device.</para>
+          <para>This function will commit all queued up characteristic write operations for a given remote
+            device.</para>
+          <para>A <c>BluetoothGattCallback#onReliableWriteCompleted</c> callback is invoked to indicate
+            whether the transaction has been executed correctly.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#executeReliableWrite()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.executeReliableWrite()</code>.</a>
@@ -676,9 +741,62 @@
       <Docs>
         <summary>A remote device connection is congested.</summary>
         <remarks>
+          <para>A remote device connection is congested.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_CONNECTION_CONGESTED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_CONNECTION_CONGESTED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GattConnectionTimeout">
+      <MemberSignature Language="C#" Value="public const Android.Bluetooth.GattStatus GattConnectionTimeout = 147;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Bluetooth.GattStatus GattConnectionTimeout = (147)" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothGatt.GattConnectionTimeout" />
+      <MemberSignature Language="F#" Value="val mutable GattConnectionTimeout : Android.Bluetooth.GattStatus" Usage="Android.Bluetooth.BluetoothGatt.GattConnectionTimeout" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.Bluetooth.IBluetoothProfile.ExtraPreviousState</InterfaceMember>
+        <InterfaceMember>F:Android.Bluetooth.IBluetoothProfile.ExtraState</InterfaceMember>
+        <InterfaceMember>F:Android.Bluetooth.IBluetoothProfile.HearingAid</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("GATT_CONNECTION_TIMEOUT", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("GATT_CONNECTION_TIMEOUT", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.GattStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.GattStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.GattStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>147</MemberValue>
+      <Docs>
+        <summary>GATT connection timed out, likely due to the remote device being out of range or not
+            advertising as connectable.</summary>
+        <remarks>
+          <para>GATT connection timed out, likely due to the remote device being out of range or not
+            advertising as connectable.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_CONNECTION_TIMEOUT" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_CONNECTION_TIMEOUT</code>.</a>
             </format>
           </para>
           <para>
@@ -721,6 +839,7 @@
       <Docs>
         <summary>A GATT operation failed, errors other than the above</summary>
         <remarks>
+          <para>A GATT operation failed, errors other than the above</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_FAILURE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_FAILURE</code>.</a>
@@ -767,6 +886,7 @@
       <Docs>
         <summary>Insufficient authentication for a given operation</summary>
         <remarks>
+          <para>Insufficient authentication for a given operation</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_INSUFFICIENT_AUTHENTICATION" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION</code>.</a>
@@ -815,8 +935,20 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Insufficient authorization for a given operation</summary>
+        <remarks>
+          <para>Insufficient authorization for a given operation</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_INSUFFICIENT_AUTHORIZATION" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GattInsufficientEncryption">
@@ -851,6 +983,7 @@
       <Docs>
         <summary>Insufficient encryption for a given operation</summary>
         <remarks>
+          <para>Insufficient encryption for a given operation</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_INSUFFICIENT_ENCRYPTION" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION</code>.</a>
@@ -897,6 +1030,7 @@
       <Docs>
         <summary>A write operation exceeds the maximum length of the attribute</summary>
         <remarks>
+          <para>A write operation exceeds the maximum length of the attribute</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_INVALID_ATTRIBUTE_LENGTH" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH</code>.</a>
@@ -943,6 +1077,7 @@
       <Docs>
         <summary>A read or write operation was requested with an invalid offset</summary>
         <remarks>
+          <para>A read or write operation was requested with an invalid offset</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_INVALID_OFFSET" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_INVALID_OFFSET</code>.</a>
@@ -989,6 +1124,7 @@
       <Docs>
         <summary>GATT read operation is not permitted</summary>
         <remarks>
+          <para>GATT read operation is not permitted</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_READ_NOT_PERMITTED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_READ_NOT_PERMITTED</code>.</a>
@@ -1035,6 +1171,7 @@
       <Docs>
         <summary>The given request is not supported</summary>
         <remarks>
+          <para>The given request is not supported</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_REQUEST_NOT_SUPPORTED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED</code>.</a>
@@ -1081,6 +1218,7 @@
       <Docs>
         <summary>A GATT operation completed successfully</summary>
         <remarks>
+          <para>A GATT operation completed successfully</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_SUCCESS" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_SUCCESS</code>.</a>
@@ -1127,6 +1265,7 @@
       <Docs>
         <summary>GATT write operation is not permitted</summary>
         <remarks>
+          <para>GATT write operation is not permitted</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#GATT_WRITE_NOT_PERMITTED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.GATT_WRITE_NOT_PERMITTED</code>.</a>
@@ -1172,10 +1311,11 @@
       </Parameters>
       <Docs>
         <param name="device">Remote bluetooth device.</param>
-        <summary>Not supported - please use <c>BluetoothManager#getConnectedDevices(int)</c>
-            with <c>BluetoothProfile#GATT</c> as argument</summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Not supported - please use <c>BluetoothManager#getConnectedDevices(int)</c> with
+                <c>BluetoothProfile#GATT</c> as argument</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#getConnectionState(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.getConnectionState(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -1216,6 +1356,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Bluetooth.BluetoothDevice&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="states" Type="Android.Bluetooth.ProfileState[]">
@@ -1231,11 +1377,10 @@
         <param name="states">Array of states. States can be one of
               <see cref="F:Android.Bluetooth.ProfileState.Connected" tool="ReplaceLinkValue" />, <see cref="F:Android.Bluetooth.ProfileState.Connecting" tool="ReplaceLinkValue" />,
               <see cref="F:Android.Bluetooth.ProfileState.Disconnected" tool="ReplaceLinkValue" />, <see cref="F:Android.Bluetooth.ProfileState.Disconnecting" tool="ReplaceLinkValue" />,</param>
-        <summary>Not supported - please use
-            <c>BluetoothManager#getDevicesMatchingConnectionStates(int, int[])</c>
-            with <c>BluetoothProfile#GATT</c> as first argument</summary>
+        <summary>This member is deprecated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This member is deprecated. Not supported - please use <c>BluetoothManager#getDevicesMatchingConnectionStates(int, int[])</c> with <c>BluetoothProfile#GATT</c> as first argument</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#getDevicesMatchingConnectionStates(int[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.getDevicesMatchingConnectionStates(int[])</code>.</a>
@@ -1275,11 +1420,16 @@
       </Parameters>
       <Docs>
         <param name="uuid">UUID of the requested service</param>
-        <summary>Returns a <c>BluetoothGattService</c>, if the requested UUID is
-            supported by the remote device.</summary>
+        <summary>Returns a <c>BluetoothGattService</c>, if the requested UUID is supported by the remote
+            device.</summary>
         <returns>BluetoothGattService if supported, or null if the requested service is not offered by
-            the remote device.</returns>
+                the remote device.</returns>
         <remarks>
+          <para>Returns a <c>BluetoothGattService</c>, if the requested UUID is supported by the remote
+            device.</para>
+          <para>This function requires that service discovery has been completed for the given device.</para>
+          <para>If multiple instances of the same service (as identified by UUID) exist, the first
+            instance of the service is returned.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#getService(java.util.UUID)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.getService(java.util.UUID)</code>.</a>
@@ -1315,6 +1465,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1359,6 +1513,10 @@
         <summary>Reads the requested characteristic from the associated remote device.</summary>
         <returns>true, if the read operation was initiated successfully</returns>
         <remarks>
+          <para>Reads the requested characteristic from the associated remote device.</para>
+          <para>This is an asynchronous operation. The result of the read operation is reported by the
+            <c>BluetoothGattCallback#onCharacteristicRead(BluetoothGatt, BluetoothGattCharacteristic,
+            byte[], int)</c> callback.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#readCharacteristic(android.bluetooth.BluetoothGattCharacteristic)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.readCharacteristic(android.bluetooth.BluetoothGattCharacteristic)</code>.</a>
@@ -1404,6 +1562,9 @@
         <summary>Reads the value for a given descriptor from the associated remote device.</summary>
         <returns>true, if the read operation was initiated successfully</returns>
         <remarks>
+          <para>Reads the value for a given descriptor from the associated remote device.</para>
+          <para>Once the read operation has been completed, the <c>BluetoothGattCallback#onDescriptorRead</c> callback is triggered, signaling the result of the
+            operation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#readDescriptor(android.bluetooth.BluetoothGattDescriptor)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.readDescriptor(android.bluetooth.BluetoothGattDescriptor)</code>.</a>
@@ -1449,6 +1610,8 @@
       <Docs>
         <summary>Read the current transmitter PHY and receiver PHY of the connection.</summary>
         <remarks>
+          <para>Read the current transmitter PHY and receiver PHY of the connection. The values are returned
+            in <c>BluetoothGattCallback#onPhyRead</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#readPhy()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.readPhy()</code>.</a>
@@ -1490,6 +1653,9 @@
         <summary>Read the RSSI for a connected remote device.</summary>
         <returns>true, if the RSSI value has been requested successfully</returns>
         <remarks>
+          <para>Read the RSSI for a connected remote device.</para>
+          <para>The <c>BluetoothGattCallback#onReadRemoteRssi</c> callback will be invoked when the RSSI
+            value has been read.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#readRemoteRssi()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.readRemoteRssi()</code>.</a>
@@ -1538,11 +1704,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="connectionPriority">Request a specific connection priority. Must be one of <c>BluetoothGatt#CONNECTION_PRIORITY_BALANCED</c>, <c>BluetoothGatt#CONNECTION_PRIORITY_HIGH</c>
-            or <c>BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER</c>.</param>
+        <param name="connectionPriority">Request a specific connection priority. Must be one of <c>BluetoothGatt#CONNECTION_PRIORITY_BALANCED</c>, <c>BluetoothGatt#CONNECTION_PRIORITY_HIGH</c><c>BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER</c>, or <c>BluetoothGatt#CONNECTION_PRIORITY_DCK</c>.</param>
         <summary>Request a connection parameter update.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Request a connection parameter update.</para>
+          <para>This function will send a connection parameter update request to the remote device.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#requestConnectionPriority(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.requestConnectionPriority(int)</code>.</a>
@@ -1590,6 +1757,15 @@
         <summary>Request an MTU size used for a given connection.</summary>
         <returns>true, if the new MTU value has been requested successfully</returns>
         <remarks>
+          <para>Request an MTU size used for a given connection. Please note that starting from Android 14,
+            the Android Bluetooth stack requests the BLE ATT MTU to 517 bytes when the first GATT client
+            requests an MTU, and disregards all subsequent MTU requests. Check out <see href="https://developer.android.com/about/versions/14/behavior-changes-all#mtu-set-to-517">MTU is set to 517 for
+            the first GATT client requesting an MTU</see> for more information.</para>
+          <para>When performing a write request operation (write without response), the data sent is
+            truncated to the MTU size. This function may be used to request a larger MTU size to be able
+            to send more data at once.</para>
+          <para>A <c>BluetoothGattCallback#onMtuChanged</c> callback will indicate whether this operation
+            was successful.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#requestMtu(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.requestMtu(int)</code>.</a>
@@ -1615,6 +1791,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getServices", "()Ljava/util/List;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getServices", "()Ljava/util/List;", "")&gt;]</AttributeName>
         </Attribute>
@@ -1625,8 +1805,10 @@
       <Docs>
         <summary>Returns a list of GATT services offered by the remote device.</summary>
         <value>List of services on the remote device. Returns an empty list if service discovery has
-            not yet been performed.</value>
+                not yet been performed.</value>
         <remarks>
+          <para>Returns a list of GATT services offered by the remote device.</para>
+          <para>This function requires that service discovery has been completed for the given device.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#getServices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.getServices()</code>.</a>
@@ -1674,6 +1856,10 @@
         <summary>Enable or disable notifications/indications for a given characteristic.</summary>
         <returns>true, if the requested notification status was set successfully</returns>
         <remarks>
+          <para>Enable or disable notifications/indications for a given characteristic.</para>
+          <para>Once notifications are enabled for a characteristic, a <c>BluetoothGattCallback#onCharacteristicChanged(BluetoothGatt, BluetoothGattCharacteristic,
+            byte[])</c> callback will be triggered if the remote device indicates that the given
+            characteristic has changed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#setCharacteristicNotification(android.bluetooth.BluetoothGattCharacteristic,%20boolean)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.setCharacteristicNotification(android.bluetooth.BluetoothGattCharacteristic, boolean)</code>.</a>
@@ -1745,10 +1931,16 @@
         <param name="txPhy">preferred transmitter PHY. Bitwise OR of any of <c>BluetoothDevice#PHY_LE_1M_MASK</c>, <c>BluetoothDevice#PHY_LE_2M_MASK</c>, and <c>BluetoothDevice#PHY_LE_CODED_MASK</c>.</param>
         <param name="rxPhy">preferred receiver PHY. Bitwise OR of any of <c>BluetoothDevice#PHY_LE_1M_MASK</c>, <c>BluetoothDevice#PHY_LE_2M_MASK</c>, and <c>BluetoothDevice#PHY_LE_CODED_MASK</c>.</param>
         <param name="phyOptions">preferred coding to use when transmitting on the LE Coded PHY. Can be one
-            of <c>BluetoothDevice#PHY_OPTION_NO_PREFERRED</c>, <c>BluetoothDevice#PHY_OPTION_S2</c> or
-            <c>BluetoothDevice#PHY_OPTION_S8</c></param>
+                of <c>BluetoothDevice#PHY_OPTION_NO_PREFERRED</c>, <c>BluetoothDevice#PHY_OPTION_S2</c>
+                or <c>BluetoothDevice#PHY_OPTION_S8</c></param>
         <summary>Set the preferred connection PHY for this app.</summary>
         <remarks>
+          <para>Set the preferred connection PHY for this app. Please note that this is just a
+            recommendation, whether the PHY change will happen depends on other applications preferences,
+            local and remote controller capabilities. Controller can override these settings.</para>
+          <para>
+            <c>BluetoothGattCallback#onPhyUpdate</c> will be triggered as a result of this call, even
+            if no PHY change happens. It is also triggered when remote device updates the PHY.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#setPreferredPhy(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.setPreferredPhy(int, int, int)</code>.</a>
@@ -1812,6 +2004,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -1859,6 +2055,12 @@
         <summary>Writes a given characteristic and its values to the associated remote device.</summary>
         <returns>true, if the write operation was initiated successfully</returns>
         <remarks>
+          <para>Writes a given characteristic and its values to the associated remote device.</para>
+          <para>Once the write operation has been completed, the <c>BluetoothGattCallback#onCharacteristicWrite</c> callback is invoked, reporting the result of the
+            operation.</para>
+          <para>This member is deprecated. Use <c>BluetoothGatt#writeCharacteristic(BluetoothGattCharacteristic, byte[],
+                int)</c> as this is not memory safe because it relies on a <c>BluetoothGattCharacteristic</c> object whose underlying fields are subject to change outside
+                this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic)</code>.</a>
@@ -1913,12 +2115,26 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="characteristic">To be added.</param>
         <param name="value">To be added.</param>
         <param name="writeType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="characteristic">Characteristic to write on the remote device</param>
+        <summary>Writes a given characteristic and its values to the associated remote device.</summary>
+        <returns>whether the characteristic was successfully written to</returns>
+        <remarks>
+          <para>Writes a given characteristic and its values to the associated remote device.</para>
+          <para>Once the write operation has been completed, the <c>BluetoothGattCallback#onCharacteristicWrite</c> callback is invoked, reporting the result of the
+            operation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,%20byte[],%20int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic, byte[], int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteDescriptor">
@@ -1956,6 +2172,12 @@
         <summary>Write the value of a given descriptor to the associated remote device.</summary>
         <returns>true, if the write operation was initiated successfully</returns>
         <remarks>
+          <para>Write the value of a given descriptor to the associated remote device.</para>
+          <para>A <c>BluetoothGattCallback#onDescriptorWrite</c> callback is triggered to report the
+            result of the write operation.</para>
+          <para>This member is deprecated. Use <c>BluetoothGatt#writeDescriptor(BluetoothGattDescriptor, byte[])</c> as
+                this is not memory safe because it relies on a <c>BluetoothGattDescriptor</c> object
+                whose underlying fields are subject to change outside this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#writeDescriptor(android.bluetooth.BluetoothGattDescriptor)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.writeDescriptor(android.bluetooth.BluetoothGattDescriptor)</code>.</a>
@@ -2002,11 +2224,25 @@
         <Parameter Name="value" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="descriptor">To be added.</param>
         <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="descriptor">Descriptor to write to the associated remote device</param>
+        <summary>Write the value of a given descriptor to the associated remote device.</summary>
+        <returns>true, if the write operation was initiated successfully</returns>
+        <remarks>
+          <para>Write the value of a given descriptor to the associated remote device.</para>
+          <para>A <c>BluetoothGattCallback#onDescriptorWrite</c> callback is triggered to report the
+            result of the write operation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothGatt#writeDescriptor(android.bluetooth.BluetoothGattDescriptor,%20byte[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothGatt.writeDescriptor(android.bluetooth.BluetoothGattDescriptor, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

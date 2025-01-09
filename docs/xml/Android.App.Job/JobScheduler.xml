@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/app/job/JobScheduler", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/job/JobScheduler", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>This is an API for scheduling various types of jobs against the framework that will be executed
@@ -62,9 +66,8 @@
             <c>android.os.Build.VERSION_CODES#R</c>, jobs had a maximum execution time of 10 minutes.
             Starting from Android version <c>android.os.Build.VERSION_CODES#S</c>, jobs will still be
             stopped after 10 minutes if the system is busy or needs the resources, but if not, jobs
-            may continue running longer than 10 minutes.
-            
-            &lt;p class="caution"&gt;&lt;strong&gt;Note:&lt;/strong&gt; Beginning with API 30
+            may continue running longer than 10 minutes.</para>
+      <para>&lt;strong&gt;Note:&lt;/strong&gt; Beginning with API 30
             (<c>android.os.Build.VERSION_CODES#R</c>), JobScheduler will throttle runaway applications.
             Calling <c>#schedule(JobInfo)</c> and other such methods with very high frequency can have a
             high cost and so, to make sure the system doesn't get overwhelmed, JobScheduler will begin
@@ -394,12 +397,11 @@
             fields.)  You should never use <c>JobInfo.Builder#setClipData(ClipData, int)</c> with
             work you are enqueuing, since currently this will always be treated as a different JobInfo,
             even if the ClipData contents are exactly the same.</para>
-          <para>&lt;p class="caution"&gt;&lt;strong&gt;Note:&lt;/strong&gt; Scheduling a job can have a high cost, even if it's
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Scheduling a job can have a high cost, even if it's
             rescheduling the same job and the job didn't execute, especially on platform versions before
             version <c>android.os.Build.VERSION_CODES#Q</c>. As such, the system may throttle calls to
-            this API if calls are made too frequently in a short amount of time.
-            
-            &lt;p class="caution"&gt;&lt;strong&gt;Note:&lt;/strong&gt; Prior to Android version
+            this API if calls are made too frequently in a short amount of time.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Prior to Android version
             <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, JobWorkItems could not be persisted.
             Apps were not allowed to enqueue JobWorkItems with persisted jobs and the system would throw
             an <c>IllegalArgumentException</c> if they attempted to do so. Starting with
@@ -458,9 +460,8 @@
             this instance will interact with jobs in that namespace, unless the API documentation says
             otherwise. Attempting to update a job scheduled in another namespace will not be possible
             but will instead create or update the job inside the current namespace. A JobScheduler
-            instance dedicated to a namespace must be used to schedule or update jobs in that namespace.
-            
-            &lt;p class="note"&gt;Since leading and trailing whitespace can lead to hard-to-debug issues,
+            instance dedicated to a namespace must be used to schedule or update jobs in that namespace.</para>
+          <para>Since leading and trailing whitespace can lead to hard-to-debug issues,
             they will be <c>String#trim() trimmed</c>. An empty String (after trimming) is not allowed.</para>
           <para>
             <format type="text/html">
@@ -544,7 +545,7 @@
       <ReturnValue>
         <ReturnType>Android.App.Job.PendingJobReason</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -615,6 +616,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
@@ -1625,9 +1630,8 @@
         <remarks>
           <para>Schedule a job to be executed.  Will replace any currently scheduled job with the same
             ID with the new information in the <c>JobInfo</c>.  If a job with the given ID is currently
-            running, it will be stopped.
-            
-            &lt;p class="caution"&gt;&lt;strong&gt;Note:&lt;/strong&gt; Scheduling a job can have a high cost, even if it's
+            running, it will be stopped.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Scheduling a job can have a high cost, even if it's
             rescheduling the same job and the job didn't execute, especially on platform versions before
             version <c>android.os.Build.VERSION_CODES#Q</c>. As such, the system may throttle calls to
             this API if calls are made too frequently in a short amount of time.</para>

@@ -17,13 +17,235 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/Transliterator", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>
+      <c>Transliterator</c> is an abstract class that transliterates text from one format to another.</summary>
+    <remarks>
+      <para>
+        <c>Transliterator</c> is an abstract class that transliterates text from one format to another. The most common
+            kind of transliterator is a script, or alphabet, transliterator. For example, a Russian to Latin transliterator
+            changes Russian text written in Cyrillic characters to phonetically equivalent Latin characters. It does not
+            &lt;em&gt;translate&lt;/em&gt; Russian to English! Transliteration, unlike translation, operates on characters, without reference
+            to the meanings of words and sentences.</para>
+      <para>Although script conversion is its most common use, a transliterator can actually perform a more general class of
+            tasks. In fact, <c>Transliterator</c> defines a very general API which specifies only that a segment of the
+            input text is replaced by new text. The particulars of this conversion are determined entirely by subclasses of
+            <c>Transliterator</c>.</para>
+      <para>&lt;b&gt;Transliterators are stateless&lt;/b&gt;</para>
+      <para>
+        <c>Transliterator</c> objects are &lt;em&gt;stateless&lt;/em&gt;; they retain no information between calls to
+            <c>transliterate()</c>. As a result, threads may share transliterators without synchronizing them. This might
+            seem to limit the complexity of the transliteration operation. In practice, subclasses perform complex
+            transliterations by delaying the replacement of text until it is known that no other replacements are possible. In
+            other words, although the <c>Transliterator</c> objects are stateless, the source text itself embodies all the
+            needed information, and delayed operation allows arbitrary complexity.</para>
+      <para>&lt;b&gt;Batch transliteration&lt;/b&gt;</para>
+      <para>The simplest way to perform transliteration is all at once, on a string of existing text. This is referred to as
+            &lt;em&gt;batch&lt;/em&gt; transliteration. For example, given a string <c>input</c> and a transliterator <c>t</c>,
+            the call
+            
+            &lt;blockquote&gt;<c>String result = t.transliterate(input);
+            </c>&lt;/blockquote&gt;
+            
+            will transliterate it and return the result. Other methods allow the client to specify a substring to be
+            transliterated and to use <c>Replaceable</c> objects instead of strings, in order to preserve out-of-band
+            information (such as text styles).</para>
+      <para>&lt;b&gt;Keyboard transliteration&lt;/b&gt;</para>
+      <para>Somewhat more involved is &lt;em&gt;keyboard&lt;/em&gt;, or incremental transliteration. This is the transliteration of text that
+            is arriving from some source (typically the user's keyboard) one character at a time, or in some other piecemeal
+            fashion.</para>
+      <para>In keyboard transliteration, a <c>Replaceable</c> buffer stores the text. As text is inserted, as much as
+            possible is transliterated on the fly. This means a GUI that displays the contents of the buffer may show text being
+            modified as each new character arrives.</para>
+      <para>Consider the simple rule-based Transliterator:
+            
+            &lt;blockquote&gt;<c>
+            th&amp;gt;{theta}&lt;br&gt;
+            t&amp;gt;{tau}
+            </c>&lt;/blockquote&gt;
+            
+            When the user types 't', nothing will happen, since the transliterator is waiting to see if the next character is
+            'h'. To remedy this, we introduce the notion of a cursor, marked by a '|' in the output string:
+            
+            &lt;blockquote&gt;<c>
+            t&amp;gt;|{tau}&lt;br&gt;
+            {tau}h&amp;gt;{theta}
+            </c>&lt;/blockquote&gt;
+            
+            Now when the user types 't', tau appears, and if the next character is 'h', the tau changes to a theta. This is
+            accomplished by maintaining a cursor position (independent of the insertion point, and invisible in the GUI) across
+            calls to <c>transliterate()</c>. Typically, the cursor will be coincident with the insertion point, but in a
+            case like the one above, it will precede the insertion point.</para>
+      <para>Keyboard transliteration methods maintain a set of three indices that are updated with each call to
+            <c>transliterate()</c>, including the cursor, start, and limit. These indices are changed by the method, and
+            they are passed in and out via a Position object. The <c>start</c> index marks the beginning of the substring
+            that the transliterator will look at. It is advanced as text becomes committed (but it is not the committed index;
+            that's the <c>cursor</c>). The <c>cursor</c> index, described above, marks the point at which the
+            transliterator last stopped, either because it reached the end, or because it required more characters to
+            disambiguate between possible inputs. The <c>cursor</c> can also be explicitly set by rules.
+            Any characters before the <c>cursor</c> index are frozen; future keyboard
+            transliteration calls within this input sequence will not change them. New text is inserted at the <c>limit</c>
+            index, which marks the end of the substring that the transliterator looks at.</para>
+      <para>Because keyboard transliteration assumes that more characters are to arrive, it is conservative in its operation. It
+            only transliterates when it can do so unambiguously. Otherwise it waits for more characters to arrive. When the
+            client code knows that no more characters are forthcoming, perhaps because the user has performed some input
+            termination operation, then it should call <c>finishTransliteration()</c> to complete any pending
+            transliterations.</para>
+      <para>&lt;b&gt;Inverses&lt;/b&gt;</para>
+      <para>Pairs of transliterators may be inverses of one another. For example, if transliterator &lt;b&gt;A&lt;/b&gt; transliterates
+            characters by incrementing their Unicode value (so "abc" -&amp;gt; "def"), and transliterator &lt;b&gt;B&lt;/b&gt; decrements character
+            values, then &lt;b&gt;A&lt;/b&gt; is an inverse of &lt;b&gt;B&lt;/b&gt; and vice versa. If we compose &lt;b&gt;A&lt;/b&gt; with &lt;b&gt;B&lt;/b&gt; in a compound
+            transliterator, the result is the identity transliterator, that is, a transliterator that does not change its input
+            text.
+            
+            The <c>Transliterator</c> method <c>getInverse()</c> returns a transliterator's inverse, if one exists,
+            or <c>null</c> otherwise. However, the result of <c>getInverse()</c> usually will &lt;em&gt;not&lt;/em&gt; be a true
+            mathematical inverse. This is because true inverse transliterators are difficult to formulate. For example, consider
+            two transliterators: &lt;b&gt;AB&lt;/b&gt;, which transliterates the character 'A' to 'B', and &lt;b&gt;BA&lt;/b&gt;, which transliterates
+            'B' to 'A'. It might seem that these are exact inverses, since
+            
+            &lt;blockquote&gt;"A" x &lt;b&gt;AB&lt;/b&gt; -&amp;gt; "B"&lt;br&gt;
+            "B" x &lt;b&gt;BA&lt;/b&gt; -&amp;gt; "A"&lt;/blockquote&gt;
+            
+            where 'x' represents transliteration. However,
+            
+            &lt;blockquote&gt;"ABCD" x &lt;b&gt;AB&lt;/b&gt; -&amp;gt; "BBCD"&lt;br&gt;
+            "BBCD" x &lt;b&gt;BA&lt;/b&gt; -&amp;gt; "AACD"&lt;/blockquote&gt;
+            
+            so &lt;b&gt;AB&lt;/b&gt; composed with &lt;b&gt;BA&lt;/b&gt; is not the identity. Nonetheless, &lt;b&gt;BA&lt;/b&gt; may be usefully considered to be
+            &lt;b&gt;AB&lt;/b&gt;'s inverse, and it is on this basis that &lt;b&gt;AB&lt;/b&gt;<c>.getInverse()</c> could legitimately return
+            &lt;b&gt;BA&lt;/b&gt;.</para>
+      <para>&lt;b&gt;Filtering&lt;/b&gt;</para>
+      <para>Each transliterator has a filter, which restricts changes to those characters selected by the filter. The
+            filter affects just the characters that are changed -- the characters outside of the filter are still part of the
+            context for the filter. For example, in the following even though 'x' is filtered out, and doesn't convert to y, it does affect the conversion of 'a'.</para>
+      <code lang="text/java">String rules = &amp;quot;x &amp;gt; y; x{a} &amp;gt; b; &amp;quot;;
+            Transliterator tempTrans = Transliterator.createFromRules(&amp;quot;temp&amp;quot;, rules, Transliterator.FORWARD);
+            tempTrans.setFilter(new UnicodeSet(&amp;quot;[a]&amp;quot;));
+            String tempResult = tempTrans.transform(&amp;quot;xa&amp;quot;);
+            // results in &amp;quot;xb&amp;quot;
+            </code>
+      <para>&lt;b&gt;IDs and display names&lt;/b&gt;</para>
+      <para>A transliterator is designated by a short identifier string or &lt;em&gt;ID&lt;/em&gt;. IDs follow the format
+            &lt;em&gt;source-destination&lt;/em&gt;, where &lt;em&gt;source&lt;/em&gt; describes the entity being replaced, and &lt;em&gt;destination&lt;/em&gt;
+            describes the entity replacing &lt;em&gt;source&lt;/em&gt;. The entities may be the names of scripts, particular sequences of
+            characters, or whatever else it is that the transliterator converts to or from. For example, a transliterator from
+            Russian to Latin might be named "Russian-Latin". A transliterator from keyboard escape sequences to Latin-1
+            characters might be named "KeyboardEscape-Latin1". By convention, system entity names are in English, with the
+            initial letters of words capitalized; user entity names may follow any format so long as they do not contain dashes.</para>
+      <para>In addition to programmatic IDs, transliterator objects have display names for presentation in user interfaces,
+            returned by <c>#getDisplayName</c>.</para>
+      <para>&lt;b&gt;Composed transliterators&lt;/b&gt;</para>
+      <para>In addition to built-in system transliterators like "Latin-Greek", there are also built-in &lt;em&gt;composed&lt;/em&gt;
+            transliterators. These are implemented by composing two or more component transliterators. For example, if we have
+            scripts "A", "B", "C", and "D", and we want to transliterate between all pairs of them, then we need to write 12
+            transliterators: "A-B", "A-C", "A-D", "B-A",..., "D-A", "D-B", "D-C". If it is possible to convert all scripts to an
+            intermediate script "M", then instead of writing 12 rule sets, we only need to write 8: "A~M", "B~M", "C~M", "D~M",
+            "M~A", "M~B", "M~C", "M~D". (This might not seem like a big win, but it's really 2&lt;em&gt;n&lt;/em&gt; vs. &lt;em&gt;n&lt;/em&gt;
+            &lt;sup&gt;2&lt;/sup&gt; - &lt;em&gt;n&lt;/em&gt;, so as &lt;em&gt;n&lt;/em&gt; gets larger the gain becomes significant. With 9 scripts, it's 18 vs. 72
+            rule sets, a big difference.) Note the use of "~" rather than "-" for the script separator here; this indicates that
+            the given transliterator is intended to be composed with others, rather than be used as is.</para>
+      <para>Composed transliterators can be instantiated as usual. For example, the system transliterator "Devanagari-Gujarati"
+            is a composed transliterator built internally as "Devanagari~InterIndic;InterIndic~Gujarati". When this
+            transliterator is instantiated, it appears externally to be a standard transliterator (e.g., getID() returns
+            "Devanagari-Gujarati").</para>
+      <para>&lt;b&gt;Rule syntax&lt;/b&gt;</para>
+      <para>A set of rules determines how to perform translations.
+            Rules within a rule set are separated by semicolons (';').
+            To include a literal semicolon, prefix it with a backslash ('\').
+            Unicode Pattern_White_Space is ignored.
+            If the first non-blank character on a line is '#',
+            the entire line is ignored as a comment.</para>
+      <para>Each set of rules consists of two groups, one forward, and one
+            reverse. This is a convention that is not enforced; rules for one
+            direction may be omitted, with the result that translations in
+            that direction will not modify the source text. In addition,
+            bidirectional forward-reverse rules may be specified for
+            symmetrical transformations.</para>
+      <para>Note: Another description of the Transliterator rule syntax is available in
+            <see href="https://www.unicode.org/reports/tr35/tr35-general.html#Transform_Rules_Syntax">section
+            Transform Rules Syntax of UTS #35: Unicode LDML</see>.
+            The rules are shown there using arrow symbols ← and → and ↔.
+            ICU supports both those and the equivalent ASCII symbols &amp;lt; and &amp;gt; and &amp;lt;&amp;gt;.</para>
+      <para>Rule statements take one of the following forms:
+            
+            &lt;dl&gt;
+                &lt;dt&gt;<c>$alefmadda=\\u0622;</c>&lt;/dt&gt;
+                &lt;dd&gt;&lt;strong&gt;Variable definition.&lt;/strong&gt; The name on the
+                    left is assigned the text on the right. In this example,
+                    after this statement, instances of the left hand name,
+                    &amp;quot;<c>$alefmadda</c>&amp;quot;, will be replaced by
+                    the Unicode character U+0622. Variable names must begin
+                    with a letter and consist only of letters, digits, and
+                    underscores. Case is significant. Duplicate names cause
+                    an exception to be thrown, that is, variables cannot be
+                    redefined. The right hand side may contain well-formed
+                    text of any length, including no text at all (&amp;quot;<c>$empty=;</c>&amp;quot;).
+                    The right hand side may contain embedded <c>UnicodeSet</c>
+                    patterns, for example, &amp;quot;<c>$softvowel=[eiyEIY]</c>&amp;quot;.&lt;/dd&gt;
+                &lt;dt&gt;<c>ai&amp;gt;$alefmadda;</c>&lt;/dt&gt;
+                &lt;dd&gt;&lt;strong&gt;Forward translation rule.&lt;/strong&gt; This rule
+                    states that the string on the left will be changed to the
+                    string on the right when performing forward
+                    transliteration.&lt;/dd&gt;
+                &lt;dt&gt;<c>ai&amp;lt;$alefmadda;</c>&lt;/dt&gt;
+                &lt;dd&gt;&lt;strong&gt;Reverse translation rule.&lt;/strong&gt; This rule
+                    states that the string on the right will be changed to
+                    the string on the left when performing reverse
+                    transliteration.&lt;/dd&gt;
+            &lt;/dl&gt;
+            
+            &lt;dl&gt;
+                &lt;dt&gt;<c>ai&amp;lt;&amp;gt;$alefmadda;</c>&lt;/dt&gt;
+                &lt;dd&gt;&lt;strong&gt;Bidirectional translation rule.&lt;/strong&gt; This
+                    rule states that the string on the right will be changed
+                    to the string on the left when performing forward
+                    transliteration, and vice versa when performing reverse
+                    transliteration.&lt;/dd&gt;
+            &lt;/dl&gt;</para>
+      <para>Translation rules consist of a &lt;em&gt;match pattern&lt;/em&gt; and an &lt;em&gt;output
+            string&lt;/em&gt;. The match pattern consists of literal characters,
+            optionally preceded by context, and optionally followed by
+            context. Context characters, like literal pattern characters,
+            must be matched in the text being transliterated. However, unlike
+            literal pattern characters, they are not replaced by the output
+            text. For example, the pattern &amp;quot;<c>abc{def}</c>&amp;quot;
+            indicates the characters &amp;quot;<c>def</c>&amp;quot; must be
+            preceded by &amp;quot;<c>abc</c>&amp;quot; for a successful match.
+            If there is a successful match, &amp;quot;<c>def</c>&amp;quot; will
+            be replaced, but not &amp;quot;<c>abc</c>&amp;quot;. The final '<c>}</c>'
+            is optional, so &amp;quot;<c>abc{def</c>&amp;quot; is equivalent to
+            &amp;quot;<c>abc{def}</c>&amp;quot;. Another example is &amp;quot;<c>{123}456</c>&amp;quot;
+            (or &amp;quot;<c>123}456</c>&amp;quot;) in which the literal
+            pattern &amp;quot;<c>123</c>&amp;quot; must be followed by &amp;quot;<c>456</c>&amp;quot;.</para>
+      <para>The output string of a forward or reverse rule consists of
+            characters to replace the literal pattern characters. If the
+            output string contains the character '<c>|</c>', this is
+            taken to indicate the location of the &lt;em&gt;cursor&lt;/em&gt; after
+            replacement. The cursor is the point in the text at which the
+            next replacement, if any, will be applied. The cursor is usually
+            placed within the replacement text; however, it can actually be
+            placed into the precending or following context by using the
+            special character '</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/icu/text/Transliterator" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -71,9 +293,26 @@
         <ReturnType>Java.Util.IEnumeration</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns an enumeration over the programmatic names of registered
+            <c>Transliterator</c> objects.</summary>
+        <value>An <c>Enumeration</c> over <c>String</c> objects</value>
+        <remarks>
+          <para>Returns an enumeration over the programmatic names of registered
+            <c>Transliterator</c> objects.  This includes both system
+            transliterators and user transliterators registered using
+            <c>registerClass()</c>.  The enumerated names may be
+            passed to <c>getInstance()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getAvailableIDs()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getAvailableIDs()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AvailableSources">
@@ -100,9 +339,25 @@
         <ReturnType>Java.Util.IEnumeration</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns an enumeration over the source names of registered
+            transliterators.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns an enumeration over the source names of registered
+            transliterators.  Source names may be passed to
+            getAvailableTargets() to obtain available targets for each
+            source.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getAvailableSources()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getAvailableSources()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateFromRules">
@@ -141,12 +396,30 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="ID">To be added.</param>
-        <param name="rules">To be added.</param>
-        <param name="dir">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="ID">the id for the transliterator.</param>
+        <param name="rules">rules, separated by ';'</param>
+        <param name="dir">either FORWARD or REVERSE.</param>
+        <summary>Returns a <c>Transliterator</c> object constructed from
+            the given rule string.</summary>
+        <returns>a newly created Transliterator</returns>
+        <remarks>
+          <para>Returns a <c>Transliterator</c> object constructed from
+            the given rule string.  This will be a rule-based Transliterator,
+            if the rule string contains only rules, or a
+            compound Transliterator, if it contains ID blocks, or a
+            null Transliterator, if it contains ID blocks which parse as
+            empty for the given direction.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#createFromRules(java.lang.String,%20java.lang.String,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.createFromRules(java.lang.String, java.lang.String, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Filter">
@@ -181,9 +454,35 @@
         <ReturnType>Android.Icu.Text.UnicodeFilter</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the filter used by this transliterator, or <c>null</c>
+            if this transliterator uses no filter. -or- Changes the filter used by this transliterator.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the filter used by this transliterator, or <c>null</c>
+            if this transliterator uses no filter.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getFilter()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getFilter()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Changes the filter used by this transliterator.  If the filter
+            is set to <c>null</c> then no filtering will occur.</para>
+          <para>Callers must take care if a transliterator is in use by
+            multiple threads.  The filter should not be changed by one
+            thread while another thread may be transliterating.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#setFilter(android.icu.text.UnicodeFilter)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.setFilter(android.icu.text.UnicodeFilter)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FilteredTransliterate">
@@ -285,8 +584,24 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Direction constant indicating the forward direction in a transliterator,
+            e.</summary>
+        <remarks>
+          <para>Direction constant indicating the forward direction in a transliterator,
+            e.g., the forward rules of a rule-based Transliterator.  An "A-B"
+            transliterator transliterates A to B when operating in the forward
+            direction, and B to A when operating in the reverse direction.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#FORWARD" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.FORWARD</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetAvailableTargets">
@@ -317,9 +632,25 @@
       </Parameters>
       <Docs>
         <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Returns an enumeration over the target names of registered
+            transliterators having a given source name.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns an enumeration over the target names of registered
+            transliterators having a given source name.  Target names may
+            be passed to getAvailableVariants() to obtain available
+            variants for each source and target pair.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getAvailableTargets(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getAvailableTargets(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetAvailableVariants">
@@ -352,9 +683,23 @@
       <Docs>
         <param name="source">To be added.</param>
         <param name="target">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Returns an enumeration over the variant names of registered
+            transliterators having a given source name and target name.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns an enumeration over the variant names of registered
+            transliterators having a given source name and target name.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getAvailableVariants(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getAvailableVariants(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetDisplayName">
@@ -385,9 +730,23 @@
       </Parameters>
       <Docs>
         <param name="ID">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Returns a name for this transliterator that is appropriate for
+            display to the user in the default <c>DISPLAY</c> locale.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns a name for this transliterator that is appropriate for
+            display to the user in the default <c>DISPLAY</c> locale.  See <c>#getDisplayName(String,Locale)</c> for details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getDisplayName(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getDisplayName(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetDisplayName">
@@ -419,10 +778,35 @@
       </Parameters>
       <Docs>
         <param name="id">To be added.</param>
-        <param name="inLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="inLocale">the ULocale in which the display name should be
+            localized.</param>
+        <summary>Returns a name for this transliterator that is appropriate for
+            display to the user in the given locale.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns a name for this transliterator that is appropriate for
+            display to the user in the given locale.  This name is taken
+            from the locale resource data in the standard manner of the
+            <c>java.text</c> package.</para>
+          <para>If no localized names exist in the system resource bundles,
+            a name is synthesized using a localized
+            <c>MessageFormat</c> pattern from the resource data.  The
+            arguments to this pattern are an integer followed by one or two
+            strings.  The integer is the number of strings, either 1 or 2.
+            The strings are formed by splitting the ID for this
+            transliterator at the first '-'.  If there is no '-', then the
+            entire ID forms the only string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getDisplayName(java.lang.String,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getDisplayName(java.lang.String, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetDisplayName">
@@ -454,10 +838,35 @@
       </Parameters>
       <Docs>
         <param name="id">To be added.</param>
-        <param name="inLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="inLocale">the Locale in which the display name should be
+            localized.</param>
+        <summary>Returns a name for this transliterator that is appropriate for
+            display to the user in the given locale.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns a name for this transliterator that is appropriate for
+            display to the user in the given locale.  This name is taken
+            from the locale resource data in the standard manner of the
+            <c>java.text</c> package.</para>
+          <para>If no localized names exist in the system resource bundles,
+            a name is synthesized using a localized
+            <c>MessageFormat</c> pattern from the resource data.  The
+            arguments to this pattern are an integer followed by one or two
+            strings.  The integer is the number of strings, either 1 or 2.
+            The strings are formed by splitting the ID for this
+            transliterator at the first '-'.  If there is no '-', then the
+            entire ID forms the only string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getDisplayName(java.lang.String,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getDisplayName(java.lang.String, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetElements">
@@ -482,12 +891,38 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Icu.Text.Transliterator[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Return the elements that make up this transliterator.</summary>
+        <returns>an array of one or more transliterators that make up
+            this transliterator</returns>
+        <remarks>
+          <para>Return the elements that make up this transliterator.  For
+            example, if the transliterator "NFD;Jamo-Latin;Latin-Greek"
+            were created, the return value of this method would be an array
+            of the three transliterator objects that make up that
+            transliterator: [NFD, Jamo-Latin, Latin-Greek].</para>
+          <para>If this transliterator is not composed of other
+            transliterators, then this method will return an array of
+            length one containing a reference to this transliterator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getElements()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getElements()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInstance">
@@ -517,10 +952,23 @@
         <Parameter Name="ID" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="ID">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="ID">a valid ID, as enumerated by <c>getAvailableIDs()</c></param>
+        <summary>Returns a <c>Transliterator</c> object given its ID.</summary>
+        <returns>A <c>Transliterator</c> object with the given ID</returns>
+        <remarks>
+          <para>Returns a <c>Transliterator</c> object given its ID.
+            The ID must be a system transliterator ID.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getInstance(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getInstance(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInstance">
@@ -551,11 +999,25 @@
         <Parameter Name="dir" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ID">To be added.</param>
-        <param name="dir">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="ID">a valid ID, as enumerated by <c>getAvailableIDs()</c></param>
+        <param name="dir">either FORWARD or REVERSE.  If REVERSE then the
+            inverse of the given ID is instantiated.</param>
+        <summary>Returns a <c>Transliterator</c> object given its ID.</summary>
+        <returns>A <c>Transliterator</c> object with the given ID</returns>
+        <remarks>
+          <para>Returns a <c>Transliterator</c> object given its ID.
+            The ID must be a system transliterator ID.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getInstance(java.lang.String,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getInstance(java.lang.String, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ID">
@@ -582,9 +1044,23 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns a programmatic identifier for this transliterator.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns a programmatic identifier for this transliterator.
+            If this identifier is passed to <c>getInstance()</c>, it
+            will return this object, if it has been registered.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getID()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getID()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Inverse">
@@ -611,9 +1087,31 @@
         <ReturnType>Android.Icu.Text.Transliterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns this transliterator's inverse.</summary>
+        <value>a transliterator that is an inverse, not necessarily
+            exact, of this transliterator, or <c>null</c> if no such
+            transliterator is registered.</value>
+        <remarks>
+          <para>Returns this transliterator's inverse.  See the class
+            documentation for details.  This implementation simply inverts
+            the two entities in the ID and attempts to retrieve the
+            resulting transliterator.  That is, if <c>getID()</c>
+            returns "A-B", then this method will return the result of
+            <c>getInstance("B-A")</c>, or <c>null</c> if that
+            call fails.</para>
+          <para>Subclasses with knowledge of their inverse may wish to
+            override this method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getInverse()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getInverse()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -634,6 +1132,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -669,9 +1171,27 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the length of the longest context required by this transliterator.</summary>
+        <value>The maximum number of preceding context characters this
+            transliterator needs to examine</value>
+        <remarks>
+          <para>Returns the length of the longest context required by this transliterator.
+            This is &lt;em&gt;preceding&lt;/em&gt; context.  The default value is zero, but
+            subclasses can change this by calling <c>setMaximumContextLength()</c>.
+            For example, if a transliterator translates "ddd" (where
+            d is any digit) to "555" when preceded by "(ddd)", then the preceding
+            context length is 5, the length of "(ddd)".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getMaximumContextLength()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getMaximumContextLength()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reverse">
@@ -703,8 +1223,24 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Direction constant indicating the reverse direction in a transliterator,
+            e.</summary>
+        <remarks>
+          <para>Direction constant indicating the reverse direction in a transliterator,
+            e.g., the reverse rules of a rule-based Transliterator.  An "A-B"
+            transliterator transliterates A to B when operating in the forward
+            direction, and B to A when operating in the reverse direction.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#REVERSE" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.REVERSE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceSet">
@@ -731,9 +1267,27 @@
         <ReturnType>Android.Icu.Text.UnicodeSet</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the set of all characters that may be modified in the
+            input text by this Transliterator.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the set of all characters that may be modified in the
+            input text by this Transliterator.  This incorporates this
+            object's current filter; if the filter is changed, the return
+            value of this function will change.  The default implementation
+            returns an empty set. The return result is approximate in any case
+            and is intended for use by tests, tools, or utilities.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getSourceSet()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getSourceSet()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetSet">
@@ -760,9 +1314,36 @@
         <ReturnType>Android.Icu.Text.UnicodeSet</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the set of all characters that may be generated as
+            replacement text by this transliterator.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the set of all characters that may be generated as
+            replacement text by this transliterator.  The default
+            implementation returns the empty set.  Some subclasses may
+            override this method to return a more precise result.  The
+            return result is approximate in any case and is intended for
+            use by tests, tools, or utilities requiring such
+            meta-information.</para>
+          <para>Warning. You might expect an empty filter to always produce an empty target.
+            However, consider the following:</para>
+          <code lang="text/java">[Pp]{}[\u03A3\u03C2\u03C3\u03F7\u03F8\u03FA\u03FB] &amp;gt; \';
+            </code>
+          <para>With a filter of [], you still get some elements in the target set, because this rule will still match. It could
+            be recast to the following if it were important.</para>
+          <code lang="text/java">[Pp]{([\u03A3\u03C2\u03C3\u03F7\u03F8\u03FA\u03FB])} &amp;gt; \' | $1;
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#getTargetSet()" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.getTargetSet()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -813,6 +1394,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -850,10 +1435,24 @@
         <Parameter Name="escapeUnprintable" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="escapeUnprintable">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="escapeUnprintable">if true, then unprintable characters
+            will be converted to escape form backslash-'u' or
+            backslash-'U'.</param>
+        <summary>Returns a rule string for this transliterator.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns a rule string for this transliterator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#toRules(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.toRules(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Transliterate">
@@ -883,9 +1482,21 @@
         <Parameter Name="text" Type="Android.Icu.Text.IReplaceable" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="text">the string to be transliterated</param>
+        <summary>Transliterates an entire string in place.</summary>
+        <remarks>
+          <para>Transliterates an entire string in place. Convenience method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#transliterate(android.icu.text.Replaceable)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.transliterate(android.icu.text.Replaceable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Transliterate">
@@ -915,10 +1526,22 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">the string to be transliterated</param>
+        <summary>Transliterate an entire string and returns the result.</summary>
+        <returns>The transliterated text</returns>
+        <remarks>
+          <para>Transliterate an entire string and returns the result. Convenience method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#transliterate(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.transliterate(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Transliterate">
@@ -1056,12 +1679,30 @@
         <Parameter Name="limit" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="limit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">the string to be transliterated</param>
+        <param name="start">the beginning index, inclusive; <c>0 &amp;lt;= start
+            &amp;lt;= limit</c>.</param>
+        <param name="limit">the ending index, exclusive; <c>start &amp;lt;= limit
+            &amp;lt;= text.length()</c>.</param>
+        <summary>Transliterates a segment of a string, with optional filtering.</summary>
+        <returns>The new limit index.  The text previously occupying <c>[start,
+            limit)</c> has been transliterated, possibly to a string of a different
+            length, at <c>[start, </c>&lt;em&gt;new-limit&lt;/em&gt;<c>)</c>, where
+            &lt;em&gt;new-limit&lt;/em&gt; is the return value. If the input offsets are out of bounds,
+            the returned value is -1 and the input string remains unchanged.</returns>
+        <remarks>
+          <para>Transliterates a segment of a string, with optional filtering.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Transliterator#transliterate(android.icu.text.Replaceable,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Transliterator.transliterate(android.icu.text.Replaceable, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

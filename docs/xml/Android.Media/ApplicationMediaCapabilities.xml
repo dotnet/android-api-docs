@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/ApplicationMediaCapabilities", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -38,6 +42,39 @@
     <summary>ApplicationMediaCapabilities is an immutable class that encapsulates an application's capabilities
              for handling newer video codec format and media features.</summary>
     <remarks>
+      <para>ApplicationMediaCapabilities is an immutable class that encapsulates an application's capabilities
+             for handling newer video codec format and media features.</para>
+      <para />
+      <para>Android 12 introduces Compatible media transcoding feature.  See
+             <see href="https://developer.android.com/about/versions/12/features#compatible_media_transcoding">
+             Compatible media transcoding</see>. By default, Android assumes apps can support playback of all
+             media formats. Apps that would like to request that media be transcoded into a more compatible
+             format should declare their media capabilities in a media_capabilities.xml resource file and add it
+             as a property tag in the AndroidManifest.xml file. Here is a example:</para>
+      <code lang="text/java">{@code
+             &lt;media-capabilities xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+                 &lt;format android:name="HEVC" supported="true"/&gt;
+                 &lt;format android:name="HDR10" supported="false"/&gt;
+                 &lt;format android:name="HDR10Plus" supported="false"/&gt;
+             &lt;/media-capabilities&gt;
+             }
+             </code>
+      <para>The ApplicationMediaCapabilities class is generated from this xml and used by the platform to
+             represent an application's media capabilities in order to determine whether modern media files need
+             to be transcoded for that application.
+             &lt;/p&gt;</para>
+      <para>ApplicationMediaCapabilities objects can also be built by applications at runtime for use with
+             <c>ContentResolver#openTypedAssetFileDescriptor(Uri, String, Bundle)</c> to provide more
+             control over the transcoding that is built into the platform. ApplicationMediaCapabilities
+             provided by applications at runtime like this override the default manifest capabilities for that
+             media access.The object could be build either through <c>#createFromXml(XmlPullParser)</c> or
+             through the builder class <c>ApplicationMediaCapabilities.Builder</c>&lt;h3&gt; Video Codec Support&lt;/h3&gt;</para>
+      <para>Newer video codes include HEVC, VP9 and AV1. Application only needs to indicate their support
+             for newer format with this class as they are assumed to support older format like h.264.
+            
+             &lt;h3&gt;Capability of handling HDR(high dynamic range) video&lt;/h3&gt;</para>
+      <para>There are four types of HDR video(Dolby-Vision, HDR10, HDR10+, HLG) supported by the platform,
+             application will only need to specify individual types they supported.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities</code>.</a>
@@ -82,6 +119,19 @@
         <summary>Creates <c>ApplicationMediaCapabilities</c> from an xml.</summary>
         <returns>An ApplicationMediaCapabilities object.</returns>
         <remarks>
+          <para>Creates <c>ApplicationMediaCapabilities</c> from an xml.
+            
+            The xml's syntax is the same as the media_capabilities.xml used by the AndroidManifest.xml.</para>
+          <para>Here is an example:</para>
+          <code lang="text/java">{@code
+            &lt;media-capabilities xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+                &lt;format android:name="HEVC" supported="true"/&gt;
+                &lt;format android:name="HDR10" supported="false"/&gt;
+                &lt;format android:name="HDR10Plus" supported="false"/&gt;
+            &lt;/media-capabilities&gt;
+            }
+            </code>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#createFromXml(org.xmlpull.v1.XmlPullParser)" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.createFromXml(org.xmlpull.v1.XmlPullParser)</code>.</a>
@@ -188,6 +238,8 @@
         <summary>Query if a format is specified by the application.</summary>
         <returns>true if application specifies the format, false otherwise.</returns>
         <remarks>
+          <para>Query if a format is specified by the application.</para>
+          <para>The format could be either the video format or the hdr format.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#isFormatSpecified(java.lang.String)" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.isFormatSpecified(java.lang.String)</code>.</a>
@@ -239,6 +291,9 @@
         <summary>Query if a HDR type is supported by the application.</summary>
         <returns>true if application supports the HDR format, false otherwise.</returns>
         <remarks>
+          <para>Query if a HDR type is supported by the application.</para>
+          <para>If the application has not specified supporting the format or not, this will return false.
+            Use <c>#isFormatSpecified(String)</c> to query if a format is specified or not.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#isHdrTypeSupported(java.lang.String)" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.isHdrTypeSupported(java.lang.String)</code>.</a>
@@ -284,6 +339,9 @@
         <summary>Query if a video codec format is supported by the application.</summary>
         <returns>true if application supports the video codec format, false otherwise.</returns>
         <remarks>
+          <para>Query if a video codec format is supported by the application.</para>
+          <para>If the application has not specified supporting the format or not, this will return false.
+            Use <c>#isFormatSpecified(String)</c> to query if a format is specified or not.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#isVideoMimeTypeSupported(java.lang.String)" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.isVideoMimeTypeSupported(java.lang.String)</code>.</a>
@@ -356,6 +414,7 @@
         <summary>Query all hdr types that are supported by the application.</summary>
         <value>List of supported hdr types. The list will be empty if there are none.</value>
         <remarks>
+          <para>Query all hdr types that are supported by the application.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#getSupportedHdrTypes()" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.getSupportedHdrTypes()</code>.</a>
@@ -396,6 +455,7 @@
         <summary>Query the video codec mime types supported by the application.</summary>
         <value>List of supported video codec mime types. The list will be empty if there are none.</value>
         <remarks>
+          <para>Query the video codec mime types supported by the application.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#getSupportedVideoMimeTypes()" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.getSupportedVideoMimeTypes()</code>.</a>
@@ -494,6 +554,7 @@
         <summary>Query all hdr types that are not supported by the application.</summary>
         <value>List of unsupported hdr types. The list will be empty if there are none.</value>
         <remarks>
+          <para>Query all hdr types that are not supported by the application.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#getUnsupportedHdrTypes()" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.getUnsupportedHdrTypes()</code>.</a>
@@ -534,6 +595,7 @@
         <summary>Query the video codec mime types that are not supported by the application.</summary>
         <value>List of unsupported video codec mime types. The list will be empty if there are none.</value>
         <remarks>
+          <para>Query the video codec mime types that are not supported by the application.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/ApplicationMediaCapabilities#getUnsupportedVideoMimeTypes()" title="Reference documentation">Java documentation for <code>android.media.ApplicationMediaCapabilities.getUnsupportedVideoMimeTypes()</code>.</a>

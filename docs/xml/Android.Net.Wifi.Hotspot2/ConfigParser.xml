@@ -17,19 +17,28 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/hotspot2/ConfigParser", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Utility class for building PasspointConfiguration from an installation file.</summary>
     <remarks>
+      <para>Utility class for building PasspointConfiguration from an installation file.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/hotspot2/ConfigParser" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/hotspot2/ConfigParser" title="Reference documentation">Java documentation for <code>android.net.wifi.hotspot2.ConfigParser</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -92,12 +101,49 @@
         <Parameter Name="data" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="mimeType">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="mimeType">MIME type of the encoded data.</param>
+        <param name="data">A base64 encoded MIME multipart message containing the Passpoint profile
+                        (required), CA (Certificate Authority) certificate (optional), and client
+                        certificate chain (optional).</param>
+        <summary>Parse the Hotspot 2.</summary>
+        <returns>
+          <c>PasspointConfiguration</c>
+        </returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Parse the Hotspot 2.0 Release 1 configuration data into a <c>PasspointConfiguration</c>
+            object.  The configuration data is a base64 encoded MIME multipart data.  Below is
+            the format of the decoded message:
+            
+            Content-Type: multipart/mixed; boundary={boundary}
+            Content-Transfer-Encoding: base64
+            [Skip uninterested headers]
+            
+            --{boundary}
+            Content-Type: application/x-passpoint-profile
+            Content-Transfer-Encoding: base64
+            
+            [base64 encoded Passpoint profile data]
+            --{boundary}
+            Content-Type: application/x-x509-ca-cert
+            Content-Transfer-Encoding: base64
+            
+            [base64 encoded X509 CA certificate data]
+            --{boundary}
+            Content-Type: application/x-pkcs12
+            Content-Transfer-Encoding: base64
+            
+            [base64 encoded PKCS#12 ASN.1 structure containing client certificate chain]
+            --{boundary}</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/hotspot2/ConfigParser#parsePasspointConfig(java.lang.String,%20byte[])" title="Reference documentation">Java documentation for <code>android.net.wifi.hotspot2.ConfigParser.parsePasspointConfig(java.lang.String, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

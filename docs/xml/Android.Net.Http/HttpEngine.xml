@@ -17,13 +17,31 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/http/HttpEngine", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>An engine to process <c>UrlRequest</c>s, which uses the best HTTP stack available on the current
+            platform.</summary>
+    <remarks>
+      <para>An engine to process <c>UrlRequest</c>s, which uses the best HTTP stack available on the current
+            platform. An instance of this class can be created using <c>Builder</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/http/HttpEngine" title="Reference documentation">Java documentation for <code>android.net.http.HttpEngine</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -74,9 +92,24 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="network">the network to bind the engine to. Specify <c>null</c> to unbind.</param>
+        <summary>Binds the engine to the specified network.</summary>
+        <remarks>
+          <para>Binds the engine to the specified network. All requests created through this engine
+            will use the network associated to this handle. If this network disconnects all requests will
+            fail, the exact error will depend on the stage of request processing when the network
+            disconnects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/HttpEngine#bindToNetwork(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.http.HttpEngine.bindToNetwork(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateUrlStreamHandlerFactory">
@@ -104,9 +137,44 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Creates a <c>URLStreamHandlerFactory</c> to handle HTTP and HTTPS
+            traffic.</summary>
+        <returns>an <c>URLStreamHandlerFactory</c> instance implemented by this
+                    <c>HttpEngine</c>.</returns>
+        <remarks>
+          <para>Creates a <c>URLStreamHandlerFactory</c> to handle HTTP and HTTPS
+            traffic. An instance of this class can be installed via
+            <c>URL#setURLStreamHandlerFactory</c> thus using this <c>HttpEngine</c> by default for
+            all requests created via <c>URL#openConnection</c>.</para>
+          <para>This <c>java.net.HttpURLConnection</c> implementation does not implement all features
+            offered by the API:
+            &lt;ul&gt;
+            &lt;li&gt;the HTTP cache installed via
+                <c>HttpResponseCache#install(java.io.File, long) HttpResponseCache.install()</c>&lt;/li&gt;
+            &lt;li&gt;the HTTP authentication method installed via
+                <c>java.net.Authenticator#setDefault</c>&lt;/li&gt;
+            &lt;li&gt;the HTTP cookie storage installed via <c>java.net.CookieHandler#setDefault</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>While we support and encourages requests using the HTTPS protocol, we don't provide support
+            for the <c>HttpsURLConnection</c> API. This lack of support also includes not using certain
+            HTTPS features provided via <c>HttpsURLConnection</c>:
+            &lt;ul&gt;
+            &lt;li&gt;the HTTPS hostname verifier installed via <c>HttpsURLConnection#setDefaultHostnameVerifier(javax.net.ssl.HostnameVerifier)
+                HttpsURLConnection.setDefaultHostnameVerifier()</c>&lt;/li&gt;
+            &lt;li&gt;the HTTPS socket factory installed via <c>HttpsURLConnection#setDefaultSSLSocketFactory(javax.net.ssl.SSLSocketFactory)
+                HttpsURLConnection.setDefaultSSLSocketFactory()</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/HttpEngine#createUrlStreamHandlerFactory()" title="Reference documentation">Java documentation for <code>android.net.http.HttpEngine.createUrlStreamHandlerFactory()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -239,10 +307,25 @@
         <Parameter Name="url" Type="Java.Net.URL" />
       </Parameters>
       <Docs>
-        <param name="url">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="url">URL of resource to connect to.</param>
+        <summary>Establishes a new connection to the resource specified by the <c>URL</c><c>url</c>.</summary>
+        <returns>an <c>java.net.HttpURLConnection</c> instance implemented
+                by this <c>HttpEngine</c>.</returns>
+        <remarks>
+          <para>Establishes a new connection to the resource specified by the <c>URL</c><c>url</c>.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; This <c>java.net.HttpURLConnection</c> implementation is subject to certain
+            limitations, see <c>#createUrlStreamHandlerFactory</c> for details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/HttpEngine#openConnection(java.net.URL)" title="Reference documentation">Java documentation for <code>android.net.http.HttpEngine.openConnection(java.net.URL)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Shutdown">
@@ -270,8 +353,26 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Shuts down the <c>HttpEngine</c> if there are no active requests,
+            otherwise throws an exception.</summary>
+        <remarks>
+          <para>Shuts down the <c>HttpEngine</c> if there are no active requests,
+            otherwise throws an exception.
+            
+            Cannot be called on network thread - the thread the HTTP stack calls into
+            Executor on (which is different from the thread the Executor invokes
+            callbacks on). May block until all the <c>HttpEngine</c> resources have been cleaned up.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/HttpEngine#shutdown()" title="Reference documentation">Java documentation for <code>android.net.http.HttpEngine.shutdown()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -357,8 +458,19 @@
       </ReturnValue>
       <Docs>
         <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>a human-readable version string of the engine.</value>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/HttpEngine#getVersionString()" title="Reference documentation">Java documentation for <code>android.net.http.HttpEngine.getVersionString()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

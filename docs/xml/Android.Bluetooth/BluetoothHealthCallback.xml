@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothHealthCallback", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android29.0", "This class is obsoleted in this android platform")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android29.0", "This class is obsoleted in this android platform")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,9 @@
   <Docs since="14">
     <summary>This abstract class is used to implement <c>BluetoothHealth</c> callbacks.</summary>
     <remarks>
+      <para>This abstract class is used to implement <c>BluetoothHealth</c> callbacks.</para>
+      <para>This member is deprecated. Health Device Profile (HDP) and MCAP protocol are no longer used. New apps should use
+                Bluetooth Low Energy based solutions such as <c>BluetoothGatt</c>, <c>BluetoothAdapter#listenUsingL2capChannel()</c>, or <c>BluetoothDevice#createL2capChannel(int)</c></para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHealthCallback" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHealthCallback</code>.</a>
@@ -158,12 +165,13 @@
       <Docs>
         <param name="config">Bluetooth Health app configuration</param>
         <param name="status">Success or failure of the registration or unregistration calls. Can be one of
-            <c>BluetoothHealth#APP_CONFIG_REGISTRATION_SUCCESS</c> or <c>BluetoothHealth#APP_CONFIG_REGISTRATION_FAILURE</c> or
-            <c>BluetoothHealth#APP_CONFIG_UNREGISTRATION_SUCCESS</c>
-            or <c>BluetoothHealth#APP_CONFIG_UNREGISTRATION_FAILURE</c></param>
-        <summary>Callback to inform change in registration state of the health
-            application.</summary>
+                <c>BluetoothHealth#APP_CONFIG_REGISTRATION_SUCCESS</c> or <c>BluetoothHealth#APP_CONFIG_REGISTRATION_FAILURE</c> or <c>BluetoothHealth#APP_CONFIG_UNREGISTRATION_SUCCESS</c> or <c>BluetoothHealth#APP_CONFIG_UNREGISTRATION_FAILURE</c></param>
+        <summary>Callback to inform change in registration state of the health application.</summary>
         <remarks>
+          <para>Callback to inform change in registration state of the health application.</para>
+          <para>This callback is called on the binder thread (not on the UI thread)</para>
+          <para>This member is deprecated. Health Device Profile (HDP) and MCAP protocol are no longer used. New apps should
+                use Bluetooth Low Energy based solutions such as <c>BluetoothGatt</c>, <c>BluetoothAdapter#listenUsingL2capChannel()</c>, or <c>BluetoothDevice#createL2capChannel(int)</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHealthCallback#onHealthAppConfigurationStatusChange(android.bluetooth.BluetoothHealthAppConfiguration,%20int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHealthCallback.onHealthAppConfigurationStatusChange(android.bluetooth.BluetoothHealthAppConfiguration, int)</code>.</a>
@@ -224,15 +232,20 @@
         <Parameter Name="channelId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="config">The Health app configutation</param>
+        <param name="config">The Health app configuration</param>
         <param name="device">The Bluetooth Device</param>
         <param name="prevState">The previous state of the channel</param>
         <param name="newState">The new state of the channel.</param>
         <param name="fd">The Parcel File Descriptor when the channel state is connected.</param>
         <param name="channelId">The id associated with the channel. This id will be used in future calls
-            like when disconnecting the channel.</param>
+                like when disconnecting the channel.</param>
         <summary>Callback to inform change in channel state.</summary>
         <remarks>
+          <para>Callback to inform change in channel state.</para>
+          <para>It's the responsibility of the implementer of this callback to close the parcel file
+            descriptor when done. This callback is called on the Binder thread (not the UI thread)</para>
+          <para>This member is deprecated. Health Device Profile (HDP) and MCAP protocol are no longer used. New apps should
+                use Bluetooth Low Energy based solutions such as <c>BluetoothGatt</c>, <c>BluetoothAdapter#listenUsingL2capChannel()</c>, or <c>BluetoothDevice#createL2capChannel(int)</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHealthCallback#onHealthChannelStateChange(android.bluetooth.BluetoothHealthAppConfiguration,%20android.bluetooth.BluetoothDevice,%20int,%20int,%20android.os.ParcelFileDescriptor,%20int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHealthCallback.onHealthChannelStateChange(android.bluetooth.BluetoothHealthAppConfiguration, android.bluetooth.BluetoothDevice, int, int, android.os.ParcelFileDescriptor, int)</code>.</a>

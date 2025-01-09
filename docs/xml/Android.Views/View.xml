@@ -35,6 +35,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/view/View", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/view/View", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>This class represents the basic building block for user interface components.</summary>
@@ -993,6 +997,8 @@
           <para>Users of some accessibility services can choose to navigate between headings
             instead of between paragraphs, words, etc. Apps that provide headings on
             sections of text can help the text navigation experience.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; Use <c>androidx.core.view.ViewCompat#setAccessibilityHeading(View, boolean)</c>
+            for backwards-compatibility. &lt;/aside&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#setAccessibilityHeading(boolean)" title="Reference documentation">Java documentation for <code>android.view.View.setAccessibilityHeading(boolean)</code>.</a>
@@ -1048,16 +1054,52 @@
             services whether they should automatically notify the user about changes
             to the view's content description or text, or to the content descriptions
             or text of the view's children (where applicable).</para>
-          <para>For example, in a login screen with a TextView that displays an "incorrect
-            password" notification, that view should be marked as a live region with
-            mode <c>#ACCESSIBILITY_LIVE_REGION_POLITE</c>.</para>
-          <para>To disable change notifications for this view, use
-            <c>#ACCESSIBILITY_LIVE_REGION_NONE</c>. This is the default live region
-            mode for most views.</para>
-          <para>To indicate that the user should be notified of changes, use
-            <c>#ACCESSIBILITY_LIVE_REGION_POLITE</c>.</para>
-          <para>If the view's changes should interrupt ongoing speech and notify the user
-            immediately, use <c>#ACCESSIBILITY_LIVE_REGION_ASSERTIVE</c>.</para>
+          <para>Different priority levels are available:
+            &lt;ul&gt;
+              &lt;li&gt;
+                  <c>#ACCESSIBILITY_LIVE_REGION_POLITE</c>:
+                  Indicates that updates to the region should be presented to the user. Suitable in most
+                  cases for prominent updates within app content that don't require the user's immediate
+                  attention.
+              &lt;/li&gt;
+              &lt;li&gt;
+                  <c>#ACCESSIBILITY_LIVE_REGION_ASSERTIVE</c>: Indicates that updates to the region have
+                  the highest priority and should be presented to the user immediately. This may result
+                  in disruptive notifications from an accessibility service, which may potentially
+                  interrupt other feedback or user actions, so it should generally be used only for
+                  critical, time-sensitive information.
+              &lt;/li&gt;
+              &lt;li&gt;
+                  <c>#ACCESSIBILITY_LIVE_REGION_NONE</c>: Disables change announcements (the default for
+                  most views).
+              &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>Examples:
+            &lt;ul&gt;
+                &lt;li&gt;
+                    Selecting an option in a dropdown menu updates a panel below with the updated
+                    content. This panel may be marked as a live region with
+                    <c>#ACCESSIBILITY_LIVE_REGION_POLITE</c> to notify users of the change. A screen
+                    reader may queue changes as announcements that don't disrupt ongoing speech.
+                 &lt;/li&gt;
+                 &lt;li&gt;
+                     An emergency alert may be marked with <c>#ACCESSIBILITY_LIVE_REGION_ASSERTIVE</c>
+                     to immediately inform users of the emergency.
+                 &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>For error notifications, like an "incorrect password" warning in a login screen, views
+            should send a <c>AccessibilityEvent#TYPE_WINDOW_CONTENT_CHANGED</c><c>AccessibilityEvent</c> with a content change type
+            <c>AccessibilityEvent#CONTENT_CHANGE_TYPE_ERROR</c> and set
+            <c>AccessibilityNodeInfo#setError(CharSequence)</c>. Custom widgets should provide
+            error-setting methods that support accessibility. For example, use
+            <c>android.widget.TextView#setError(CharSequence)</c> instead of explicitly sending events.</para>
+          <para>Don't use live regions for frequently-updating UI elements (e.g., progress bars), as this can
+            overwhelm the user with feedback from accessibility services. If necessary, use
+            <c>AccessibilityNodeInfo#setMinDurationBetweenContentChanges(Duration)</c> to throttle
+            feedback and reduce disruptions.</para>
+          <para>&lt;aside&gt;&lt;b&gt;Note:&lt;/b&gt; Use
+            <c>androidx.core.view.ViewCompat#setAccessibilityLiveRegion(View, int)</c>
+            for backwards-compatibility. &lt;/aside&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#setAccessibilityLiveRegion(int)" title="Reference documentation">Java documentation for <code>android.view.View.setAccessibilityLiveRegion(int)</code>.</a>
@@ -1098,11 +1140,12 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>Live region mode specifying that accessibility services should interrupt
-            ongoing speech to immediately announce changes to this view.</summary>
+        <summary>Live region mode specifying that accessibility services should immediately notify users of
+            changes to this view.</summary>
         <remarks>
-          <para>Live region mode specifying that accessibility services should interrupt
-            ongoing speech to immediately announce changes to this view.</para>
+          <para>Live region mode specifying that accessibility services should immediately notify users of
+            changes to this view. For example, a screen reader may interrupt ongoing speech to
+            immediately announce these changes.</para>
           <para>Use with <c>#setAccessibilityLiveRegion(int)</c>.</para>
           <para>
             <format type="text/html">
@@ -1187,11 +1230,11 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Live region mode specifying that accessibility services should announce
-            changes to this view.</summary>
+        <summary>Live region mode specifying that accessibility services should notify users of changes to
+            this view.</summary>
         <remarks>
-          <para>Live region mode specifying that accessibility services should announce
-            changes to this view.</para>
+          <para>Live region mode specifying that accessibility services should notify users of changes to
+            this view.</para>
           <para>Use with <c>#setAccessibilityLiveRegion(int)</c>.</para>
           <para>
             <format type="text/html">
@@ -1340,9 +1383,15 @@
             <c>AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED</c>s when they appear, disappear, or change
             title.</para>
           <para>When transitioning from one Activity to another, instead of using
-            setAccessibilityPaneTitle(), set a descriptive title for its window by using android:label
-            for the matching &lt;activity&gt; entry in your application’s manifest or updating the title at
-            runtime with<c>android.app.Activity#setTitle(CharSequence)</c>.</para>
+            <c>setAccessibilityPaneTitle()</c>, set a descriptive title for its window by using
+            <c>android:label</c>
+            for the matching Activity entry in your application's manifest or updating the title at
+            runtime with <c>android.app.Activity#setTitle(CharSequence)</c>.</para>
+          <para>&lt;aside&gt;
+            &lt;b&gt;Note:&lt;/b&gt; Use
+            <c>androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)</c>
+            for backwards-compatibility.
+            &lt;/aside&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#setAccessibilityPaneTitle(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.view.View.setAccessibilityPaneTitle(java.lang.CharSequence)</code>.</a>
@@ -1388,8 +1437,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="afterId">The id of a view this one succedees in accessibility traversal.</param>
-        <summary>Gets the id of a view after which this one is visited in accessibility traversal. -or- Sets the id of a view after which this one is visited in accessibility traversal.</summary>
+        <param name="afterId">The id of a view this one succeeds in accessibility traversal.</param>
+        <summary>Gets the id of a view after which this one is visited in accessibility traversal. -or- Sets the id of a view that screen readers are requested to visit before this view.</summary>
         <value>The id of a view this one succeedes in accessibility traversal if
                     specified, otherwise <c>#NO_ID</c>.</value>
         <remarks>
@@ -1401,16 +1450,19 @@
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para>Sets the id of a view after which this one is visited in accessibility traversal.
-            A screen-reader must visit the content of the other view before the content of this
-            one. For example, if view B is set to be after view A, then a screen-reader
-            will traverse the entire content of A before traversing the entire content of B,
-            regardles of what traversal strategy it is using.</para>
-          <para>Views that do not have specified before/after relationships are traversed in order
-            determined by the screen-reader.</para>
-          <para>Setting that this view is after a view that is not important for accessibility
-            or if this view is not important for accessibility will have no effect as the
-            screen-reader is not aware of unimportant views.</para>
+          <para>Sets the id of a view that screen readers are requested to visit before this view.</para>
+          <para>For example, if view B should be visited after A, with B.setAccessibilityTraversalAfter(A),
+            then this requests that screen readers visit and traverse view A before visiting view B.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; Views are visited in the order determined by the screen reader. Avoid
+            explicitly manipulating focus order, as this may result in inconsistent user
+            experiences between apps. Instead, use other semantics, such as restructuring the view
+            hierarchy layout, to communicate order.</para>
+          <para>Setting this view to be after a view that is not important for accessibility,
+            or if this view is not important for accessibility, means this method will have no effect if
+            the service is not aware of unimportant views.</para>
+          <para>To avoid a risk of loops, set clear relationships between views. For example, if focus order
+            should be B -&gt; A, and B.setAccessibilityTraversalBefore(A), then also call
+            A.setAccessibilityTraversalAfter(B).</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#setAccessibilityTraversalAfter(int)" title="Reference documentation">Java documentation for <code>android.view.View.setAccessibilityTraversalAfter(int)</code>.</a>
@@ -1457,7 +1509,7 @@
       </ReturnValue>
       <Docs>
         <param name="beforeId">The id of a view this one precedes in accessibility traversal.</param>
-        <summary>Gets the id of a view before which this one is visited in accessibility traversal. -or- Sets the id of a view before which this one is visited in accessibility traversal.</summary>
+        <summary>Gets the id of a view before which this one is visited in accessibility traversal. -or- Sets the id of a view that screen readers are requested to visit after this view.</summary>
         <value>The id of a view this one precedes in accessibility traversal if
                     specified, otherwise <c>#NO_ID</c>.</value>
         <remarks>
@@ -1469,16 +1521,20 @@
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para>Sets the id of a view before which this one is visited in accessibility traversal.
-            A screen-reader must visit the content of this view before the content of the one
-            it precedes. For example, if view B is set to be before view A, then a screen-reader
-            will traverse the entire content of B before traversing the entire content of A,
-            regardles of what traversal strategy it is using.</para>
-          <para>Views that do not have specified before/after relationships are traversed in order
-            determined by the screen-reader.</para>
-          <para>Setting that this view is before a view that is not important for accessibility
-            or if this view is not important for accessibility will have no effect as the
-            screen-reader is not aware of unimportant views.</para>
+          <para>Sets the id of a view that screen readers are requested to visit after this view.</para>
+          <para>For example, if view B should be visited before view A, with
+            B.setAccessibilityTraversalBefore(A), this requests that screen readers visit and traverse
+            view B before visiting view A.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; Views are visited in the order determined by the screen reader. Avoid
+            explicitly manipulating focus order, as this may result in inconsistent user
+            experiences between apps. Instead, use other semantics, such as restructuring the view
+            hierarchy layout, to communicate order.</para>
+          <para>Setting this view to be after a view that is not important for accessibility,
+            or if this view is not important for accessibility, means this method will have no effect if
+            the service is not aware of unimportant views.</para>
+          <para>To avoid a risk of loops, set clear relationships between views. For example, if focus order
+            should be B -&gt; A, and B.setAccessibilityTraversalBefore(A), then also call
+            A.setAccessibilityTraversalAfter(B).</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#setAccessibilityTraversalBefore(int)" title="Reference documentation">Java documentation for <code>android.view.View.setAccessibilityTraversalBefore(int)</code>.</a>
@@ -1571,7 +1627,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="outChildren" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;" />
+        <Parameter Name="outChildren" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="outChildren">The output list that will receive children for accessibility.</param>
@@ -1621,7 +1684,14 @@
       <Parameters>
         <Parameter Name="info" Type="Android.Views.Accessibility.AccessibilityNodeInfo" />
         <Parameter Name="extraDataKey" Type="System.String" />
-        <Parameter Name="arguments" Type="Android.OS.Bundle" />
+        <Parameter Name="arguments" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="info">The info to which to add the extra data. Never <c>null</c>.</param>
@@ -1670,7 +1740,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="views" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;" />
+        <Parameter Name="views" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="direction" Type="Android.Views.FocusSearchDirection">
           <Attributes>
             <Attribute>
@@ -1722,7 +1799,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="views" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;" />
+        <Parameter Name="views" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="direction" Type="Android.Views.FocusSearchDirection">
           <Attributes>
             <Attribute>
@@ -1967,7 +2051,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="views" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;" />
+        <Parameter Name="views" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="views">Touchable views found so far</param>
@@ -2120,11 +2211,10 @@
           </para>
           <para>Property setter documentation:</para>
           <para>Sets the opacity of the view to a value from 0 to 1, where 0 means the view is
-            completely transparent and 1 means the view is completely opaque.
-            
-            &lt;p class="note"&gt;&lt;strong&gt;Note:&lt;/strong&gt; setting alpha to a translucent value (0 &lt; alpha &lt; 1)
+            completely transparent and 1 means the view is completely opaque.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; setting alpha to a translucent value (0 &lt; alpha &lt; 1)
             can have significant performance implications, especially for large views. It is best to use
-            the alpha property sparingly and transiently, as in the case of fading animations.&lt;/p&gt;</para>
+            the alpha property sparingly and transiently, as in the case of fading animations.</para>
           <para>For a view with a frequently changing alpha, such as during a fading animation, it is
             strongly recommended for performance reasons to either override
             <c>#hasOverlappingRendering()</c> to return <c>false</c> if appropriate, or setting a
@@ -2361,14 +2451,25 @@
             in exceptional situations. Apps can generally achieve correct behavior for accessibility by
             accurately supplying the semantics of their UI.
             They should not need to specify what exactly is announced to users.</para>
-          <para>In general, only announce transitions and don’t generate a confirmation message for simple
+          <para>In general, only announce transitions and don't generate a confirmation message for simple
             actions like a button press. Label your controls concisely and precisely instead, and for
             significant UI changes like window changes, use
             <c>android.app.Activity#setTitle(CharSequence)</c> and
-            <c>View#setAccessibilityPaneTitle(CharSequence)</c>.</para>
-          <para>Use <c>View#setAccessibilityLiveRegion(int)</c> to inform the user of changes to critical
+            <c>#setAccessibilityPaneTitle(CharSequence)</c>.</para>
+          <para>Use <c>#setAccessibilityLiveRegion(int)</c> to inform the user of changes to critical
             views within the user interface. These should still be used sparingly as they may generate
             announcements every time a View is updated.</para>
+          <para>For notifying users about errors, such as in a login screen with text that displays an
+            "incorrect password" notification, that view should send an AccessibilityEvent of type
+            <c>AccessibilityEvent#CONTENT_CHANGE_TYPE_ERROR</c> and set
+            <c>AccessibilityNodeInfo#setError(CharSequence)</c> instead. Custom widgets should expose
+            error-setting methods that support accessibility automatically. For example, instead of
+            explicitly sending this event when using a TextView, use
+            <c>android.widget.TextView#setError(CharSequence)</c>.</para>
+          <para>Use <c>#setStateDescription(CharSequence)</c> to convey state changes to views within the
+            user interface. While a live region may send different types of events generated by the view,
+            state description will send <c>AccessibilityEvent#TYPE_WINDOW_CONTENT_CHANGED</c> events of
+            type <c>AccessibilityEvent#CONTENT_CHANGE_TYPE_STATE_DESCRIPTION</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#announceForAccessibility(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.view.View.announceForAccessibility(java.lang.CharSequence)</code>.</a>
@@ -2410,14 +2511,25 @@
             in exceptional situations. Apps can generally achieve correct behavior for accessibility by
             accurately supplying the semantics of their UI.
             They should not need to specify what exactly is announced to users.</para>
-          <para>In general, only announce transitions and don’t generate a confirmation message for simple
+          <para>In general, only announce transitions and don't generate a confirmation message for simple
             actions like a button press. Label your controls concisely and precisely instead, and for
             significant UI changes like window changes, use
             <c>android.app.Activity#setTitle(CharSequence)</c> and
-            <c>View#setAccessibilityPaneTitle(CharSequence)</c>.</para>
-          <para>Use <c>View#setAccessibilityLiveRegion(int)</c> to inform the user of changes to critical
+            <c>#setAccessibilityPaneTitle(CharSequence)</c>.</para>
+          <para>Use <c>#setAccessibilityLiveRegion(int)</c> to inform the user of changes to critical
             views within the user interface. These should still be used sparingly as they may generate
             announcements every time a View is updated.</para>
+          <para>For notifying users about errors, such as in a login screen with text that displays an
+            "incorrect password" notification, that view should send an AccessibilityEvent of type
+            <c>AccessibilityEvent#CONTENT_CHANGE_TYPE_ERROR</c> and set
+            <c>AccessibilityNodeInfo#setError(CharSequence)</c> instead. Custom widgets should expose
+            error-setting methods that support accessibility automatically. For example, instead of
+            explicitly sending this event when using a TextView, use
+            <c>android.widget.TextView#setError(CharSequence)</c>.</para>
+          <para>Use <c>#setStateDescription(CharSequence)</c> to convey state changes to views within the
+            user interface. While a live region may send different types of events generated by the view,
+            state description will send <c>AccessibilityEvent#TYPE_WINDOW_CONTENT_CHANGED</c> events of
+            type <c>AccessibilityEvent#CONTENT_CHANGE_TYPE_STATE_DESCRIPTION</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#announceForAccessibility(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.view.View.announceForAccessibility(java.lang.CharSequence)</code>.</a>
@@ -2507,6 +2619,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
@@ -2746,6 +2862,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -2811,6 +2931,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -2853,6 +2977,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -2913,6 +3041,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -2955,6 +3087,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_NUMBER", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_NUMBER", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -3001,6 +3137,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -3043,6 +3183,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("AUTOFILL_HINT_EMAIL_ADDRESS", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_EMAIL_ADDRESS", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -3089,6 +3233,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_NAME", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -3131,6 +3279,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("AUTOFILL_HINT_PASSWORD", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_PASSWORD", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -3177,6 +3329,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_PHONE", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -3219,6 +3375,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("AUTOFILL_HINT_POSTAL_ADDRESS", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_POSTAL_ADDRESS", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -3265,6 +3425,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_POSTAL_CODE", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -3307,6 +3471,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("AUTOFILL_HINT_USERNAME", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTOFILL_HINT_USERNAME", ApiSince=26)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -3809,7 +3977,7 @@
         <remarks>
           <para>Property getter documentation:</para>
           <para>Return whether the View allows automatic handwriting initiation. Returns true if automatic
-            handwriting initiation is enabled, and verse visa.</para>
+            handwriting initiation is enabled, and vice versa.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#isAutoHandwritingEnabled()" title="Reference documentation">Java documentation for <code>android.view.View.isAutoHandwritingEnabled()</code>.</a>
@@ -5080,6 +5248,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -5225,6 +5397,51 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="ClearPendingCredentialRequest">
+      <MemberSignature Language="C#" Value="public virtual void ClearPendingCredentialRequest ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ClearPendingCredentialRequest() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.View.ClearPendingCredentialRequest" />
+      <MemberSignature Language="F#" Value="abstract member ClearPendingCredentialRequest : unit -&gt; unit&#xA;override this.ClearPendingCredentialRequest : unit -&gt; unit" Usage="view.ClearPendingCredentialRequest " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("clearPendingCredentialRequest", "()V", "GetClearPendingCredentialRequestHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clearPendingCredentialRequest", "()V", "GetClearPendingCredentialRequestHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Clears the request and callback previously set
+            through <c>View#setPendingCredentialRequest</c>.</summary>
+        <remarks>
+          <para>Clears the request and callback previously set
+            through <c>View#setPendingCredentialRequest</c>.
+            Once this API is invoked, there will be no request fired to <c>CredentialManager</c>
+            on future view focus events.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#clearPendingCredentialRequest()" title="Reference documentation">Java documentation for <code>android.view.View.clearPendingCredentialRequest()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ClearViewTranslationCallback">
       <MemberSignature Language="C#" Value="public virtual void ClearViewTranslationCallback ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ClearViewTranslationCallback() cil managed" />
@@ -5276,6 +5493,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler</ReturnType>
       </ReturnValue>
@@ -6043,6 +6266,210 @@
         <since version="Added in API level 4" />
       </Docs>
     </Member>
+    <Member MemberName="ContentSensitivity">
+      <MemberSignature Language="C#" Value="public Android.Views.ViewContentSensitivity ContentSensitivity { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.Views.ViewContentSensitivity ContentSensitivity" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.View.ContentSensitivity" />
+      <MemberSignature Language="F#" Value="member this.ContentSensitivity : Android.Views.ViewContentSensitivity with get, set" Usage="Android.Views.View.ContentSensitivity" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getContentSensitivity", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getContentSensitivity", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setContentSensitivity", "(I)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setContentSensitivity", "(I)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.ViewContentSensitivity</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="mode">
+          <c>#CONTENT_SENSITIVITY_AUTO</c>, <c>#CONTENT_SENSITIVITY_NOT_SENSITIVE</c>
+                                                       or <c>#CONTENT_SENSITIVITY_SENSITIVE</c></param>
+        <summary>Gets content sensitivity mode to determine whether this view displays sensitive content. -or- Sets content sensitivity mode to determine whether this view displays sensitive content
+            (e.</summary>
+        <value>
+          <c>#CONTENT_SENSITIVITY_AUTO</c> by default, or value passed to
+            <c>#setContentSensitivity(int)</c>.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Gets content sensitivity mode to determine whether this view displays sensitive content.</para>
+          <para>See <c>#setContentSensitivity(int)</c> and
+            <c>#isContentSensitive()</c> for more info about this mode.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#getContentSensitivity()" title="Reference documentation">Java documentation for <code>android.view.View.getContentSensitivity()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets content sensitivity mode to determine whether this view displays sensitive content
+            (e.g. username, password etc.). The system may improve user privacy i.e. hide content
+            drawn by a sensitive view from screen sharing and recording.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#setContentSensitivity(int)" title="Reference documentation">Java documentation for <code>android.view.View.setContentSensitivity(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentSensitivityAuto">
+      <MemberSignature Language="C#" Value="public const Android.Views.ViewContentSensitivity ContentSensitivityAuto = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.ViewContentSensitivity ContentSensitivityAuto = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.ContentSensitivityAuto" />
+      <MemberSignature Language="F#" Value="val mutable ContentSensitivityAuto : Android.Views.ViewContentSensitivity" Usage="Android.Views.View.ContentSensitivityAuto" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CONTENT_SENSITIVITY_AUTO", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTENT_SENSITIVITY_AUTO", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.ViewContentSensitivity enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.ViewContentSensitivity enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.ViewContentSensitivity</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Automatically determine whether a view displays sensitive content.</summary>
+        <remarks>
+          <para>Automatically determine whether a view displays sensitive content. For example, available
+            autofill hints (or some other signal) can be used to determine if this view
+            displays sensitive content.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#CONTENT_SENSITIVITY_AUTO" title="Reference documentation">Java documentation for <code>android.view.View.CONTENT_SENSITIVITY_AUTO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentSensitivityNotSensitive">
+      <MemberSignature Language="C#" Value="public const Android.Views.ViewContentSensitivity ContentSensitivityNotSensitive = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.ViewContentSensitivity ContentSensitivityNotSensitive = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.ContentSensitivityNotSensitive" />
+      <MemberSignature Language="F#" Value="val mutable ContentSensitivityNotSensitive : Android.Views.ViewContentSensitivity" Usage="Android.Views.View.ContentSensitivityNotSensitive" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CONTENT_SENSITIVITY_NOT_SENSITIVE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTENT_SENSITIVITY_NOT_SENSITIVE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.ViewContentSensitivity enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.ViewContentSensitivity enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.ViewContentSensitivity</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>The view doesn't display sensitive content.</summary>
+        <remarks>
+          <para>The view doesn't display sensitive content.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#CONTENT_SENSITIVITY_NOT_SENSITIVE" title="Reference documentation">Java documentation for <code>android.view.View.CONTENT_SENSITIVITY_NOT_SENSITIVE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ContentSensitivitySensitive">
+      <MemberSignature Language="C#" Value="public const Android.Views.ViewContentSensitivity ContentSensitivitySensitive = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.ViewContentSensitivity ContentSensitivitySensitive = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.ContentSensitivitySensitive" />
+      <MemberSignature Language="F#" Value="val mutable ContentSensitivitySensitive : Android.Views.ViewContentSensitivity" Usage="Android.Views.View.ContentSensitivitySensitive" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CONTENT_SENSITIVITY_SENSITIVE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTENT_SENSITIVITY_SENSITIVE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.ViewContentSensitivity enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.ViewContentSensitivity enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.ViewContentSensitivity</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The view displays sensitive content.</summary>
+        <remarks>
+          <para>The view displays sensitive content.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#CONTENT_SENSITIVITY_SENSITIVE" title="Reference documentation">Java documentation for <code>android.view.View.CONTENT_SENSITIVITY_SENSITIVE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Context">
       <MemberSignature Language="C#" Value="public Android.Content.Context? Context { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Android.Content.Context Context" />
@@ -6094,6 +6521,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
@@ -6177,6 +6608,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+CreateContextMenuEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -7575,19 +8012,43 @@
       <Docs>
         <param name="e">The event.</param>
         <param name="event">The event.</param>
-        <summary>Dispatches an <c>AccessibilityEvent</c> to the <c>View</c> first and then
-            to its children for adding their text content to the event.</summary>
+        <summary>Dispatches an <c>AccessibilityEvent</c> to the <c>View</c> to add the text content of the
+            view and its children.</summary>
         <returns>True if the event population was completed.</returns>
         <remarks>
-          <para>Dispatches an <c>AccessibilityEvent</c> to the <c>View</c> first and then
-            to its children for adding their text content to the event. Note that the
-            event text is populated in a separate dispatch path since we add to the
-            event not only the text of the source but also the text of all its descendants.
-            A typical implementation will call
-            <c>#onPopulateAccessibilityEvent(AccessibilityEvent)</c> on the this view
+          <para>Dispatches an <c>AccessibilityEvent</c> to the <c>View</c> to add the text content of the
+            view and its children.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; This method should only be used with event.setText().
+            Avoid mutating other event state in this method. In general, put UI metadata in the node for
+            services to easily query.
+            &lt;ul&gt;
+                &lt;li&gt; If you are modifying other event properties, you may be eliminating semantics
+                accessibility services may want. Instead, send a separate event using
+                <c>#sendAccessibilityEvent(int)</c> and override
+                <c>#onInitializeAccessibilityEvent(AccessibilityEvent)</c>.
+                &lt;/li&gt;
+                &lt;li&gt;If you are checking for type <c>AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED</c>
+                to generate window/title announcements, you may be causing disruptive announcements
+                (or making no announcements at all). Instead, follow the practices described in
+                <c>View#announceForAccessibility(CharSequence)</c>. &lt;b&gt;Note:&lt;/b&gt; this does not suggest
+                calling announceForAccessibility(), but using the suggestions listed in its
+                documentation.
+                &lt;/li&gt;
+                &lt;li&gt;If you are making changes based on the state of accessibility, such as checking for
+                an event type to trigger a UI update, while well-intentioned, you are creating brittle,
+                less well-maintained code that works for some users but not others. Instead, leverage
+                existing code for equitable experiences and less technical debt. See
+                <c>AccessibilityManager#isEnabled()</c> for an example.
+                &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>Note that the event text is populated in a separate dispatch path
+            (<c>#onPopulateAccessibilityEvent(AccessibilityEvent)</c>) since we add to the
+            event not only the text of the source but also the text of all its descendants.</para>
+          <para>A typical implementation will call
+            <c>#onPopulateAccessibilityEvent(AccessibilityEvent)</c> on this view
             and then call the <c>#dispatchPopulateAccessibilityEvent(AccessibilityEvent)</c>
-            on each child. Override this method if custom population of the event text
-            content is required.</para>
+            on each child or the first child that is visible. Override this method if custom population
+            of the event text content is required.</para>
           <para>If an <c>AccessibilityDelegate</c> has been specified via calling
             <c>#setAccessibilityDelegate(AccessibilityDelegate)</c> its
             <c>AccessibilityDelegate#dispatchPopulateAccessibilityEvent(View, AccessibilityEvent)</c>
@@ -8717,6 +9178,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+DragEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -8924,6 +9391,59 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="DragFlagGlobalSameApplication">
+      <MemberSignature Language="C#" Value="public const Android.Views.DragFlags DragFlagGlobalSameApplication = 4096;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.DragFlags DragFlagGlobalSameApplication = (4096)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.DragFlagGlobalSameApplication" />
+      <MemberSignature Language="F#" Value="val mutable DragFlagGlobalSameApplication : Android.Views.DragFlags" Usage="Android.Views.View.DragFlagGlobalSameApplication" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DRAG_FLAG_GLOBAL_SAME_APPLICATION", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DRAG_FLAG_GLOBAL_SAME_APPLICATION", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.DragFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.DragFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.DragFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>4096</MemberValue>
+      <Docs>
+        <summary>Flag indicating that a drag can cross window boundaries (within the same application).</summary>
+        <remarks>
+          <para>Flag indicating that a drag can cross window boundaries (within the same application).  When
+            <c>#startDragAndDrop(ClipData, DragShadowBuilder, Object, int)</c> is called
+            with this flag set, only visible windows belonging to the same application (ie. share the
+            same UID) with targetSdkVersion &gt;= <c>android.os.Build.VERSION_CODES#N API 24</c> will be
+            able to participate in the drag operation and receive the dragged content.
+            
+            If both DRAG_FLAG_GLOBAL_SAME_APPLICATION and DRAG_FLAG_GLOBAL are set, then
+            DRAG_FLAG_GLOBAL_SAME_APPLICATION takes precedence and the drag will only go to visible
+            windows from the same application.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#DRAG_FLAG_GLOBAL_SAME_APPLICATION" title="Reference documentation">Java documentation for <code>android.view.View.DRAG_FLAG_GLOBAL_SAME_APPLICATION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="DragFlagGlobalUriRead">
       <MemberSignature Language="C#" Value="public const Android.Views.DragFlags DragFlagGlobalUriRead = 1;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.DragFlags DragFlagGlobalUriRead = (1)" />
@@ -9055,6 +9575,60 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#DRAG_FLAG_OPAQUE" title="Reference documentation">Java documentation for <code>android.view.View.DRAG_FLAG_OPAQUE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DragFlagStartIntentSenderOnUnhandledDrag">
+      <MemberSignature Language="C#" Value="public const Android.Views.DragFlags DragFlagStartIntentSenderOnUnhandledDrag = 8192;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.DragFlags DragFlagStartIntentSenderOnUnhandledDrag = (8192)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.DragFlagStartIntentSenderOnUnhandledDrag" />
+      <MemberSignature Language="F#" Value="val mutable DragFlagStartIntentSenderOnUnhandledDrag : Android.Views.DragFlags" Usage="Android.Views.View.DragFlagStartIntentSenderOnUnhandledDrag" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DRAG_FLAG_START_INTENT_SENDER_ON_UNHANDLED_DRAG", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DRAG_FLAG_START_INTENT_SENDER_ON_UNHANDLED_DRAG", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.DragFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.DragFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.DragFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>8192</MemberValue>
+      <Docs>
+        <summary>Flag indicating that an unhandled drag should be delegated to the system to be started if no
+            visible window wishes to handle the drop.</summary>
+        <remarks>
+          <para>Flag indicating that an unhandled drag should be delegated to the system to be started if no
+            visible window wishes to handle the drop. When using this flag, the caller must provide
+            ClipData with an Item that contains an immutable IntentSender to an activity to be launched
+            (not a broadcast, service, etc).  See
+            <c>ClipData.Item.Builder#setIntentSender(IntentSender)</c>.
+            
+            The system can decide to launch the intent or not based on factors like the current screen
+            size or windowing mode. If the system does not launch the intent, it will be canceled via the
+            normal drag and drop flow.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#DRAG_FLAG_START_INTENT_SENDER_ON_UNHANDLED_DRAG" title="Reference documentation">Java documentation for <code>android.view.View.DRAG_FLAG_START_INTENT_SENDER_ON_UNHANDLED_DRAG</code>.</a>
             </format>
           </para>
           <para>
@@ -10356,12 +10930,24 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>T</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <TypeParameters>
         <TypeParameter Name="T">
           <Constraints>
             <BaseTypeName>Android.Views.View</BaseTypeName>
           </Constraints>
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
         </TypeParameter>
       </TypeParameters>
       <Parameters>
@@ -10439,7 +11025,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="outViews" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;" />
+        <Parameter Name="outViews" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="searched" Type="Java.Lang.ICharSequence" />
         <Parameter Name="flags" Type="Android.Views.FindViewsWith">
           <Attributes>
@@ -10489,7 +11082,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="outViews" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;" />
+        <Parameter Name="outViews" Type="System.Collections.Generic.IList&lt;Android.Views.View&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="searched" Type="System.String" />
         <Parameter Name="flags" Type="Android.Views.FindViewsWith">
           <Attributes>
@@ -10877,6 +11477,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+FocusChangeEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -11605,6 +12211,70 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="FrameContentVelocity">
+      <MemberSignature Language="C#" Value="public virtual float FrameContentVelocity { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance float32 FrameContentVelocity" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.View.FrameContentVelocity" />
+      <MemberSignature Language="F#" Value="member this.FrameContentVelocity : single with get, set" Usage="Android.Views.View.FrameContentVelocity" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getFrameContentVelocity", "()F", "GetGetFrameContentVelocityHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getFrameContentVelocity", "()F", "GetGetFrameContentVelocityHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setFrameContentVelocity", "(F)V", "GetSetFrameContentVelocity_FHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setFrameContentVelocity", "(F)V", "GetSetFrameContentVelocity_FHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="pixelsPerSecond">how many pixels move per second.</param>
+        <summary>Get the current velocity of the View. -or- Set the current velocity of the View, we only track positive value.</summary>
+        <value>0 by default, or value passed to <c>#setFrameContentVelocity(float)</c>.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Get the current velocity of the View.
+            The value should always be greater than or equal to 0.
+            Note that this is only valid till the next drawn frame.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#getFrameContentVelocity()" title="Reference documentation">Java documentation for <code>android.view.View.getFrameContentVelocity()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the current velocity of the View, we only track positive value.
+            We will use the velocity information to adjust the frame rate when applicable.
+            For example, we could potentially lower the frame rate when
+            the velocity of a fling gesture becomes slower.
+            Note that this is only valid till the next drawn frame.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#setFrameContentVelocity(float)" title="Reference documentation">Java documentation for <code>android.view.View.setFrameContentVelocity(float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GatherTransparentRegion">
       <MemberSignature Language="C#" Value="public virtual bool GatherTransparentRegion (Android.Graphics.Region? region);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool GatherTransparentRegion(class Android.Graphics.Region region) cil managed" />
@@ -11682,7 +12352,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="hashAlgorithm" Type="System.String" />
-        <Parameter Name="bounds" Type="Android.Graphics.Rect" />
+        <Parameter Name="bounds" Type="Android.Graphics.Rect">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
         <Parameter Name="callback" Type="Android.Views.DisplayHash.IDisplayHashResultCallback" />
       </Parameters>
@@ -11763,6 +12440,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+GenericMotionEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -11889,6 +12572,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -12197,7 +12886,7 @@
       <ReturnValue>
         <ReturnType>Android.Views.ViewFocusability</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -12240,6 +12929,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IList&lt;Android.Views.View&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="direction" Type="Android.Views.FocusSearchDirection">
@@ -12772,6 +13467,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -13043,7 +13744,8 @@
         <ReturnType>Android.OS.Handler</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <value>A handler associated with the thread running the View. This
             handler can be used to pump events in the UI events queue.</value>
         <remarks>
@@ -13223,6 +13925,70 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#getHandwritingBoundsOffsetTop()" title="Reference documentation">Java documentation for <code>android.view.View.getHandwritingBoundsOffsetTop()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="HandwritingDelegateFlags">
+      <MemberSignature Language="C#" Value="public virtual Android.Views.InputMethods.HandwritingDelegateFlag HandwritingDelegateFlags { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.Views.InputMethods.HandwritingDelegateFlag HandwritingDelegateFlags" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.View.HandwritingDelegateFlags" />
+      <MemberSignature Language="F#" Value="member this.HandwritingDelegateFlags : Android.Views.InputMethods.HandwritingDelegateFlag with get, set" Usage="Android.Views.View.HandwritingDelegateFlags" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getHandwritingDelegateFlags", "()I", "GetGetHandwritingDelegateFlagsHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getHandwritingDelegateFlags", "()I", "GetGetHandwritingDelegateFlagsHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setHandwritingDelegateFlags", "(I)V", "GetSetHandwritingDelegateFlags_IHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setHandwritingDelegateFlags", "(I)V", "GetSetHandwritingDelegateFlags_IHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.InputMethods.HandwritingDelegateFlag</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="flags">
+          <c>InputMethodManager#HANDWRITING_DELEGATE_FLAG_HOME_DELEGATOR_ALLOWED</c> or
+                <c>0</c></param>
+        <summary>Returns flags configuring the handwriting delegation behavior for this delegate editor view,
+            as set by <c>#setHandwritingDelegateFlags</c>. -or- Sets flags configuring the handwriting delegation behavior for this delegate editor view.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns flags configuring the handwriting delegation behavior for this delegate editor view,
+            as set by <c>#setHandwritingDelegateFlags</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#getHandwritingDelegateFlags()" title="Reference documentation">Java documentation for <code>android.view.View.getHandwritingDelegateFlags()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets flags configuring the handwriting delegation behavior for this delegate editor view.</para>
+          <para>This method has no effect unless <c>#setIsHandwritingDelegate</c> is also called to
+            configure this view to act as a handwriting delegate.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#setHandwritingDelegateFlags(int)" title="Reference documentation">Java documentation for <code>android.view.View.setHandwritingDelegateFlags(int)</code>.</a>
             </format>
           </para>
           <para>
@@ -14187,6 +14953,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+HoverEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -15691,6 +16463,49 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="IsContentSensitive">
+      <MemberSignature Language="C#" Value="public bool IsContentSensitive { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsContentSensitive" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.View.IsContentSensitive" />
+      <MemberSignature Language="F#" Value="member this.IsContentSensitive : bool" Usage="Android.Views.View.IsContentSensitive" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isContentSensitive", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isContentSensitive", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns whether this view displays sensitive content, based
+            on the value explicitly set by <c>#setContentSensitivity(int)</c>.</summary>
+        <value>whether the view displays sensitive content.</value>
+        <remarks>
+          <para>Returns whether this view displays sensitive content, based
+            on the value explicitly set by <c>#setContentSensitivity(int)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#isContentSensitive()" title="Reference documentation">Java documentation for <code>android.view.View.isContentSensitive()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="IsCredential">
       <MemberSignature Language="C#" Value="public virtual bool IsCredential { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance bool IsCredential" />
@@ -15973,13 +16788,15 @@
             view satisfies any of the following:
             &lt;ul&gt;
             &lt;li&gt;Is actionable, e.g. <c>#isClickable()</c>,
-            <c>#isLongClickable()</c>, or <c>#isFocusable()</c>&lt;li&gt;Has an <c>AccessibilityDelegate</c>&lt;li&gt;Has an interaction listener, e.g. <c>OnTouchListener</c>,
+            <c>#isLongClickable()</c>, <c>#isContextClickable()</c>,
+            <c>#isScreenReaderFocusable()</c>, or <c>#isFocusable()</c>&lt;li&gt;Has an <c>AccessibilityDelegate</c>&lt;li&gt;Has an <c>AccessibilityNodeProvider</c>&lt;li&gt;Has an interaction listener, e.g. <c>OnTouchListener</c>,
             <c>OnKeyListener</c>, etc.
             &lt;li&gt;Is an accessibility live region, e.g.
             <c>#getAccessibilityLiveRegion()</c> is not
             <c>#ACCESSIBILITY_LIVE_REGION_NONE</c>.
             &lt;/ul&gt;
             &lt;li&gt;Has an accessibility pane title, see <c>#setAccessibilityPaneTitle</c>&lt;/li&gt;
+            &lt;li&gt;Is an accessibility heading, see <c>#setAccessibilityHeading(boolean)</c>.&lt;/li&gt;
             &lt;/ol&gt;</para>
           <para>
             <format type="text/html">
@@ -16327,7 +17144,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <value>true if layout direction has been resolved.</value>
         <remarks>
           <para>
@@ -16753,7 +17571,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <value>true if text alignment is resolved.</value>
         <remarks>
           <para>
@@ -16789,7 +17608,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <value>true if text direction is resolved.</value>
         <remarks>
           <para>
@@ -16873,6 +17693,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -17147,6 +17971,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+KeyEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -17325,6 +18155,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+LayoutChangeEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -17769,6 +18605,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+LongClickEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -17844,6 +18686,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+LongClickUseDefaultHapticFeedbackEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -20396,9 +21244,8 @@
             <c>#setAccessibilityDelegate(AccessibilityDelegate)</c> its
             <c>AccessibilityDelegate#onInitializeAccessibilityEvent(View, AccessibilityEvent)</c>
             is responsible for handling this call.</para>
-          <para>&lt;p class="note"&gt;&lt;strong&gt;Note:&lt;/strong&gt; Always call the super implementation before adding
-            information to the event, in case the default implementation has basic information to add.
-            &lt;/p&gt;</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Always call the super implementation before adding
+            information to the event, in case the default implementation has basic information to add.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent)" title="Reference documentation">Java documentation for <code>android.view.View.onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent)</code>.</a>
@@ -20711,10 +21558,12 @@
                     event to be handled by the next receiver, return false.</returns>
         <remarks>
           <para>Handle a key event before it is processed by any input method
-            associated with the view hierarchy.  This can be used to intercept
+            associated with the view hierarchy. This can be used to intercept
             key events in special situations before the IME consumes them; a
             typical example would be handling the BACK key to update the application's
-            UI instead of allowing the IME to see it and close itself.</para>
+            UI instead of allowing the IME to see it and close itself. Due to a bug,
+            this function is not called for BACK key events on Android T and U, when
+            the IME is shown.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#onKeyPreIme(int,%20android.view.KeyEvent)" title="Reference documentation">Java documentation for <code>android.view.View.onKeyPreIme(int, android.view.KeyEvent)</code>.</a>
@@ -21099,9 +21948,11 @@
         <remarks>
           <para>Called from <c>#dispatchPopulateAccessibilityEvent(AccessibilityEvent)</c>
             giving a chance to this View to populate the accessibility event with its
-            text content. While this method is free to modify event
-            attributes other than text content, doing so should normally be performed in
-            <c>#onInitializeAccessibilityEvent(AccessibilityEvent)</c>.</para>
+            text content.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; This method should only be used with event.setText().
+            Avoid mutating other event state in this method. Instead, follow the practices described in
+            <c>#dispatchPopulateAccessibilityEvent(AccessibilityEvent)</c>. In general, put UI
+            metadata in the node for services to easily query, than in transient events.</para>
           <para>Example: Adding formatted date string to an accessibility event in addition
                      to the text added by the super implementation:</para>
           <code lang="text/java">public void onPopulateAccessibilityEvent(AccessibilityEvent event) {
@@ -21115,9 +21966,8 @@
             <c>#setAccessibilityDelegate(AccessibilityDelegate)</c> its
             <c>AccessibilityDelegate#onPopulateAccessibilityEvent(View, AccessibilityEvent)</c>
             is responsible for handling this call.</para>
-          <para>&lt;p class="note"&gt;&lt;strong&gt;Note:&lt;/strong&gt; Always call the super implementation before adding
-            information to the event, in case the default implementation has basic information to add.
-            &lt;/p&gt;</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Always call the super implementation before adding
+            information to the event, in case the default implementation has basic information to add.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#onPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent)" title="Reference documentation">Java documentation for <code>android.view.View.onPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent)</code>.</a>
@@ -21548,6 +22398,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Views.ContentInfo</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="payload" Type="Android.Views.ContentInfo" />
@@ -23324,6 +24180,104 @@
         <since version="Added in API level 16" />
       </Docs>
     </Member>
+    <Member MemberName="PendingCredentialCallback">
+      <MemberSignature Language="C#" Value="public Android.OS.IOutcomeReceiver? PendingCredentialCallback { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.OS.IOutcomeReceiver PendingCredentialCallback" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.View.PendingCredentialCallback" />
+      <MemberSignature Language="F#" Value="member this.PendingCredentialCallback : Android.OS.IOutcomeReceiver" Usage="Android.Views.View.PendingCredentialCallback" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPendingCredentialCallback", "()Landroid/os/OutcomeReceiver;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPendingCredentialCallback", "()Landroid/os/OutcomeReceiver;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.IOutcomeReceiver</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the callback that has previously been set up on this view through
+            the <c>#setPendingCredentialRequest</c> API.</summary>
+        <value>The callback associated with this view that will be invoked on a response from
+            <c>CredentialManager</c> .</value>
+        <remarks>
+          <para>Returns the callback that has previously been set up on this view through
+            the <c>#setPendingCredentialRequest</c> API.
+            If the return value is null, that means no callback, or request, has been set
+            on the view and no <c>CredentialManager</c> flow will be invoked
+            when this view is focused. Traditioanl autofill flows will still
+            work, and autofillable content will still be returned through the
+            <c>#autofill(AutofillValue)</c> )} API.</para>
+          <para>See <c>#setPendingCredentialRequest</c> for more info.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#getPendingCredentialCallback()" title="Reference documentation">Java documentation for <code>android.view.View.getPendingCredentialCallback()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PendingCredentialRequest">
+      <MemberSignature Language="C#" Value="public Android.Credentials.GetCredentialRequest? PendingCredentialRequest { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Credentials.GetCredentialRequest PendingCredentialRequest" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.View.PendingCredentialRequest" />
+      <MemberSignature Language="F#" Value="member this.PendingCredentialRequest : Android.Credentials.GetCredentialRequest" Usage="Android.Views.View.PendingCredentialRequest" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPendingCredentialRequest", "()Landroid/credentials/GetCredentialRequest;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPendingCredentialRequest", "()Landroid/credentials/GetCredentialRequest;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Credentials.GetCredentialRequest</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the <c>GetCredentialRequest</c> associated with the view.</summary>
+        <value>The credential request associated with this View.</value>
+        <remarks>
+          <para>Returns the <c>GetCredentialRequest</c> associated with the view.
+            If the return value is null, that means no request has been set
+            on the view and no <c>CredentialManager</c> flow will be invoked
+            when this view is focused. Traditioanl autofill flows will still
+            work, autofilling content if applicable, from
+            the active <c>android.service.autofill.AutofillService</c> on
+            the device.</para>
+          <para>See <c>#setPendingCredentialRequest</c> for more info.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#getPendingCredentialRequest()" title="Reference documentation">Java documentation for <code>android.view.View.getPendingCredentialRequest()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="PerformAccessibilityAction">
       <MemberSignature Language="C#" Value="public bool PerformAccessibilityAction (Android.AccessibilityServices.GlobalAction action, Android.OS.Bundle arguments);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool PerformAccessibilityAction(valuetype Android.AccessibilityServices.GlobalAction action, class Android.OS.Bundle arguments) cil managed" />
@@ -23787,6 +24741,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Views.ContentInfo</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="payload" Type="Android.Views.ContentInfo" />
@@ -24678,6 +25638,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
@@ -25771,6 +26735,225 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="RequestedFrameRate">
+      <MemberSignature Language="C#" Value="public virtual float RequestedFrameRate { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance float32 RequestedFrameRate" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.View.RequestedFrameRate" />
+      <MemberSignature Language="F#" Value="member this.RequestedFrameRate : single with get, set" Usage="Android.Views.View.RequestedFrameRate" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getRequestedFrameRate", "()F", "GetGetRequestedFrameRateHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRequestedFrameRate", "()F", "GetGetRequestedFrameRateHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setRequestedFrameRate", "(F)V", "GetSetRequestedFrameRate_FHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setRequestedFrameRate", "(F)V", "GetSetRequestedFrameRate_FHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="frameRate">the preferred frame rate of the view.</param>
+        <summary>Get the current preferred frame rate of the View. -or- You can set the preferred frame rate for a View using a positive number
+            or by specifying the preferred frame rate category using constants, including
+            REQUESTED_FRAME_RATE_CATEGORY_NO_PREFERENCE, REQUESTED_FRAME_RATE_CATEGORY_LOW,
+            REQUESTED_FRAME_RATE_CATEGORY_NORMAL, REQUESTED_FRAME_RATE_CATEGORY_HIGH.</summary>
+        <value>REQUESTED_FRAME_RATE_CATEGORY_DEFAULT by default,
+            or value passed to <c>#setRequestedFrameRate(float)</c>.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Get the current preferred frame rate of the View.
+            The value could be negative when preferred frame rate category is set
+            instead of perferred frame rate.
+            The frame rate category includes
+            REQUESTED_FRAME_RATE_CATEGORY_NO_PREFERENCE, REQUESTED_FRAME_RATE_CATEGORY_LOW,
+            REQUESTED_FRAME_RATE_CATEGORY_NORMAL, and REQUESTED_FRAME_RATE_CATEGORY_HIGH.
+            Note that the frame rate value is valid as long as the View is invalidated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#getRequestedFrameRate()" title="Reference documentation">Java documentation for <code>android.view.View.getRequestedFrameRate()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>You can set the preferred frame rate for a View using a positive number
+            or by specifying the preferred frame rate category using constants, including
+            REQUESTED_FRAME_RATE_CATEGORY_NO_PREFERENCE, REQUESTED_FRAME_RATE_CATEGORY_LOW,
+            REQUESTED_FRAME_RATE_CATEGORY_NORMAL, REQUESTED_FRAME_RATE_CATEGORY_HIGH.
+            Keep in mind that the preferred frame rate affects the frame rate for the next frame,
+            so use this method carefully. It's important to note that the preference is valid as
+            long as the View is invalidated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#setRequestedFrameRate(float)" title="Reference documentation">Java documentation for <code>android.view.View.setRequestedFrameRate(float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RequestedFrameRateCategoryDefault">
+      <MemberSignature Language="C#" Value="public const float RequestedFrameRateCategoryDefault = NaN;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal float32 RequestedFrameRateCategoryDefault = (NaN)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.RequestedFrameRateCategoryDefault" />
+      <MemberSignature Language="F#" Value="val mutable RequestedFrameRateCategoryDefault : single" Usage="Android.Views.View.RequestedFrameRateCategoryDefault" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_DEFAULT", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_DEFAULT", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <MemberValue>NaN</MemberValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RequestedFrameRateCategoryHigh">
+      <MemberSignature Language="C#" Value="public const float RequestedFrameRateCategoryHigh = -4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal float32 RequestedFrameRateCategoryHigh = (-4)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.RequestedFrameRateCategoryHigh" />
+      <MemberSignature Language="F#" Value="val mutable RequestedFrameRateCategoryHigh : single" Usage="Android.Views.View.RequestedFrameRateCategoryHigh" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_HIGH", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_HIGH", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <MemberValue>-4</MemberValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RequestedFrameRateCategoryLow">
+      <MemberSignature Language="C#" Value="public const float RequestedFrameRateCategoryLow = -2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal float32 RequestedFrameRateCategoryLow = (-2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.RequestedFrameRateCategoryLow" />
+      <MemberSignature Language="F#" Value="val mutable RequestedFrameRateCategoryLow : single" Usage="Android.Views.View.RequestedFrameRateCategoryLow" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_LOW", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_LOW", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <MemberValue>-2</MemberValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RequestedFrameRateCategoryNoPreference">
+      <MemberSignature Language="C#" Value="public const float RequestedFrameRateCategoryNoPreference = -1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal float32 RequestedFrameRateCategoryNoPreference = (-1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.RequestedFrameRateCategoryNoPreference" />
+      <MemberSignature Language="F#" Value="val mutable RequestedFrameRateCategoryNoPreference : single" Usage="Android.Views.View.RequestedFrameRateCategoryNoPreference" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_NO_PREFERENCE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_NO_PREFERENCE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <MemberValue>-1</MemberValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RequestedFrameRateCategoryNormal">
+      <MemberSignature Language="C#" Value="public const float RequestedFrameRateCategoryNormal = -3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal float32 RequestedFrameRateCategoryNormal = (-3)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.View.RequestedFrameRateCategoryNormal" />
+      <MemberSignature Language="F#" Value="val mutable RequestedFrameRateCategoryNormal : single" Usage="Android.Views.View.RequestedFrameRateCategoryNormal" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_NORMAL", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("REQUESTED_FRAME_RATE_CATEGORY_NORMAL", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <MemberValue>-3</MemberValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="RequestFitSystemWindows">
       <MemberSignature Language="C#" Value="public virtual void RequestFitSystemWindows ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void RequestFitSystemWindows() cil managed" />
@@ -26293,16 +27476,14 @@
             
             Until this View receives a corresponding <c>MotionEvent#ACTION_UP</c>, ask that the input
             system not batch <c>MotionEvent</c>s but instead deliver them as soon as they're
-            available. This method should only be called for touch events.
-            
-            &lt;p class="note"&gt;This API is not intended for most applications. Buffered dispatch
+            available. This method should only be called for touch events.</para>
+          <para>This API is not intended for most applications. Buffered dispatch
             provides many of benefits, and just requesting unbuffered dispatch on most MotionEvent
             streams will not improve your input latency. Side effects include: increased latency,
             jittery scrolls and inability to take advantage of system resampling. Talk to your input
             professional to see if <c>#requestUnbufferedDispatch(MotionEvent)</c> is right for
-            you.&lt;/p&gt;
-            
-            To receive unbuffered events for arbitrary input device source classes, use
+            you.</para>
+          <para>To receive unbuffered events for arbitrary input device source classes, use
             <c>#requestUnbufferedDispatch(int)</c>,</para>
           <para>
             <format type="text/html">
@@ -26446,6 +27627,16 @@
       </ReturnValue>
       <TypeParameters>
         <TypeParameter Name="T">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+            </Attribute>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
           <Constraints>
             <BaseTypeName>Android.Views.View</BaseTypeName>
           </Constraints>
@@ -27267,7 +28458,14 @@
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
         <Parameter Name="styleable" Type="System.Int32[]" />
-        <Parameter Name="attrs" Type="Android.Util.IAttributeSet" />
+        <Parameter Name="attrs" Type="Android.Util.IAttributeSet">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="t" Type="Android.Content.Res.TypedArray" />
         <Parameter Name="defStyleAttr" Type="System.Int32" />
         <Parameter Name="defStyleRes" Type="System.Int32" />
@@ -27780,6 +28978,9 @@
           <para>Property getter documentation:</para>
           <para>Returns whether the view should be treated as a focusable unit by screen reader
             accessibility tools.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; Use
+            <c>androidx.core.view.ViewCompat#setScreenReaderFocusable(View, boolean)</c>
+            for backwards-compatibility. &lt;/aside&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#isScreenReaderFocusable()" title="Reference documentation">Java documentation for <code>android.view.View.isScreenReaderFocusable()</code>.</a>
@@ -28579,6 +29780,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
         </Attribute>
@@ -29349,6 +30554,10 @@
             <Attribute>
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -30595,7 +31804,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="mimeTypes" Type="System.String[]" />
+        <Parameter Name="mimeTypes" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="listener" Type="Android.Views.IOnReceiveContentListener" />
       </Parameters>
       <Docs>
@@ -30975,6 +32191,69 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 17" />
+      </Docs>
+    </Member>
+    <Member MemberName="SetPendingCredentialRequest">
+      <MemberSignature Language="C#" Value="public virtual void SetPendingCredentialRequest (Android.Credentials.GetCredentialRequest request, Android.OS.IOutcomeReceiver callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetPendingCredentialRequest(class Android.Credentials.GetCredentialRequest request, class Android.OS.IOutcomeReceiver callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.View.SetPendingCredentialRequest(Android.Credentials.GetCredentialRequest,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="abstract member SetPendingCredentialRequest : Android.Credentials.GetCredentialRequest * Android.OS.IOutcomeReceiver -&gt; unit&#xA;override this.SetPendingCredentialRequest : Android.Credentials.GetCredentialRequest * Android.OS.IOutcomeReceiver -&gt; unit" Usage="view.SetPendingCredentialRequest (request, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setPendingCredentialRequest", "(Landroid/credentials/GetCredentialRequest;Landroid/os/OutcomeReceiver;)V", "GetSetPendingCredentialRequest_Landroid_credentials_GetCredentialRequest_Landroid_os_OutcomeReceiver_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setPendingCredentialRequest", "(Landroid/credentials/GetCredentialRequest;Landroid/os/OutcomeReceiver;)V", "GetSetPendingCredentialRequest_Landroid_credentials_GetCredentialRequest_Landroid_os_OutcomeReceiver_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="request" Type="Android.Credentials.GetCredentialRequest" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="request">the request to be fired when this view is entered</param>
+        <param name="callback">to be invoked when either a response or an exception needs to be
+                            propagated for the given view</param>
+        <summary>Sets a <c>CredentialManager</c> request to retrieve credentials, when the user focuses
+            on this given view.</summary>
+        <remarks>
+          <para>Sets a <c>CredentialManager</c> request to retrieve credentials, when the user focuses
+            on this given view.
+            
+            When this view is focused, the given <c>request</c> will be fired to
+            <c>CredentialManager</c>, which will fetch content from all
+            <c>android.service.credentials.CredentialProviderService</c> services on the
+            device, and then display credential options to the user on a relevant UI
+            (dropdown, keyboard suggestions etc.).
+            
+            When the user selects a credential, the final <c>GetCredentialResponse</c> will be
+            propagated to the given <c>callback</c>. Developers are expected to handle the response
+            programmatically and perform a relevant action, e.g. signing in the user.</para>
+          <para>For details on how to  build a Credential Manager request, please see
+            <c>GetCredentialRequest</c>.</para>
+          <para>This API should be called at any point before the user focuses on the view, e.g. during
+            <c>onCreate</c> of an Activity.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/View#setPendingCredentialRequest(android.credentials.GetCredentialRequest,%20android.os.OutcomeReceiver%3Candroid.credentials.GetCredentialResponse,%20android.credentials.GetCredentialException%3E)" title="Reference documentation">Java documentation for <code>android.view.View.setPendingCredentialRequest(android.credentials.GetCredentialRequest, android.os.OutcomeReceiver&lt;android.credentials.GetCredentialResponse, android.credentials.GetCredentialException&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRenderEffect">
@@ -32559,6 +33838,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
         </Attribute>
@@ -33424,6 +34707,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+SystemUiVisibilityChangeEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -34386,6 +35675,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -34641,6 +35934,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+TouchEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -34662,6 +35961,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getTouchables", "()Ljava/util/ArrayList;", "GetGetTouchablesHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTouchables", "()Ljava/util/ArrayList;", "GetGetTouchablesHandler")&gt;]</AttributeName>
@@ -35129,6 +36432,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
@@ -35773,6 +37080,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+ViewAttachedToWindowEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -35793,6 +37106,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.EventHandler&lt;Android.Views.View+ViewDetachedFromWindowEventArgs&gt;</ReturnType>
       </ReturnValue>
@@ -35817,6 +37136,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("VIEW_LOG_TAG")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("VIEW_LOG_TAG")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -36133,7 +37456,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary></summary>
+        <summary>
+        </summary>
         <value>The number of times this view has been attached to a window</value>
         <remarks>
           <para>
@@ -36344,7 +37668,8 @@
       <Docs>
         <summary>Retrieve a unique token identifying the window this view is attached to.</summary>
         <value>Return the window's token for use in
-            <c>WindowManager.LayoutParams#token WindowManager.LayoutParams.token</c>.</value>
+            <c>WindowManager.LayoutParams#token WindowManager.LayoutParams.token</c>.
+            This token maybe null if this view is not attached to a window.</value>
         <remarks>
           <para>Retrieve a unique token identifying the window this view is attached to.</para>
           <para>

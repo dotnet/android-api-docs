@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/app/admin/DeviceAdminReceiver", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/admin/DeviceAdminReceiver", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="8">
     <summary>Base class for implementing a device administration component.</summary>
@@ -605,6 +609,9 @@
             <c>android.app.admin.DevicePolicyManager#isDeviceOwnerApp</c> and
             <c>android.app.admin.DevicePolicyManager#isProfileOwnerApp</c>. You will generally handle
             this in <c>DeviceAdminReceiver#onProfileProvisioningComplete</c>.</para>
+          <para>The intent for this action may include the following extras:
+            &lt;ul&gt;
+                &lt;li&gt;<c>DevicePolicyManager#EXTRA_PROVISIONING_ADMIN_EXTRAS_BUNDLE</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DeviceAdminReceiver#ACTION_PROFILE_PROVISIONING_COMPLETE" title="Reference documentation">Java documentation for <code>android.app.admin.DeviceAdminReceiver.ACTION_PROFILE_PROVISIONING_COMPLETE</code>.</a>
@@ -1217,8 +1224,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="context" Type="Android.Content.Context" />
-        <Parameter Name="intent" Type="Android.Content.Intent" />
+        <Parameter Name="context" Type="Android.Content.Context">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="intent" Type="Android.Content.Intent">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="uid" Type="System.Int32" />
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="alias" Type="System.String" />
@@ -1367,6 +1388,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
@@ -1417,6 +1444,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.ICharSequence</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
@@ -2190,6 +2223,8 @@
             completed, along with this callback the activity intent
             <c>DevicePolicyManager#ACTION_PROVISIONING_SUCCESSFUL</c> will also be sent to the same
             application.</para>
+          <para>The <c>Intent</c> may include any of the extras specified for
+            <c>#ACTION_PROFILE_PROVISIONING_COMPLETE</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DeviceAdminReceiver#onProfileProvisioningComplete(android.content.Context,%20android.content.Intent)" title="Reference documentation">Java documentation for <code>android.app.admin.DeviceAdminReceiver.onProfileProvisioningComplete(android.content.Context, android.content.Intent)</code>.</a>
@@ -2494,7 +2529,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="context" Type="Android.Content.Context" />
-        <Parameter Name="bundle" Type="Android.OS.PersistableBundle" />
+        <Parameter Name="bundle" Type="Android.OS.PersistableBundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="context">the running context as per <c>#onReceive</c></param>

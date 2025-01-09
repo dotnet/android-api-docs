@@ -1,0 +1,1046 @@
+<Type Name="IRandomGenerator" FullName="Java.Util.RandomGenerators.IRandomGenerator">
+  <TypeSignature Language="C#" Value="public interface IRandomGenerator : Android.Runtime.IJavaObject, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit IRandomGenerator implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Java.Util.RandomGenerators.IRandomGenerator" />
+  <TypeSignature Language="F#" Value="type IRandomGenerator = interface&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/util/random/RandomGenerator", "", "Java.Util.RandomGenerators.IRandomGeneratorInvoker", ApiSince=35)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/random/RandomGenerator", "", "Java.Util.RandomGenerators.IRandomGeneratorInvoker", ApiSince=35)&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>The <c>RandomGenerator</c> interface is designed to provide a common
+            protocol for objects that generate random or (more typically) pseudorandom
+            sequences of numbers (or Boolean values).</summary>
+    <remarks>
+      <para>The <c>RandomGenerator</c> interface is designed to provide a common
+            protocol for objects that generate random or (more typically) pseudorandom
+            sequences of numbers (or Boolean values). Such a sequence may be obtained by
+            either repeatedly invoking a method that returns a single pseudorandomly
+            chosen value, or by invoking a method that returns a stream of
+            pseudorandomly chosen values.</para>
+      <para>Ideally, given an implicitly or explicitly specified range of values,
+            each value would be chosen independently and uniformly from that range. In
+            practice, one may have to settle for some approximation to independence and
+            uniformity.</para>
+      <para>In the case of <c>int</c>, <c>long</c>, and <c>boolean</c> values, if
+            there is no explicit specification of range, then the range includes all
+            possible values of the type. In the case of <c>float</c> and <c>double</c>
+            values, first a value is always chosen uniformly from the set of
+            2&lt;sup&gt;<i>w</i>&lt;/sup&gt; values between 0.0 (inclusive) and 1.0 (exclusive),
+            where <i>w</i> is 23 for <c>float</c> values and 52 for <c>double</c>
+            values, such that adjacent values differ by 2&lt;sup&gt;&amp;minus;<i>w</i>&lt;/sup&gt;
+            (notice that this set is a <i>subset</i> of the set of
+            <i>all representable floating-point values</i> between 0.0 (inclusive) and 1.0 (exclusive));
+            then if an explicit range was specified, then the chosen number is
+            computationally scaled and translated so as to appear to have been chosen
+            approximately uniformly from that explicit range.</para>
+      <para>Each method that returns a stream produces a stream of values each of
+            which is chosen in the same manner as for a method that returns a single
+            pseudorandomly chosen value. For example, if <c>r</c> implements
+            <c>RandomGenerator</c>, then the method call <c>r.ints(100)</c> returns a
+            stream of 100 <c>int</c> values. These are not necessarily the exact same
+            values that would have been returned if instead <c>r.nextInt()</c> had been
+            called 100 times; all that is guaranteed is that each value in the stream is
+            chosen in a similar pseudorandom manner from the same range.</para>
+      <para>Every object that implements the <c>RandomGenerator</c> interface by
+            using a pseudorandom algorithm is assumed to contain a finite amount of
+            state. Using such an object to generate a pseudorandomly chosen value alters
+            its state by computing a new state as a function of the current state,
+            without reference to any information other than the current state. The number
+            of distinct possible states of such an object is called its <i>period</i>.
+            (Some implementations of the <c>RandomGenerator</c> interface may be truly
+            random rather than pseudorandom, for example relying on the statistical
+            behavior of a physical object to derive chosen values. Such implementations
+            do not have a fixed period.)</para>
+      <para>As a rule, objects that implement the <c>RandomGenerator</c> interface
+            need not be thread-safe. It is recommended that multithreaded applications
+            use either <c>ThreadLocalRandom</c> or (preferably) pseudorandom number
+            generators that implement the <c>SplittableGenerator</c> or
+            <c>JumpableGenerator</c> interface.</para>
+      <para>Objects that implement <c>RandomGenerator</c> are typically not
+            cryptographically secure. Consider instead using <c>SecureRandom</c> to get
+            a cryptographically secure pseudorandom number generator for use by
+            security-sensitive applications. Note, however, that <c>SecureRandom</c>
+            does implement the <c>RandomGenerator</c> interface, so that instances of
+            <c>SecureRandom</c> may be used interchangeably with other types of
+            pseudorandom generators in applications that do not require a secure
+            generator.</para>
+      <para>Unless explicit stated otherwise, the use of null for any method argument
+            will cause a NullPointerException.</para>
+      <para>Added in 17.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/util/random/RandomGenerator" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Default">
+      <MemberSignature Language="C#" Value="public static Java.Util.RandomGenerators.IRandomGenerator? Default { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Java.Util.RandomGenerators.IRandomGenerator Default" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.IRandomGenerator.Default" />
+      <MemberSignature Language="F#" Value="static member Default : Java.Util.RandomGenerators.IRandomGenerator" Usage="Java.Util.RandomGenerators.IRandomGenerator.Default" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDefault", "()Ljava/util/random/RandomGenerator;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDefault", "()Ljava/util/random/RandomGenerator;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.RandomGenerators.IRandomGenerator</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a <c>RandomGenerator</c> meeting the minimal requirement
+            of having an algorithm
+            whose state bits are greater than or equal 64.</summary>
+        <value>a <c>RandomGenerator</c></value>
+        <remarks>
+          <para>Returns a <c>RandomGenerator</c> meeting the minimal requirement
+            of having an algorithm
+            whose state bits are greater than or equal 64.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#getDefault()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.getDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsDeprecated">
+      <MemberSignature Language="C#" Value="public virtual bool IsDeprecated { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsDeprecated" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.IRandomGenerator.IsDeprecated" />
+      <MemberSignature Language="F#" Value="member this.IsDeprecated : bool" Usage="Java.Util.RandomGenerators.IRandomGenerator.IsDeprecated" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isDeprecated", "()Z", "GetIsDeprecatedHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isDeprecated", "()Z", "GetIsDeprecatedHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if the implementation of RandomGenerator (algorithm) has been
+            marked for deprecation.</summary>
+        <value>true if the implementation of RandomGenerator (algorithm) has been
+                    marked for deprecation</value>
+        <remarks>
+          <para>Return true if the implementation of RandomGenerator (algorithm) has been
+            marked for deprecation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#isDeprecated()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.isDeprecated()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextBoolean">
+      <MemberSignature Language="C#" Value="public virtual bool NextBoolean ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance bool NextBoolean() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextBoolean" />
+      <MemberSignature Language="F#" Value="abstract member NextBoolean : unit -&gt; bool&#xA;override this.NextBoolean : unit -&gt; bool" Usage="iRandomGenerator.NextBoolean " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextBoolean", "()Z", "GetNextBooleanHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextBoolean", "()Z", "GetNextBooleanHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a pseudorandomly chosen <c>boolean</c> value.</summary>
+        <returns>a pseudorandomly chosen <c>boolean</c> value</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>boolean</c> value.</para>
+          <para>The default implementation tests the high-order bit (sign bit) of a
+            value produced by <c>RandomGenerator#nextInt() nextInt</c>(), on the
+            grounds that some algorithms for pseudorandom number generation produce
+            values whose high-order bits have better statistical quality than the
+            low-order bits.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextBoolean()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextBoolean()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextBytes">
+      <MemberSignature Language="C#" Value="public virtual void NextBytes (byte[]? bytes);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void NextBytes(unsigned int8[] bytes) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextBytes(System.Byte[])" />
+      <MemberSignature Language="F#" Value="abstract member NextBytes : byte[] -&gt; unit&#xA;override this.NextBytes : byte[] -&gt; unit" Usage="iRandomGenerator.NextBytes bytes" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextBytes", "([B)V", "GetNextBytes_arrayBHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextBytes", "([B)V", "GetNextBytes_arrayBHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="bytes" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="bytes">the byte array to fill with pseudorandom bytes</param>
+        <summary>Fills a user-supplied byte array with generated byte values
+            pseudorandomly chosen uniformly from the range of values between -128
+            (inclusive) and 127 (inclusive).</summary>
+        <remarks>
+          <para>Fills a user-supplied byte array with generated byte values
+            pseudorandomly chosen uniformly from the range of values between -128
+            (inclusive) and 127 (inclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextBytes(byte[])" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextBytes(byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextDouble">
+      <MemberSignature Language="C#" Value="public virtual double NextDouble ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextDouble() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextDouble" />
+      <MemberSignature Language="F#" Value="abstract member NextDouble : unit -&gt; double&#xA;override this.NextDouble : unit -&gt; double" Usage="iRandomGenerator.NextDouble " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextDouble", "()D", "GetNextDoubleHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextDouble", "()D", "GetNextDoubleHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a pseudorandom <c>double</c> value between zero (inclusive) and
+            one (exclusive).</summary>
+        <returns>a pseudorandom <c>double</c> value between zero (inclusive)
+                    and one (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandom <c>double</c> value between zero (inclusive) and
+            one (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextDouble()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextDouble()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextDouble">
+      <MemberSignature Language="C#" Value="public virtual double NextDouble (double bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextDouble(float64 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextDouble(System.Double)" />
+      <MemberSignature Language="F#" Value="abstract member NextDouble : double -&gt; double&#xA;override this.NextDouble : double -&gt; double" Usage="iRandomGenerator.NextDouble bound" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextDouble", "(D)D", "GetNextDouble_DHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextDouble", "(D)D", "GetNextDouble_DHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="bound" Type="System.Double" />
+      </Parameters>
+      <Docs>
+        <param name="bound">the upper bound (exclusive) for the returned value.
+                   Must be positive and finite</param>
+        <summary>Returns a pseudorandomly chosen <c>double</c> value between zero
+            (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>double</c> value between
+                    zero (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>double</c> value between zero
+            (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextDouble(double)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextDouble(double)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextDouble">
+      <MemberSignature Language="C#" Value="public virtual double NextDouble (double origin, double bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextDouble(float64 origin, float64 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextDouble(System.Double,System.Double)" />
+      <MemberSignature Language="F#" Value="abstract member NextDouble : double * double -&gt; double&#xA;override this.NextDouble : double * double -&gt; double" Usage="iRandomGenerator.NextDouble (origin, bound)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextDouble", "(DD)D", "GetNextDouble_DDHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextDouble", "(DD)D", "GetNextDouble_DDHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="origin" Type="System.Double" />
+        <Parameter Name="bound" Type="System.Double" />
+      </Parameters>
+      <Docs>
+        <param name="origin">the least value that can be returned</param>
+        <param name="bound">the upper bound (exclusive) for the returned value</param>
+        <summary>Returns a pseudorandomly chosen <c>double</c> value between the
+            specified origin (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>double</c> value between the
+                    origin (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>double</c> value between the
+            specified origin (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextDouble(double,%20double)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextDouble(double, double)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextExponential">
+      <MemberSignature Language="C#" Value="public virtual double NextExponential ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextExponential() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextExponential" />
+      <MemberSignature Language="F#" Value="abstract member NextExponential : unit -&gt; double&#xA;override this.NextExponential : unit -&gt; double" Usage="iRandomGenerator.NextExponential " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextExponential", "()D", "GetNextExponentialHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextExponential", "()D", "GetNextExponentialHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a nonnegative <c>double</c> value pseudorandomly chosen from
+            an exponential distribution whose mean is 1.</summary>
+        <returns>a nonnegative <c>double</c> value pseudorandomly chosen from an
+                    exponential distribution</returns>
+        <remarks>
+          <para>Returns a nonnegative <c>double</c> value pseudorandomly chosen from
+            an exponential distribution whose mean is 1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextExponential()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextExponential()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextFloat">
+      <MemberSignature Language="C#" Value="public virtual float NextFloat ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float32 NextFloat() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextFloat" />
+      <MemberSignature Language="F#" Value="abstract member NextFloat : unit -&gt; single&#xA;override this.NextFloat : unit -&gt; single" Usage="iRandomGenerator.NextFloat " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextFloat", "()F", "GetNextFloatHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextFloat", "()F", "GetNextFloatHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a pseudorandom <c>float</c> value between zero (inclusive) and
+            one (exclusive).</summary>
+        <returns>a pseudorandom <c>float</c> value between zero (inclusive) and one (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandom <c>float</c> value between zero (inclusive) and
+            one (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextFloat()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextFloat()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextFloat">
+      <MemberSignature Language="C#" Value="public virtual float NextFloat (float bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float32 NextFloat(float32 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextFloat(System.Single)" />
+      <MemberSignature Language="F#" Value="abstract member NextFloat : single -&gt; single&#xA;override this.NextFloat : single -&gt; single" Usage="iRandomGenerator.NextFloat bound" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextFloat", "(F)F", "GetNextFloat_FHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextFloat", "(F)F", "GetNextFloat_FHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="bound" Type="System.Single" />
+      </Parameters>
+      <Docs>
+        <param name="bound">the upper bound (exclusive) for the returned value.
+                   Must be positive and finite</param>
+        <summary>Returns a pseudorandomly chosen <c>float</c> value between zero
+            (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>float</c> value between
+                    zero (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>float</c> value between zero
+            (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextFloat(float)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextFloat(float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextFloat">
+      <MemberSignature Language="C#" Value="public virtual float NextFloat (float origin, float bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float32 NextFloat(float32 origin, float32 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextFloat(System.Single,System.Single)" />
+      <MemberSignature Language="F#" Value="abstract member NextFloat : single * single -&gt; single&#xA;override this.NextFloat : single * single -&gt; single" Usage="iRandomGenerator.NextFloat (origin, bound)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextFloat", "(FF)F", "GetNextFloat_FFHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextFloat", "(FF)F", "GetNextFloat_FFHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="origin" Type="System.Single" />
+        <Parameter Name="bound" Type="System.Single" />
+      </Parameters>
+      <Docs>
+        <param name="origin">the least value that can be returned</param>
+        <param name="bound">the upper bound (exclusive)</param>
+        <summary>Returns a pseudorandomly chosen <c>float</c> value between the
+            specified origin (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>float</c> value between the
+                    origin (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>float</c> value between the
+            specified origin (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextFloat(float,%20float)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextFloat(float, float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextGaussian">
+      <MemberSignature Language="C#" Value="public virtual double NextGaussian ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextGaussian() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextGaussian" />
+      <MemberSignature Language="F#" Value="abstract member NextGaussian : unit -&gt; double&#xA;override this.NextGaussian : unit -&gt; double" Usage="iRandomGenerator.NextGaussian " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextGaussian", "()D", "GetNextGaussianHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextGaussian", "()D", "GetNextGaussianHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a <c>double</c> value pseudorandomly chosen from a Gaussian
+            (normal) distribution whose mean is 0 and whose standard deviation is 1.</summary>
+        <returns>a <c>double</c> value pseudorandomly chosen from a
+                    Gaussian distribution</returns>
+        <remarks>
+          <para>Returns a <c>double</c> value pseudorandomly chosen from a Gaussian
+            (normal) distribution whose mean is 0 and whose standard deviation is 1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextGaussian()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextGaussian()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextGaussian">
+      <MemberSignature Language="C#" Value="public virtual double NextGaussian (double mean, double stddev);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance float64 NextGaussian(float64 mean, float64 stddev) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextGaussian(System.Double,System.Double)" />
+      <MemberSignature Language="F#" Value="abstract member NextGaussian : double * double -&gt; double&#xA;override this.NextGaussian : double * double -&gt; double" Usage="iRandomGenerator.NextGaussian (mean, stddev)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextGaussian", "(DD)D", "GetNextGaussian_DDHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextGaussian", "(DD)D", "GetNextGaussian_DDHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="mean" Type="System.Double" />
+        <Parameter Name="stddev" Type="System.Double" />
+      </Parameters>
+      <Docs>
+        <param name="mean">the mean of the Gaussian distribution to be drawn from</param>
+        <param name="stddev">the standard deviation (square root of the variance)
+                   of the Gaussian distribution to be drawn from</param>
+        <summary>Returns a <c>double</c> value pseudorandomly chosen from a Gaussian
+            (normal) distribution with a mean and standard deviation specified by the
+            arguments.</summary>
+        <returns>a <c>double</c> value pseudorandomly chosen from the
+                    specified Gaussian distribution</returns>
+        <remarks>
+          <para>Returns a <c>double</c> value pseudorandomly chosen from a Gaussian
+            (normal) distribution with a mean and standard deviation specified by the
+            arguments.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextGaussian(double,%20double)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextGaussian(double, double)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextInt">
+      <MemberSignature Language="C#" Value="public virtual int NextInt ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 NextInt() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextInt" />
+      <MemberSignature Language="F#" Value="abstract member NextInt : unit -&gt; int&#xA;override this.NextInt : unit -&gt; int" Usage="iRandomGenerator.NextInt " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextInt", "()I", "GetNextIntHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextInt", "()I", "GetNextIntHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a pseudorandomly chosen <c>int</c> value.</summary>
+        <returns>a pseudorandomly chosen <c>int</c> value</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>int</c> value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextInt()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextInt()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextInt">
+      <MemberSignature Language="C#" Value="public virtual int NextInt (int bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 NextInt(int32 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextInt(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member NextInt : int -&gt; int&#xA;override this.NextInt : int -&gt; int" Usage="iRandomGenerator.NextInt bound" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextInt", "(I)I", "GetNextInt_IHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextInt", "(I)I", "GetNextInt_IHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="bound" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="bound">the upper bound (exclusive) for the returned value.
+            Must be positive.</param>
+        <summary>Returns a pseudorandomly chosen <c>int</c> value between zero
+            (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>int</c> value between
+                    zero (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>int</c> value between zero
+            (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextInt(int)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextInt(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextInt">
+      <MemberSignature Language="C#" Value="public virtual int NextInt (int origin, int bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 NextInt(int32 origin, int32 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextInt(System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member NextInt : int * int -&gt; int&#xA;override this.NextInt : int * int -&gt; int" Usage="iRandomGenerator.NextInt (origin, bound)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextInt", "(II)I", "GetNextInt_IIHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextInt", "(II)I", "GetNextInt_IIHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="origin" Type="System.Int32" />
+        <Parameter Name="bound" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="origin">the least value that can be returned</param>
+        <param name="bound">the upper bound (exclusive) for the returned value</param>
+        <summary>Returns a pseudorandomly chosen <c>int</c> value between the specified
+            origin (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>int</c> value between the
+                    origin (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>int</c> value between the specified
+            origin (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextInt(int,%20int)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextInt(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextLong">
+      <MemberSignature Language="C#" Value="public long NextLong ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 NextLong() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextLong" />
+      <MemberSignature Language="F#" Value="abstract member NextLong : unit -&gt; int64" Usage="iRandomGenerator.NextLong " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextLong", "()J", "GetNextLongHandler:Java.Util.RandomGenerators.IRandomGeneratorInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextLong", "()J", "GetNextLongHandler:Java.Util.RandomGenerators.IRandomGeneratorInvoker, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns a pseudorandomly chosen <c>long</c> value.</summary>
+        <returns>a pseudorandomly chosen <c>long</c> value</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>long</c> value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextLong()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextLong()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextLong">
+      <MemberSignature Language="C#" Value="public virtual long NextLong (long bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 NextLong(int64 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextLong(System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member NextLong : int64 -&gt; int64&#xA;override this.NextLong : int64 -&gt; int64" Usage="iRandomGenerator.NextLong bound" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextLong", "(J)J", "GetNextLong_JHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextLong", "(J)J", "GetNextLong_JHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="bound" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="bound">the upper bound (exclusive) for the returned value.
+            Must be positive.</param>
+        <summary>Returns a pseudorandomly chosen <c>long</c> value between zero
+            (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>long</c> value between
+                    zero (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>long</c> value between zero
+            (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextLong(long)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextLong(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NextLong">
+      <MemberSignature Language="C#" Value="public virtual long NextLong (long origin, long bound);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 NextLong(int64 origin, int64 bound) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.NextLong(System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="abstract member NextLong : int64 * int64 -&gt; int64&#xA;override this.NextLong : int64 * int64 -&gt; int64" Usage="iRandomGenerator.NextLong (origin, bound)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("nextLong", "(JJ)J", "GetNextLong_JJHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextLong", "(JJ)J", "GetNextLong_JJHandler:Java.Util.RandomGenerators.IRandomGenerator, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="origin" Type="System.Int64" />
+        <Parameter Name="bound" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="origin">the least value that can be returned</param>
+        <param name="bound">the upper bound (exclusive) for the returned value</param>
+        <summary>Returns a pseudorandomly chosen <c>long</c> value between the
+            specified origin (inclusive) and the specified bound (exclusive).</summary>
+        <returns>a pseudorandomly chosen <c>long</c> value between the
+                    origin (inclusive) and the bound (exclusive)</returns>
+        <remarks>
+          <para>Returns a pseudorandomly chosen <c>long</c> value between the
+            specified origin (inclusive) and the specified bound (exclusive).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#nextLong(long,%20long)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.nextLong(long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Of">
+      <MemberSignature Language="C#" Value="public static Java.Util.RandomGenerators.IRandomGenerator? Of (string? name);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.RandomGenerators.IRandomGenerator Of(string name) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.IRandomGenerator.Of(System.String)" />
+      <MemberSignature Language="F#" Value="static member Of : string -&gt; Java.Util.RandomGenerators.IRandomGenerator" Usage="Java.Util.RandomGenerators.IRandomGenerator.Of name" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("of", "(Ljava/lang/String;)Ljava/util/random/RandomGenerator;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("of", "(Ljava/lang/String;)Ljava/util/random/RandomGenerator;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.RandomGenerators.IRandomGenerator</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="name">Name of random number generator
+                         algorithm</param>
+        <summary>Returns an instance of <c>RandomGenerator</c> that utilizes the
+            <c>name</c>algorithm.</summary>
+        <returns>An instance of <c>RandomGenerator</c></returns>
+        <remarks>
+          <para>Returns an instance of <c>RandomGenerator</c> that utilizes the
+            <c>name</c>algorithm.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGenerator#of(java.lang.String)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGenerator.of(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

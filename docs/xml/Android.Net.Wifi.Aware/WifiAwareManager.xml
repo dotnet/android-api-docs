@@ -17,19 +17,86 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/aware/WifiAwareManager", ApiSince=26, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>This class provides the primary API for managing Wi-Fi Aware operations:
+            discovery and peer-to-peer data connections.</summary>
     <remarks>
+      <para>This class provides the primary API for managing Wi-Fi Aware operations:
+            discovery and peer-to-peer data connections.</para>
+      <para>The class provides access to:
+            &lt;ul&gt;
+            &lt;li&gt;Initialize a Aware cluster (peer-to-peer synchronization). Refer to
+            <c>#attach(AttachCallback, Handler)</c>.
+            &lt;li&gt;Create discovery sessions (publish or subscribe sessions). Refer to
+            <c>WifiAwareSession#publish(PublishConfig, DiscoverySessionCallback, Handler)</c> and
+            <c>WifiAwareSession#subscribe(SubscribeConfig, DiscoverySessionCallback, Handler)</c>.
+            &lt;li&gt;Create a Aware network specifier to be used with
+            <c>ConnectivityManager#requestNetwork(NetworkRequest, ConnectivityManager.NetworkCallback)</c>
+            to set-up a Aware connection with a peer. Refer to <c>WifiAwareNetworkSpecifier.Builder</c>.
+            &lt;/ul&gt;</para>
+      <para>Aware may not be usable when Wi-Fi is disabled (and other conditions). To validate that
+                the functionality is available use the <c>#isAvailable()</c> function. To track
+                changes in Aware usability register for the <c>#ACTION_WIFI_AWARE_STATE_CHANGED</c>
+                broadcast. Note that this broadcast is not sticky - you should register for it and then
+                check the above API to avoid a race condition.</para>
+      <para>An application must use <c>#attach(AttachCallback, Handler)</c> to initialize a
+                Aware cluster - before making any other Aware operation. Aware cluster membership is a
+                device-wide operation - the API guarantees that the device is in a cluster or joins a
+                Aware cluster (or starts one if none can be found). Information about attach success (or
+                failure) are returned in callbacks of <c>AttachCallback</c>. Proceed with Aware
+                discovery or connection setup only after receiving confirmation that Aware attach
+                succeeded - <c>AttachCallback#onAttached(WifiAwareSession)</c>. When an
+                application is finished using Aware it &lt;b&gt;must&lt;/b&gt; use the
+                <c>WifiAwareSession#close()</c> API to indicate to the Aware service that the device
+                may detach from the Aware cluster. The device will actually disable Aware once the last
+                application detaches.</para>
+      <para>Once a Aware attach is confirmed use the
+                <c>WifiAwareSession#publish(PublishConfig, DiscoverySessionCallback, Handler)</c>
+                or
+                <c>WifiAwareSession#subscribe(SubscribeConfig, DiscoverySessionCallback,
+                Handler)</c> to create publish or subscribe Aware discovery sessions. Events are called on the
+                provided callback object <c>DiscoverySessionCallback</c>. Specifically, the
+                <c>DiscoverySessionCallback#onPublishStarted(PublishDiscoverySession)</c>
+                and
+                <c>DiscoverySessionCallback#onSubscribeStarted(
+            SubscribeDiscoverySession)</c>
+                return <c>PublishDiscoverySession</c> and
+                <c>SubscribeDiscoverySession</c>
+                objects respectively on which additional session operations can be performed, e.g. updating
+                the session <c>PublishDiscoverySession#updatePublish(PublishConfig)</c> and
+                <c>SubscribeDiscoverySession#updateSubscribe(SubscribeConfig)</c>. Sessions can
+                also be used to send messages using the
+                <c>DiscoverySession#sendMessage(PeerHandle, int, byte[])</c> APIs. When an
+                application is finished with a discovery session it &lt;b&gt;must&lt;/b&gt; terminate it using the
+                <c>DiscoverySession#close()</c> API.</para>
+      <para>Creating connections between Aware devices is managed by the standard
+               <c>ConnectivityManager#requestNetwork(NetworkRequest,
+               ConnectivityManager.NetworkCallback)</c>.
+               The <c>NetworkRequest</c> object should be constructed with:
+               &lt;ul&gt;
+                   &lt;li&gt;<c>NetworkRequest.Builder#addTransportType(int)</c> of
+                   <c>android.net.NetworkCapabilities#TRANSPORT_WIFI_AWARE</c>.
+                   &lt;li&gt;<c>NetworkRequest.Builder#setNetworkSpecifier(String)</c> using
+                   <c>WifiAwareNetworkSpecifier.Builder</c>.
+               &lt;/ul&gt;</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -84,8 +151,25 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Intent broadcast sent whenever Wi-Fi Aware resource availability has changed.</summary>
+        <remarks>
+          <para>Intent broadcast sent whenever Wi-Fi Aware resource availability has changed. The resources
+            are attached with the <c>#EXTRA_AWARE_RESOURCES</c> extra. The resources can also be
+            obtained using the <c>#getAvailableAwareResources()</c> method. To receive this broadcast,
+            apps must hold <c>android.Manifest.permission#ACCESS_WIFI_STATE</c>.</para>
+          <para>Note: The broadcast is only delivered to registered receivers - no manifest registered
+            components will be launched.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#ACTION_WIFI_AWARE_RESOURCE_CHANGED" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.ACTION_WIFI_AWARE_RESOURCE_CHANGED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionWifiAwareStateChanged">
@@ -112,9 +196,26 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Broadcast intent action to indicate that the state of Wi-Fi Aware availability has changed
+            and all active Aware sessions are no longer usable.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Broadcast intent action to indicate that the state of Wi-Fi Aware availability has changed
+            and all active Aware sessions are no longer usable. Use the <c>#isAvailable()</c> to query
+            the current status.
+            This broadcast is &lt;b&gt;not&lt;/b&gt; sticky, use the <c>#isAvailable()</c> API after registering
+            the broadcast to check the current state of Wi-Fi Aware.</para>
+          <para>Note: The broadcast is only delivered to registered receivers - no manifest registered
+            components will be launched.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#ACTION_WIFI_AWARE_STATE_CHANGED" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.ACTION_WIFI_AWARE_STATE_CHANGED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -143,14 +244,41 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="attachCallback" Type="Android.Net.Wifi.Aware.AttachCallback" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="attachCallback">To be added.</param>
-        <param name="handler">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="attachCallback">A callback for attach events, extended from
+            <c>AttachCallback</c>.</param>
+        <param name="handler">The Handler on whose thread to execute the callbacks of the <c>attachCallback</c> object. If a null is provided then the application's main thread will be
+                           used.</param>
+        <summary>Attach to the Wi-Fi Aware service - enabling the application to create discovery sessions or
+            create connections to peers.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Attach to the Wi-Fi Aware service - enabling the application to create discovery sessions or
+            create connections to peers. The device will attach to an existing cluster if it can find
+            one or create a new cluster (if it is the first to enable Aware in its vicinity). Results
+            (e.g. successful attach to a cluster) are provided to the <c>attachCallback</c> object.
+            An application &lt;b&gt;must&lt;/b&gt; call <c>WifiAwareSession#close()</c> when done with the
+            Wi-Fi Aware object.</para>
+          <para>Note: a Aware cluster is a shared resource - if the device is already attached to a cluster
+            then this function will simply indicate success immediately using the same <c>attachCallback</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#attach(android.net.wifi.aware.AttachCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.attach(android.net.wifi.aware.AttachCallback, android.os.Handler)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -180,15 +308,61 @@
       <Parameters>
         <Parameter Name="attachCallback" Type="Android.Net.Wifi.Aware.AttachCallback" />
         <Parameter Name="identityChangedListener" Type="Android.Net.Wifi.Aware.IdentityChangedListener" />
-        <Parameter Name="handler" Type="Android.OS.Handler" />
+        <Parameter Name="handler" Type="Android.OS.Handler">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="attachCallback">To be added.</param>
-        <param name="identityChangedListener">To be added.</param>
-        <param name="handler">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="attachCallback">A callback for attach events, extended from
+            <c>AttachCallback</c>.</param>
+        <param name="identityChangedListener">A callback for changed identity or cluster ID, extended from
+            <c>IdentityChangedListener</c>.</param>
+        <param name="handler">The Handler on whose thread to execute the callbacks of the <c>attachCallback</c> and <c>identityChangedListener</c> objects. If a null is provided then the
+                           application's main thread will be used.</param>
+        <summary>Attach to the Wi-Fi Aware service - enabling the application to create discovery sessions or
+            create connections to peers.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Attach to the Wi-Fi Aware service - enabling the application to create discovery sessions or
+            create connections to peers. The device will attach to an existing cluster if it can find
+            one or create a new cluster (if it is the first to enable Aware in its vicinity). Results
+            (e.g. successful attach to a cluster) are provided to the <c>attachCallback</c> object.
+            An application &lt;b&gt;must&lt;/b&gt; call <c>WifiAwareSession#close()</c> when done with the
+            Wi-Fi Aware object.</para>
+          <para>Note: a Aware cluster is a shared resource - if the device is already attached to a cluster
+            then this function will simply indicate success immediately using the same <c>attachCallback</c>.</para>
+          <para>This version of the API attaches a listener to receive the MAC address of the Aware interface
+            on startup and whenever it is updated (it is randomized at regular intervals for privacy).
+            
+            If targeting <c>android.os.Build.VERSION_CODES#TIRAMISU</c> or later, the application must
+            have <c>android.Manifest.permission#NEARBY_WIFI_DEVICES</c> with
+            android:usesPermissionFlags="neverForLocation". If the application does not declare
+            android:usesPermissionFlags="neverForLocation", then it must also have
+            <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.
+            
+            If targeting an earlier release than <c>android.os.Build.VERSION_CODES#TIRAMISU</c>, the
+            application must have <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.
+            
+            Apps without <c>android.Manifest.permission#NEARBY_WIFI_DEVICES</c> or
+            <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c> can use the
+            <c>#attach(AttachCallback, Handler)</c> version.
+            Note that aside from permission requirements the <c>IdentityChangedListener</c> will wake up
+            the host at regular intervals causing higher power consumption, do not use it unless the
+            information is necessary (e.g. for out-of-band discovery).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#attach(android.net.wifi.aware.AttachCallback,%20android.net.wifi.aware.IdentityChangedListener,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.attach(android.net.wifi.aware.AttachCallback, android.net.wifi.aware.IdentityChangedListener, android.os.Handler)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -203,6 +377,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
@@ -220,9 +398,27 @@
         <ReturnType>Android.Net.Wifi.Aware.AwareResources</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the available resources of the Wi-Fi aware service: a set of parameters which specify
+            limitations on service usage, e.</summary>
+        <value>An object specifying the currently available resource of the Wi-Fi Aware service.</value>
+        <remarks>
+          <para>Return the available resources of the Wi-Fi aware service: a set of parameters which specify
+            limitations on service usage, e.g the number of data-paths which could be created.</para>
+          <para>May return <c>null</c> if the Wi-Fi Aware service is not initialized. Use
+            <c>#attach(AttachCallback, Handler)</c> or
+            <c>#attach(AttachCallback, IdentityChangedListener, Handler)</c> to initialize the Wi-Fi
+            Aware service.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#getAvailableAwareResources()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.getAvailableAwareResources()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Characteristics">
@@ -236,6 +432,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
@@ -253,10 +453,26 @@
         <ReturnType>Android.Net.Wifi.Aware.Characteristics</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the characteristics of the Wi-Fi Aware interface: a set of parameters which specify
+            limitations on configurations, e.</summary>
+        <value>An object specifying configuration limitations of Aware.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the characteristics of the Wi-Fi Aware interface: a set of parameters which specify
+            limitations on configurations, e.g. the maximum service name length.</para>
+          <para>May return <c>null</c> if the Wi-Fi Aware service is not initialized. Use
+            <c>#attach(AttachCallback, Handler)</c> or
+            <c>#attach(AttachCallback, IdentityChangedListener, Handler)</c> to initialize the Wi-Fi
+            Aware service.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#getCharacteristics()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.getCharacteristics()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -284,8 +500,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Sent as a part of <c>#ACTION_WIFI_AWARE_RESOURCE_CHANGED</c> that contains an instance of
+            <c>AwareResources</c> representing the current Wi-Fi Aware resources.</summary>
+        <remarks>
+          <para>Sent as a part of <c>#ACTION_WIFI_AWARE_RESOURCE_CHANGED</c> that contains an instance of
+            <c>AwareResources</c> representing the current Wi-Fi Aware resources.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#EXTRA_AWARE_RESOURCES" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.EXTRA_AWARE_RESOURCES</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetPairedDevices">
@@ -320,10 +550,23 @@
         <Parameter Name="resultsCallback" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="resultsCallback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor on which callback will be invoked.</param>
+        <param name="resultsCallback">An asynchronous callback that will return a list of paired devices'
+                                   alias</param>
+        <summary>Get all the paired devices configured by the calling app.</summary>
+        <remarks>
+          <para>Get all the paired devices configured by the calling app.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#getPairedDevices(java.util.concurrent.Executor,%20java.util.function.Consumer%3Cjava.util.List%3Cjava.lang.String%3E%3E)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.getPairedDevices(java.util.concurrent.Executor, java.util.function.Consumer&lt;java.util.List&lt;java.lang.String&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsAvailable">
@@ -354,10 +597,23 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the current status of Aware API: whether or not Aware is available.</summary>
+        <value>A boolean indicating whether the app can use the Aware API at this time (true) or
+            not (false).</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the current status of Aware API: whether or not Aware is available. To track
+            changes in the state of Aware API register for the
+            <c>#ACTION_WIFI_AWARE_STATE_CHANGED</c> broadcast.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#isAvailable()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.isAvailable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -389,9 +645,26 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the current status of the Aware service: whether or not the device is already attached
+            to an Aware cluster.</summary>
+        <value>A boolean indicating whether the device is attached to a cluster at this time (true)
+                    or not (false).</value>
+        <remarks>
+          <para>Return the current status of the Aware service: whether or not the device is already attached
+            to an Aware cluster. To attach to an Aware cluster, please use
+            <c>#attach(AttachCallback, Handler)</c> or
+            <c>#attach(AttachCallback, IdentityChangedListener, Handler)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#isDeviceAttached()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.isDeviceAttached()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsInstantCommunicationModeEnabled">
@@ -422,9 +695,22 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the current status of the Wifi Aware instant communication mode.</summary>
+        <value>true if it is enabled, false otherwise.</value>
+        <remarks>
+          <para>Return the current status of the Wifi Aware instant communication mode.
+            If the device doesn't support this feature, return will always be false.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#isInstantCommunicationModeEnabled()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.isInstantCommunicationModeEnabled()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsOpportunisticModeEnabled">
@@ -459,10 +745,24 @@
         <Parameter Name="resultsCallback" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="resultsCallback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor on which callback will be invoked.</param>
+        <param name="resultsCallback">An asynchronous callback that will return boolean</param>
+        <summary>Indicate whether all Wi-Fi Aware sessions created by the calling app are opportunistic as
+            defined and configured by <c>#setOpportunisticModeEnabled(boolean)</c></summary>
+        <remarks>
+          <para>Indicate whether all Wi-Fi Aware sessions created by the calling app are opportunistic as
+            defined and configured by <c>#setOpportunisticModeEnabled(boolean)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#isOpportunisticModeEnabled(java.util.concurrent.Executor,%20java.util.function.Consumer%3Cjava.lang.Boolean%3E)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.isOpportunisticModeEnabled(java.util.concurrent.Executor, java.util.function.Consumer&lt;java.lang.Boolean&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsSetChannelOnDataPathSupported">
@@ -493,9 +793,24 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the device support for setting a channel requirement in a data-path request.</summary>
+        <value>True is the device support set channel on data-path request, false otherwise.</value>
+        <remarks>
+          <para>Return the device support for setting a channel requirement in a data-path request. If true
+            the channel set by
+            <c>WifiAwareNetworkSpecifier.Builder#setChannelFrequencyMhz(int, boolean)</c> will be
+            honored, otherwise it will be ignored.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#isSetChannelOnDataPathSupported()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.isSetChannelOnDataPathSupported()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -560,9 +875,25 @@
         <Parameter Name="alias" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="alias">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="alias">The alias set by the caller</param>
+        <summary>Remove the target paired device setup by the caller by
+            <c>DiscoverySession#initiatePairingRequest(PeerHandle, String, int, String)</c> and
+            <c>DiscoverySession#acceptPairingRequest(int, PeerHandle, String, int, String)</c></summary>
+        <remarks>
+          <para>Remove the target paired device setup by the caller by
+            <c>DiscoverySession#initiatePairingRequest(PeerHandle, String, int, String)</c> and
+            <c>DiscoverySession#acceptPairingRequest(int, PeerHandle, String, int, String)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#removePairedDevice(java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.removePairedDevice(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResetPairedDevices">
@@ -594,8 +925,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Reset all paired devices setup by the caller by
+            <c>DiscoverySession#initiatePairingRequest(PeerHandle, String, int, String)</c> and
+            <c>DiscoverySession#acceptPairingRequest(int, PeerHandle, String, int, String)</c></summary>
+        <remarks>
+          <para>Reset all paired devices setup by the caller by
+            <c>DiscoverySession#initiatePairingRequest(PeerHandle, String, int, String)</c> and
+            <c>DiscoverySession#acceptPairingRequest(int, PeerHandle, String, int, String)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#resetPairedDevices()" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.resetPairedDevices()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetOpportunisticModeEnabled">
@@ -629,9 +976,24 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="enabled">True to configure all Wi-Fi Aware sessions by the calling app as
+                           Opportunistic. False by default.</param>
+        <summary>Set all Wi-Fi Aware sessions created by the calling app to be opportunistic.</summary>
+        <remarks>
+          <para>Set all Wi-Fi Aware sessions created by the calling app to be opportunistic. Opportunistic
+             Wi-Fi Aware sessions are considered low priority and may be torn down (the sessions or the
+             Aware interface) if there are resource conflicts.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#setOpportunisticModeEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.setOpportunisticModeEnabled(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -725,8 +1087,23 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Reason code provided in <c>DiscoverySessionCallback#onServiceLost(PeerHandle, int)</c>
+            indicating that the service advertised by the peer is no longer visible.</summary>
+        <remarks>
+          <para>Reason code provided in <c>DiscoverySessionCallback#onServiceLost(PeerHandle, int)</c>
+            indicating that the service advertised by the peer is no longer visible. This may be because
+            the peer is out of range or because the peer stopped advertising this service.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#WIFI_AWARE_DISCOVERY_LOST_REASON_PEER_NOT_VISIBLE" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.WIFI_AWARE_DISCOVERY_LOST_REASON_PEER_NOT_VISIBLE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WifiAwareDiscoveryLostReasonUnknown">
@@ -758,8 +1135,22 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Reason code provided in <c>DiscoverySessionCallback#onServiceLost(PeerHandle, int)</c>
+            indicating that the service was lost for unknown reason.</summary>
+        <remarks>
+          <para>Reason code provided in <c>DiscoverySessionCallback#onServiceLost(PeerHandle, int)</c>
+            indicating that the service was lost for unknown reason.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareManager#WIFI_AWARE_DISCOVERY_LOST_REASON_UNKNOWN" title="Reference documentation">Java documentation for <code>android.net.wifi.aware.WifiAwareManager.WIFI_AWARE_DISCOVERY_LOST_REASON_UNKNOWN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

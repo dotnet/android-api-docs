@@ -17,13 +17,33 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/http/UrlRequest", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Controls an HTTP request (GET, PUT, POST etc).</summary>
+    <remarks>
+      <para>Controls an HTTP request (GET, PUT, POST etc).
+            Created by <c>UrlRequest.Builder</c>, which can be obtained by calling
+            <c>HttpEngine#newUrlRequestBuilder</c>.
+            Note: All methods must be called on the <c>Executor</c> passed to
+            <c>HttpEngine#newUrlRequestBuilder</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/http/UrlRequest" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -72,8 +92,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Cancels the request.</summary>
+        <remarks>
+          <para>Cancels the request. Can be called at any time. <c>Callback#onCanceled onCanceled()</c> will
+            be invoked when cancellation is complete and no further callback methods will be invoked. If
+            the request has completed or has not started, calling <c>cancel()</c> has no effect and
+            <c>onCanceled()</c> will not be invoked. If the <c>Executor</c> passed in during <c>UrlRequest</c> construction runs tasks on a single thread, and <c>cancel()</c> is called on
+            that thread, no callback methods (besides <c>onCanceled()</c>) will be invoked after <c>cancel()</c> is called. Otherwise, at most one callback method may be invoked after <c>cancel()</c> has completed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#cancel()" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.cancel()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FollowRedirect">
@@ -101,8 +137,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Follows a pending redirect.</summary>
+        <remarks>
+          <para>Follows a pending redirect. Must only be called at most once for each invocation of <c>Callback#onRedirectReceived onRedirectReceived()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#followRedirect()" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.followRedirect()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStatus">
@@ -235,6 +283,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getHttpMethod", "()Ljava/lang/String;", "GetGetHttpMethodHandler", ApiSince=34)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getHttpMethod", "()Ljava/lang/String;", "GetGetHttpMethodHandler", ApiSince=34)&gt;]</AttributeName>
@@ -425,9 +477,30 @@
         <Parameter Name="buffer" Type="Java.Nio.ByteBuffer" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="buffer">
+          <c>ByteBuffer</c> to write response body to. Must be a direct ByteBuffer. The
+            embedder must not read or modify buffer's position, limit, or data between its position and
+            limit until the request calls back into the <c>Callback</c>.</param>
+        <summary>Attempts to read part of the response body into the provided buffer.</summary>
+        <remarks>
+          <para>Attempts to read part of the response body into the provided buffer. Must only be called at
+            most once in response to each invocation of the <c>Callback#onResponseStarted
+            onResponseStarted()</c> and <c>Callback#onReadCompleted onReadCompleted()</c> methods of the
+            <c>Callback</c>. Each call will result in an asynchronous call to either the <c>Callback
+            Callback's</c><c>Callback#onReadCompleted onReadCompleted()</c> method if data is read, its
+            <c>Callback#onSucceeded onSucceeded()</c> method if there's no more data to read, or its
+            <c>Callback#onFailed onFailed()</c> method if there's an error.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#read(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.read(java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestPriorityHighest">
@@ -459,8 +532,20 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Highest request priority.</summary>
+        <remarks>
+          <para>Highest request priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#REQUEST_PRIORITY_HIGHEST" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.REQUEST_PRIORITY_HIGHEST</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestPriorityIdle">
@@ -492,8 +577,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Lowest request priority.</summary>
+        <remarks>
+          <para>Lowest request priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#REQUEST_PRIORITY_IDLE" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.REQUEST_PRIORITY_IDLE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestPriorityLow">
@@ -525,8 +622,20 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Low request priority.</summary>
+        <remarks>
+          <para>Low request priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#REQUEST_PRIORITY_LOW" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.REQUEST_PRIORITY_LOW</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestPriorityLowest">
@@ -558,8 +667,20 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Very low request priority.</summary>
+        <remarks>
+          <para>Very low request priority. Passed to <c>Builder#setPriority</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#REQUEST_PRIORITY_LOWEST" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.REQUEST_PRIORITY_LOWEST</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestPriorityMedium">
@@ -591,8 +712,21 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Medium request priority.</summary>
+        <remarks>
+          <para>Medium request priority. Passed to <c>Builder#setPriority</c>. This is the
+            default priority given to the request.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#REQUEST_PRIORITY_MEDIUM" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.REQUEST_PRIORITY_MEDIUM</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Start">
@@ -620,8 +754,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts the request, all callbacks go to <c>Callback</c>.</summary>
+        <remarks>
+          <para>Starts the request, all callbacks go to <c>Callback</c>. May only be called
+            once. May not be called if <c>#cancel</c> has been called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UrlRequest#start()" title="Reference documentation">Java documentation for <code>android.net.http.UrlRequest.start()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/usage/NetworkStats$Bucket", ApiSince=23, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android23.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,8 @@
   <Docs>
     <summary>Buckets are the smallest elements of a query result.</summary>
     <remarks>
+      <para>Buckets are the smallest elements of a query result. As some dimensions of a result may be
+            aggregated (e.g. time or state) some values may be equal across all buckets.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket</code>.</a>
@@ -118,6 +124,7 @@
       <Docs>
         <summary>Combined usage for this network regardless of default network status.</summary>
         <remarks>
+          <para>Combined usage for this network regardless of default network status.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#DEFAULT_NETWORK_ALL" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.DEFAULT_NETWORK_ALL</code>.</a>
@@ -162,6 +169,9 @@
       <Docs>
         <summary>Usage that occurs while this network is not a default network.</summary>
         <remarks>
+          <para>Usage that occurs while this network is not a default network.</para>
+          <para>This implies that the app responsible for this usage requested that it occur on a
+            specific network different from the one(s) the system would have selected for it.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#DEFAULT_NETWORK_NO" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.DEFAULT_NETWORK_NO</code>.</a>
@@ -202,6 +212,12 @@
         <summary>Default network status.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Default network status. One of the following values:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;<c>#DEFAULT_NETWORK_ALL</c>&lt;/li&gt;
+            &lt;li&gt;<c>#DEFAULT_NETWORK_NO</c>&lt;/li&gt;
+            &lt;li&gt;<c>#DEFAULT_NETWORK_YES</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getDefaultNetworkStatus()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getDefaultNetworkStatus()</code>.</a>
@@ -246,6 +262,9 @@
       <Docs>
         <summary>Usage that occurs while this network is a default network.</summary>
         <remarks>
+          <para>Usage that occurs while this network is a default network.</para>
+          <para>This implies that the app either did not select a specific network for this usage,
+            or it selected a network that the system could have selected for app traffic.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#DEFAULT_NETWORK_YES" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.DEFAULT_NETWORK_YES</code>.</a>
@@ -286,6 +305,8 @@
         <summary>End timestamp of the bucket's time interval.</summary>
         <value>End of interval.</value>
         <remarks>
+          <para>End timestamp of the bucket's time interval. Defined in terms of "Unix time", see
+            <c>java.lang.System#currentTimeMillis</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getEndTimeStamp()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getEndTimeStamp()</code>.</a>
@@ -357,6 +378,15 @@
         <summary>Metered state.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Metered state. One of the following values:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;<c>#METERED_ALL</c>&lt;/li&gt;
+            &lt;li&gt;<c>#METERED_NO</c>&lt;/li&gt;
+            &lt;li&gt;<c>#METERED_YES</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>A network is classified as metered when the user is sensitive to heavy data usage on
+            that connection. Apps may warn before using these networks for large downloads. The
+            metered state can be set by the user within data usage network restrictions.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getMetered()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getMetered()</code>.</a>
@@ -397,6 +427,12 @@
         <summary>Roaming state.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Roaming state. One of the following values:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;<c>#ROAMING_ALL</c>&lt;/li&gt;
+            &lt;li&gt;<c>#ROAMING_NO</c>&lt;/li&gt;
+            &lt;li&gt;<c>#ROAMING_YES</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getRoaming()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getRoaming()</code>.</a>
@@ -441,6 +477,7 @@
       <Docs>
         <summary>Combined usage across all roaming states.</summary>
         <remarks>
+          <para>Combined usage across all roaming states. Covers both roaming and non-roaming usage.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#ROAMING_ALL" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.ROAMING_ALL</code>.</a>
@@ -485,6 +522,11 @@
       <Docs>
         <summary>Usage that occurs on a home, non-roaming network.</summary>
         <remarks>
+          <para>Usage that occurs on a home, non-roaming network.</para>
+          <para>Any cellular usage in this bucket was incurred while the device was connected to a
+            tower owned or operated by the user's wireless carrier, or a tower that the user's
+            wireless carrier has indicated should be treated as a home network regardless.</para>
+          <para>This is also the default value for network types that do not support roaming.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#ROAMING_NO" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.ROAMING_NO</code>.</a>
@@ -529,6 +571,9 @@
       <Docs>
         <summary>Usage that occurs on a roaming network.</summary>
         <remarks>
+          <para>Usage that occurs on a roaming network.</para>
+          <para>Any cellular usage in this bucket as incurred while the device was roaming on another
+            carrier's network, for which additional charges may apply.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#ROAMING_YES" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.ROAMING_YES</code>.</a>
@@ -569,6 +614,8 @@
         <summary>Number of bytes received during the bucket's time interval.</summary>
         <value>Number of bytes.</value>
         <remarks>
+          <para>Number of bytes received during the bucket's time interval. Statistics are measured at
+            the network layer, so they include both TCP and UDP usage.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getRxBytes()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getRxBytes()</code>.</a>
@@ -609,6 +656,8 @@
         <summary>Number of packets received during the bucket's time interval.</summary>
         <value>Number of packets.</value>
         <remarks>
+          <para>Number of packets received during the bucket's time interval. Statistics are measured at
+            the network layer, so they include both TCP and UDP usage.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getRxPackets()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getRxPackets()</code>.</a>
@@ -649,6 +698,8 @@
         <summary>Start timestamp of the bucket's time interval.</summary>
         <value>Start of interval.</value>
         <remarks>
+          <para>Start timestamp of the bucket's time interval. Defined in terms of "Unix time", see
+            <c>java.lang.System#currentTimeMillis</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getStartTimeStamp()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getStartTimeStamp()</code>.</a>
@@ -689,6 +740,12 @@
         <summary>Usage state.</summary>
         <value>Usage state.</value>
         <remarks>
+          <para>Usage state. One of the following values:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;<c>#STATE_ALL</c>&lt;/li&gt;
+            &lt;li&gt;<c>#STATE_DEFAULT</c>&lt;/li&gt;
+            &lt;li&gt;<c>#STATE_FOREGROUND</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getState()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getState()</code>.</a>
@@ -729,6 +786,8 @@
         <summary>Tag of the bucket.</summary>
         <value>Bucket tag.</value>
         <remarks>
+          <para>Tag of the bucket.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getTag()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getTag()</code>.</a>
@@ -769,6 +828,7 @@
       <Docs>
         <summary>Special TAG value for total data across all tags</summary>
         <remarks>
+          <para>Special TAG value for total data across all tags</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#TAG_NONE" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.TAG_NONE</code>.</a>
@@ -871,6 +931,8 @@
         <summary>Number of bytes transmitted during the bucket's time interval.</summary>
         <value>Number of bytes.</value>
         <remarks>
+          <para>Number of bytes transmitted during the bucket's time interval. Statistics are measured at
+            the network layer, so they include both TCP and UDP usage.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getTxBytes()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getTxBytes()</code>.</a>
@@ -911,6 +973,8 @@
         <summary>Number of packets transmitted during the bucket's time interval.</summary>
         <value>Number of packets.</value>
         <remarks>
+          <para>Number of packets transmitted during the bucket's time interval. Statistics are measured
+            at the network layer, so they include both TCP and UDP usage.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getTxPackets()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getTxPackets()</code>.</a>
@@ -951,6 +1015,12 @@
         <summary>Key of the bucket.</summary>
         <value>Bucket key.</value>
         <remarks>
+          <para>Key of the bucket. Usually an app uid or one of the following special values:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;<c>#UID_REMOVED</c>&lt;/li&gt;
+            &lt;li&gt;<c>#UID_TETHERING</c>&lt;/li&gt;
+            &lt;li&gt;<c>android.os.Process#SYSTEM_UID</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#getUid()" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.getUid()</code>.</a>
@@ -991,6 +1061,7 @@
       <Docs>
         <summary>Special UID value for aggregate/unspecified.</summary>
         <remarks>
+          <para>Special UID value for aggregate/unspecified.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#UID_ALL" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.UID_ALL</code>.</a>
@@ -1031,6 +1102,7 @@
       <Docs>
         <summary>Special UID value for removed apps.</summary>
         <remarks>
+          <para>Special UID value for removed apps.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#UID_REMOVED" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.UID_REMOVED</code>.</a>
@@ -1071,6 +1143,7 @@
       <Docs>
         <summary>Special UID value for data usage by tethering.</summary>
         <remarks>
+          <para>Special UID value for data usage by tethering.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/usage/NetworkStats.Bucket#UID_TETHERING" title="Reference documentation">Java documentation for <code>android.app.usage.NetworkStats.Bucket.UID_TETHERING</code>.</a>

@@ -29,6 +29,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/nio/ByteBuffer", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/nio/ByteBuffer", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>A byte buffer.</summary>
@@ -46,17 +50,18 @@
       <para>&lt;/li&gt;
             
               &lt;li&gt;</para>
-      <para>Relative <c>#get(byte[]) &lt;i&gt;bulk get&lt;/i&gt;</c>
+      <para>Absolute and relative <c>#get(byte[]) &lt;i&gt;bulk get&lt;/i&gt;</c>
               methods that transfer contiguous sequences of bytes from this buffer
               into an array;</para>
       <para>&lt;/li&gt;
             
               &lt;li&gt;</para>
-      <para>Relative <c>#put(byte[]) &lt;i&gt;bulk put&lt;/i&gt;</c>
+      <para>Absolute and relative <c>#put(byte[]) &lt;i&gt;bulk put&lt;/i&gt;</c>
               methods that transfer contiguous sequences of bytes from a
               byte array or some other byte
               buffer into this buffer;</para>
       <para>&lt;/li&gt;
+            
             
             
               &lt;li&gt;</para>
@@ -73,8 +78,9 @@
       <para>&lt;/li&gt;
             
             
+            
               &lt;li&gt;</para>
-      <para>Methods for <c>#compact compacting</c>, <c>#duplicate duplicating</c>, and <c>#slice slicing</c>
+      <para>A method for <c>#compact compacting</c>
               a byte buffer.</para>
       <para>&lt;/li&gt;
             
@@ -83,8 +89,17 @@
             &lt;i&gt;allocation&lt;/i&gt;</c>, which allocates space for the buffer's
             
             
+            
             content, or by <c>#wrap(byte[]) &lt;i&gt;wrapping&lt;/i&gt;</c> an
-            existing byte array  into a buffer.
+            existing byte array {#if[char]?or&amp;#32;string} into a buffer.
+            
+            
+            
+            
+            
+            
+            
+            
             
             
             
@@ -103,7 +118,7 @@
             obvious.  It is therefore recommended that direct buffers be allocated
             primarily for large, long-lived buffers that are subject to the underlying
             system's native I/O operations.  In general it is best to allocate direct
-            buffers only when they yield a measureable gain in program performance.</para>
+            buffers only when they yield a measurable gain in program performance.</para>
       <para>A direct byte buffer may also be created by <c>java.nio.channels.FileChannel#map mapping</c> a region of a file
             directly into memory.  An implementation of the Java platform may optionally
             support the creation of direct byte buffers from native code via JNI.  If an
@@ -133,8 +148,8 @@
              void  {@link #putFloat(float) putFloat(float f)}
              void  {@link #putFloat(int,float) putFloat(int index, float f)}</code>
       <para>&lt;/blockquote&gt;</para>
-      <para>Corresponding methods are defined for the types <c>char</c>,
-            <c>short</c>, <c>int</c>, <c>long</c>, and <c>double</c>.  The index
+      <para>Corresponding methods are defined for the types <c>char,
+            short, int, long</c>, and <c>double</c>.  The index
             parameters of the absolute <i>get</i> and <i>put</i> methods are in terms of
             bytes rather than of the type being read or written.
             
@@ -147,8 +162,7 @@
             position, limit, and mark values are independent.  The <c>#asFloatBuffer() asFloatBuffer</c> method, for example, creates an instance of
             the <c>FloatBuffer</c> class that is backed by the byte buffer upon which
             the method is invoked.  Corresponding view-creation methods are defined for
-            the types <c>char</c>, <c>short</c>, <c>int</c>, <c>long</c>, and
-            <c>double</c>.</para>
+            the types <c>char, short, int, long</c>, and <c>double</c>.</para>
       <para>View buffers have three important advantages over the families of
             type-specific <i>get</i> and <i>put</i> methods described above:
             
@@ -177,6 +191,7 @@
       <para>Methods in this class that do not otherwise have a value to return are
             specified to return the buffer upon which they are invoked.  This allows
             method invocations to be chained.
+            
             
             
             The sequence of statements
@@ -332,16 +347,32 @@
                     upper bounds check is performed</param>
         <param name="unitSize">The unit size in bytes, must be a power of <c>2</c></param>
         <summary>Returns the memory address, pointing to the byte at the given index,
-            modulus the given unit size.</summary>
-        <returns>The indexed byte's memory address modulus the unit size</returns>
+            modulo the given unit size.</summary>
+        <returns>The indexed byte's memory address modulo the unit size</returns>
         <remarks>
           <para>Returns the memory address, pointing to the byte at the given index,
-            modulus the given unit size.</para>
-          <para>A return value greater than zero indicates the address of the byte at
-            the index is misaligned for the unit size, and the value's quantity
-            indicates how much the index should be rounded up or down to locate a
-            byte at an aligned address.  Otherwise, a value of <c>0</c> indicates
-            that the address of the byte at the index is aligned for the unit size.</para>
+            modulo the given unit size.</para>
+          <para>The return value is non-negative in the range of <c>0</c>
+            (inclusive) up to <c>unitSize</c> (exclusive), with zero indicating
+            that the address of the byte at the index is aligned for the unit size,
+            and a positive value that the address is misaligned for the unit size.
+            If the address of the byte at the index is misaligned, the return value
+            represents how much the index should be adjusted to locate a byte at an
+            aligned address.  Specifically, the index should either be decremented by
+            the return value if the latter is not greater than <c>index</c>, or be
+            incremented by the unit size minus the return value.  Therefore given
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">int value = alignmentOffset(index, unitSize)</code>
+          <para>&lt;/blockquote&gt;
+            then the identities
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">alignmentOffset(index - value, unitSize) == 0, value &amp;le; index</code>
+          <para>&lt;/blockquote&gt;
+            and
+            &lt;blockquote&gt;</para>
+          <code lang="text/java">alignmentOffset(index + (unitSize - value), unitSize) == 0</code>
+          <para>&lt;/blockquote&gt;
+            must hold.</para>
           <para>Added in 9.</para>
           <para>
             <format type="text/html">
@@ -385,9 +416,16 @@
         <remarks>
           <para>Allocates a new byte buffer.</para>
           <para>The new buffer's position will be zero, its limit will be its
-            capacity, its mark will be undefined, and each of its elements will be
-            initialized to zero.  It will have a <c>#array backing array</c>,
-            and its <c>#arrayOffset array offset</c> will be zero.</para>
+            capacity, its mark will be undefined, each of its elements will be
+            initialized to zero, and its byte order will be
+            
+            <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.
+            
+            
+            
+            
+            It will have a <c>#array backing array</c>, and its
+            <c>#arrayOffset array offset</c> will be zero.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#allocate(int)" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.allocate(int)</code>.</a>
@@ -433,8 +471,9 @@
         <remarks>
           <para>Allocates a new direct byte buffer.</para>
           <para>The new buffer's position will be zero, its limit will be its
-            capacity, its mark will be undefined, and each of its elements will be
-            initialized to zero.  Whether or not it has a
+            capacity, its mark will be undefined, each of its elements will be
+            initialized to zero, and its byte order will be
+            <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.  Whether or not it has a
             <c>#hasArray backing array</c> is unspecified.</para>
           <para>
             <format type="text/html">
@@ -533,9 +572,10 @@
             values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
             will be the number of bytes remaining in this buffer divided by
-            two, and its mark will be undefined.  The new buffer will be direct
-            if, and only if, this buffer is direct, and it will be read-only if, and
-            only if, this buffer is read-only.</para>
+            two, its mark will be undefined, and its byte order will be that
+            of the byte buffer at the moment the view is created.  The new buffer
+            will be direct if, and only if, this buffer is direct, and it will be
+            read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#asCharBuffer()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.asCharBuffer()</code>.</a>
@@ -581,9 +621,10 @@
             values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
             will be the number of bytes remaining in this buffer divided by
-            eight, and its mark will be undefined.  The new buffer will be direct
-            if, and only if, this buffer is direct, and it will be read-only if, and
-            only if, this buffer is read-only.</para>
+            eight, its mark will be undefined, and its byte order will be that
+            of the byte buffer at the moment the view is created.  The new buffer
+            will be direct if, and only if, this buffer is direct, and it will be
+            read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#asDoubleBuffer()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.asDoubleBuffer()</code>.</a>
@@ -629,9 +670,10 @@
             values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
             will be the number of bytes remaining in this buffer divided by
-            four, and its mark will be undefined.  The new buffer will be direct
-            if, and only if, this buffer is direct, and it will be read-only if, and
-            only if, this buffer is read-only.</para>
+            four, its mark will be undefined, and its byte order will be that
+            of the byte buffer at the moment the view is created.  The new buffer
+            will be direct if, and only if, this buffer is direct, and it will be
+            read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#asFloatBuffer()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.asFloatBuffer()</code>.</a>
@@ -677,9 +719,10 @@
             values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
             will be the number of bytes remaining in this buffer divided by
-            four, and its mark will be undefined.  The new buffer will be direct
-            if, and only if, this buffer is direct, and it will be read-only if, and
-            only if, this buffer is read-only.</para>
+            four, its mark will be undefined, and its byte order will be that
+            of the byte buffer at the moment the view is created.  The new buffer
+            will be direct if, and only if, this buffer is direct, and it will be
+            read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#asIntBuffer()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.asIntBuffer()</code>.</a>
@@ -725,9 +768,10 @@
             values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
             will be the number of bytes remaining in this buffer divided by
-            eight, and its mark will be undefined.  The new buffer will be direct
-            if, and only if, this buffer is direct, and it will be read-only if, and
-            only if, this buffer is read-only.</para>
+            eight, its mark will be undefined, and its byte order will be that
+            of the byte buffer at the moment the view is created.  The new buffer
+            will be direct if, and only if, this buffer is direct, and it will be
+            read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#asLongBuffer()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.asLongBuffer()</code>.</a>
@@ -774,8 +818,10 @@
             buffer itself, however, will be read-only and will not allow the shared
             content to be modified.  The two buffers' position, limit, and mark
             values will be independent.</para>
-          <para>The new buffer's capacity, limit, position, and mark values will be
-            identical to those of this buffer.</para>
+          <para>The new buffer's capacity, limit, position,
+            
+            and mark values will be identical to those of this buffer, and its byte
+            order will be <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.</para>
           <para>If this buffer is itself read-only then this method behaves in
             exactly the same way as the <c>#duplicate duplicate</c> method.</para>
           <para>
@@ -823,9 +869,10 @@
             values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
             will be the number of bytes remaining in this buffer divided by
-            two, and its mark will be undefined.  The new buffer will be direct
-            if, and only if, this buffer is direct, and it will be read-only if, and
-            only if, this buffer is read-only.</para>
+            two, its mark will be undefined, and its byte order will be that
+            of the byte buffer at the moment the view is created.  The new buffer
+            will be direct if, and only if, this buffer is direct, and it will be
+            read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#asShortBuffer()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.asShortBuffer()</code>.</a>
@@ -1061,10 +1108,15 @@
             to this buffer's content will be visible in the new buffer, and vice
             versa; the two buffers' position, limit, and mark values will be
             independent.</para>
-          <para>The new buffer's capacity, limit, position, and mark values will be
-            identical to those of this buffer.  The new buffer will be direct if,
-            and only if, this buffer is direct, and it will be read-only if, and
-            only if, this buffer is read-only.</para>
+          <para>The new buffer's capacity, limit, position,
+            
+            and mark values will be identical to those of this buffer, and its byte
+            order will be <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.
+            
+            
+            
+            The new buffer will be direct if, and only if, this buffer is direct, and
+            it will be read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#duplicate()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.duplicate()</code>.</a>
@@ -1246,6 +1298,61 @@
       </Docs>
     </Member>
     <Member MemberName="Get">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.ByteBuffer Get (int index, byte[] dst);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.ByteBuffer Get(int32 index, unsigned int8[] dst) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.ByteBuffer.Get(System.Int32,System.Byte[])" />
+      <MemberSignature Language="F#" Value="abstract member Get : int * byte[] -&gt; Java.Nio.ByteBuffer&#xA;override this.Get : int * byte[] -&gt; Java.Nio.ByteBuffer" Usage="byteBuffer.Get (index, dst)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("get", "(I[B)Ljava/nio/ByteBuffer;", "GetGet_IarrayBHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("get", "(I[B)Ljava/nio/ByteBuffer;", "GetGet_IarrayBHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.ByteBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="dst" Type="System.Byte[]" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index in this buffer from which the first byte will be
+                    read; must be non-negative and less than <c>limit()</c></param>
+        <param name="dst">The destination array</param>
+        <summary>Absolute bulk <i>get</i> method.</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk <i>get</i> method.</para>
+          <para>This method transfers bytes from this buffer into the given
+            destination array.  The position of this buffer is unchanged.  An
+            invocation of this method of the form
+            <c>src.get(index,&amp;nbsp;dst)</c> behaves in exactly the same
+            way as the invocation:</para>
+          <code lang="text/java">src.get(index, dst, 0, dst.length) </code>
+          <para>Added in 13.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/ByteBuffer#get(int,%20byte[])" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.get(int, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Get">
       <MemberSignature Language="C#" Value="public virtual Java.Nio.ByteBuffer Get (byte[] dst, int offset, int length);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.ByteBuffer Get(unsigned int8[] dst, int32 offset, int32 length) cil managed" />
       <MemberSignature Language="DocId" Value="M:Java.Nio.ByteBuffer.Get(System.Byte[],System.Int32,System.Int32)" />
@@ -1284,7 +1391,7 @@
           <para>This method transfers bytes from this buffer into the given
             destination array.  If there are fewer bytes remaining in the
             buffer than are required to satisfy the request, that is, if
-            <c>length</c>&amp;nbsp;<c>&amp;gt;</c>&amp;nbsp;<c>remaining()</c>, then no
+            <c>length</c>&amp;nbsp;<c>&gt;</c>&amp;nbsp;<c>remaining()</c>, then no
             bytes are transferred and a <c>BufferUnderflowException</c> is
             thrown.</para>
           <para>Otherwise, this method copies <c>length</c> bytes from this
@@ -1314,6 +1421,76 @@
         <since version="Added in API level 1" />
         <exception cref="T:Java.Lang.IndexOutOfBoundsException">if <c>dstOffset </c></exception>
         <exception cref="T:Java.Nio.BufferUnderflowException">if <c>byteCount &gt; remaining()</c></exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Get">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.ByteBuffer Get (int index, byte[] dst, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.ByteBuffer Get(int32 index, unsigned int8[] dst, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.ByteBuffer.Get(System.Int32,System.Byte[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Get : int * byte[] * int * int -&gt; Java.Nio.ByteBuffer&#xA;override this.Get : int * byte[] * int * int -&gt; Java.Nio.ByteBuffer" Usage="byteBuffer.Get (index, dst, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("get", "(I[BII)Ljava/nio/ByteBuffer;", "GetGet_IarrayBIIHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("get", "(I[BII)Ljava/nio/ByteBuffer;", "GetGet_IarrayBIIHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.ByteBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="dst" Type="System.Byte[]" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="offset" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="length" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index in this buffer from which the first byte will be
+                    read; must be non-negative and less than <c>limit()</c></param>
+        <param name="dst">The destination array</param>
+        <param name="offset">The offset within the array of the first byte to be
+                    written; must be non-negative and less than
+                    <c>dst.length</c></param>
+        <param name="length">The number of bytes to be written to the given array;
+                    must be non-negative and no larger than the smaller of
+                    <c>limit() - index</c> and <c>dst.length - offset</c></param>
+        <summary>Absolute bulk <i>get</i> method.</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk <i>get</i> method.</para>
+          <para>This method transfers <c>length</c> bytes from this
+            buffer into the given array, starting at the given index in this
+            buffer and at the given offset in the array.  The position of this
+            buffer is unchanged.</para>
+          <para>An invocation of this method of the form
+            <c>src.get(index,&amp;nbsp;dst,&amp;nbsp;offset,&amp;nbsp;length)</c>
+            has exactly the same effect as the following loop except that it first
+            checks the consistency of the supplied parameters and it is potentially
+            much more efficient:</para>
+          <code lang="text/java">{@code
+                for (int i = offset, j = index; i &lt; offset + length; i++, j++)
+                    dst[i] = src.get(j);
+            }</code>
+          <para>Added in 13.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/ByteBuffer#get(int,%20byte[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.get(int, byte[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetChar">
@@ -1938,7 +2115,7 @@
           <para>This method transfers the bytes remaining in the given source
             buffer into this buffer.  If there are more bytes remaining in the
             source buffer than in this buffer, that is, if
-            <c>src.remaining()</c>&amp;nbsp;<c>&amp;gt;</c>&amp;nbsp;<c>remaining()</c>,
+            <c>src.remaining()</c>&amp;nbsp;<c>&gt;</c>&amp;nbsp;<c>remaining()</c>,
             then no bytes are transferred and a <c>BufferOverflowException</c> is thrown.</para>
           <para>Otherwise, this method copies
             <i>n</i>&amp;nbsp;=&amp;nbsp;<c>src.remaining()</c> bytes from the given
@@ -1949,7 +2126,10 @@
           <code lang="text/java">while (src.hasRemaining())
                     dst.put(src.get()); </code>
           <para>except that it first checks that there is sufficient space in this
-            buffer and it is potentially much more efficient.</para>
+            buffer and it is potentially much more efficient.  If this buffer and
+            the source buffer share the same backing array or memory, then the
+            result will be as if the source elements were first copied to an
+            intermediate location before being written into this buffer.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#put(java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.put(java.nio.ByteBuffer)</code>.</a>
@@ -2067,6 +2247,60 @@
       </Docs>
     </Member>
     <Member MemberName="Put">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.ByteBuffer Put (int index, byte[] src);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.ByteBuffer Put(int32 index, unsigned int8[] src) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.ByteBuffer.Put(System.Int32,System.Byte[])" />
+      <MemberSignature Language="F#" Value="abstract member Put : int * byte[] -&gt; Java.Nio.ByteBuffer&#xA;override this.Put : int * byte[] -&gt; Java.Nio.ByteBuffer" Usage="byteBuffer.Put (index, src)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("put", "(I[B)Ljava/nio/ByteBuffer;", "GetPut_IarrayBHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("put", "(I[B)Ljava/nio/ByteBuffer;", "GetPut_IarrayBHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.ByteBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="src" Type="System.Byte[]" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index in this buffer at which the first byte will be
+                    written; must be non-negative and less than <c>limit()</c></param>
+        <param name="src">The array from which bytes are to be read</param>
+        <summary>Absolute bulk <i>put</i> method&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk <i>put</i> method&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</para>
+          <para>This method copies bytes into this buffer from the given source
+            array.  The position of this buffer is unchanged.  An invocation of this
+            method of the form <c>dst.put(index,&amp;nbsp;src)</c>
+            behaves in exactly the same way as the invocation:</para>
+          <code lang="text/java">dst.put(index, src, 0, src.length); </code>
+          <para>Added in 13.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/ByteBuffer#put(int,%20byte[])" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.put(int, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Put">
       <MemberSignature Language="C#" Value="public abstract Java.Nio.ByteBuffer Put (int index, sbyte b);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.ByteBuffer Put(int32 index, int8 b) cil managed" />
       <MemberSignature Language="DocId" Value="M:Java.Nio.ByteBuffer.Put(System.Int32,System.SByte)" />
@@ -2142,10 +2376,10 @@
       <Docs>
         <param name="src">The array from which bytes are to be read</param>
         <param name="offset">The offset within the array of the first byte to be read;
-                    must be non-negative and no larger than <c>array.length</c></param>
+                    must be non-negative and no larger than <c>src.length</c></param>
         <param name="length">The number of bytes to be read from the given array;
                     must be non-negative and no larger than
-                    <c>array.length - offset</c></param>
+                    <c>src.length - offset</c></param>
         <summary>Relative bulk <i>put</i> method&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</summary>
         <returns>This buffer</returns>
         <remarks>
@@ -2153,7 +2387,7 @@
           <para>This method transfers bytes into this buffer from the given
             source array.  If there are more bytes to be copied from the array
             than remain in this buffer, that is, if
-            <c>length</c>&amp;nbsp;<c>&amp;gt;</c>&amp;nbsp;<c>remaining()</c>, then no
+            <c>length</c>&amp;nbsp;<c>&gt;</c>&amp;nbsp;<c>remaining()</c>, then no
             bytes are transferred and a <c>BufferOverflowException</c> is
             thrown.</para>
           <para>Otherwise, this method copies <c>length</c> bytes from the
@@ -2165,7 +2399,7 @@
             the loop</para>
           <code lang="text/java">{@code
                 for (int i = off; i &lt; off + len; i++)
-                    dst.put(a[i]);
+                    dst.put(src[i]);
             }</code>
           <para>except that it first checks that there is sufficient space in this
             buffer and it is potentially much more efficient.</para>
@@ -2185,6 +2419,146 @@
         <exception cref="T:Java.Lang.IndexOutOfBoundsException">if either <c>srcOffset</c> or <c>byteCount</c> is invalid.</exception>
         <exception cref="T:Java.Nio.ReadOnlyBufferException">if no changes may be made to the contents of this buffer.
 </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Put">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.ByteBuffer Put (int index, Java.Nio.ByteBuffer src, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.ByteBuffer Put(int32 index, class Java.Nio.ByteBuffer src, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.ByteBuffer.Put(System.Int32,Java.Nio.ByteBuffer,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Put : int * Java.Nio.ByteBuffer * int * int -&gt; Java.Nio.ByteBuffer&#xA;override this.Put : int * Java.Nio.ByteBuffer * int * int -&gt; Java.Nio.ByteBuffer" Usage="byteBuffer.Put (index, src, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("put", "(ILjava/nio/ByteBuffer;II)Ljava/nio/ByteBuffer;", "GetPut_ILjava_nio_ByteBuffer_IIHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("put", "(ILjava/nio/ByteBuffer;II)Ljava/nio/ByteBuffer;", "GetPut_ILjava_nio_ByteBuffer_IIHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.ByteBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="src" Type="Java.Nio.ByteBuffer" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="offset" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="length" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index in this buffer at which the first byte will be
+                   written; must be non-negative and less than <c>limit()</c></param>
+        <param name="src">The buffer from which bytes are to be read</param>
+        <param name="offset">The index within the source buffer of the first byte to be
+                   read; must be non-negative and less than <c>src.limit()</c></param>
+        <param name="length">The number of bytes to be read from the given buffer;
+                   must be non-negative and no larger than the smaller of
+                   <c>limit() - index</c> and <c>src.limit() - offset</c></param>
+        <summary>Absolute bulk <i>put</i> method&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk <i>put</i> method&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</para>
+          <para>This method transfers <c>length</c> bytes into this buffer from
+            the given source buffer, starting at the given <c>offset</c> in the
+            source buffer and the given <c>index</c> in this buffer. The positions
+            of both buffers are unchanged.</para>
+          <para>In other words, an invocation of this method of the form
+            <c>dst.put(index,&amp;nbsp;src,&amp;nbsp;offset,&amp;nbsp;length)</c>
+            has exactly the same effect as the loop</para>
+          <code lang="text/java">{@code
+            for (int i = offset, j = index; i &lt; offset + length; i++, j++)
+                dst.put(j, src.get(i));
+            }</code>
+          <para>except that it first checks the consistency of the supplied parameters
+            and it is potentially much more efficient.  If this buffer and
+            the source buffer share the same backing array or memory, then the
+            result will be as if the source elements were first copied to an
+            intermediate location before being written into this buffer.</para>
+          <para>Added in 16.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/ByteBuffer#put(int,%20java.nio.ByteBuffer,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.put(int, java.nio.ByteBuffer, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Put">
+      <MemberSignature Language="C#" Value="public virtual Java.Nio.ByteBuffer Put (int index, byte[] src, int offset, int length);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Nio.ByteBuffer Put(int32 index, unsigned int8[] src, int32 offset, int32 length) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.ByteBuffer.Put(System.Int32,System.Byte[],System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member Put : int * byte[] * int * int -&gt; Java.Nio.ByteBuffer&#xA;override this.Put : int * byte[] * int * int -&gt; Java.Nio.ByteBuffer" Usage="byteBuffer.Put (index, src, offset, length)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("put", "(I[BII)Ljava/nio/ByteBuffer;", "GetPut_IarrayBIIHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("put", "(I[BII)Ljava/nio/ByteBuffer;", "GetPut_IarrayBIIHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.ByteBuffer</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="src" Type="System.Byte[]" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="offset" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="length" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="index">The index in this buffer at which the first byte will be
+                    written; must be non-negative and less than <c>limit()</c></param>
+        <param name="src">The array from which bytes are to be read</param>
+        <param name="offset">The offset within the array of the first byte to be read;
+                    must be non-negative and less than <c>src.length</c></param>
+        <param name="length">The number of bytes to be read from the given array;
+                    must be non-negative and no larger than the smaller of
+                    <c>limit() - index</c> and <c>src.length - offset</c></param>
+        <summary>Absolute bulk <i>put</i> method&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk <i>put</i> method&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</para>
+          <para>This method transfers <c>length</c> bytes from the given
+            array, starting at the given offset in the array and at the given index
+            in this buffer.  The position of this buffer is unchanged.</para>
+          <para>An invocation of this method of the form
+            <c>dst.put(index,&amp;nbsp;src,&amp;nbsp;offset,&amp;nbsp;length)</c>
+            has exactly the same effect as the following loop except that it first
+            checks the consistency of the supplied parameters and it is potentially
+            much more efficient:</para>
+          <code lang="text/java">{@code
+                for (int i = offset, j = index; i &lt; offset + length; i++, j++)
+                    dst.put(j, src[i]);
+            }</code>
+          <para>Added in 13.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/ByteBuffer#put(int,%20byte[],%20int,%20int)" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.put(int, byte[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PutChar">
@@ -2859,10 +3233,15 @@
             buffer, and vice versa; the two buffers' position, limit, and mark
             values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
-            will be the number of bytes remaining in this buffer, and its mark
-            will be undefined.  The new buffer will be direct if, and only if, this
-            buffer is direct, and it will be read-only if, and only if, this buffer
-            is read-only.</para>
+            will be the number of bytes remaining in this buffer, its mark will be
+            undefined, and its byte order will be
+            
+            <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.
+            
+            
+            
+            The new buffer will be direct if, and only if, this buffer is direct, and
+            it will be read-only if, and only if, this buffer is read-only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#slice()" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.slice()</code>.</a>
@@ -2926,7 +3305,11 @@
             the two buffers' position, limit, and mark values will be independent.</para>
           <para>The new buffer's position will be zero, its capacity and its limit
             will be <c>length</c>, its mark will be undefined, and its byte order
-            will be <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.
+            will be
+            
+            <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.
+            
+            
             
             The new buffer will be direct if, and only if, this buffer is direct,
             and it will be read-only if, and only if, this buffer is read-only.</para>
@@ -3037,10 +3420,16 @@
           <para>The new buffer will be backed by the given byte array;
             that is, modifications to the buffer will cause the array to be modified
             and vice versa.  The new buffer's capacity and limit will be
-            <c>array.length</c>, its position will be zero, and its mark will be
-            undefined.  Its <c>#array backing array</c> will be the
-            given array, and its <c>#arrayOffset array offset&gt;</c> will
-            be zero.</para>
+            <c>array.length</c>, its position will be zero, its mark will be
+            undefined, and its byte order will be
+            
+            <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.
+            
+            
+            
+            
+            Its <c>#array backing array</c> will be the given array, and its
+            <c>#arrayOffset array offset</c> will be zero.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/ByteBuffer#wrap(byte[])" title="Reference documentation">Java documentation for <code>java.nio.ByteBuffer.wrap(byte[])</code>.</a>
@@ -3096,8 +3485,15 @@
             that is, modifications to the buffer will cause the array to be modified
             and vice versa.  The new buffer's capacity will be
             <c>array.length</c>, its position will be <c>offset</c>, its limit
-            will be <c>offset + length</c>, and its mark will be undefined.  Its
-            <c>#array backing array</c> will be the given array, and
+            will be <c>offset + length</c>, its mark will be undefined, and its
+            byte order will be
+            
+            <c>ByteOrder#BIG_ENDIAN BIG_ENDIAN</c>.
+            
+            
+            
+            
+            Its <c>#array backing array</c> will be the given array, and
             its <c>#arrayOffset array offset</c> will be zero.</para>
           <para>
             <format type="text/html">

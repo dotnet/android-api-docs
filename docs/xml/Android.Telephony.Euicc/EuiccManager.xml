@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/telephony/euicc/EuiccManager", ApiSince=28, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
     </Attribute>
@@ -210,6 +214,48 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="AvailableMemoryInBytes">
+      <MemberSignature Language="C#" Value="public virtual long AvailableMemoryInBytes { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 AvailableMemoryInBytes" />
+      <MemberSignature Language="DocId" Value="P:Android.Telephony.Euicc.EuiccManager.AvailableMemoryInBytes" />
+      <MemberSignature Language="F#" Value="member this.AvailableMemoryInBytes : int64" Usage="Android.Telephony.Euicc.EuiccManager.AvailableMemoryInBytes" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAvailableMemoryInBytes", "()J", "GetGetAvailableMemoryInBytesHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAvailableMemoryInBytes", "()J", "GetGetAvailableMemoryInBytesHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the available memory in bytes of the eUICC.</summary>
+        <value>the available memory in bytes. May be <c>#EUICC_MEMORY_FIELD_UNAVAILABLE</c> if the
+                eUICC is not ready. Check <c>#isEnabled</c> for more information.</value>
+        <remarks>
+          <para>Returns the available memory in bytes of the eUICC.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telephony/euicc/EuiccManager#getAvailableMemoryInBytes()" title="Reference documentation">Java documentation for <code>android.telephony.euicc.EuiccManager.getAvailableMemoryInBytes()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="CreateForCardId">
       <MemberSignature Language="C#" Value="public virtual Android.Telephony.Euicc.EuiccManager CreateForCardId (int cardId);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Telephony.Euicc.EuiccManager CreateForCardId(int32 cardId) cil managed" />
@@ -270,7 +316,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("deleteSubscription", "(ILandroid/app/PendingIntent;)V", "GetDeleteSubscription_ILandroid_app_PendingIntent_Handler", ApiSince=28)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("deleteSubscription", "(ILandroid/app/PendingIntent;)V", "GetDeleteSubscription_ILandroid_app_PendingIntent_Handler", ApiSince=28)&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.WRITE_EMBEDDED_SUBSCRIPTIONS")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.WRITE_EMBEDDED_SUBSCRIPTIONS")&gt;]</AttributeName>
         </Attribute>
@@ -296,7 +342,13 @@
             an "empty" subscription.</para>
           <para>Requires that the calling app has carrier privileges according to the metadata of the
             profile to be deleted, or the
-            <c>android.Manifest.permission#WRITE_EMBEDDED_SUBSCRIPTIONS</c> permission.</para>
+            <c>android.Manifest.permission#WRITE_EMBEDDED_SUBSCRIPTIONS</c> permission.
+            Starting from Android <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>, if the
+            caller is a device owner, profile owner, or holds the
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MANAGED_SUBSCRIPTIONS</c> permission,
+            then the caller can delete a subscription that was downloaded by that caller.
+            If such a caller tries to delete any other subscription then the
+            operation will fail with <c>#EMBEDDED_SUBSCRIPTION_RESULT_ERROR</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/euicc/EuiccManager#deleteSubscription(int,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.telephony.euicc.EuiccManager.deleteSubscription(int, android.app.PendingIntent)</code>.</a>
@@ -325,7 +377,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("downloadSubscription", "(Landroid/telephony/euicc/DownloadableSubscription;ZLandroid/app/PendingIntent;)V", "GetDownloadSubscription_Landroid_telephony_euicc_DownloadableSubscription_ZLandroid_app_PendingIntent_Handler", ApiSince=28)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("downloadSubscription", "(Landroid/telephony/euicc/DownloadableSubscription;ZLandroid/app/PendingIntent;)V", "GetDownloadSubscription_Landroid_telephony_euicc_DownloadableSubscription_ZLandroid_app_PendingIntent_Handler", ApiSince=28)&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.WRITE_EMBEDDED_SUBSCRIPTIONS")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.WRITE_EMBEDDED_SUBSCRIPTIONS")&gt;]</AttributeName>
         </Attribute>
@@ -349,11 +401,21 @@
         <summary>Attempt to download the given <c>DownloadableSubscription</c>.</summary>
         <remarks>
           <para>Attempt to download the given <c>DownloadableSubscription</c>.</para>
-          <para>Requires the <c>android.Manifest.permission#WRITE_EMBEDDED_SUBSCRIPTIONS</c> permission,
-            or the calling app must be authorized to manage both the currently-active subscription on the
+          <para>Requires the <c>android.Manifest.permission#WRITE_EMBEDDED_SUBSCRIPTIONS</c>
+            or the calling app must be authorized to manage both the currently-active
+            subscription on the
             current eUICC and the subscription to be downloaded according to the subscription metadata.
             Without the former, an <c>#EMBEDDED_SUBSCRIPTION_RESULT_RESOLVABLE_ERROR</c> will be
             returned in the callback intent to prompt the user to accept the download.</para>
+          <para>Starting from Android <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>,
+            if the caller has the
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MANAGED_SUBSCRIPTIONS</c> permission or
+            is a profile owner or device owner, then the downloaded subscription
+            will be managed by that caller.
+            In case the caller is device owner or profile owner of an organization-owned device, <c>switchAfterDownload</c> can be set to true to automatically enable the subscription after
+            download. If the caller is a profile owner on non organization owned device
+            <c>switchAfterDownload</c> should be false otherwise the operation will fail with
+            <c>#EMBEDDED_SUBSCRIPTION_RESULT_ERROR</c>.</para>
           <para>On a multi-active SIM device, requires the
             <c>android.Manifest.permission#WRITE_EMBEDDED_SUBSCRIPTIONS</c> permission, or a calling app
             only if the targeted eUICC does not currently have an active subscription or the calling app
@@ -400,6 +462,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
@@ -1391,6 +1457,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
         </Attribute>
@@ -1410,6 +1480,47 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/euicc/EuiccManager#getEuiccInfo()" title="Reference documentation">Java documentation for <code>android.telephony.euicc.EuiccManager.getEuiccInfo()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EuiccMemoryFieldUnavailable">
+      <MemberSignature Language="C#" Value="public const long EuiccMemoryFieldUnavailable = -1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal int64 EuiccMemoryFieldUnavailable = (-1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Telephony.Euicc.EuiccManager.EuiccMemoryFieldUnavailable" />
+      <MemberSignature Language="F#" Value="val mutable EuiccMemoryFieldUnavailable : int64" Usage="Android.Telephony.Euicc.EuiccManager.EuiccMemoryFieldUnavailable" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("EUICC_MEMORY_FIELD_UNAVAILABLE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EUICC_MEMORY_FIELD_UNAVAILABLE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <MemberValue>-1</MemberValue>
+      <Docs>
+        <summary>Temporary failure to retrieve available memory because eUICC is not ready.</summary>
+        <remarks>
+          <para>Temporary failure to retrieve available memory because eUICC is not ready.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telephony/euicc/EuiccManager#EUICC_MEMORY_FIELD_UNAVAILABLE" title="Reference documentation">Java documentation for <code>android.telephony.euicc.EuiccManager.EUICC_MEMORY_FIELD_UNAVAILABLE</code>.</a>
             </format>
           </para>
           <para>
@@ -2738,7 +2849,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="subscriptionId" Type="System.Int32" />
-        <Parameter Name="nickname" Type="System.String" />
+        <Parameter Name="nickname" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="callbackIntent" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
