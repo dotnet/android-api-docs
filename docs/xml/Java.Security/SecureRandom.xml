@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/security/SecureRandom", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/security/SecureRandom", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>This class provides a cryptographically strong random number
@@ -23,44 +27,79 @@
     <remarks>
       <para>This class provides a cryptographically strong random number
             generator (RNG).</para>
-      <para>A cryptographically strong random number
-            minimally complies with the statistical random number generator tests
-            specified in <see href="http://csrc.nist.gov/cryptval/140-2.htm"><i>FIPS 140-2, Security Requirements for Cryptographic Modules</i></see>,
+      <para>A cryptographically strong random number minimally complies with the
+            statistical random number generator tests specified in
+            <see href="http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.140-2.pdf"><i>FIPS 140-2, Security Requirements for Cryptographic Modules</i></see>,
             section 4.9.1.
-            Additionally, SecureRandom must produce non-deterministic output.
-            Therefore any seed material passed to a SecureRandom object must be
-            unpredictable, and all SecureRandom output sequences must be
+            Additionally, <c>SecureRandom</c> must produce non-deterministic output.
+            Therefore any seed material passed to a <c>SecureRandom</c> object must be
+            unpredictable, and all <c>SecureRandom</c> output sequences must be
             cryptographically strong, as described in
-            <see href="http://www.ietf.org/rfc/rfc1750.txt"><i>RFC 1750: Randomness Recommendations for Security</i></see>.</para>
-      <para>A caller obtains a SecureRandom instance via the
-            no-argument constructor or one of the <c>getInstance</c> methods:</para>
-      <code lang="text/java">SecureRandom random = new SecureRandom();
-            </code>
-      <para>Many SecureRandom implementations are in the form of a pseudo-random
-            number generator (PRNG), which means they use a deterministic algorithm
-            to produce a pseudo-random sequence from a true random seed.
+            <see href="http://tools.ietf.org/html/rfc4086"><i>RFC 4086: Randomness Requirements for Security</i></see>.</para>
+      <para>Many <c>SecureRandom</c> implementations are in the form of a
+            pseudo-random number generator (PRNG, also known as deterministic random
+            bits generator or DRBG), which means they use a deterministic algorithm
+            to produce a pseudo-random sequence from a random seed.
             Other implementations may produce true random numbers,
             and yet others may use a combination of both techniques.</para>
-      <para>Typical callers of SecureRandom invoke the following methods
-            to retrieve random bytes:</para>
-      <code lang="text/java">SecureRandom random = new SecureRandom();
-                 byte bytes[] = new byte[20];
-                 random.nextBytes(bytes);
-            </code>
-      <para>Callers may also invoke the <c>generateSeed</c> method
-            to generate a given number of seed bytes (to seed other random number
-            generators, for example):</para>
-      <code lang="text/java">byte seed[] = random.generateSeed(20);
-            </code>
-      <para>Note: Depending on the implementation, the <c>generateSeed</c> and
-            <c>nextBytes</c> methods may block as entropy is being gathered,
-            for example, if they need to read from /dev/random on various Unix-like
-            operating systems.
+      <para>A caller obtains a <c>SecureRandom</c> instance via the
+            no-argument constructor or one of the <c>getInstance</c> methods.
+            For example:
             
-            The SHA1PRNG algorithm from the Crypto provider has been deprecated as it was insecure, and also
-            incorrectly used by some apps as a key derivation function. See
-            <see href="http://android-developers.blogspot.com/2016/06/security-crypto-provider-deprecated-in.html">
-            Security "Crypto" provider deprecated in Android N</see> for details.</para>
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">SecureRandom r1 = new SecureRandom();
+            SecureRandom r2 = SecureRandom.getInstance("NativePRNG");
+            SecureRandom r3 = SecureRandom.getInstance("DRBG",
+                    DrbgParameters.instantiation(128, RESEED_ONLY, null));</code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>The third statement above returns a <c>SecureRandom</c> object of the
+            specific algorithm supporting the specific instantiate parameters. The
+            implementation's effective instantiated parameters must match this minimum
+            request but is not necessarily the same. For example, even if the request
+            does not require a certain feature, the actual instantiation can provide
+            the feature. An implementation may lazily instantiate a <c>SecureRandom</c>
+            until it's actually used, but the effective instantiate parameters must be
+            determined right after it's created and <c>#getParameters()</c> should
+            always return the same result unchanged.</para>
+      <para>Typical callers of <c>SecureRandom</c> invoke the following methods
+            to retrieve random bytes:
+            
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">SecureRandom random = new SecureRandom();
+            byte[] bytes = new byte[20];
+            random.nextBytes(bytes);</code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>Callers may also invoke the <c>#generateSeed</c> method
+            to generate a given number of seed bytes (to seed other random number
+            generators, for example):
+            
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">byte[] seed = random.generateSeed(20);</code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>A newly created PRNG <c>SecureRandom</c> object is not seeded (except
+            if it is created by <c>#SecureRandom(byte[])</c>). The first call to
+            <c>nextBytes</c> will force it to seed itself from an implementation-
+            specific entropy source. This self-seeding will not occur if <c>setSeed</c>
+            was previously called.</para>
+      <para>A <c>SecureRandom</c> can be reseeded at any time by calling the
+            <c>reseed</c> or <c>setSeed</c> method. The <c>reseed</c> method
+            reads entropy input from its entropy source to reseed itself.
+            The <c>setSeed</c> method requires the caller to provide the seed.</para>
+      <para>Please note that <c>reseed</c> may not be supported by all
+            <c>SecureRandom</c> implementations.</para>
+      <para>Some <c>SecureRandom</c> implementations may accept a
+            <c>SecureRandomParameters</c> parameter in its
+            <c>#nextBytes(byte[], SecureRandomParameters)</c> and
+            <c>#reseed(SecureRandomParameters)</c> methods to further
+            control the behavior of the methods.</para>
+      <para>Note: Depending on the implementation, the <c>generateSeed</c>,
+            <c>reseed</c> and <c>nextBytes</c> methods may block as entropy is being
+            gathered, for example, if the entropy source is /dev/random on various
+            Unix-like operating systems.
+            
+            &lt;h2&gt; Thread safety &lt;/h2&gt;
+            <c>SecureRandom</c> objects are safe for use by multiple concurrent threads.</para>
+      <para>Added in 1.1.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/java/security/SecureRandom" title="Reference documentation">Java documentation for <code>java.security.SecureRandom</code>.</a>
@@ -99,22 +138,16 @@
             default random number algorithm.</para>
           <para>This constructor traverses the list of registered security Providers,
             starting with the most preferred Provider.
-            A new SecureRandom object encapsulating the
-            SecureRandomSpi implementation from the first
-            Provider that supports a SecureRandom (RNG) algorithm is returned.
+            A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the first
+            Provider that supports a <c>SecureRandom</c> (RNG) algorithm is returned.
             If none of the Providers support a RNG algorithm,
             then an implementation-specific default is returned.</para>
           <para>Note that the list of registered providers may be retrieved via
             the <c>Security#getProviders() Security.getProviders()</c> method.</para>
-          <para>See the SecureRandom section in the <see href="https://developer.android.com//../technotes/guides/security/StandardNames.html#SecureRandom">
-            Java Cryptography Architecture Standard Algorithm Name Documentation</see>
+          <para>See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
             for information about standard RNG algorithm names.</para>
-          <para>The returned SecureRandom object has not been seeded.  To seed the
-            returned object, call the <c>setSeed</c> method.
-            If <c>setSeed</c> is not called, the first call to
-            <c>nextBytes</c> will force the SecureRandom object to seed itself.
-            This self-seeding will not occur if <c>setSeed</c> was
-            previously called.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/security/SecureRandom#SecureRandom()" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.SecureRandom()</code>.</a>
@@ -155,18 +188,18 @@
         <remarks>
           <para>Constructs a secure random number generator (RNG) implementing the
             default random number algorithm.
-            The SecureRandom instance is seeded with the specified seed bytes.</para>
+            The <c>SecureRandom</c> instance is seeded with the specified seed bytes.</para>
           <para>This constructor traverses the list of registered security Providers,
             starting with the most preferred Provider.
-            A new SecureRandom object encapsulating the
-            SecureRandomSpi implementation from the first
-            Provider that supports a SecureRandom (RNG) algorithm is returned.
+            A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the first
+            Provider that supports a <c>SecureRandom</c> (RNG) algorithm is returned.
             If none of the Providers support a RNG algorithm,
             then an implementation-specific default is returned.</para>
           <para>Note that the list of registered providers may be retrieved via
             the <c>Security#getProviders() Security.getProviders()</c> method.</para>
-          <para>See the SecureRandom section in the <see href="https://developer.android.com//../technotes/guides/security/StandardNames.html#SecureRandom">
-            Java Cryptography Architecture Standard Algorithm Name Documentation</see>
+          <para>See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
             for information about standard RNG algorithm names.</para>
           <para>
             <format type="text/html">
@@ -203,11 +236,11 @@
         <Parameter Name="provider" Type="Java.Security.Provider" />
       </Parameters>
       <Docs>
-        <param name="secureRandomSpi">the SecureRandom implementation.</param>
+        <param name="secureRandomSpi">the <c>SecureRandom</c> implementation.</param>
         <param name="provider">the provider.</param>
-        <summary>Creates a SecureRandom object.</summary>
+        <summary>Creates a <c>SecureRandom</c> object.</summary>
         <remarks>
-          <para>Creates a SecureRandom object.</para>
+          <para>Creates a <c>SecureRandom</c> object.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/security/SecureRandom#SecureRandom(java.security.SecureRandomSpi,%20java.security.Provider)" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.SecureRandom(java.security.SecureRandomSpi, java.security.Provider)</code>.</a>
@@ -265,13 +298,13 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the name of the algorithm implemented by this SecureRandom
-            object.</summary>
+        <summary>Returns the name of the algorithm implemented by this
+            <c>SecureRandom</c> object.</summary>
         <value>the name of the algorithm or <c>unknown</c>
                      if the algorithm name cannot be determined.</value>
         <remarks>
-          <para>Returns the name of the algorithm implemented by this SecureRandom
-            object.</para>
+          <para>Returns the name of the algorithm implemented by this
+            <c>SecureRandom</c> object.</para>
           <para>Added in 1.5.</para>
           <para>
             <format type="text/html">
@@ -356,28 +389,22 @@
       </Parameters>
       <Docs>
         <param name="algorithm">the name of the RNG algorithm.
-            See the SecureRandom section in the <see href="https://developer.android.com//../technotes/guides/security/StandardNames.html#SecureRandom">
-            Java Cryptography Architecture Standard Algorithm Name Documentation</see>
+            See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
             for information about standard RNG algorithm names.</param>
-        <summary>Returns a SecureRandom object that implements the specified
+        <summary>Returns a <c>SecureRandom</c> object that implements the specified
             Random Number Generator (RNG) algorithm.</summary>
-        <returns>the new SecureRandom object.</returns>
+        <returns>the new <c>SecureRandom</c> object</returns>
         <remarks>
-          <para>Returns a SecureRandom object that implements the specified
+          <para>Returns a <c>SecureRandom</c> object that implements the specified
             Random Number Generator (RNG) algorithm.</para>
           <para>This method traverses the list of registered security Providers,
             starting with the most preferred Provider.
-            A new SecureRandom object encapsulating the
-            SecureRandomSpi implementation from the first
+            A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the first
             Provider that supports the specified algorithm is returned.</para>
           <para>Note that the list of registered providers may be retrieved via
             the <c>Security#getProviders() Security.getProviders()</c> method.</para>
-          <para>The returned SecureRandom object has not been seeded.  To seed the
-            returned object, call the <c>setSeed</c> method.
-            If <c>setSeed</c> is not called, the first call to
-            <c>nextBytes</c> will force the SecureRandom object to seed itself.
-            This self-seeding will not occur if <c>setSeed</c> was
-            previously called.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -394,6 +421,70 @@
         <exception cref="T:Java.Security.NoSuchAlgorithmException">if the specified algorithm is not available.</exception>
         <exception cref="T:Java.Lang.NullPointerException">if <c>algorithm</c> is <c>null</c>.
 </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetInstance">
+      <MemberSignature Language="C#" Value="public static Java.Security.SecureRandom? GetInstance (string? algorithm, Java.Security.ISecureRandomParameters? params);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Security.SecureRandom GetInstance(string algorithm, class Java.Security.ISecureRandomParameters params) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.SecureRandom.GetInstance(System.String,Java.Security.ISecureRandomParameters)" />
+      <MemberSignature Language="F#" Value="static member GetInstance : string * Java.Security.ISecureRandomParameters -&gt; Java.Security.SecureRandom" Usage="Java.Security.SecureRandom.GetInstance (algorithm, params)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstance", "(Ljava/lang/String;Ljava/security/SecureRandomParameters;)Ljava/security/SecureRandom;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstance", "(Ljava/lang/String;Ljava/security/SecureRandomParameters;)Ljava/security/SecureRandom;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.SecureRandom</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="params" Type="Java.Security.ISecureRandomParameters" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">the name of the RNG algorithm.
+            See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
+            for information about standard RNG algorithm names.</param>
+        <param name="params">the <c>SecureRandomParameters</c>
+                          the newly created <c>SecureRandom</c> object must support.</param>
+        <summary>Returns a <c>SecureRandom</c> object that implements the specified
+            Random Number Generator (RNG) algorithm and supports the specified
+            <c>SecureRandomParameters</c> request.</summary>
+        <returns>the new <c>SecureRandom</c> object</returns>
+        <remarks>
+          <para>Returns a <c>SecureRandom</c> object that implements the specified
+            Random Number Generator (RNG) algorithm and supports the specified
+            <c>SecureRandomParameters</c> request.</para>
+          <para>This method traverses the list of registered security Providers,
+            starting with the most preferred Provider.
+            A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the first
+            Provider that supports the specified algorithm and the specified
+            <c>SecureRandomParameters</c> is returned.</para>
+          <para>Note that the list of registered providers may be retrieved via
+            the <c>Security#getProviders() Security.getProviders()</c> method.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/SecureRandom#getInstance(java.lang.String,%20java.security.SecureRandomParameters)" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.getInstance(java.lang.String, java.security.SecureRandomParameters)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInstance">
@@ -421,26 +512,20 @@
       </Parameters>
       <Docs>
         <param name="algorithm">the name of the RNG algorithm.
-            See the SecureRandom section in the <see href="https://developer.android.com//../technotes/guides/security/StandardNames.html#SecureRandom">
-            Java Cryptography Architecture Standard Algorithm Name Documentation</see>
+            See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
             for information about standard RNG algorithm names.</param>
         <param name="provider">the provider.</param>
-        <summary>Returns a SecureRandom object that implements the specified
+        <summary>Returns a <c>SecureRandom</c> object that implements the specified
             Random Number Generator (RNG) algorithm.</summary>
-        <returns>the new SecureRandom object.</returns>
+        <returns>the new <c>SecureRandom</c> object</returns>
         <remarks>
-          <para>Returns a SecureRandom object that implements the specified
+          <para>Returns a <c>SecureRandom</c> object that implements the specified
             Random Number Generator (RNG) algorithm.</para>
-          <para>A new SecureRandom object encapsulating the
-            SecureRandomSpi implementation from the specified Provider
-            object is returned.  Note that the specified Provider object
+          <para>A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the specified <c>Provider</c>
+            object is returned.  Note that the specified <c>Provider</c> object
             does not have to be registered in the provider list.</para>
-          <para>The returned SecureRandom object has not been seeded.  To seed the
-            returned object, call the <c>setSeed</c> method.
-            If <c>setSeed</c> is not called, the first call to
-            <c>nextBytes</c> will force the SecureRandom object to seed itself.
-            This self-seeding will not occur if <c>setSeed</c> was
-            previously called.</para>
           <para>Added in 1.4.</para>
           <para>
             <format type="text/html">
@@ -484,28 +569,22 @@
       </Parameters>
       <Docs>
         <param name="algorithm">the name of the RNG algorithm.
-            See the SecureRandom section in the <see href="https://developer.android.com//../technotes/guides/security/StandardNames.html#SecureRandom">
-            Java Cryptography Architecture Standard Algorithm Name Documentation</see>
+            See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
             for information about standard RNG algorithm names.</param>
         <param name="provider">the name of the provider.</param>
-        <summary>Returns a SecureRandom object that implements the specified
+        <summary>Returns a <c>SecureRandom</c> object that implements the specified
             Random Number Generator (RNG) algorithm.</summary>
-        <returns>the new SecureRandom object.</returns>
+        <returns>the new <c>SecureRandom</c> object</returns>
         <remarks>
-          <para>Returns a SecureRandom object that implements the specified
+          <para>Returns a <c>SecureRandom</c> object that implements the specified
             Random Number Generator (RNG) algorithm.</para>
-          <para>A new SecureRandom object encapsulating the
-            SecureRandomSpi implementation from the specified provider
+          <para>A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the specified provider
             is returned.  The specified provider must be registered
             in the security provider list.</para>
           <para>Note that the list of registered providers may be retrieved via
             the <c>Security#getProviders() Security.getProviders()</c> method.</para>
-          <para>The returned SecureRandom object has not been seeded.  To seed the
-            returned object, call the <c>setSeed</c> method.
-            If <c>setSeed</c> is not called, the first call to
-            <c>nextBytes</c> will force the SecureRandom object to seed itself.
-            This self-seeding will not occur if <c>setSeed</c> was
-            previously called.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -523,6 +602,133 @@
         <exception cref="T:Java.Security.NoSuchProviderException">if the specified provider is not available.</exception>
         <exception cref="T:Java.Lang.NullPointerException">if <c>algorithm</c> is <c>null</c>.</exception>
         <exception cref="T:Java.Lang.IllegalArgumentException">if <c>provider == null || provider.isEmpty()</c></exception>
+      </Docs>
+    </Member>
+    <Member MemberName="GetInstance">
+      <MemberSignature Language="C#" Value="public static Java.Security.SecureRandom? GetInstance (string? algorithm, Java.Security.ISecureRandomParameters? params, Java.Security.Provider? provider);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Security.SecureRandom GetInstance(string algorithm, class Java.Security.ISecureRandomParameters params, class Java.Security.Provider provider) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.SecureRandom.GetInstance(System.String,Java.Security.ISecureRandomParameters,Java.Security.Provider)" />
+      <MemberSignature Language="F#" Value="static member GetInstance : string * Java.Security.ISecureRandomParameters * Java.Security.Provider -&gt; Java.Security.SecureRandom" Usage="Java.Security.SecureRandom.GetInstance (algorithm, params, provider)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstance", "(Ljava/lang/String;Ljava/security/SecureRandomParameters;Ljava/security/Provider;)Ljava/security/SecureRandom;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstance", "(Ljava/lang/String;Ljava/security/SecureRandomParameters;Ljava/security/Provider;)Ljava/security/SecureRandom;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.SecureRandom</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="params" Type="Java.Security.ISecureRandomParameters" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="provider" Type="Java.Security.Provider" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">the name of the RNG algorithm.
+            See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
+            for information about standard RNG algorithm names.</param>
+        <param name="params">the <c>SecureRandomParameters</c>
+                          the newly created <c>SecureRandom</c> object must support.</param>
+        <param name="provider">the provider.</param>
+        <summary>Returns a <c>SecureRandom</c> object that implements the specified
+            Random Number Generator (RNG) algorithm and supports the specified
+            <c>SecureRandomParameters</c> request.</summary>
+        <returns>the new <c>SecureRandom</c> object</returns>
+        <remarks>
+          <para>Returns a <c>SecureRandom</c> object that implements the specified
+            Random Number Generator (RNG) algorithm and supports the specified
+            <c>SecureRandomParameters</c> request.</para>
+          <para>A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the specified
+            <c>Provider</c> object is returned.  Note that the specified
+            <c>Provider</c> object does not have to be registered in the
+            provider list.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/SecureRandom#getInstance(java.lang.String,%20java.security.SecureRandomParameters,%20java.security.Provider)" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.getInstance(java.lang.String, java.security.SecureRandomParameters, java.security.Provider)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetInstance">
+      <MemberSignature Language="C#" Value="public static Java.Security.SecureRandom? GetInstance (string? algorithm, Java.Security.ISecureRandomParameters? params, string? provider);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Security.SecureRandom GetInstance(string algorithm, class Java.Security.ISecureRandomParameters params, string provider) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.SecureRandom.GetInstance(System.String,Java.Security.ISecureRandomParameters,System.String)" />
+      <MemberSignature Language="F#" Value="static member GetInstance : string * Java.Security.ISecureRandomParameters * string -&gt; Java.Security.SecureRandom" Usage="Java.Security.SecureRandom.GetInstance (algorithm, params, provider)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstance", "(Ljava/lang/String;Ljava/security/SecureRandomParameters;Ljava/lang/String;)Ljava/security/SecureRandom;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstance", "(Ljava/lang/String;Ljava/security/SecureRandomParameters;Ljava/lang/String;)Ljava/security/SecureRandom;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.SecureRandom</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="algorithm" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="params" Type="Java.Security.ISecureRandomParameters" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="provider" Type="System.String" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="algorithm">the name of the RNG algorithm.
+            See the <c>SecureRandom</c> section in the <see href="https://developer.android.com//../specs/security/standard-names.html#securerandom-number-generation-algorithms">
+            Java Security Standard Algorithm Names Specification</see>
+            for information about standard RNG algorithm names.</param>
+        <param name="params">the <c>SecureRandomParameters</c>
+                          the newly created <c>SecureRandom</c> object must support.</param>
+        <param name="provider">the name of the provider.</param>
+        <summary>Returns a <c>SecureRandom</c> object that implements the specified
+            Random Number Generator (RNG) algorithm and supports the specified
+            <c>SecureRandomParameters</c> request.</summary>
+        <returns>the new <c>SecureRandom</c> object</returns>
+        <remarks>
+          <para>Returns a <c>SecureRandom</c> object that implements the specified
+            Random Number Generator (RNG) algorithm and supports the specified
+            <c>SecureRandomParameters</c> request.</para>
+          <para>A new <c>SecureRandom</c> object encapsulating the
+            <c>SecureRandomSpi</c> implementation from the specified provider
+            is returned.  The specified provider must be registered
+            in the security provider list.</para>
+          <para>Note that the list of registered providers may be retrieved via
+            the <c>Security#getProviders() Security.getProviders()</c> method.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/SecureRandom#getInstance(java.lang.String,%20java.security.SecureRandomParameters,%20java.lang.String)" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.getInstance(java.lang.String, java.security.SecureRandomParameters, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSeed">
@@ -558,7 +764,7 @@
             call may be used to seed other random number generators.</para>
           <para>This method is only included for backwards compatibility.
             The caller is encouraged to use one of the alternative
-            <c>getInstance</c> methods to obtain a SecureRandom object, and
+            <c>getInstance</c> methods to obtain a <c>SecureRandom</c> object, and
             then call the <c>generateSeed</c> method to obtain seed bytes
             from that object.</para>
           <para>
@@ -648,6 +854,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -710,6 +920,106 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="NextBytes">
+      <MemberSignature Language="C#" Value="public virtual void NextBytes (byte[]? bytes, Java.Security.ISecureRandomParameters? params);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void NextBytes(unsigned int8[] bytes, class Java.Security.ISecureRandomParameters params) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.SecureRandom.NextBytes(System.Byte[],Java.Security.ISecureRandomParameters)" />
+      <MemberSignature Language="F#" Value="override this.NextBytes : byte[] * Java.Security.ISecureRandomParameters -&gt; unit" Usage="secureRandom.NextBytes (bytes, params)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("nextBytes", "([BLjava/security/SecureRandomParameters;)V", "GetNextBytes_arrayBLjava_security_SecureRandomParameters_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("nextBytes", "([BLjava/security/SecureRandomParameters;)V", "GetNextBytes_arrayBLjava_security_SecureRandomParameters_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="bytes" Type="System.Byte[]" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="params" Type="Java.Security.ISecureRandomParameters" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="bytes">the array to be filled in with random bytes</param>
+        <param name="params">additional parameters</param>
+        <summary>Generates a user-specified number of random bytes with
+            additional parameters.</summary>
+        <remarks>
+          <para>Generates a user-specified number of random bytes with
+            additional parameters.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/SecureRandom#nextBytes(byte[],%20java.security.SecureRandomParameters)" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.nextBytes(byte[], java.security.SecureRandomParameters)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Parameters">
+      <MemberSignature Language="C#" Value="public virtual Java.Security.ISecureRandomParameters? Parameters { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Security.ISecureRandomParameters Parameters" />
+      <MemberSignature Language="DocId" Value="P:Java.Security.SecureRandom.Parameters" />
+      <MemberSignature Language="F#" Value="member this.Parameters : Java.Security.ISecureRandomParameters" Usage="Java.Security.SecureRandom.Parameters" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getParameters", "()Ljava/security/SecureRandomParameters;", "GetGetParametersHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getParameters", "()Ljava/security/SecureRandomParameters;", "GetGetParametersHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Security.ISecureRandomParameters</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the effective <c>SecureRandomParameters</c> for this
+            <c>SecureRandom</c> instance.</summary>
+        <value>the effective <c>SecureRandomParameters</c> parameters,
+            or <c>null</c> if no parameters were used.</value>
+        <remarks>
+          <para>Returns the effective <c>SecureRandomParameters</c> for this
+            <c>SecureRandom</c> instance.</para>
+          <para>The returned value can be different from the
+            <c>SecureRandomParameters</c> object passed into a <c>getInstance</c>
+            method, but it cannot change during the lifetime of this
+            <c>SecureRandom</c> object.</para>
+          <para>A caller can use the returned value to find out what features this
+            <c>SecureRandom</c> supports.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/SecureRandom#getParameters()" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.getParameters()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Provider">
       <MemberSignature Language="C#" Value="public Java.Security.Provider? Provider { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Security.Provider Provider" />
@@ -730,10 +1040,10 @@
         <ReturnType>Java.Security.Provider</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the provider of this SecureRandom object.</summary>
-        <value>the provider of this SecureRandom object.</value>
+        <summary>Returns the provider of this <c>SecureRandom</c> object.</summary>
+        <value>the provider of this <c>SecureRandom</c> object.</value>
         <remarks>
-          <para>Returns the provider of this SecureRandom object.</para>
+          <para>Returns the provider of this <c>SecureRandom</c> object.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/security/SecureRandom#getProvider()" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.getProvider()</code>.</a>
@@ -746,6 +1056,100 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="Reseed">
+      <MemberSignature Language="C#" Value="public virtual void Reseed ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reseed() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.SecureRandom.Reseed" />
+      <MemberSignature Language="F#" Value="abstract member Reseed : unit -&gt; unit&#xA;override this.Reseed : unit -&gt; unit" Usage="secureRandom.Reseed " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("reseed", "()V", "GetReseedHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reseed", "()V", "GetReseedHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Reseeds this <c>SecureRandom</c> with entropy input read from its
+            entropy source.</summary>
+        <remarks>
+          <para>Reseeds this <c>SecureRandom</c> with entropy input read from its
+            entropy source.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/SecureRandom#reseed()" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.reseed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Reseed">
+      <MemberSignature Language="C#" Value="public virtual void Reseed (Java.Security.ISecureRandomParameters? params);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reseed(class Java.Security.ISecureRandomParameters params) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Security.SecureRandom.Reseed(Java.Security.ISecureRandomParameters)" />
+      <MemberSignature Language="F#" Value="abstract member Reseed : Java.Security.ISecureRandomParameters -&gt; unit&#xA;override this.Reseed : Java.Security.ISecureRandomParameters -&gt; unit" Usage="secureRandom.Reseed params" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("reseed", "(Ljava/security/SecureRandomParameters;)V", "GetReseed_Ljava_security_SecureRandomParameters_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reseed", "(Ljava/security/SecureRandomParameters;)V", "GetReseed_Ljava_security_SecureRandomParameters_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="params" Type="Java.Security.ISecureRandomParameters" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="params">extra parameters</param>
+        <summary>Reseeds this <c>SecureRandom</c> with entropy input read from its
+            entropy source with additional parameters.</summary>
+        <remarks>
+          <para>Reseeds this <c>SecureRandom</c> with entropy input read from its
+            entropy source with additional parameters.</para>
+          <para>Note that entropy is obtained from an entropy source. While
+            some data in <c>params</c> may contain entropy, its main usage is to
+            provide diversity.</para>
+          <para>Added in 9.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/security/SecureRandom#reseed(java.security.SecureRandomParameters)" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.reseed(java.security.SecureRandomParameters)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSeed">
@@ -772,11 +1176,15 @@
       </Parameters>
       <Docs>
         <param name="seed">the seed.</param>
-        <summary>Reseeds this random object.</summary>
+        <summary>Reseeds this random object with the given seed.</summary>
         <remarks>
-          <para>Reseeds this random object. The given seed supplements, rather than
-            replaces, the existing seed. Thus, repeated calls are guaranteed
-            never to reduce randomness.</para>
+          <para>Reseeds this random object with the given seed. The seed supplements,
+            rather than replaces, the existing seed. Thus, repeated calls are
+            guaranteed never to reduce randomness.</para>
+          <para>A PRNG <c>SecureRandom</c> will not seed itself automatically if
+            <c>setSeed</c> is called before any <c>nextBytes</c> or <c>reseed</c>
+            calls. The caller should make sure that the <c>seed</c> argument
+            contains enough entropy for the security of this <c>SecureRandom</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/security/SecureRandom#setSeed(byte[])" title="Reference documentation">Java documentation for <code>java.security.SecureRandom.setSeed(byte[])</code>.</a>
@@ -840,6 +1248,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

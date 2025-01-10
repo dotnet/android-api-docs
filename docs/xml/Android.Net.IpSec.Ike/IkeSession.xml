@@ -30,13 +30,39 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/ipsec/ike/IkeSession", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>This class represents an IKE Session management object that allows for keying and management of
+            <c>android.net.IpSecTransform</c>s.</summary>
+    <remarks>
+      <para>This class represents an IKE Session management object that allows for keying and management of
+            <c>android.net.IpSecTransform</c>s.</para>
+      <para>An IKE/Child Session represents an IKE/Child SA as well as its rekeyed successors. A Child
+            Session is bounded by the lifecycle of the IKE Session under which it is set up. Closing an IKE
+            Session implicitly closes any remaining Child Sessions under it.</para>
+      <para>An IKE procedure is one or multiple IKE message exchanges that are used to create, delete or
+            rekey an IKE Session or Child Session.</para>
+      <para>This class provides methods for initiating IKE procedures, such as the Creation and Deletion
+            of a Child Session, or the Deletion of the IKE session. All procedures (except for IKE deletion)
+            will be initiated sequentially after IKE Session is set up.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -68,14 +94,36 @@
         <Parameter Name="firstChildSessionCallback" Type="Android.Net.IpSec.Ike.IChildSessionCallback" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="ikeSessionParams">To be added.</param>
-        <param name="firstChildSessionParams">To be added.</param>
-        <param name="userCbExecutor">To be added.</param>
-        <param name="ikeSessionCallback">To be added.</param>
-        <param name="firstChildSessionCallback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">a valid <c>Context</c> instance.</param>
+        <param name="ikeSessionParams">the <c>IkeSessionParams</c> that contains a set of valid <c>IkeSession</c> configurations.</param>
+        <param name="firstChildSessionParams">the <c>ChildSessionParams</c> that contains a set of valid
+                configurations for the first Child Session.</param>
+        <param name="userCbExecutor">the <c>Executor</c> upon which all callbacks will be posted. For
+                security and consistency, the callbacks posted to this executor MUST be executed serially
+                and in the order they were posted, as guaranteed by executors such as <c>java.util.concurrent.Executors#newSingleThreadExecutor()</c></param>
+        <param name="ikeSessionCallback">the <c>IkeSessionCallback</c> interface to notify callers of state
+                changes within the <c>IkeSession</c>.</param>
+        <param name="firstChildSessionCallback">the <c>ChildSessionCallback</c> interface to notify callers
+                of state changes within the first Child Session.</param>
+        <summary>Constructs a new IKE session.</summary>
+        <returns>an instance of <c>IkeSession</c>.</returns>
+        <remarks>
+          <para>Constructs a new IKE session.</para>
+          <para>This method will immediately return an instance of <c>IkeSession</c> and asynchronously
+            initiate the setup procedure of <c>IkeSession</c> as well as its first Child Session.
+            Callers will be notified of these two setup results via the callback arguments.</para>
+          <para>FEATURE_IPSEC_TUNNELS is required for setting up a tunnel mode Child SA.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession#IkeSession(android.content.Context,%20android.net.ipsec.ike.IkeSessionParams,%20android.net.ipsec.ike.ChildSessionParams,%20java.util.concurrent.Executor,%20android.net.ipsec.ike.IkeSessionCallback,%20android.net.ipsec.ike.ChildSessionCallback)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession.IkeSession(android.content.Context, android.net.ipsec.ike.IkeSessionParams, android.net.ipsec.ike.ChildSessionParams, java.util.concurrent.Executor, android.net.ipsec.ike.IkeSessionCallback, android.net.ipsec.ike.ChildSessionCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Close">
@@ -106,8 +154,29 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Close the IKE session gracefully.</summary>
+        <remarks>
+          <para>Close the IKE session gracefully.</para>
+          <para>Implements <c>AutoCloseable#close()</c></para>
+          <para>Upon closure, <c>IkeSessionCallback#onClosed()</c> or <c>IkeSessionCallback#onClosedWithException(IkeException)</c> will be fired.</para>
+          <para>Closing an IKE Session implicitly closes any remaining Child Sessions negotiated under it.
+            Users SHOULD stop all outbound traffic that uses these Child Sessions (<c>android.net.IpSecTransform</c> pairs) before calling this method. Otherwise IPsec packets will
+            be dropped due to the lack of a valid <c>android.net.IpSecTransform</c>.</para>
+          <para>Closure of an IKE session will take priority over, and cancel other procedures waiting in
+            the queue (but will wait for ongoing locally initiated procedures to complete). After sending
+            the Delete request, the IKE library will wait until a Delete response is received or
+            retransmission timeout occurs.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession#close()" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession.close()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CloseChildSession">
@@ -137,9 +206,67 @@
         <Parameter Name="childSessionCallback" Type="Android.Net.IpSec.Ike.IChildSessionCallback" />
       </Parameters>
       <Docs>
-        <param name="childSessionCallback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="childSessionCallback">The <c>ChildSessionCallback</c> instance that uniquely identify
+                the Child Session.</param>
+        <summary>Delete a Child Session.</summary>
+        <remarks>
+          <para>Delete a Child Session.</para>
+          <para>Upon closure, <c>ChildSessionCallback#onClosed()</c> will be fired.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession#closeChildSession(android.net.ipsec.ike.ChildSessionCallback)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession.closeChildSession(android.net.ipsec.ike.ChildSessionCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Dump">
+      <MemberSignature Language="C#" Value="public void Dump (Java.IO.PrintWriter pw);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Dump(class Java.IO.PrintWriter pw) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.IpSec.Ike.IkeSession.Dump(Java.IO.PrintWriter)" />
+      <MemberSignature Language="F#" Value="member this.Dump : Java.IO.PrintWriter -&gt; unit" Usage="ikeSession.Dump pw" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("dump", "(Ljava/io/PrintWriter;)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("dump", "(Ljava/io/PrintWriter;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="pw" Type="Java.IO.PrintWriter" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="pw">Print writer</param>
+        <summary>Dumps the state of <c>IkeSession</c> information for the clients</summary>
+        <remarks>
+          <para>Dumps the state of <c>IkeSession</c> information for the clients</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession#dump(java.io.PrintWriter)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession.dump(java.io.PrintWriter)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Finalize">
@@ -168,7 +295,18 @@
       <Parameters />
       <Docs>
         <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession#finalize()" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession.finalize()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -228,8 +366,26 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Terminate (forcibly close) the IKE session.</summary>
+        <remarks>
+          <para>Terminate (forcibly close) the IKE session.</para>
+          <para>Upon closing, <c>IkeSessionCallback#onClosed()</c> will be fired.</para>
+          <para>Closing an IKE Session implicitly closes any remaining Child Sessions negotiated under it.
+            Users SHOULD stop all outbound traffic that uses these Child Sessions (<c>android.net.IpSecTransform</c> pairs) before calling this method. Otherwise IPsec packets will
+            be dropped due to the lack of a valid <c>android.net.IpSecTransform</c>.</para>
+          <para>Forcible closure of an IKE session will take priority over, and cancel other procedures
+            waiting in the queue. It will also interrupt any ongoing locally initiated procedure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession#kill()" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession.kill()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OpenChildSession">
@@ -260,10 +416,30 @@
         <Parameter Name="childSessionCallback" Type="Android.Net.IpSec.Ike.IChildSessionCallback" />
       </Parameters>
       <Docs>
-        <param name="childSessionParams">To be added.</param>
-        <param name="childSessionCallback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="childSessionParams">the <c>ChildSessionParams</c> that contains the Child Session
+                configurations to negotiate.</param>
+        <param name="childSessionCallback">the <c>ChildSessionCallback</c> interface to notify users the
+                state changes of the Child Session. It will be posted to the callback <c>Executor</c> of
+                this <c>IkeSession</c>.</param>
+        <summary>Request a new Child Session.</summary>
+        <remarks>
+          <para>Request a new Child Session.</para>
+          <para>Users MUST provide a unique <c>ChildSessionCallback</c> instance for each new Child
+            Session.</para>
+          <para>Upon setup, <c>ChildSessionCallback#onOpened(ChildSessionConfiguration)</c> will be
+            fired.</para>
+          <para>FEATURE_IPSEC_TUNNELS is required for setting up a tunnel mode Child SA.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSession#openChildSession(android.net.ipsec.ike.ChildSessionParams,%20android.net.ipsec.ike.ChildSessionCallback)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.IkeSession.openChildSession(android.net.ipsec.ike.ChildSessionParams, android.net.ipsec.ike.ChildSessionCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

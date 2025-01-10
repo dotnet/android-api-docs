@@ -32,6 +32,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/util/Formatter", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/Formatter", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>An interpreter for printf-style format strings.</summary>
@@ -107,7 +111,7 @@
             </code>
       <para>&lt;/blockquote&gt;
             
-            &lt;h3&gt;"org"&gt;Organization&lt;/h3&gt;</para>
+            &lt;h2&gt;"org"&gt;Organization&lt;/h2&gt;</para>
       <para>This specification is divided into two sections.  The first section, Summary, covers the basic formatting concepts.  This
             section is intended for users who want to get started quickly and are
             familiar with formatted printing in other programming languages.  The second
@@ -115,11 +119,11 @@
             details.  It is intended for users who want more precise specification of
             formatting behavior.
             
-            &lt;h3&gt;"summary"&gt;Summary&lt;/h3&gt;</para>
+            &lt;h2&gt;"summary"&gt;Summary&lt;/h2&gt;</para>
       <para>This section is intended to provide a brief overview of formatting
             concepts.  For precise behavioral details, refer to the Details section.
             
-            &lt;h4&gt;"syntax"&gt;Format String Syntax&lt;/h4&gt;</para>
+            &lt;h3&gt;"syntax"&gt;Format String Syntax&lt;/h3&gt;</para>
       <para>Every method which produces formatted output requires a <i>format
             string</i> and an <i>argument list</i>.  The format string is a <c>String</c> which may contain fixed text and one or more embedded <i>format
             specifiers</i>.  Consider the following example:
@@ -192,7 +196,7 @@
             
             &lt;/ul&gt;
             
-            &lt;h4&gt; Conversions &lt;/h4&gt;</para>
+            &lt;h3&gt; Conversions &lt;/h3&gt;</para>
       <para>Conversions are divided into the following categories:
             
             &lt;ol&gt;
@@ -221,7 +225,7 @@
             &lt;li&gt; &lt;b&gt;Line Separator&lt;/b&gt; - produces the platform-specific line separator
             
             &lt;/ol&gt;</para>
-      <para>For category <i>General</i>, <i>Character</i>, <i>Numberic</i>,
+      <para>For category <i>General</i>, <i>Character</i>, <i>Numeric</i>,
             <i>Integral</i> and <i>Date/Time</i> conversion, unless otherwise specified,
             if the argument <i>arg</i> is <c>null</c>, then the result is "<c>null</c>".</para>
       <para>The following table summarizes the supported conversions.  Conversions
@@ -301,7 +305,7 @@
       <para>Any characters not explicitly defined as conversions are illegal and are
             reserved for future extensions.
             
-            &lt;h4&gt;"dt"&gt;Date/Time Conversions&lt;/h4&gt;</para>
+            &lt;h3&gt;"dt"&gt;Date/Time Conversions&lt;/h3&gt;</para>
       <para>The following date and time conversion suffix characters are defined for
             the <c>'t'</c> and <c>'T'</c> conversions.  The types are similar to but
             not completely identical to those defined by GNU <c>date</c> and POSIX
@@ -425,7 +429,7 @@
       <para>Any characters not explicitly defined as date/time conversion suffixes
             are illegal and are reserved for future extensions.
             
-            &lt;h4&gt; Flags &lt;/h4&gt;</para>
+            &lt;h3&gt; Flags &lt;/h3&gt;</para>
       <para>The following table summarizes the supported flags.  <i>y</i> means the
             flag is supported for the indicated argument types.
             
@@ -500,12 +504,12 @@
       <para>Any characters not explicitly defined as flags are illegal and are
             reserved for future extensions.
             
-            &lt;h4&gt; Width &lt;/h4&gt;</para>
+            &lt;h3&gt; Width &lt;/h3&gt;</para>
       <para>The width is the minimum number of characters to be written to the
             output.  For the line separator conversion, width is not applicable; if it
             is provided, an exception will be thrown.
             
-            &lt;h4&gt; Precision &lt;/h4&gt;</para>
+            &lt;h3&gt; Precision &lt;/h3&gt;</para>
       <para>For general argument types, the precision is the maximum number of
             characters to be written to the output.</para>
       <para>For the floating-point conversions <c>'a'</c>, <c>'A'</c>, <c>'e'</c>,
@@ -517,7 +521,7 @@
             and line separator conversions, the precision is not applicable; if a
             precision is provided, an exception will be thrown.
             
-            &lt;h4&gt; Argument Index &lt;/h4&gt;</para>
+            &lt;h3&gt; Argument Index &lt;/h3&gt;</para>
       <para>The argument index is a decimal integer indicating the position of the
             argument in the argument list.  The first argument is referenced by
             "<c>1$</c>", the second by "<c>2$</c>", etc.</para>
@@ -535,7 +539,7 @@
       <para>&lt;/blockquote&gt;
             
             &lt;hr&gt;
-            &lt;h3&gt;"detail"&gt;Details&lt;/h3&gt;</para>
+            &lt;h2&gt;"detail"&gt;Details&lt;/h2&gt;</para>
       <para>This section is intended to provide behavioral details for formatting,
             including conditions and exceptions, supported data types, localization, and
             interactions between flags, conversions, and data types.  For an overview of
@@ -546,14 +550,27 @@
             cause an <c>UnknownFormatConversionException</c> or <c>UnknownFormatFlagsException</c> to be thrown.</para>
       <para>If the format specifier contains a width or precision with an invalid
             value or which is otherwise unsupported, then a <c>IllegalFormatWidthException</c> or <c>IllegalFormatPrecisionException</c>
-            respectively will be thrown.</para>
+            respectively will be thrown. Similarly, values of zero for an argument
+            index will result in an <c>IllegalFormatException</c>.</para>
       <para>If a format specifier contains a conversion character that is not
             applicable to the corresponding argument, then an <c>IllegalFormatConversionException</c> will be thrown.</para>
+      <para>Values of <i>precision</i> must be in the range zero to
+            <c>Integer#MAX_VALUE</c>, inclusive, otherwise
+            <c>IllegalFormatPrecisionException</c> is thrown.</para>
+      <para>Values of <i>width</i> must be in the range one to
+            <c>Integer#MAX_VALUE</c>, inclusive, otherwise
+            <c>IllegalFormatWidthException</c> will be thrown
+            Note that widths can appear to have a negative value, but the negative sign
+            is a <i>flag</i>. For example in the format string <c>"%-20s"</c> the
+            <i>width</i> is <i>20</i> and the <i>flag</i> is "-".</para>
+      <para>Values of <i>index</i> must be in the range one to
+            <c>Integer#MAX_VALUE</c>, inclusive, otherwise
+            <c>IllegalFormatException</c> will be thrown.</para>
       <para>All specified exceptions may be thrown by any of the <c>format</c>
             methods of <c>Formatter</c> as well as by any <c>format</c> convenience
             methods such as <c>String#format(String,Object...) String.format</c> and
             <c>java.io.PrintStream#printf(String,Object...) PrintStream.printf</c>.</para>
-      <para>For category <i>General</i>, <i>Character</i>, <i>Numberic</i>,
+      <para>For category <i>General</i>, <i>Character</i>, <i>Numeric</i>,
             <i>Integral</i> and <i>Date/Time</i> conversion, unless otherwise specified,
             if the argument <i>arg</i> is <c>null</c>, then the result is "<c>null</c>".</para>
       <para>Conversions denoted by an upper-case character (i.e. <c>'B'</c>,
@@ -565,7 +582,7 @@
             invocation, then the <c>java.util.Locale.Category#FORMAT default locale</c>
             is used.
             
-            &lt;h4&gt;"dgen"&gt;General&lt;/h4&gt;</para>
+            &lt;h3&gt;"dgen"&gt;General&lt;/h3&gt;</para>
       <para>The following general conversions may be applied to any argument type:
             
             &lt;table class="striped"&gt;
@@ -593,7 +610,7 @@
                 its <c>Formattable#formatTo formatTo</c> method is invoked.
                 Otherwise, the result is obtained by invoking the argument's
                 <c>toString()</c> method.</para>
-      <para>If the <c>'#'</c> flag is given and the argument is not a <c>Formattable</c> , then a <c>FormatFlagsConversionMismatchException</c>
+      <para>If the <c>'#'</c> flag is given and the argument is not a <c>Formattable</c>, then a <c>FormatFlagsConversionMismatchException</c>
                 will be thrown.
             
             &lt;tr&gt;&lt;th scope="row" style="vertical-align:top"&gt; <c>'S'</c>&lt;td style="vertical-align:top"&gt; <c>'&amp;#92;u0053'</c>&lt;td&gt; The upper-case variant of <c>'s'</c>.
@@ -630,7 +647,7 @@
             the precision.  If the precision is not specified then there is no explicit
             limit on the number of characters.
             
-            &lt;h4&gt;"dchar"&gt;Character&lt;/h4&gt;
+            &lt;h3&gt;"dchar"&gt;Character&lt;/h3&gt;
             
             This conversion may be applied to <c>char</c> and <c>Character</c>.  It
             may also be applied to the types <c>byte</c>, <c>Byte</c>,
@@ -658,7 +675,7 @@
       <para>The precision is not applicable.  If the precision is specified then an
             <c>IllegalFormatPrecisionException</c> will be thrown.
             
-            &lt;h4&gt;"dnum"&gt;Numeric&lt;/h4&gt;</para>
+            &lt;h3&gt;"dnum"&gt;Numeric&lt;/h3&gt;</para>
       <para>Numeric conversions are divided into the following categories:
             
             &lt;ol&gt;
@@ -1153,7 +1170,7 @@
       <para>The specification of width and precision is the same as defined for Float and
             Double.
             
-            &lt;h4&gt;"ddt"&gt;Date/Time&lt;/h4&gt;</para>
+            &lt;h3&gt;"ddt"&gt;Date/Time&lt;/h3&gt;</para>
       <para>This conversion may be applied to <c>long</c>, <c>Long</c>, <c>Calendar</c>, <c>Date</c> and <c>TemporalAccessor TemporalAccessor</c>&lt;table class="striped"&gt;
             &lt;caption style="display:none"&gt;DTConv&lt;/caption&gt;
             &lt;tbody&gt;
@@ -1313,7 +1330,7 @@
       <para>The precision is not applicable.  If the precision is specified then an
             <c>IllegalFormatPrecisionException</c> will be thrown.
             
-            &lt;h4&gt;"dper"&gt;Percent&lt;/h4&gt;</para>
+            &lt;h3&gt;"dper"&gt;Percent&lt;/h3&gt;</para>
       <para>The conversion does not correspond to any argument.
             
             &lt;table class="striped"&gt;
@@ -1329,14 +1346,14 @@
             specified then just the <c>'%'</c> is output.</para>
       <para>The <c>'-'</c> flag defined for General
             conversions applies.  If any other flags are provided, then a
-            <c>FormatFlagsConversionMismatchException</c> will be thrown.</para>
+            <c>IllegalFormatFlagsException </c> will be thrown.</para>
       <para>The precision is not applicable.  If the precision is specified an
             <c>IllegalFormatPrecisionException</c> will be thrown.
             
             &lt;/tbody&gt;
             &lt;/table&gt;
             
-            &lt;h4&gt;"dls"&gt;Line Separator&lt;/h4&gt;</para>
+            &lt;h3&gt;"dls"&gt;Line Separator&lt;/h3&gt;</para>
       <para>The conversion does not correspond to any argument.
             
             &lt;table class="striped"&gt;
@@ -1351,7 +1368,7 @@
             <c>IllegalFormatFlagsException</c>, <c>IllegalFormatWidthException</c>,
             and <c>IllegalFormatPrecisionException</c>, respectively will be thrown.
             
-            &lt;h4&gt;"dpos"&gt;Argument Index&lt;/h4&gt;</para>
+            &lt;h3&gt;"dpos"&gt;Argument Index&lt;/h3&gt;</para>
       <para>Format specifiers can reference arguments in three ways:
             
             &lt;ul&gt;
@@ -1406,7 +1423,7 @@
       <para>&lt;/blockquote&gt;</para>
       <para>The maximum number of arguments is limited by the maximum dimension of a
             Java array as defined by
-            &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.
+            &lt;cite&gt;The Java Virtual Machine Specification&lt;/cite&gt;.
             If the argument index does not correspond to an
             available argument, then a <c>MissingFormatArgumentException</c> is thrown.</para>
       <para>If there are more arguments than format specifiers, the extra arguments
@@ -2369,6 +2386,10 @@
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
             </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
@@ -2424,6 +2445,10 @@
             <Attribute>
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -2517,6 +2542,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2665,6 +2694,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

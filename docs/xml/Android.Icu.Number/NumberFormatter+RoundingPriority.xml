@@ -17,13 +17,62 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/number/NumberFormatter$RoundingPriority", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>An enum declaring how to resolve conflicts between maximum fraction digits and maximum
+            significant digits.</summary>
+    <remarks>
+      <para>An enum declaring how to resolve conflicts between maximum fraction digits and maximum
+            significant digits.</para>
+      <para>There are two modes, RELAXED and STRICT:
+            
+            &lt;ul&gt;
+            &lt;li&gt; RELAXED: Relax one of the two constraints (fraction digits or significant digits) in order
+              to round the number to a higher level of precision.
+            &lt;li&gt; STRICT: Enforce both constraints, resulting in the number being rounded to a lower
+              level of precision.
+            &lt;/ul&gt;</para>
+      <para>The default settings for compact notation rounding are Max-Fraction = 0 (round to the nearest
+            integer), Max-Significant = 2 (round to 2 significant digits), and priority RELAXED (choose
+            the constraint that results in more digits being displayed).</para>
+      <para>Conflicting <i>minimum</i> fraction and significant digits are always resolved in the direction that
+            results in more trailing zeros.</para>
+      <para>Example 1: Consider the number 3.141, with various different settings:
+            
+            &lt;ul&gt;
+            &lt;li&gt; Max-Fraction = 1: "3.1"
+            &lt;li&gt; Max-Significant = 3: "3.14"
+            &lt;/ul&gt;</para>
+      <para>The rounding priority determines how to resolve the conflict when both Max-Fraction and
+            Max-Significant are set. With RELAXED, the less-strict setting (the one that causes more digits
+            to be displayed) will be used; Max-Significant wins. With STRICT, the more-strict setting (the
+            one that causes fewer digits to be displayed) will be used; Max-Fraction wins.</para>
+      <para>Example 2: Consider the number 8317, with various different settings:
+            
+            &lt;ul&gt;
+            &lt;li&gt; Max-Fraction = 1: "8317"
+            &lt;li&gt; Max-Significant = 3: "8320"
+            &lt;/ul&gt;</para>
+      <para>Here, RELAXED favors Max-Fraction and STRICT favors Max-Significant. Note that this larger
+            number caused the two modes to favor the opposite result.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/icu/number/NumberFormatter.RoundingPriority" title="Reference documentation">Java documentation for <code>android.icu.number.NumberFormatter.RoundingPriority</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="JniPeerMembers">
@@ -71,6 +120,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("RELAXED", ApiSince=34)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -98,6 +151,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("STRICT", ApiSince=34)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("STRICT", ApiSince=34)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
@@ -226,6 +283,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Icu.Number.NumberFormatter+RoundingPriority[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>

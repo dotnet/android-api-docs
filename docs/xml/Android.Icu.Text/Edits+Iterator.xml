@@ -17,13 +17,38 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/Edits$Iterator", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Access to the list of edits.</summary>
+    <remarks>
+      <para>Access to the list of edits.</para>
+      <para>At any moment in time, an instance of this class points to a single edit: a "window" into a span
+            of the source string and the corresponding span of the destination string. The source string span
+            starts at <c>#sourceIndex()</c> and runs for <c>#oldLength()</c> chars; the destination string
+            span starts at <c>#destinationIndex()</c> and runs for <c>#newLength()</c> chars.</para>
+      <para>The iterator can be moved between edits using the <c>#next()</c>, <c>#findSourceIndex(int)</c>,
+            and <c>#findDestinationIndex(int)</c> methods. Calling any of these methods mutates the iterator
+            to make it point to the corresponding edit.</para>
+      <para>For more information, see the documentation for <c>Edits</c>.</para>
+      <para>Note: Although this class is called "Iterator", it does not implement <c>java.util.Iterator</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="DestinationIndex">
@@ -51,9 +76,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>The start index of the current span in the destination string; the span has length
+            <c>#newLength</c>.</summary>
+        <returns>the current index into the full destination string</returns>
+        <remarks>
+          <para>The start index of the current span in the destination string; the span has length
+            <c>#newLength</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#destinationIndex()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.destinationIndex()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationIndexFromSourceIndex">
@@ -83,10 +122,32 @@
         <Parameter Name="i" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="i">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="i">source index</param>
+        <summary>Computes the destination index corresponding to the given source index.</summary>
+        <returns>destination index; undefined if i is not 0..string length</returns>
+        <remarks>
+          <para>Computes the destination index corresponding to the given source index.
+            If the source index is inside a change edit (not at its start),
+            then the destination index at the end of that edit is returned,
+            since there is no information about index mapping inside a change edit.</para>
+          <para>(This means that indexes to the start and middle of an edit,
+            for example around a grapheme cluster, are mapped to indexes
+            encompassing the entire edit.
+            The alternative, mapping an interior index to the start,
+            would map such an interval to an empty one.)</para>
+          <para>This operation will usually but not always modify this object.
+            The iterator state after this search is undefined.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#destinationIndexFromSourceIndex(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.destinationIndexFromSourceIndex(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FindDestinationIndex">
@@ -116,10 +177,29 @@
         <Parameter Name="i" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="i">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="i">destination index</param>
+        <summary>Moves the iterator to the edit that contains the destination index.</summary>
+        <returns>true if the edit for the destination index was found</returns>
+        <remarks>
+          <para>Moves the iterator to the edit that contains the destination index.
+            The destination index may be found in a no-change edit
+            even if normal iteration would skip no-change edits.
+            Normal iteration can continue from a found edit.</para>
+          <para>The iterator state before this search logically does not matter.
+            (It may affect the performance of the search.)</para>
+          <para>The iterator state after this search is undefined
+            if the source index is out of bounds for the source string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#findDestinationIndex(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.findDestinationIndex(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FindSourceIndex">
@@ -149,10 +229,29 @@
         <Parameter Name="i" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="i">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="i">source index</param>
+        <summary>Moves the iterator to the edit that contains the source index.</summary>
+        <returns>true if the edit for the source index was found</returns>
+        <remarks>
+          <para>Moves the iterator to the edit that contains the source index.
+            The source index may be found in a no-change edit
+            even if normal iteration would skip no-change edits.
+            Normal iteration can continue from a found edit.</para>
+          <para>The iterator state before this search logically does not matter.
+            (It may affect the performance of the search.)</para>
+          <para>The iterator state after this search is undefined
+            if the source index is out of bounds for the source string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#findSourceIndex(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.findSourceIndex(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HasChange">
@@ -179,9 +278,22 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns whether the edit currently represented by the iterator is a change edit.</summary>
+        <value>true if this edit replaces oldLength() units with newLength() different ones.
+                    false if oldLength units remain unchanged.</value>
+        <remarks>
+          <para>Returns whether the edit currently represented by the iterator is a change edit.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#hasChange()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.hasChange()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -238,9 +350,26 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>The length of the current span in the destination string, which starts at
+            <c>#destinationIndex</c>, or in the replacement string, which starts at
+            <c>#replacementIndex</c>.</summary>
+        <returns>the number of units in the destination string, if hasChange() is true. Same as
+                    oldLength if hasChange() is false.</returns>
+        <remarks>
+          <para>The length of the current span in the destination string, which starts at
+            <c>#destinationIndex</c>, or in the replacement string, which starts at
+            <c>#replacementIndex</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#newLength()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.newLength()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Next">
@@ -268,9 +397,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Advances the iterator to the next edit.</summary>
+        <returns>true if there is another edit</returns>
+        <remarks>
+          <para>Advances the iterator to the next edit.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#next()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.next()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OldLength">
@@ -298,9 +439,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>The length of the current span in the source string, which starts at <c>#sourceIndex</c>.</summary>
+        <returns>the number of units in the source string which are replaced or remain unchanged.</returns>
+        <remarks>
+          <para>The length of the current span in the source string, which starts at <c>#sourceIndex</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#oldLength()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.oldLength()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReplacementIndex">
@@ -328,9 +481,29 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>The start index of the current span in the replacement string; the span has length
+            <c>#newLength</c>.</summary>
+        <returns>the current index into the replacement-characters-only string, not counting unchanged
+                    spans</returns>
+        <remarks>
+          <para>The start index of the current span in the replacement string; the span has length
+            <c>#newLength</c>. Well-defined only if the current edit is a change edit.</para>
+          <para>The &lt;em&gt;replacement string&lt;/em&gt; is the concatenation of all substrings of the destination
+            string corresponding to change edits.</para>
+          <para>This method is intended to be used together with operations that write only replacement
+            characters (e.g., <c>CaseMap#omitUnchangedText()</c>). The source string can then be modified
+            in-place.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#replacementIndex()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.replacementIndex()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceIndex">
@@ -358,9 +531,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>The start index of the current span in the source string; the span has length
+            <c>#oldLength</c>.</summary>
+        <returns>the current index into the source string</returns>
+        <remarks>
+          <para>The start index of the current span in the source string; the span has length
+            <c>#oldLength</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#sourceIndex()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.sourceIndex()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceIndexFromDestinationIndex">
@@ -390,10 +577,32 @@
         <Parameter Name="i" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="i">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="i">destination index</param>
+        <summary>Computes the source index corresponding to the given destination index.</summary>
+        <returns>source index; undefined if i is not 0..string length</returns>
+        <remarks>
+          <para>Computes the source index corresponding to the given destination index.
+            If the destination index is inside a change edit (not at its start),
+            then the source index at the end of that edit is returned,
+            since there is no information about index mapping inside a change edit.</para>
+          <para>(This means that indexes to the start and middle of an edit,
+            for example around a grapheme cluster, are mapped to indexes
+            encompassing the entire edit.
+            The alternative, mapping an interior index to the start,
+            would map such an interval to an empty one.)</para>
+          <para>This operation will usually but not always modify this object.
+            The iterator state after this search is undefined.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits.Iterator#sourceIndexFromDestinationIndex(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Iterator.sourceIndexFromDestinationIndex(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

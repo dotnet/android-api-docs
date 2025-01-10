@@ -1,8 +1,11 @@
 <Type Name="Random" FullName="Java.Util.Random">
-  <TypeSignature Language="C#" Value="public class Random : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.IO.ISerializable" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Random extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class System.IDisposable" />
+  <TypeSignature Language="C#" Value="public class Random : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.IO.ISerializable" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Random extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class System.IDisposable" FrameworkAlternate="net-android-34.0" />
   <TypeSignature Language="DocId" Value="T:Java.Util.Random" />
-  <TypeSignature Language="F#" Value="type Random = class&#xA;    inherit Object&#xA;    interface ISerializable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="F#" Value="type Random = class&#xA;    inherit Object&#xA;    interface ISerializable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="C#" Value="public class Random : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.IO.ISerializable, Java.Util.RandomGenerators.IRandomGenerator" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Random extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class Java.Util.RandomGenerators.IRandomGenerator, class System.IDisposable" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="F#" Value="type Random = class&#xA;    inherit Object&#xA;    interface ISerializable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface IRandomGenerator" FrameworkAlternate="net-android-35.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -23,21 +26,30 @@
     <Interface>
       <InterfaceName>System.IDisposable</InterfaceName>
     </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Java.Util.RandomGenerators.IRandomGenerator</InterfaceName>
+    </Interface>
   </Interfaces>
   <Attributes>
     <Attribute>
       <AttributeName Language="C#">[Android.Runtime.Register("java/util/Random", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/Random", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>An instance of this class is used to generate a stream of
-            pseudorandom numbers.</summary>
+            pseudorandom numbers; its period is only 2&lt;sup&gt;48&lt;/sup&gt;.</summary>
     <remarks>
       <para>An instance of this class is used to generate a stream of
-            pseudorandom numbers. The class uses a 48-bit seed, which is
-            modified using a linear congruential formula. (See Donald Knuth,
-            <i>The Art of Computer Programming, Volume 2</i>, Section 3.2.1.)</para>
+            pseudorandom numbers; its period is only 2&lt;sup&gt;48&lt;/sup&gt;.
+            The class uses a 48-bit seed, which is
+            modified using a linear congruential formula. (See Donald E. Knuth,
+            &lt;cite&gt;The Art of Computer Programming, Volume 2, Third
+            edition: Seminumerical Algorithms&lt;/cite&gt;, Section 3.2.1.)</para>
       <para>If two instances of <c>Random</c> are created with the same
             seed, and the same sequence of method calls is made for each, they
             will generate and return identical sequences of numbers. In order to
@@ -138,10 +150,6 @@
           <para>Creates a new random number generator using a single <c>long</c> seed.
             The seed is the initial value of the internal state of the pseudorandom
             number generator which is maintained by method <c>#next</c>.</para>
-          <para>The invocation <c>new Random(seed)</c> is equivalent to:</para>
-          <code lang="text/java">{@code
-            Random rnd = new Random();
-            rnd.setSeed(seed);}</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Random#Random(long)" title="Reference documentation">Java documentation for <code>java.util.Random.Random(long)</code>.</a>
@@ -255,8 +263,8 @@
           <code lang="text/java">{@code (int)(seed &gt;&gt;&gt; (48 - bits))}.</code>
           <para>This is a linear congruential pseudorandom number generator, as
             defined by D. H. Lehmer and described by Donald E. Knuth in
-            <i>The Art of Computer Programming,</i> Volume 2:
-            <i>Seminumerical Algorithms</i>, section 3.2.1.</para>
+            &lt;cite&gt;The Art of Computer Programming, Volume 2, Third edition:
+            Seminumerical Algorithms&lt;/cite&gt;, section 3.2.1.</para>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -278,6 +286,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextBoolean" />
       <MemberSignature Language="F#" Value="abstract member NextBoolean : unit -&gt; bool&#xA;override this.NextBoolean : unit -&gt; bool" Usage="random.NextBoolean " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextBoolean</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -306,12 +317,6 @@
             <c>boolean</c> value is pseudorandomly generated and returned.  The
             values <c>true</c> and <c>false</c> are produced with
             (approximately) equal probability.</para>
-          <para>The method <c>nextBoolean</c> is implemented by class <c>Random</c>
-            as if by:</para>
-          <code lang="text/java">{@code
-            public boolean nextBoolean() {
-              return next(1) != 0;
-            }}</code>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -333,6 +338,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextBytes(System.Byte[])" />
       <MemberSignature Language="F#" Value="abstract member NextBytes : byte[] -&gt; unit&#xA;override this.NextBytes : byte[] -&gt; unit" Usage="random.NextBytes bytes" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextBytes(System.Byte[])</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -357,15 +365,6 @@
           <para>Generates random bytes and places them into a user-supplied
             byte array.  The number of random bytes produced is equal to
             the length of the byte array.</para>
-          <para>The method <c>nextBytes</c> is implemented by class <c>Random</c>
-            as if by:</para>
-          <code lang="text/java">{@code
-            public void nextBytes(byte[] bytes) {
-              for (int i = 0; i &lt; bytes.length; )
-                for (int rnd = nextInt(), n = Math.min(bytes.length - i, 4);
-                     n-- &gt; 0; rnd &gt;&gt;= 8)
-                  bytes[i++] = (byte)rnd;
-            }}</code>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -387,6 +386,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextDouble" />
       <MemberSignature Language="F#" Value="abstract member NextDouble : unit -&gt; double&#xA;override this.NextDouble : unit -&gt; double" Usage="random.NextDouble " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextDouble</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -416,28 +418,6 @@
             <c>double</c> value, chosen (approximately) uniformly from the
             range <c>0.0d</c> (inclusive) to <c>1.0d</c> (exclusive), is
             pseudorandomly generated and returned.</para>
-          <para>The method <c>nextDouble</c> is implemented by class <c>Random</c>
-            as if by:</para>
-          <code lang="text/java">{@code
-            public double nextDouble() {
-              return (((long)next(26) &lt;&lt; 27) + next(27))
-                / (double)(1L &lt;&lt; 53);
-            }}</code>
-          <para>The hedge "approximately" is used in the foregoing description only
-            because the <c>next</c> method is only approximately an unbiased
-            source of independently chosen bits. If it were a perfect source of
-            randomly chosen bits, then the algorithm shown would choose
-            <c>double</c> values from the stated range with perfect uniformity.</para>
-          <para>[In early versions of Java, the result was incorrectly calculated as:</para>
-          <code lang="text/java">{@code
-              return (((long)next(27) &lt;&lt; 27) + next(27))
-                / (double)(1L &lt;&lt; 54);}</code>
-          <para>This might seem to be equivalent, if not better, but in fact it
-            introduced a large nonuniformity because of the bias in the rounding
-            of floating-point numbers: it was three times as likely that the
-            low-order bit of the significand would be 0 than that it would be 1!
-            This nonuniformity probably doesn't matter much in practice, but we
-            strive for perfection.]</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Random#nextDouble()" title="Reference documentation">Java documentation for <code>java.util.Random.nextDouble()</code>.</a>
@@ -458,6 +438,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextFloat" />
       <MemberSignature Language="F#" Value="abstract member NextFloat : unit -&gt; single&#xA;override this.NextFloat : unit -&gt; single" Usage="random.NextFloat " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextFloat</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -490,24 +473,6 @@
             <c>float</c> values of the form <i>m&amp;nbsp;x&amp;nbsp;</i>2&lt;sup&gt;-24&lt;/sup&gt;,
             where <i>m</i> is a positive integer less than 2&lt;sup&gt;24&lt;/sup&gt;, are
             produced with (approximately) equal probability.</para>
-          <para>The method <c>nextFloat</c> is implemented by class <c>Random</c>
-            as if by:</para>
-          <code lang="text/java">{@code
-            public float nextFloat() {
-              return next(24) / ((float)(1 &lt;&lt; 24));
-            }}</code>
-          <para>The hedge "approximately" is used in the foregoing description only
-            because the next method is only approximately an unbiased source of
-            independently chosen bits. If it were a perfect source of randomly
-            chosen bits, then the algorithm shown would choose <c>float</c>
-            values from the stated range with perfect uniformity.</para>
-          <para>[In early versions of Java, the result was incorrectly calculated as:</para>
-          <code lang="text/java">{@code
-              return next(30) / ((float)(1 &lt;&lt; 30));}</code>
-          <para>This might seem to be equivalent, if not better, but in fact it
-            introduced a slight nonuniformity because of the bias in the rounding
-            of floating-point numbers: it was slightly more likely that the
-            low-order bit of the significand would be 0 than that it would be 1.]</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Random#nextFloat()" title="Reference documentation">Java documentation for <code>java.util.Random.nextFloat()</code>.</a>
@@ -528,6 +493,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextGaussian" />
       <MemberSignature Language="F#" Value="abstract member NextGaussian : unit -&gt; double&#xA;override this.NextGaussian : unit -&gt; double" Usage="random.NextGaussian " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextGaussian</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -558,35 +526,6 @@
             <c>double</c> value, chosen from (approximately) the usual
             normal distribution with mean <c>0.0</c> and standard deviation
             <c>1.0</c>, is pseudorandomly generated and returned.</para>
-          <para>The method <c>nextGaussian</c> is implemented by class
-            <c>Random</c> as if by a threadsafe version of the following:</para>
-          <code lang="text/java">{@code
-            private double nextNextGaussian;
-            private boolean haveNextNextGaussian = false;
-            
-            public double nextGaussian() {
-              if (haveNextNextGaussian) {
-                haveNextNextGaussian = false;
-                return nextNextGaussian;
-              } else {
-                double v1, v2, s;
-                do {
-                  v1 = 2 * nextDouble() - 1;   // between -1.0 and 1.0
-                  v2 = 2 * nextDouble() - 1;   // between -1.0 and 1.0
-                  s = v1 * v1 + v2 * v2;
-                } while (s &gt;= 1 || s == 0);
-                double multiplier = StrictMath.sqrt(-2 * StrictMath.log(s)/s);
-                nextNextGaussian = v2 * multiplier;
-                haveNextNextGaussian = true;
-                return v1 * multiplier;
-              }
-            }}</code>
-          <para>This uses the <i>polar method</i> of G. E. P. Box, M. E. Muller, and
-            G. Marsaglia, as described by Donald E. Knuth in <i>The Art of
-            Computer Programming</i>, Volume 2: <i>Seminumerical Algorithms</i>,
-            section 3.4.1, subsection C, algorithm P. Note that it generates two
-            independent values at the cost of only one call to <c>StrictMath.log</c>
-            and one call to <c>StrictMath.sqrt</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Random#nextGaussian()" title="Reference documentation">Java documentation for <code>java.util.Random.nextGaussian()</code>.</a>
@@ -607,6 +546,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextInt" />
       <MemberSignature Language="F#" Value="abstract member NextInt : unit -&gt; int&#xA;override this.NextInt : unit -&gt; int" Usage="random.NextInt " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextInt</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -632,12 +574,6 @@
             contract of <c>nextInt</c> is that one <c>int</c> value is
             pseudorandomly generated and returned. All 2&lt;sup&gt;32&lt;/sup&gt; possible
             <c>int</c> values are produced with (approximately) equal probability.</para>
-          <para>The method <c>nextInt</c> is implemented by class <c>Random</c>
-            as if by:</para>
-          <code lang="text/java">{@code
-            public int nextInt() {
-              return next(32);
-            }}</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Random#nextInt()" title="Reference documentation">Java documentation for <code>java.util.Random.nextInt()</code>.</a>
@@ -658,6 +594,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextInt(System.Int32)" />
       <MemberSignature Language="F#" Value="abstract member NextInt : int -&gt; int&#xA;override this.NextInt : int -&gt; int" Usage="random.NextInt bound" />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextInt(System.Int32)</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -689,42 +628,7 @@
             <c>nextInt</c> is that one <c>int</c> value in the specified range
             is pseudorandomly generated and returned.  All <c>bound</c> possible
             <c>int</c> values are produced with (approximately) equal
-            probability.  The method <c>nextInt(int bound)</c> is implemented by
-            class <c>Random</c> as if by:</para>
-          <code lang="text/java">{@code
-            public int nextInt(int bound) {
-              if (bound &lt;= 0)
-                throw new IllegalArgumentException("bound must be positive");
-            
-              if ((bound &amp; -bound) == bound)  // i.e., bound is a power of 2
-                return (int)((bound * (long)next(31)) &gt;&gt; 31);
-            
-              int bits, val;
-              do {
-                  bits = next(31);
-                  val = bits % bound;
-              } while (bits - val + (bound-1) &lt; 0);
-              return val;
-            }}</code>
-          <para>The hedge "approximately" is used in the foregoing description only
-            because the next method is only approximately an unbiased source of
-            independently chosen bits.  If it were a perfect source of randomly
-            chosen bits, then the algorithm shown would choose <c>int</c>
-            values from the stated range with perfect uniformity.</para>
-          <para>The algorithm is slightly tricky.  It rejects values that would result
-            in an uneven distribution (due to the fact that 2^31 is not divisible
-            by n). The probability of a value being rejected depends on n.  The
-            worst case is n=2^30+1, for which the probability of a reject is 1/2,
-            and the expected number of iterations before the loop terminates is 2.</para>
-          <para>The algorithm treats the case where n is a power of two specially: it
-            returns the correct number of high-order bits from the underlying
-            pseudo-random number generator.  In the absence of special treatment,
-            the correct number of <i>low-order</i> bits would be returned.  Linear
-            congruential pseudo-random number generators such as the one
-            implemented by this class are known to have short periods in the
-            sequence of values of their low-order bits.  Thus, this special case
-            greatly increases the length of the sequence of values returned by
-            successive calls to this method if n is a small power of two.</para>
+            probability.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -746,6 +650,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.Random.NextLong" />
       <MemberSignature Language="F#" Value="abstract member NextLong : unit -&gt; int64&#xA;override this.NextLong : unit -&gt; int64" Usage="random.NextLong " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.RandomGenerators.IRandomGenerator.NextLong</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -770,14 +677,6 @@
             value from this random number generator's sequence. The general
             contract of <c>nextLong</c> is that one <c>long</c> value is
             pseudorandomly generated and returned.</para>
-          <para>The method <c>nextLong</c> is implemented by class <c>Random</c>
-            as if by:</para>
-          <code lang="text/java">{@code
-            public long nextLong() {
-              return ((long)next(32) &lt;&lt; 32) + next(32);
-            }}</code>
-          <para>Because class <c>Random</c> uses a seed with only 48 bits,
-            this algorithm will not return all possible <c>long</c> values.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Random#nextLong()" title="Reference documentation">Java documentation for <code>java.util.Random.nextLong()</code>.</a>

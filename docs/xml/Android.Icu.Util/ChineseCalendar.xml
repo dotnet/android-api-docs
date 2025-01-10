@@ -17,19 +17,76 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/util/ChineseCalendar", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>ChineseCalendar</c> is a concrete subclass of <c>Calendar</c>
+            that implements a traditional Chinese calendar.</summary>
     <remarks>
       <para>
+        <c>ChineseCalendar</c> is a concrete subclass of <c>Calendar</c>
+            that implements a traditional Chinese calendar.  The traditional Chinese
+            calendar is a lunisolar calendar: Each month starts on a new moon, and
+            the months are numbered according to solar events, specifically, to
+            guarantee that month 11 always contains the winter solstice.  In order
+            to accomplish this, leap months are inserted in certain years.  Leap
+            months are numbered the same as the month they follow.  The decision of
+            which month is a leap month depends on the relative movements of the sun
+            and moon.</para>
+      <para>All astronomical computations are performed with respect to a time
+            zone of GMT+8:00 and a longitude of 120 degrees east.  Although some
+            calendars implement a historically more accurate convention of using
+            Beijing's local longitude (116 degrees 25 minutes east) and time zone
+            (GMT+7:45:40) for dates before 1929, we do not implement this here.</para>
+      <para>Years are counted in two different ways in the Chinese calendar.  The
+            first method is by sequential numbering from the 61st year of the reign
+            of Huang Di, 2637 BCE, which is designated year 1 on the Chinese
+            calendar.  The second method uses 60-year cycles from the same starting
+            point, which is designated year 1 of cycle 1.  In this class, the
+            <c>EXTENDED_YEAR</c> field contains the sequential year count.
+            The <c>ERA</c> field contains the cycle number, and the
+            <c>YEAR</c> field contains the year of the cycle, a value between
+            1 and 60.</para>
+      <para>There is some variation in what is considered the starting point of
+            the calendar, with some sources starting in the first year of the reign
+            of Huang Di, rather than the 61st.  This gives continuous year numbers
+            60 years greater and cycle numbers one greater than what this class
+            implements.</para>
+      <para>Because <c>ChineseCalendar</c> defines an additional field and
+            redefines the way the <c>ERA</c> field is used, it requires a new
+            format class, <c>ChineseDateFormat</c>.  As always, use the
+            methods <c>DateFormat.getXxxInstance(Calendar cal,...)</c> to
+            obtain a formatter for this calendar.</para>
+      <para>References:&lt;ul&gt;
+            
+            &lt;li&gt;Dershowitz and Reingold, <i>Calendrical Calculations</i>,
+            Cambridge University Press, 1997&lt;/li&gt;
+            
+            &lt;li&gt;The <see href="http://www.tondering.dk/claus/calendar.html">
+            Calendar FAQ</see>&lt;/li&gt;
+            
+            &lt;/ul&gt;</para>
+      <para>This class should not be subclassed.</para>
+      <para>ChineseCalendar usually should be instantiated using 
+            <c>android.icu.util.Calendar#getInstance(ULocale)</c> passing in a <c>ULocale</c>
+            with the tag <c>"@calendar=chinese"</c>.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -54,9 +111,19 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Construct a <c>ChineseCalendar</c> with the default time zone and locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a <c>ChineseCalendar</c> with the default time zone and locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar()" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -84,10 +151,22 @@
         <Parameter Name="zone" Type="Android.Icu.Util.TimeZone" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">the given time zone</param>
+        <summary>Construct a <c>ChineseCalendar</c> based on the current time
+            in the given time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a <c>ChineseCalendar</c> based on the current time
+            in the given time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(android.icu.util.TimeZone)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(android.icu.util.TimeZone)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -115,10 +194,22 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">the given ulocale</param>
+        <summary>Constructs a <c>ChineseCalendar</c> based on the current time
+            in the default time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>ChineseCalendar</c> based on the current time
+            in the default time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -146,10 +237,22 @@
         <Parameter Name="date" Type="Java.Util.Date" />
       </Parameters>
       <Docs>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="date">The date to which the new calendar is set.</param>
+        <summary>Construct a <c>ChineseCalendar</c> with the give date set in the default time zone
+            with the default locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a <c>ChineseCalendar</c> with the give date set in the default time zone
+            with the default locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(java.util.Date)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -177,10 +280,22 @@
         <Parameter Name="aLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="aLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="aLocale">The given locale</param>
+        <summary>Constructs a <c>ChineseCalendar</c> based on the current time
+            in the default time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>ChineseCalendar</c> based on the current time
+            in the default time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -209,11 +324,23 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">the given time zone</param>
+        <param name="locale">the given ulocale</param>
+        <summary>Construct a <c>ChineseCalendar</c>  based on the current time
+            with the given time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a <c>ChineseCalendar</c>  based on the current time
+            with the given time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(android.icu.util.TimeZone,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(android.icu.util.TimeZone, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -242,11 +369,23 @@
         <Parameter Name="aLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <param name="aLocale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="zone">the given time zone</param>
+        <param name="aLocale">the given locale</param>
+        <summary>Construct a <c>ChineseCalendar</c> based on the current time
+            in the given time zone with the given locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a <c>ChineseCalendar</c> based on the current time
+            in the given time zone with the given locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(android.icu.util.TimeZone,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(android.icu.util.TimeZone, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -300,13 +439,27 @@
         <Parameter Name="date" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="isLeapMonth">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="year">The value used to set the calendar's <c>#YEAR YEAR</c> time field.</param>
+        <param name="month">The value used to set the calendar's <c>#MONTH MONTH</c> time field.
+                             The value is 0-based. e.g., 0 for January.</param>
+        <param name="isLeapMonth">The value used to set the Chinese calendar's <c>#IS_LEAP_MONTH</c>
+                             time field.</param>
+        <param name="date">The value used to set the calendar's <c>#DATE DATE</c> time field.</param>
+        <summary>Constructs a <c>ChineseCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>ChineseCalendar</c> with the given date set
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -338,14 +491,28 @@
         <Parameter Name="date" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="era">To be added.</param>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="isLeapMonth">To be added.</param>
-        <param name="date">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="era">The value used to set the calendar's <c>#ERA ERA</c> time field.</param>
+        <param name="year">The value used to set the calendar's <c>#YEAR YEAR</c> time field.</param>
+        <param name="month">The value used to set the calendar's <c>#MONTH MONTH</c> time field. 
+                             The value is 0-based. e.g., 0 for January.</param>
+        <param name="isLeapMonth">The value used to set the Chinese calendar's <c>#IS_LEAP_MONTH</c>
+                             time field.</param>
+        <param name="date">The value used to set the calendar's <c>#DATE DATE</c> time field.</param>
+        <summary>Constructs a <c>ChineseCalendar</c> with the given date set 
+            in the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>ChineseCalendar</c> with the given date set 
+            in the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -379,16 +546,33 @@
         <Parameter Name="second" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="isLeapMonth">To be added.</param>
-        <param name="date">To be added.</param>
-        <param name="hour">To be added.</param>
-        <param name="minute">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="year">the value used to set the <c>#YEAR YEAR</c> time field in the calendar.</param>
+        <param name="month">the value used to set the <c>#MONTH MONTH</c> time field in the calendar.
+                         Note that the month value is 0-based. e.g., 0 for January.</param>
+        <param name="isLeapMonth">the value used to set the <c>#IS_LEAP_MONTH</c> time field
+                         in the calendar.</param>
+        <param name="date">the value used to set the <c>#DATE DATE</c> time field in the calendar.</param>
+        <param name="hour">the value used to set the <c>#HOUR_OF_DAY HOUR_OF_DAY</c> time field
+                         in the calendar.</param>
+        <param name="minute">the value used to set the <c>#MINUTE MINUTE</c> time field
+                         in the calendar.</param>
+        <param name="second">the value used to set the <c>#SECOND SECOND</c> time field
+                         in the calendar.</param>
+        <summary>Constructs a <c>ChineseCalendar</c> with the given date
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>ChineseCalendar</c> with the given date
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(int,%20int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(int, int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -423,17 +607,34 @@
         <Parameter Name="second" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="era">To be added.</param>
-        <param name="year">To be added.</param>
-        <param name="month">To be added.</param>
-        <param name="isLeapMonth">To be added.</param>
-        <param name="date">To be added.</param>
-        <param name="hour">To be added.</param>
-        <param name="minute">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="era">the value used to set the calendar's <c>#ERA ERA</c> time field.</param>
+        <param name="year">the value used to set the <c>#YEAR YEAR</c> time field in the calendar.</param>
+        <param name="month">the value used to set the <c>#MONTH MONTH</c> time field in the calendar. 
+                         Note that the month value is 0-based. e.g., 0 for January.</param>
+        <param name="isLeapMonth">the value used to set the <c>#IS_LEAP_MONTH</c> time field 
+                         in the calendar.</param>
+        <param name="date">the value used to set the <c>#DATE DATE</c> time field in the calendar.</param>
+        <param name="hour">the value used to set the <c>#HOUR_OF_DAY HOUR_OF_DAY</c> time field 
+                         in the calendar.</param>
+        <param name="minute">the value used to set the <c>#MINUTE MINUTE</c> time field 
+                         in the calendar.</param>
+        <param name="second">the value used to set the <c>#SECOND SECOND</c> time field 
+                         in the calendar.</param>
+        <summary>Constructs a <c>ChineseCalendar</c> with the given date 
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>ChineseCalendar</c> with the given date 
+            and time set for the default time zone with the default <c>FORMAT</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#ChineseCalendar(int,%20int,%20int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.ChineseCalendar(int, int, int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -466,13 +667,29 @@
         <Parameter Name="useMonth" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="eyear">To be added.</param>
-        <param name="month">To be added.</param>
         <param name="useMonth">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="eyear">the extended year</param>
+        <param name="month">the zero-based month.  The month is also determined
+            by reading the IS_LEAP_MONTH field.</param>
+        <summary>Return the Julian day number of day before the first day of the
+            given month in the given extended year.</summary>
+        <returns>the Julian day number of the day before the first
+            day of the given month and year</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the Julian day number of day before the first day of the
+            given month in the given extended year.</para>
+          <para>Note: This method reads the IS_LEAP_MONTH field to determine
+            whether the given month is a leap month.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#handleComputeMonthStart(int,%20int,%20boolean)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.handleComputeMonthStart(int, int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -508,10 +725,20 @@
         <param name="pattern">To be added.</param>
         <param name="override">To be added.</param>
         <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#handleGetDateFormat(java.lang.String,%20java.lang.String,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.handleGetDateFormat(java.lang.String, java.lang.String, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -540,10 +767,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Implement abstract Calendar method to return the extended year
+            defined by the current fields.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Implement abstract Calendar method to return the extended year
+            defined by the current fields.  This will use either the ERA and
+            YEAR field as the cycle and year-of-cycle, or the EXTENDED_YEAR
+            field as the continuous year count, depending on which is newer.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#handleGetExtendedYear()" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.handleGetExtendedYear()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -584,10 +825,20 @@
       <Docs>
         <param name="field">To be added.</param>
         <param name="limitType">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Override Calendar to return the limit value for the given field.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Override Calendar to return the limit value for the given field.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ChineseCalendar#handleGetLimit(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.ChineseCalendar.handleGetLimit(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -609,6 +860,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -671,6 +926,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

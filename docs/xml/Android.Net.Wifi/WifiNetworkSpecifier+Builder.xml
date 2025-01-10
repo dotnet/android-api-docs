@@ -17,13 +17,29 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/WifiNetworkSpecifier$Builder", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Builder used to create <c>WifiNetworkSpecifier</c> objects.</summary>
+    <remarks>
+      <para>Builder used to create <c>WifiNetworkSpecifier</c> objects.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSpecifier.Builder" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiNetworkSpecifier.Builder</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -76,9 +92,76 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Create a specifier object used to request a Wi-Fi network.</summary>
+        <returns>Instance of <c>NetworkSpecifier</c>.</returns>
+        <remarks>
+          <para>Create a specifier object used to request a Wi-Fi network. The generated
+            <c>NetworkSpecifier</c> should be used in
+            <c>NetworkRequest.Builder#setNetworkSpecifier(NetworkSpecifier)</c> when building
+            the <c>NetworkRequest</c>.</para>
+          <para>When using with <c>ConnectivityManager#requestNetwork(NetworkRequest,
+            NetworkCallback)</c> or variants, note that some devices may not support requesting a
+            network with all combinations of specifier members. For example, some devices may only
+            support requesting local-only networks (networks without the
+            <c>NetworkCapabilities#NET_CAPABILITY_INTERNET</c> capability), or not support
+            requesting a particular band. However, there are no restrictions when using
+            <c>ConnectivityManager#registerNetworkCallback(NetworkRequest, NetworkCallback)</c>
+            or other similar methods which monitor but do not request networks.
+            
+            If the device can't support a request, the app will receive a call to
+            <c>NetworkCallback#onUnavailable()</c>.</para>
+          <para>When requesting a local-only network, apps can set a combination of network match params:
+            &lt;li&gt; SSID Pattern using <c>#setSsidPattern(PatternMatcher)</c> OR Specific SSID using
+            <c>#setSsid(String)</c>. &lt;/li&gt;
+            AND/OR
+            &lt;li&gt; BSSID Pattern using <c>#setBssidPattern(MacAddress, MacAddress)</c> OR Specific
+            BSSID using <c>#setBssid(MacAddress)</c>&lt;/li&gt;
+            to trigger connection to a network that matches the set params.
+            The system will find the set of networks matching the request and present the user
+            with a system dialog which will allow the user to select a specific Wi-Fi network to
+            connect to or to deny the request.
+            
+            To protect user privacy, some limitations to the ability of matching patterns apply.
+            In particular, when the system brings up a network to satisfy a <c>NetworkRequest</c>
+            from some app, the system reserves the right to decline matching the SSID pattern to
+            the real SSID of the network for other apps than the app that requested the network, and
+            not send those callbacks even if the SSID matches the requested pattern.</para>
+          <para>For example:
+            To connect to an open network with a SSID prefix of "test" and a BSSID OUI of "10:03:23":</para>
+          <code lang="text/java">{@code
+            final NetworkSpecifier specifier =
+                 new Builder()
+                 .setSsidPattern(new PatternMatcher("test", PatternMatcher.PATTERN_PREFIX))
+                 .setBssidPattern(MacAddress.fromString("10:03:23:00:00:00"),
+                                  MacAddress.fromString("ff:ff:ff:00:00:00"))
+                 .build()
+            final NetworkRequest request =
+                 new NetworkRequest.Builder()
+                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                 .removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                 .setNetworkSpecifier(specifier)
+                 .build();
+            final ConnectivityManager connectivityManager =
+                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            final NetworkCallback networkCallback = new NetworkCallback() {
+                 ...
+                 {@literal @}Override
+                 void onAvailable(...) {}
+                 // etc.
+            };
+            connectivityManager.requestNetwork(request, networkCallback);
+            }</code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSpecifier.Builder#build()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiNetworkSpecifier.Builder.build()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

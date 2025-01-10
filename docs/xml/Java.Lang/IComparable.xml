@@ -63,11 +63,11 @@
             operation returns false (and the size of the sorted set does not increase)
             because <c>a</c> and <c>b</c> are equivalent from the sorted set's
             perspective.</para>
-      <para>Virtually all Java core classes that implement <c>Comparable</c> have natural
-            orderings that are consistent with equals.  One exception is
-            <c>java.math.BigDecimal</c>, whose natural ordering equates
-            <c>BigDecimal</c> objects with equal values and different precisions
-            (such as 4.0 and 4.00).</para>
+      <para>Virtually all Java core classes that implement <c>Comparable</c>
+            have natural orderings that are consistent with equals.  One
+            exception is <c>java.math.BigDecimal</c>, whose java.math.BigDecimal#compareTo natural ordering equates <c>BigDecimal</c> objects with equal numerical values and different
+            representations (such as 4.0 and 4.00). For <c>java.math.BigDecimal#equals BigDecimal.equals()</c> to return true,
+            the representation and numerical value of the two <c>BigDecimal</c> objects must be the same.</para>
       <para>For the mathematically inclined, the <i>relation</i> that defines
             the natural ordering on a given class C is:</para>
       <code lang="text/java">{@code
@@ -84,8 +84,12 @@
             quotient for the natural ordering is the equivalence relation defined by
             the class's <c>Object#equals(Object) equals(Object)</c> method:</para>
       <code lang="text/java">{(x, y) such that x.equals(y)}. </code>
+      <para>In other words, when a class's natural ordering is consistent with
+            equals, the equivalence classes defined by the equivalence relation
+            of the <c>equals</c> method and the equivalence classes defined by
+            the quotient of the <c>compareTo</c> method are the same.</para>
       <para>This interface is a member of the
-            <see href="https://developer.android.com//../technotes/guides/collections/index.html">
+            <see href="https://developer.android.com//java.base/java/util/package-summary.html#CollectionsFramework">
             Java Collections Framework</see>.</para>
       <para>Added in 1.2.</para>
       <para>
@@ -133,28 +137,14 @@
           <para>Compares this object with the specified object for order.  Returns a
             negative integer, zero, or a positive integer as this object is less
             than, equal to, or greater than the specified object.</para>
-          <para>The implementor must ensure
-            <c>sgn(x.compareTo(y)) == -sgn(y.compareTo(x))</c>
-            for all <c>x</c> and <c>y</c>.  (This
-            implies that <c>x.compareTo(y)</c> must throw an exception iff
-            <c>y.compareTo(x)</c> throws an exception.)</para>
+          <para>The implementor must ensure <c>Integer#signum
+            signum</c><c>(x.compareTo(y)) == -signum(y.compareTo(x))</c> for
+            all <c>x</c> and <c>y</c>.  (This implies that <c>x.compareTo(y)</c> must throw an exception if and only if <c>y.compareTo(x)</c> throws an exception.)</para>
           <para>The implementor must also ensure that the relation is transitive:
             <c>(x.compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0)</c> implies
             <c>x.compareTo(z) &gt; 0</c>.</para>
-          <para>Finally, the implementor must ensure that <c>x.compareTo(y)==0</c>
-            implies that <c>sgn(x.compareTo(z)) == sgn(y.compareTo(z))</c>, for
-            all <c>z</c>.</para>
-          <para>It is strongly recommended, but <i>not</i> strictly required that
-            <c>(x.compareTo(y)==0) == (x.equals(y))</c>.  Generally speaking, any
-            class that implements the <c>Comparable</c> interface and violates
-            this condition should clearly indicate this fact.  The recommended
-            language is "Note: this class has a natural ordering that is
-            inconsistent with equals."</para>
-          <para>In the foregoing description, the notation
-            <c>sgn(</c><i>expression</i><c>)</c> designates the mathematical
-            <i>signum</i> function, which is defined to return one of <c>-1</c>,
-            <c>0</c>, or <c>1</c> according to whether the value of
-            <i>expression</i> is negative, zero, or positive, respectively.</para>
+          <para>Finally, the implementor must ensure that <c>x.compareTo(y)==0</c> implies that <c>signum(x.compareTo(z))
+            == signum(y.compareTo(z))</c>, for all <c>z</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/Comparable#compareTo(T)" title="Reference documentation">Java documentation for <code>java.lang.Comparable.compareTo(T)</code>.</a>

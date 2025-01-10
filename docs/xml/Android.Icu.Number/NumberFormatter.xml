@@ -17,13 +17,70 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/number/NumberFormatter", ApiSince=30, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android30.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android30.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>All-in-one formatter for localized numbers, currencies, and units.</summary>
+    <remarks>
+      <para>All-in-one formatter for localized numbers, currencies, and units.
+            
+            For a full list of options, see <c>NumberFormatterSettings</c>.</para>
+      <code lang="text/java">// Most basic usage:
+            NumberFormatter.withLocale(...).format(123).toString();  // 1,234 in en-US
+            
+            // Custom notation, unit, and rounding strategy:
+            NumberFormatter.with()
+                .notation(Notation.compactShort())
+                .unit(Currency.getInstance("EUR"))
+                .precision(Precision.maxDigits(2))
+                .locale(...)
+                .format(1234)
+                .toString();  // €1.2K in en-US
+            
+            // Create a formatter in a private static final field:
+            private static final LocalizedNumberFormatter formatter = NumberFormatter.withLocale(...)
+                .unit(NoUnit.PERCENT)
+                .precision(Precision.fixedFraction(3));
+            formatter.format(5.9831).toString();  // 5.983% in en-US
+            
+            // Create a "template" in a private static final field but without setting a locale until the call site:
+            private static final UnlocalizedNumberFormatter template = NumberFormatter.with()
+                .sign(SignDisplay.ALWAYS)
+                .unitWidth(UnitWidth.FULL_NAME);
+            template.locale(...).format(new Measure(1234, MeasureUnit.METER)).toString();  // +1,234 meters in en-US
+            </code>
+      <para>This API offers more features than <c>android.icu.text.DecimalFormat</c> and is geared toward new
+            users of ICU.</para>
+      <para>NumberFormatter instances (i.e., LocalizedNumberFormatter and UnlocalizedNumberFormatter)
+            are immutable and thread safe. This means that invoking a configuration
+            method has no effect on the receiving instance; you must store and use the new number formatter
+            instance it returns instead.</para>
+      <code lang="text/java">UnlocalizedNumberFormatter formatter = UnlocalizedNumberFormatter.with()
+                    .notation(Notation.scientific());
+            formatter.precision(Precision.maxFraction(2)); // does nothing!
+            formatter.locale(ULocale.ENGLISH).format(9.8765).toString(); // prints "9.8765E0", not "9.88E0"
+            </code>
+      <para>This API is based on the &lt;em&gt;fluent&lt;/em&gt; design pattern popularized by libraries such as Google's
+            Guava. For extensive details on the design of this API, read <see href="https://goo.gl/szi5VB">the
+            design doc</see>.</para>
+      <para>Note: To format monetary/currency values, specify the currency in the `.unit()` function.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/icu/number/NumberFormatter" title="Reference documentation">Java documentation for <code>android.icu.number.NumberFormatter</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="JniPeerMembers">
@@ -138,9 +195,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Call this method at the beginning of a NumberFormatter fluent chain in which the locale is not
+            currently known at the call site.</summary>
+        <returns>An <c>UnlocalizedNumberFormatter</c>, to be used for chaining.</returns>
+        <remarks>
+          <para>Call this method at the beginning of a NumberFormatter fluent chain in which the locale is not
+            currently known at the call site.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/number/NumberFormatter#with()" title="Reference documentation">Java documentation for <code>android.icu.number.NumberFormatter.with()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WithLocale">
@@ -170,10 +241,24 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="locale">The locale from which to load formats and symbols for number formatting.</param>
+        <summary>Call this method at the beginning of a NumberFormatter fluent chain in which the locale is known
+            at the call site.</summary>
+        <returns>A <c>LocalizedNumberFormatter</c>, to be used for chaining.</returns>
+        <remarks>
+          <para>Call this method at the beginning of a NumberFormatter fluent chain in which the locale is known
+            at the call site.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/number/NumberFormatter#withLocale(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.number.NumberFormatter.withLocale(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WithLocale">
@@ -203,10 +288,24 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="locale">The locale from which to load formats and symbols for number formatting.</param>
+        <summary>Call this method at the beginning of a NumberFormatter fluent chain in which the locale is known
+            at the call site.</summary>
+        <returns>A <c>LocalizedNumberFormatter</c>, to be used for chaining.</returns>
+        <remarks>
+          <para>Call this method at the beginning of a NumberFormatter fluent chain in which the locale is known
+            at the call site.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/number/NumberFormatter#withLocale(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.number.NumberFormatter.withLocale(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

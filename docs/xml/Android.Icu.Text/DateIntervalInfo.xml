@@ -36,19 +36,124 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/DateIntervalInfo", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>DateIntervalInfo is a public class for encapsulating localizable
+            date time interval patterns.</summary>
     <remarks>
+      <para>DateIntervalInfo is a public class for encapsulating localizable
+            date time interval patterns. It is used by DateIntervalFormat.</para>
+      <para>For most users, ordinary use of DateIntervalFormat does not need to create
+            DateIntervalInfo object directly.
+            DateIntervalFormat will take care of it when creating a date interval
+            formatter when user pass in skeleton and locale.</para>
+      <para>For power users, who want to create their own date interval patterns,
+            or want to re-set date interval patterns, they could do so by
+            directly creating DateIntervalInfo and manipulating it.</para>
+      <para>Logically, the interval patterns are mappings
+            from (skeleton, the_largest_different_calendar_field)
+            to (date_interval_pattern).</para>
+      <para>A skeleton
+            &lt;ol&gt;
+            &lt;li&gt;
+            only keeps the field pattern letter and ignores all other parts
+            in a pattern, such as space, punctuations, and string literals.
+            &lt;li&gt;
+            hides the order of fields.
+            &lt;li&gt;
+            might hide a field's pattern letter length.
+            
+            For those non-digit calendar fields, the pattern letter length is
+            important, such as MMM, MMMM, and MMMMM; EEE and EEEE,
+            and the field's pattern letter length is honored.
+            
+            For the digit calendar fields,  such as M or MM, d or dd, yy or yyyy,
+            the field pattern length is ignored and the best match, which is defined
+            in date time patterns, will be returned without honor the field pattern
+            letter length in skeleton.
+            &lt;/ol&gt;</para>
+      <para>The calendar fields we support for interval formatting are:
+            year, month, date, day-of-week, am-pm, hour, hour-of-day, minute, and
+            second (though we do not currently have specific intervalFormat data for
+            skeletons with seconds).
+            Those calendar fields can be defined in the following order:
+            year &amp;gt; month &amp;gt; date &amp;gt; am-pm &amp;gt; hour &amp;gt;  minute &amp;gt; second
+            
+            The largest different calendar fields between 2 calendars is the
+            first different calendar field in above order.
+            
+            For example: the largest different calendar fields between "Jan 10, 2007"
+            and "Feb 20, 2008" is year.</para>
+      <para>There is a set of pre-defined static skeleton strings.
+            There are pre-defined interval patterns for those pre-defined skeletons
+            in locales' resource files.
+            For example, for a skeleton YEAR_ABBR_MONTH_DAY, which is  "yMMMd",
+            in  en_US, if the largest different calendar field between date1 and date2
+            is "year", the date interval pattern  is "MMM d, yyyy - MMM d, yyyy",
+            such as "Jan 10, 2007 - Jan 10, 2008".
+            If the largest different calendar field between date1 and date2 is "month",
+            the date interval pattern is "MMM d - MMM d, yyyy",
+            such as "Jan 10 - Feb 10, 2007".
+            If the largest different calendar field between date1 and date2 is "day",
+            the date interval pattern is ""MMM d-d, yyyy", such as "Jan 10-20, 2007".
+            
+            For date skeleton, the interval patterns when year, or month, or date is
+            different are defined in resource files.
+            For time skeleton, the interval patterns when am/pm, or hour, or minute is
+            different are defined in resource files.</para>
+      <para>There are 2 dates in interval pattern. For most locales, the first date
+            in an interval pattern is the earlier date. There might be a locale in which
+            the first date in an interval pattern is the later date.
+            We use fallback format for the default order for the locale.
+            For example, if the fallback format is "{0} - {1}", it means
+            the first date in the interval pattern for this locale is earlier date.
+            If the fallback format is "{1} - {0}", it means the first date is the
+            later date.
+            For a particular interval pattern, the default order can be overridden
+            by prefixing "latestFirst:" or "earliestFirst:" to the interval pattern.
+            For example, if the fallback format is "{0}-{1}",
+            but for skeleton "yMMMd", the interval pattern when day is different is
+            "latestFirst:d-d MMM yy", it means by default, the first date in interval
+            pattern is the earlier date. But for skeleton "yMMMd", when day is different,
+            the first date in "d-d MMM yy" is the later date.</para>
+      <para>The recommended way to create a DateIntervalFormat object is to pass in
+            the locale.
+            By using a Locale parameter, the DateIntervalFormat object is
+            initialized with the pre-defined interval patterns for a given or
+            default locale.</para>
+      <para>Users can also create DateIntervalFormat object
+            by supplying their own interval patterns.
+            It provides flexibility for power usage.</para>
+      <para>After a DateIntervalInfo object is created, clients may modify
+            the interval patterns using setIntervalPattern function as so desired.
+            Currently, users can only set interval patterns when the following
+            calendar fields are different: ERA, YEAR, MONTH, DATE,  DAY_OF_MONTH,
+            DAY_OF_WEEK, AM_PM,  HOUR, HOUR_OF_DAY, MINUTE, SECOND, and MILLISECOND.
+            Interval patterns when other calendar fields are different is not supported.</para>
+      <para>DateIntervalInfo objects are cloneable.
+            When clients obtain a DateIntervalInfo object,
+            they can feel free to modify it as necessary.</para>
+      <para>DateIntervalInfo are not expected to be subclassed.
+            Data for a calendar is loaded out of resource bundles.
+            Through ICU 4.4, date interval patterns are only supported in the Gregorian
+            calendar; non-Gregorian calendars are supported from ICU 4.4.1.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -76,10 +181,22 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">the interval patterns are loaded from the appropriate
+                           calendar data (specified calendar or default calendar)
+                           in this locale.</param>
+        <summary>Construct DateIntervalInfo for the given locale,</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct DateIntervalInfo for the given locale,</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#DateIntervalInfo(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.DateIntervalInfo(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -107,10 +224,22 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">the interval patterns are loaded from the appropriate
+                           calendar data (specified calendar or default calendar)
+                           in this locale.</param>
+        <summary>Construct DateIntervalInfo for the given <c>java.util.Locale</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct DateIntervalInfo for the given <c>java.util.Locale</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#DateIntervalInfo(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.DateIntervalInfo(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -212,10 +341,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Clone this object.</summary>
+        <returns>a copy of the object</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Clone this object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#clone()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.clone()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -244,10 +383,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#cloneAsThawed()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.cloneAsThawed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -275,10 +424,24 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Get default order -- whether the first date in pattern is later date
+                                 or not.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get default order -- whether the first date in pattern is later date
+                                 or not.</para>
+          <para>return default date ordering in interval pattern. true if the first date
+                   in pattern is later date, false otherwise.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#getDefaultOrder()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.getDefaultOrder()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -314,10 +477,35 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="fallbackPattern">fall-back interval pattern.</param>
+        <summary>Get the fallback interval pattern. -or- Re-set the fallback interval pattern.</summary>
+        <value>fallback interval pattern</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Get the fallback interval pattern.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#getFallbackIntervalPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.getFallbackIntervalPattern()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Re-set the fallback interval pattern.
+            
+            In construction, default fallback pattern is set as "{0} - {1}".
+            And constructor taking locale as parameter will set the
+            fallback pattern as what defined in the locale resource file.
+            
+            This method provides a way for user to replace the fallback pattern.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#setFallbackIntervalPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.setFallbackIntervalPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -346,10 +534,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#freeze()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.freeze()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -424,10 +622,20 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#isFrozen()" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.isFrozen()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -452,6 +660,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -501,12 +713,41 @@
         <Parameter Name="intervalPattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="skeleton">To be added.</param>
-        <param name="lrgDiffCalUnit">To be added.</param>
-        <param name="intervalPattern">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="skeleton">the skeleton on which interval pattern based</param>
+        <param name="lrgDiffCalUnit">the largest different calendar unit.</param>
+        <param name="intervalPattern">the interval pattern on the largest different
+                                    calendar unit.
+                                    For example, if lrgDiffCalUnit is
+                                    "year", the interval pattern for en_US when year
+                                    is different could be "'from' yyyy 'to' yyyy".</param>
+        <summary>Provides a way for client to build interval patterns.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Provides a way for client to build interval patterns.
+            User could construct DateIntervalInfo by providing
+            a list of skeletons and their patterns.</para>
+          <para>For example:</para>
+          <code lang="text/java">DateIntervalInfo dIntervalInfo = new DateIntervalInfo();
+            dIntervalInfo.setIntervalPattern("yMd", Calendar.YEAR, "'from' yyyy-M-d 'to' yyyy-M-d");
+            dIntervalInfo.setIntervalPattern("yMMMd", Calendar.MONTH, "'from' yyyy MMM d 'to' MMM d");
+            dIntervalInfo.setIntervalPattern("yMMMd", Calendar.DAY, "yyyy MMM d-d");
+            dIntervalInfo.setFallbackIntervalPattern("{0} ~ {1}");
+            </code>
+          <para>Restriction:
+            Currently, users can only set interval patterns when the following
+            calendar fields are different: ERA, YEAR, MONTH, DATE,  DAY_OF_MONTH,
+            DAY_OF_WEEK, AM_PM,  HOUR, HOUR_OF_DAY, MINUTE, SECOND, and MILLISECOND.
+            Interval patterns when other calendar fields are different are
+            not supported.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalInfo#setIntervalPattern(java.lang.String,%20int,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalInfo.setIntervalPattern(java.lang.String, int, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -559,6 +800,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/lang/ClassLoader", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/lang/ClassLoader", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>A class loader is an object that is responsible for loading classes.</summary>
@@ -25,7 +29,7 @@
             locate or generate data that constitutes a definition for the class.  A
             typical strategy is to transform the name into a file name and then read a
             "class file" of that name from a file system.</para>
-      <para>Every <c>Class &lt;tt&gt;Class&lt;/tt&gt;</c> object contains a <c>Class#getClassLoader() reference</c> to the <c>ClassLoader</c> that defined
+      <para>Every <c>java.lang.Class Class</c> object contains a <c>Class#getClassLoader() reference</c> to the <c>ClassLoader</c> that defined
             it.</para>
       <para>
         <c>Class</c> objects for array classes are not created by class
@@ -38,39 +42,62 @@
             classes.</para>
       <para>Class loaders may typically be used by security managers to indicate
             security domains.</para>
+      <para>In addition to loading classes, a class loader is also responsible for
+            locating resources. A resource is some data (a "<c>.class</c>" file,
+            configuration data, or an image for example) that is identified with an
+            abstract '/'-separated path name. Resources are typically packaged with an
+            application or library so that they can be located by code in the
+            application or library. In some cases, the resources are included so that
+            they can be located by other libraries.</para>
       <para>The <c>ClassLoader</c> class uses a delegation model to search for
             classes and resources.  Each instance of <c>ClassLoader</c> has an
-            associated parent class loader.  When requested to find a class or
-            resource, a <c>ClassLoader</c> instance will delegate the search for the
-            class or resource to its parent class loader before attempting to find the
-            class or resource itself.  The virtual machine's built-in class loader,
-            called the "bootstrap class loader", does not itself have a parent but may
-            serve as the parent of a <c>ClassLoader</c> instance.</para>
+            associated parent class loader. When requested to find a class or
+            resource, a <c>ClassLoader</c> instance will usually delegate the search
+            for the class or resource to its parent class loader before attempting to
+            find the class or resource itself.</para>
       <para>Class loaders that support concurrent loading of classes are known as
-            &lt;em&gt;parallel capable&lt;/em&gt; class loaders and are required to register
-            themselves at their class initialization time by invoking the
-            <c>#registerAsParallelCapable &lt;tt&gt;ClassLoader.registerAsParallelCapable&lt;/tt&gt;</c>
+            &lt;em&gt;<c>#isRegisteredAsParallelCapable() parallel capable</c>&lt;/em&gt; class
+            loaders and are required to register themselves at their class initialization
+            time by invoking the <c>#registerAsParallelCapable ClassLoader.registerAsParallelCapable</c>
             method. Note that the <c>ClassLoader</c> class is registered as parallel
             capable by default. However, its subclasses still need to register themselves
-            if they are parallel capable. &lt;br&gt;
+            if they are parallel capable.
             In environments in which the delegation model is not strictly
             hierarchical, class loaders need to be parallel capable, otherwise class
             loading can lead to deadlocks because the loader lock is held for the
             duration of the class loading process (see <c>#loadClass
-            &lt;tt&gt;loadClass&lt;/tt&gt;</c> methods).</para>
+            loadClass</c> methods).
+            
+            &lt;h2&gt; "builtinLoaders"&gt;Run-time Built-in Class Loaders&lt;/h2&gt;
+            
+            The Java run-time has the following built-in class loaders:
+            
+            &lt;ul&gt;
+            &lt;li&gt;</para>
+      <para>Bootstrap class loader.
+                It is the virtual machine's built-in class loader, typically represented
+                as <c>null</c>, and does not have a parent.&lt;/li&gt;
+            &lt;li&gt;</para>
+      <para>#getSystemClassLoader() System class loader.
+                It is also known as &lt;em&gt;application class loader&lt;/em&gt; and is distinct
+                from the platform class loader.
+                The system class loader is typically used to define classes on the
+                application class path, module path, and JDK-specific tools.
+                The platform class loader is the parent or an ancestor of the system class
+                loader, so the system class loader can load platform classes by delegating
+                to its parent.&lt;/li&gt;
+            &lt;/ul&gt;</para>
       <para>Normally, the Java virtual machine loads classes from the local file
-            system in a platform-dependent manner.  For example, on UNIX systems, the
-            virtual machine loads classes from the directory defined by the
-            <c>CLASSPATH</c> environment variable.</para>
-      <para>However, some classes may not originate from a file; they may originate
+            system in a platform-dependent manner.
+            However, some classes may not originate from a file; they may originate
             from other sources, such as the network, or they could be constructed by an
             application.  The method <c>#defineClass(String, byte[], int, int)
-            &lt;tt&gt;defineClass&lt;/tt&gt;</c> converts an array of bytes into an instance of class
+            defineClass</c> converts an array of bytes into an instance of class
             <c>Class</c>. Instances of this newly defined class can be created using
-            <c>Class#newInstance &lt;tt&gt;Class.newInstance&lt;/tt&gt;</c>.</para>
+            <c>Class#newInstance Class.newInstance</c>.</para>
       <para>The methods and constructors of objects created by a class loader may
             reference other classes.  To determine the class(es) referred to, the Java
-            virtual machine invokes the <c>#loadClass &lt;tt&gt;loadClass&lt;/tt&gt;</c> method of
+            virtual machine invokes the <c>#loadClass loadClass</c> method of
             the class loader that originally created the class.</para>
       <para>For example, an application could create a network class loader to
             download class files from a server.  Sample code might look like:
@@ -81,9 +108,9 @@
                   &amp;nbsp;.&amp;nbsp;.&amp;nbsp;.
             </code>
       <para>&lt;/blockquote&gt;</para>
-      <para>The network class loader subclass must define the methods <c>#findClass &lt;tt&gt;findClass&lt;/tt&gt;</c> and <c>loadClassData</c> to load a class
+      <para>The network class loader subclass must define the methods <c>#findClass findClass</c> and <c>loadClassData</c> to load a class
             from the network.  Once it has downloaded the bytes that make up the class,
-            it should use the method <c>#defineClass &lt;tt&gt;defineClass&lt;/tt&gt;</c> to
+            it should use the method <c>#defineClass defineClass</c> to
             create a class instance.  A sample implementation is:
             
             &lt;blockquote&gt;</para>
@@ -104,10 +131,10 @@
             </code>
       <para>&lt;/blockquote&gt;
             
-            &lt;h3&gt; "name"&gt;Binary names&lt;/h3&gt;</para>
+            &lt;h3&gt; "binary-name"&gt;Binary names&lt;/h3&gt;</para>
       <para>Any class name provided as a <c>String</c> parameter to methods in
             <c>ClassLoader</c> must be a binary name as defined by
-            &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.</para>
+            &lt;cite&gt;The Java Language Specification&lt;/cite&gt;.</para>
       <para>Examples of valid class names include:
             &lt;blockquote&gt;</para>
       <code lang="text/java">"java.lang.String"
@@ -116,6 +143,10 @@
               "java.net.URLClassLoader$3$1"
             </code>
       <para>&lt;/blockquote&gt;</para>
+      <para>Any package name provided as a <c>String</c> parameter to methods in
+            <c>ClassLoader</c> must be either the empty string (denoting an unnamed package)
+            or a fully qualified name as defined by
+            &lt;cite&gt;The Java Language Specification&lt;/cite&gt;.</para>
       <para>Added in 1.0.</para>
       <para>
         <format type="text/html">
@@ -150,13 +181,13 @@
       <Docs>
         <summary>Creates a new class loader using the <c>ClassLoader</c> returned by
             the method <c>#getSystemClassLoader()
-            &lt;tt&gt;getSystemClassLoader()&lt;/tt&gt;</c> as the parent class loader.</summary>
+            getSystemClassLoader()</c> as the parent class loader.</summary>
         <remarks>
           <para>Creates a new class loader using the <c>ClassLoader</c> returned by
             the method <c>#getSystemClassLoader()
-            &lt;tt&gt;getSystemClassLoader()&lt;/tt&gt;</c> as the parent class loader.</para>
+            getSystemClassLoader()</c> as the parent class loader.</para>
           <para>If there is a security manager, its <c>SecurityManager#checkCreateClassLoader()
-            &lt;tt&gt;checkCreateClassLoader&lt;/tt&gt;</c> method is invoked.  This may result in
+            checkCreateClassLoader</c> method is invoked.  This may result in
             a security exception.</para>
           <para>
             <format type="text/html">
@@ -198,9 +229,8 @@
         <remarks>
           <para>Creates a new class loader using the specified parent class loader for
             delegation.</para>
-          <para>If there is a security manager, its <c>SecurityManager#checkCreateClassLoader()
-            &lt;tt&gt;checkCreateClassLoader&lt;/tt&gt;</c> method is invoked.  This may result in
-            a security exception.</para>
+          <para>If there is a security manager, its <c>SecurityManager#checkCreateClassLoader() checkCreateClassLoader</c> method
+            is invoked.  This may result in a security exception.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -318,7 +348,7 @@
         <param name="b">The bytes that make up the class data.  The bytes in positions
                     <c>off</c> through <c>off+len-1</c> should have the format
                     of a valid class file as defined by
-                    &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.</param>
+                    &lt;cite&gt;The Java Virtual Machine Specification&lt;/cite&gt;.</param>
         <param name="off">The start offset in <c>b</c> of the class data</param>
         <param name="len">The length of the class data</param>
         <summary>Converts an array of bytes into an instance of class <c>Class</c>.</summary>
@@ -376,24 +406,23 @@
         <param name="name">The expected binary name. of the class, or
                     <c>null</c> if not known</param>
         <param name="b">The bytes that make up the class data. The bytes from positions
-                    <c>b.position()</c> through <c>b.position() + b.limit() -1
-                    </c> should have the format of a valid class file as defined by
-                    &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.</param>
-        <param name="protectionDomain">The ProtectionDomain of the class, or <c>null</c>.</param>
-        <summary>Converts a <c>java.nio.ByteBuffer &lt;tt&gt;ByteBuffer&lt;/tt&gt;</c>
-            into an instance of class <c>Class</c>,
-            with an optional <c>ProtectionDomain</c>.</summary>
+                    <c>b.position()</c> through <c>b.position() + b.limit() -1</c> should have the format of a valid class file as defined by
+                    &lt;cite&gt;The Java Virtual Machine Specification&lt;/cite&gt;.</param>
+        <param name="protectionDomain">The <c>ProtectionDomain</c> of the class, or <c>null</c>.</param>
+        <summary>Converts a <c>java.nio.ByteBuffer ByteBuffer</c> into an instance
+            of class <c>Class</c>, with the given <c>ProtectionDomain</c>.</summary>
         <returns>The <c>Class</c> object created from the data,
-                     and optional <c>ProtectionDomain</c>.</returns>
+                     and <c>ProtectionDomain</c>.</returns>
         <remarks>
-          <para>Converts a <c>java.nio.ByteBuffer &lt;tt&gt;ByteBuffer&lt;/tt&gt;</c>
-            into an instance of class <c>Class</c>,
-            with an optional <c>ProtectionDomain</c>.  If the domain is
-            <c>null</c>, then a default domain will be assigned to the class as
+          <para>Converts a <c>java.nio.ByteBuffer ByteBuffer</c> into an instance
+            of class <c>Class</c>, with the given <c>ProtectionDomain</c>.
+            If the given <c>ProtectionDomain</c> is <c>null</c>, then a default
+            protection domain will be assigned to the class as
             specified in the documentation for <c>#defineClass(String, byte[],
             int, int)</c>.  Before the class can be used it must be resolved.</para>
           <para>The rules about the first class defined in a package determining the
-            set of certificates for the package, and the restrictions on class names
+            set of certificates for the package, the restrictions on class names,
+            and the defined package of the class
             are identical to those specified in the documentation for <c>#defineClass(String, byte[], int, int, ProtectionDomain)</c>.</para>
           <para>An invocation of this method of the form
             <i>cl</i><c>.defineClass(</c><i>name</i><c>,</c><i>bBuffer</i><c>,</c><i>pd</i><c>)</c> yields exactly the same
@@ -401,11 +430,12 @@
           <para>
             <c>
             ...&lt;br&gt;
-            byte[] temp = new byte[bBuffer.<c>java.nio.ByteBuffer#remaining remaining</c>()];&lt;br&gt;
-                bBuffer.<c>java.nio.ByteBuffer#get(byte[])
-            get</c>(temp);&lt;br&gt;
-                return <c>#defineClass(String, byte[], int, int, ProtectionDomain)
-            cl.defineClass</c>(name, temp, 0,
+            byte[] temp = new byte[bBuffer.{@link
+            java.nio.ByteBuffer#remaining remaining}()];&lt;br&gt;
+                bBuffer.{@link java.nio.ByteBuffer#get(byte[])
+            get}(temp);&lt;br&gt;
+                return {@link #defineClass(String, byte[], int, int, ProtectionDomain)
+            cl.defineClass}(name, temp, 0,
             temp.length, pd);&lt;br&gt;
             </c>
           </para>
@@ -459,7 +489,7 @@
         <param name="b">The bytes that make up the class data.  The bytes in positions
                     <c>off</c> through <c>off+len-1</c> should have the format
                     of a valid class file as defined by
-                    &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.</param>
+                    &lt;cite&gt;The Java Virtual Machine Specification&lt;/cite&gt;.</param>
         <param name="off">The start offset in <c>b</c> of the class data</param>
         <param name="len">The length of the class data</param>
         <summary>Converts an array of bytes into an instance of class <c>Class</c>.</summary>
@@ -469,17 +499,23 @@
           <para>Converts an array of bytes into an instance of class <c>Class</c>.
             Before the <c>Class</c> can be used it must be resolved.</para>
           <para>This method assigns a default <c>java.security.ProtectionDomain
-            &lt;tt&gt;ProtectionDomain&lt;/tt&gt;</c> to the newly defined class.  The
+            ProtectionDomain</c> to the newly defined class.  The
             <c>ProtectionDomain</c> is effectively granted the same set of
             permissions returned when <c>java.security.Policy#getPermissions(java.security.CodeSource)
-            &lt;tt&gt;Policy.getPolicy().getPermissions(new CodeSource(null, null))&lt;/tt&gt;</c>
-            is invoked.  The default domain is created on the first invocation of
-            <c>#defineClass(String, byte[], int, int) &lt;tt&gt;defineClass&lt;/tt&gt;</c>,
+            Policy.getPolicy().getPermissions(new CodeSource(null, null))</c>
+            is invoked.  The default protection domain is created on the first invocation
+            of <c>#defineClass(String, byte[], int, int) defineClass</c>,
             and re-used on subsequent invocations.</para>
           <para>To assign a specific <c>ProtectionDomain</c> to the class, use
             the <c>#defineClass(String, byte[], int, int,
-            java.security.ProtectionDomain) &lt;tt&gt;defineClass&lt;/tt&gt;</c> method that takes a
+            java.security.ProtectionDomain) defineClass</c> method that takes a
             <c>ProtectionDomain</c> as one of its arguments.</para>
+          <para>This method defines a package in this class loader corresponding to the
+            package of the <c>Class</c> (if such a package has not already been defined
+            in this class loader). The name of the defined package is derived from
+            the binary name of the class specified by
+            the byte array <c>b</c>.
+            Other properties of the defined package are as specified by <c>Package</c>.</para>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -532,24 +568,25 @@
         <param name="b">The bytes that make up the class data. The bytes in positions
                     <c>off</c> through <c>off+len-1</c> should have the format
                     of a valid class file as defined by
-                    &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.</param>
+                    &lt;cite&gt;The Java Virtual Machine Specification&lt;/cite&gt;.</param>
         <param name="off">The start offset in <c>b</c> of the class data</param>
         <param name="len">The length of the class data</param>
-        <param name="protectionDomain">The ProtectionDomain of the class</param>
+        <param name="protectionDomain">The <c>ProtectionDomain</c> of the class</param>
         <summary>Converts an array of bytes into an instance of class <c>Class</c>,
-            with an optional <c>ProtectionDomain</c>.</summary>
+            with a given <c>ProtectionDomain</c>.</summary>
         <returns>The <c>Class</c> object created from the data,
-                     and optional <c>ProtectionDomain</c>.</returns>
+                     and <c>ProtectionDomain</c>.</returns>
         <remarks>
           <para>Converts an array of bytes into an instance of class <c>Class</c>,
-            with an optional <c>ProtectionDomain</c>.  If the domain is
-            <c>null</c>, then a default domain will be assigned to the class as
-            specified in the documentation for <c>#defineClass(String, byte[],
-            int, int)</c>.  Before the class can be used it must be resolved.</para>
+            with a given <c>ProtectionDomain</c>.</para>
+          <para>If the given <c>ProtectionDomain</c> is <c>null</c>,
+            then a default protection domain will be assigned to the class as specified
+            in the documentation for <c>#defineClass(String, byte[], int, int)</c>.
+            Before the class can be used it must be resolved.</para>
           <para>The first class defined in a package determines the exact set of
             certificates that all subsequent classes defined in that package must
             contain.  The set of certificates for a class is obtained from the
-            <c>java.security.CodeSource &lt;tt&gt;CodeSource&lt;/tt&gt;</c> within the
+            <c>java.security.CodeSource CodeSource</c> within the
             <c>ProtectionDomain</c> of the class.  Any classes added to that
             package must contain the same set of certificates or a
             <c>SecurityException</c> will be thrown.  Note that if
@@ -557,11 +594,12 @@
             You should always pass in the binary name of the
             class you are defining as well as the bytes.  This ensures that the
             class you are defining is indeed the class you think it is.</para>
-          <para>The specified <c>name</c> cannot begin with "<c>java.</c>", since
-            all classes in the "<c>java.*</c> packages can only be defined by the
-            bootstrap class loader.  If <c>name</c> is not <c>null</c>, it
-            must be equal to the binary name of the class
-            specified by the byte array "<c>b</c>", otherwise a <c>NoClassDefFoundError &lt;tt&gt;NoClassDefFoundError&lt;/tt&gt;</c> will be thrown.</para>
+          <para>This method defines a package in this class loader corresponding to the
+            package of the <c>Class</c> (if such a package has not already been defined
+            in this class loader). The name of the defined package is derived from
+            the binary name of the class specified by
+            the byte array <c>b</c>.
+            Other properties of the defined package are as specified by <c>Package</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/ClassLoader#defineClass(java.lang.String,%20byte[],%20int,%20int,%20java.security.ProtectionDomain)" title="Reference documentation">Java documentation for <code>java.lang.ClassLoader.defineClass(java.lang.String, byte[], int, int, java.security.ProtectionDomain)</code>.</a>
@@ -621,16 +659,22 @@
         <param name="implVersion">The implementation version</param>
         <param name="implVendor">The implementation vendor</param>
         <param name="sealBase">If not <c>null</c>, then this package is sealed with
-                    respect to the given code source <c>java.net.URL
-                    &lt;tt&gt;URL&lt;/tt&gt;</c>  object.  Otherwise, the package is not sealed.</param>
+                    respect to the given code source <c>java.net.URL URL</c>
+                    object.  Otherwise, the package is not sealed.</param>
         <summary>Defines a package by name in this <c>ClassLoader</c>.</summary>
         <returns>The newly defined <c>Package</c> object</returns>
         <remarks>
-          <para>Defines a package by name in this <c>ClassLoader</c>.  This allows
-            class loaders to define the packages for their classes. Packages must
-            be created before the class is defined, and package names must be
-            unique within a class loader and cannot be redefined or changed once
-            created.</para>
+          <para>Defines a package by name in this <c>ClassLoader</c>.</para>
+          <para>Package names must be unique within a class loader and
+            cannot be redefined or changed once created.</para>
+          <para>If a class loader wishes to define a package with specific properties,
+            such as version information, then the class loader should call this
+            <c>definePackage</c> method before calling <c>defineClass</c>.
+            Otherwise, the
+            <c>#defineClass(String, byte[], int, int, ProtectionDomain) defineClass</c>
+            method will define a package in this class loader corresponding to the package
+            of the newly defined class; the properties of this defined package are
+            specified by <c>Package</c>.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -678,9 +722,8 @@
           <para>Finds the class with the specified binary name.
             This method should be overridden by class loader implementations that
             follow the delegation model for loading classes, and will be invoked by
-            the <c>#loadClass &lt;tt&gt;loadClass&lt;/tt&gt;</c> method after checking the
-            parent class loader for the requested class.  The default implementation
-            throws a <c>ClassNotFoundException</c>.</para>
+            the <c>#loadClass loadClass</c> method after checking the
+            parent class loader for the requested class.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -819,11 +862,15 @@
       <Docs>
         <param name="name">The resource name</param>
         <summary>Finds the resource with the given name.</summary>
-        <returns>A <c>URL</c> object for reading the resource, or
-                     <c>null</c> if the resource could not be found</returns>
+        <returns>
+          <c>URL</c> object for reading the resource; <c>null</c> if
+                     the resource could not be found, a <c>URL</c> could not be
+                     constructed to locate the resource, the resource is in a package
+                     that is not opened unconditionally, or access to the resource is
+                     denied by the security manager.</returns>
         <remarks>
           <para>Finds the resource with the given name. Class loader implementations
-            should override this method to specify where to find resources.</para>
+            should override this method.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -863,15 +910,18 @@
       </Parameters>
       <Docs>
         <param name="name">The resource name</param>
-        <summary>Returns an enumeration of <c>java.net.URL &lt;tt&gt;URL&lt;/tt&gt;</c> objects
+        <summary>Returns an enumeration of <c>java.net.URL URL</c> objects
             representing all the resources with the given name.</summary>
-        <returns>An enumeration of <c>java.net.URL &lt;tt&gt;URL&lt;/tt&gt;</c> objects for
-                     the resources</returns>
+        <returns>An enumeration of <c>java.net.URL URL</c> objects for
+                     the resource. If no resources could  be found, the enumeration
+                     will be empty. Resources for which a <c>URL</c> cannot be
+                     constructed, are in a package that is not opened unconditionally,
+                     or access to the resource is denied by the security manager,
+                     are not returned in the enumeration.</returns>
         <remarks>
-          <para>Returns an enumeration of <c>java.net.URL &lt;tt&gt;URL&lt;/tt&gt;</c> objects
+          <para>Returns an enumeration of <c>java.net.URL URL</c> objects
             representing all the resources with the given name. Class loader
-            implementations should override this method to specify where to load
-            resources from.</para>
+            implementations should override this method.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -955,6 +1005,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("getPackage", "(Ljava/lang/String;)Ljava/lang/Package;", "GetGetPackage_Ljava_lang_String_Handler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("getPackage", "(Ljava/lang/String;)Ljava/lang/Package;", "GetGetPackage_Ljava_lang_String_Handler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Package</ReturnType>
@@ -964,13 +1018,24 @@
       </Parameters>
       <Docs>
         <param name="name">The package name</param>
-        <summary>Returns a <c>Package</c> that has been defined by this class loader
-            or any of its ancestors.</summary>
-        <returns>The <c>Package</c> corresponding to the given name, or
-                     <c>null</c> if not found</returns>
+        <summary>Finds a package by name in this class loader and its ancestors.</summary>
+        <returns>The <c>Package</c> of the given name that has been defined by
+                    this class loader or its ancestors, or <c>null</c> if not found.</returns>
         <remarks>
-          <para>Returns a <c>Package</c> that has been defined by this class loader
-            or any of its ancestors.</para>
+          <para>Finds a package by name in this class loader and its ancestors.</para>
+          <para>If this class loader defines a <c>Package</c> of the given name,
+            the <c>Package</c> is returned. Otherwise, the ancestors of
+            this class loader are searched recursively (parent by parent)
+            for a <c>Package</c> of the given name.</para>
+          <para>This member is deprecated. If multiple class loaders delegate to each other and define classes
+            with the same package name, and one such loader relies on the lookup
+            behavior of <c>getPackage</c> to return a <c>Package</c> from
+            a parent loader, then the properties exposed by the <c>Package</c>
+            may not be as expected in the rest of the program.
+            For example, the <c>Package</c> will only expose annotations from the
+            <c>package-info.class</c> file defined by the parent loader, even if
+            annotations exist in a <c>package-info.class</c> file defined by
+            a child loader.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -1004,16 +1069,24 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Lang.Package[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Returns all of the <c>Packages</c> defined by this class loader and
-            its ancestors.</summary>
-        <returns>The array of <c>Package</c> objects defined by this
-                     <c>ClassLoader</c></returns>
+        <summary>Returns all of the <c>Package</c>s that have been defined by
+            this class loader and its ancestors.</summary>
+        <returns>The array of <c>Package</c> objects that have been defined by
+                     this class loader and its ancestors</returns>
         <remarks>
-          <para>Returns all of the <c>Packages</c> defined by this class loader and
-            its ancestors.</para>
+          <para>Returns all of the <c>Package</c>s that have been defined by
+            this class loader and its ancestors.  The returned array may contain
+            more than one <c>Package</c> object of the same package name, each
+            defined by a different class loader in the class loader hierarchy.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -1054,19 +1127,18 @@
       <Docs>
         <param name="name">The resource name</param>
         <summary>Finds the resource with the given name.</summary>
-        <returns>A <c>URL</c> object for reading the resource, or
-                     <c>null</c> if the resource could not be found or the invoker
-                     doesn't have adequate  privileges to get the resource.</returns>
+        <returns>
+          <c>URL</c> object for reading the resource; <c>null</c> if
+                     the resource could not be found, a <c>URL</c> could not be
+                     constructed to locate the resource, the resource is in a package
+                     that is not opened unconditionally, or access to the resource is
+                     denied by the security manager.</returns>
         <remarks>
           <para>Finds the resource with the given name.  A resource is some data
             (images, audio, text, etc) that can be accessed by class code in a way
             that is independent of the location of the code.</para>
-          <para>The name of a resource is a '<c>/</c>'-separated path name that
+          <para>The name of a resource is a '<c>/</c>'-separated path name thatf
             identifies the resource.</para>
-          <para>This method will first search the parent class loader for the
-            resource; if the parent is <c>null</c> the path of the class loader
-            built-in to the virtual machine is searched.  That failing, this method
-            will invoke <c>#findResource(String)</c> to find the resource.</para>
           <para>Added in 1.1.</para>
           <para>
             <format type="text/html">
@@ -1108,8 +1180,10 @@
       <Docs>
         <param name="name">The resource name</param>
         <summary>Returns an input stream for reading the specified resource.</summary>
-        <returns>An input stream for reading the resource, or <c>null</c>
-                     if the resource could not be found</returns>
+        <returns>An input stream for reading the resource; <c>null</c> if the
+                     resource could not be found, the resource is in a package that
+                     is not opened unconditionally, or access to the resource is
+                     denied by the security manager.</returns>
         <remarks>
           <para>Returns an input stream for reading the specified resource.</para>
           <para>The search order is described in the documentation for <c>#getResource(String)</c>.</para>
@@ -1154,17 +1228,18 @@
       <Docs>
         <param name="name">The resource name</param>
         <summary>Finds all the resources with the given name.</summary>
-        <returns>An enumeration of <c>java.net.URL &lt;tt&gt;URL&lt;/tt&gt;</c> objects for
-                     the resource.  If no resources could  be found, the enumeration
-                     will be empty.  Resources that the class loader doesn't have
-                     access to will not be in the enumeration.</returns>
+        <returns>An enumeration of <c>java.net.URL URL</c> objects for the
+                     resource. If no resources could be found, the enumeration will
+                     be empty. Resources for which a <c>URL</c> cannot be
+                     constructed, are in a package that is not opened
+                     unconditionally, or access to the resource is denied by the
+                     security manager, are not returned in the enumeration.</returns>
         <remarks>
           <para>Finds all the resources with the given name. A resource is some data
             (images, audio, text, etc) that can be accessed by class code in a way
             that is independent of the location of the code.</para>
           <para>The name of a resource is a <c>/</c>-separated path name that
             identifies the resource.</para>
-          <para>The search order is described in the documentation for <c>#getResource(String)</c>.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -1208,8 +1283,10 @@
         <param name="name">The resource name</param>
         <summary>Find a resource of the specified name from the search path used to load
             classes.</summary>
-        <returns>A <c>java.net.URL &lt;tt&gt;URL&lt;/tt&gt;</c> object for reading the
-                     resource, or <c>null</c> if the resource could not be found</returns>
+        <returns>A <c>java.net.URL URL</c> to the resource; <c>null</c> if the resource could not be found, a URL could not be
+                     constructed to locate the resource, the resource is in a package
+                     that is not opened unconditionally or access to the resource is
+                     denied by the security manager.</returns>
         <remarks>
           <para>Find a resource of the specified name from the search path used to load
             classes.  This method locates the resource through the system class
@@ -1256,8 +1333,10 @@
         <param name="name">The resource name</param>
         <summary>Open for reading, a resource of the specified name from the search path
             used to load classes.</summary>
-        <returns>An input stream for reading the resource, or <c>null</c>
-                     if the resource could not be found</returns>
+        <returns>An input stream for reading the resource; <c>null</c> if the
+                     resource could not be found, the resource is in a package that
+                     is not opened unconditionally, or access to the resource is
+                     denied by the security manager.</returns>
         <remarks>
           <para>Open for reading, a resource of the specified name from the search path
             used to load classes.  This method locates the resource through the
@@ -1304,12 +1383,16 @@
         <param name="name">The resource name</param>
         <summary>Finds all resources of the specified name from the search path used to
             load classes.</summary>
-        <returns>An enumeration of resource <c>java.net.URL &lt;tt&gt;URL&lt;/tt&gt;</c>
-                     objects</returns>
+        <returns>An enumeration of <c>java.net.URL URL</c> objects for
+                     the resource. If no resources could  be found, the enumeration
+                     will be empty. Resources for which a <c>URL</c> cannot be
+                     constructed, are in a package that is not opened unconditionally,
+                     or access to the resource is denied by the security manager,
+                     are not returned in the enumeration.</returns>
         <remarks>
           <para>Finds all resources of the specified name from the search path used to
             load classes.  The resources thus found are returned as an
-            <c>java.util.Enumeration &lt;tt&gt;Enumeration&lt;/tt&gt;</c> of <c>java.net.URL &lt;tt&gt;URL&lt;/tt&gt;</c> objects.</para>
+            <c>java.util.Enumeration Enumeration</c> of <c>java.net.URL URL</c> objects.</para>
           <para>The search order is described in the documentation for <c>#getSystemResource(String)</c>.</para>
           <para>Added in 1.2.</para>
           <para>
@@ -1346,6 +1429,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1389,8 +1476,8 @@
           <para>Loads the class with the specified binary name.
             This method searches for classes in the same manner as the <c>#loadClass(String, boolean)</c> method.  It is invoked by the Java virtual
             machine to resolve class references.  Invoking this method is equivalent
-            to invoking <c>#loadClass(String, boolean) &lt;tt&gt;loadClass(name,
-            false)&lt;/tt&gt;</c>.</para>
+            to invoking <c>#loadClass(String, boolean) loadClass(name,
+            false)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/ClassLoader#loadClass(java.lang.String)" title="Reference documentation">Java documentation for <code>java.lang.ClassLoader.loadClass(java.lang.String)</code>.</a>
@@ -1448,9 +1535,9 @@
           <para>&lt;/li&gt;
             
               &lt;li&gt;</para>
-          <para>Invoke the <c>#loadClass(String) &lt;tt&gt;loadClass&lt;/tt&gt;</c> method
+          <para>Invoke the <c>#loadClass(String) loadClass</c> method
               on the parent class loader.  If the parent is <c>null</c> the class
-              loader built-in to the virtual machine is used, instead.</para>
+              loader built into the virtual machine is used, instead.</para>
           <para>&lt;/li&gt;
             
               &lt;li&gt;</para>
@@ -1490,6 +1577,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Threading.Tasks.Task&lt;Java.Lang.Class&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -1515,6 +1608,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Threading.Tasks.Task&lt;Java.Lang.Class&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -1557,13 +1656,6 @@
             use <c>null</c> to represent the bootstrap class loader. This method
             will return <c>null</c> in such implementations if this class loader's
             parent is the bootstrap class loader.</para>
-          <para>If a security manager is present, and the invoker's class loader is
-            not <c>null</c> and is not an ancestor of this class loader, then this
-            method invokes the security manager's <c>SecurityManager#checkPermission(java.security.Permission)
-            &lt;tt&gt;checkPermission&lt;/tt&gt;</c> method with a <c>RuntimePermission#RuntimePermission(String)
-            &lt;tt&gt;RuntimePermission("getClassLoader")&lt;/tt&gt;</c> permission to verify
-            access to the parent class loader is permitted.  If not, a
-            <c>SecurityException</c> will be thrown.</para>
           <para>Added in 1.2.</para>
           <para>
             <format type="text/html">
@@ -1604,11 +1696,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Registers the caller as parallel capable.</summary>
-        <returns>true if the caller is successfully registered as
-                     parallel capable and false if otherwise.</returns>
+        <summary>Registers the caller as
+            <c>#isRegisteredAsParallelCapable() parallel capable</c>.</summary>
+        <returns>
+          <c>true</c> if the caller is successfully registered as
+                     parallel capable and <c>false</c> if otherwise.</returns>
         <remarks>
-          <para>Registers the caller as parallel capable.
+          <para>Registers the caller as
+            <c>#isRegisteredAsParallelCapable() parallel capable</c>.
             The registration succeeds if and only if all of the following
             conditions are met:
             &lt;ol&gt;
@@ -1662,7 +1757,7 @@
             used by a class loader to link a class.  If the class <c>c</c> has
             already been linked, then this method simply returns. Otherwise, the
             class is linked as described in the "Execution" chapter of
-            &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.</para>
+            &lt;cite&gt;The Java Language Specification&lt;/cite&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/ClassLoader#resolveClass(java.lang.Class%3C?%3E)" title="Reference documentation">Java documentation for <code>java.lang.ClassLoader.resolveClass(java.lang.Class&lt;?&gt;)</code>.</a>
@@ -1811,8 +1906,7 @@
         <param name="packageName">The name of the package whose package default assertion status
                     is to be set. A <c>null</c> value indicates the unnamed
                     package that is "current"
-                    (see section 7.4.2 of
-                    &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.)</param>
+                    (see section {</param>
         <param name="enabled">
           <c>true</c> if classes loaded by this classloader and
                     belonging to the named package or any of its subpackages will
@@ -1874,7 +1968,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="c" Type="Java.Lang.Class" />
-        <Parameter Name="signers" Type="Java.Lang.Object[]" />
+        <Parameter Name="signers" Type="Java.Lang.Object[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="c">The <c>Class</c> object</param>
@@ -1917,26 +2018,19 @@
         <ReturnType>Java.Lang.ClassLoader</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the system class loader for delegation.</summary>
-        <value>The system <c>ClassLoader</c> for delegation, or
-                     <c>null</c> if none</value>
+        <summary>Returns the system class loader.</summary>
+        <value>The system <c>ClassLoader</c></value>
         <remarks>
-          <para>Returns the system class loader for delegation.  This is the default
+          <para>Returns the system class loader.  This is the default
             delegation parent for new <c>ClassLoader</c> instances, and is
             typically the class loader used to start the application.</para>
           <para>This method is first invoked early in the runtime's startup
-            sequence, at which point it creates the system class loader and sets it
-            as the context class loader of the invoking <c>Thread</c>.</para>
+            sequence, at which point it creates the system class loader. This
+            class loader will be the context class loader for the main application
+            thread (for example, the thread that invokes the <c>main</c> method of
+            the main class).</para>
           <para>The default system class loader is an implementation-dependent
             instance of this class.</para>
-          <para>If a security manager is present, and the invoker's class loader is
-            not <c>null</c> and the invoker's class loader is not the same as or
-            an ancestor of the system class loader, then this method invokes the
-            security manager's <c>SecurityManager#checkPermission(java.security.Permission)
-            &lt;tt&gt;checkPermission&lt;/tt&gt;</c> method with a <c>RuntimePermission#RuntimePermission(String)
-            &lt;tt&gt;RuntimePermission("getClassLoader")&lt;/tt&gt;</c> permission to verify
-            access to the system class loader.  If not, a
-            <c>SecurityException</c> will be thrown.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/ClassLoader#getSystemClassLoader()" title="Reference documentation">Java documentation for <code>java.lang.ClassLoader.getSystemClassLoader()</code>.</a>
@@ -2000,6 +2094,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

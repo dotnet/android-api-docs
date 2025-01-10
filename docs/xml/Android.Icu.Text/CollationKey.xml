@@ -30,19 +30,89 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/CollationKey", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>A <c>CollationKey</c> represents a <c>String</c>
+            under the rules of a specific <c>Collator</c>
+            object.</summary>
     <remarks>
+      <para>A <c>CollationKey</c> represents a <c>String</c>
+            under the rules of a specific <c>Collator</c>
+            object. Comparing two <c>CollationKey</c>s returns the
+            relative order of the <c>String</c>s they represent.</para>
+      <para>Since the rule set of <c>Collator</c>s can differ, the
+            sort orders of the same string under two different
+            <c>Collator</c>s might differ.  Hence comparing
+            <c>CollationKey</c>s generated from different
+            <c>Collator</c>s can give incorrect results.</para>
+      <para>Both the method
+            <c>CollationKey.compareTo(CollationKey)</c> and the method
+            <c>Collator.compare(String, String)</c> compare two strings
+            and returns their relative order.  The performance characteristics
+            of these two approaches can differ.
+            Note that collation keys are often less efficient than simply doing comparison.
+            For more details, see the ICU User Guide.</para>
+      <para>During the construction of a <c>CollationKey</c>, the
+            entire source string is examined and processed into a series of
+            bits terminated by a null, that are stored in the <c>CollationKey</c>.
+            When <c>CollationKey.compareTo(CollationKey)</c> executes, it
+            performs bitwise comparison on the bit sequences.  This can incurs
+            startup cost when creating the <c>CollationKey</c>, but once
+            the key is created, binary comparisons are fast.  This approach is
+            recommended when the same strings are to be compared over and over
+            again.</para>
+      <para>On the other hand, implementations of
+            <c>Collator.compare(String, String)</c> can examine and
+            process the strings only until the first characters differing in
+            order.  This approach is recommended if the strings are to be
+            compared only once.</para>
+      <para>More information about the composition of the bit sequence can
+            be found in the
+            <see href="https://unicode-org.github.io/icu/userguide/collation/architecture">
+            user guide</see>.</para>
+      <para>The following example shows how <c>CollationKey</c>s can be used
+            to sort a list of <c>String</c>s.</para>
+      <para>&lt;blockquote&gt;</para>
+      <code lang="text/java">// Create an array of CollationKeys for the Strings to be sorted.
+            Collator myCollator = Collator.getInstance();
+            CollationKey[] keys = new CollationKey[3];
+            keys[0] = myCollator.getCollationKey("Tom");
+            keys[1] = myCollator.getCollationKey("Dick");
+            keys[2] = myCollator.getCollationKey("Harry");
+            sort( keys );
+            &lt;br&gt;
+            //...
+            &lt;br&gt;
+            // Inside body of sort routine, compare keys this way
+            if( keys[i].compareTo( keys[j] ) &amp;gt; 0 )
+               // swap keys[i] and keys[j]
+            &lt;br&gt;
+            //...
+            &lt;br&gt;
+            // Finally, when we've returned from sort.
+            System.out.println( keys[0].getSourceString() );
+            System.out.println( keys[1].getSourceString() );
+            System.out.println( keys[2].getSourceString() );
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>This class is not subclassable</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/CollationKey" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/CollationKey" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -71,11 +141,25 @@
         <Parameter Name="key" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="source">string this CollationKey is to represent</param>
+        <param name="key">array of bytes that represent the collation order of argument
+                       source terminated by a null</param>
+        <summary>CollationKey constructor.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>CollationKey constructor.
+            This constructor is given public access, unlike the JDK version, to
+            allow access to users extending the Collator class. See
+            <c>Collator#getCollationKey(String)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationKey#CollationKey(java.lang.String,%20byte[])" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey.CollationKey(java.lang.String, byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -106,11 +190,29 @@
         <Parameter Name="target" Type="Android.Icu.Text.CollationKey" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="target">target CollationKey</param>
+        <summary>Compare this CollationKey to another CollationKey.</summary>
+        <returns>an integer value.  If the value is less than zero this CollationKey
+                    is less than than target, if the value is zero they are equal, and
+                    if the value is greater than zero this CollationKey is greater
+                    than target.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compare this CollationKey to another CollationKey.  The
+            collation rules of the Collator that created this key are
+            applied.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; Comparison between CollationKeys
+            created by different Collators might return incorrect
+            results.  See class documentation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationKey#compareTo(android.icu.text.CollationKey)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey.compareTo(android.icu.text.CollationKey)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -141,11 +243,26 @@
         <Parameter Name="target" Type="Android.Icu.Text.CollationKey" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="target">the CollationKey to compare to.</param>
+        <summary>Compare this CollationKey and the argument target CollationKey for
+            equality.</summary>
+        <returns>true if two objects are equal, false otherwise.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compare this CollationKey and the argument target CollationKey for
+            equality.
+            The collation
+            rules of the Collator object which created these objects are applied.</para>
+          <para>See note in compareTo(CollationKey) for warnings of incorrect results</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationKey#equals(android.icu.text.CollationKey)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey.equals(android.icu.text.CollationKey)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -177,12 +294,49 @@
         <Parameter Name="noOfLevels" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="boundType">To be added.</param>
-        <param name="noOfLevels">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="boundType">Mode of bound required. It can be BoundMode.LOWER, which
+                         produces a lower inclusive bound, BoundMode.UPPER, that
+                         produces upper bound that matches strings of the same
+                         length or BoundMode.UPPER_LONG that matches strings that
+                         have the same starting substring as the source string.</param>
+        <param name="noOfLevels">Strength levels required in the resulting bound
+                            (for most uses, the recommended value is PRIMARY). This
+                            strength should be less than the maximum strength of
+                            this CollationKey.
+                            See users guide for explanation on the strength levels a
+                            collation key can have.</param>
+        <summary>Produces a bound for the sort order of a given collation key and a
+            strength level.</summary>
+        <returns>the result bounded CollationKey with a valid sort order but
+                    a null String representation.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Produces a bound for the sort order of a given collation key and a
+            strength level. This API does not attempt to find a bound for the
+            CollationKey String representation, hence null will be returned in its
+            place.</para>
+          <para>Resulting bounds can be used to produce a range of strings that are
+            between upper and lower bounds. For example, if bounds are produced
+            for a sortkey of string "smith", strings between upper and lower
+            bounds with primary strength would include "Smith", "SMITH", "sMiTh".</para>
+          <para>There are two upper bounds that can be produced. If BoundMode.UPPER
+            is produced, strings matched would be as above. However, if a bound
+            is produced using BoundMode.UPPER_LONG is used, the above example will
+            also match "Smithsonian" and similar.</para>
+          <para>For more on usage, see example in test procedure
+            <see href="https://github.com/unicode-org/icu/blob/main/icu4j/main/collate/src/test/java/com/ibm/icu/dev/test/collator/CollationAPITest.java">
+            src/com/ibm/icu/dev/test/collator/CollationAPITest/TestBounds.
+            </see></para>
+          <para>Collation keys produced may be compared using the <c>compare</c> API.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationKey#getBound(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey.getBound(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -236,6 +390,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -275,11 +433,47 @@
         <Parameter Name="source" Type="Android.Icu.Text.CollationKey" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">CollationKey to merge with</param>
+        <summary>Merges this CollationKey with another.</summary>
+        <returns>a CollationKey that contains the valid merged sort keys
+                    with a null String representation,
+                    i.e. <c>new CollationKey(null, merged_sort_keys)</c></returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Merges this CollationKey with another.
+            The levels are merged with their corresponding counterparts
+            (primaries with primaries, secondaries with secondaries etc.).
+            Between the values from the same level a separator is inserted.</para>
+          <para>This is useful, for example, for combining sort keys from first and last names
+            to sort such pairs.
+            See http://www.unicode.org/reports/tr10/#Merging_Sort_Keys</para>
+          <para>The recommended way to achieve "merged" sorting is by
+            concatenating strings with U+FFFE between them.
+            The concatenation has the same sort order as the merged sort keys,
+            but merge(getSortKey(str1), getSortKey(str2)) may differ from getSortKey(str1 + '\uFFFE' + str2).
+            Using strings with U+FFFE may yield shorter sort keys.</para>
+          <para>For details about Sort Key Features see
+            https://unicode-org.github.io/icu/userguide/collation/api#sort-key-features</para>
+          <para>It is possible to merge multiple sort keys by consecutively merging
+            another one with the intermediate result.</para>
+          <para>Only the sort key bytes of the CollationKeys are merged.
+            This API does not attempt to merge the
+            String representations of the CollationKeys, hence null will be returned
+            as the result's String representation.</para>
+          <para>Example (uncompressed):</para>
+          <code lang="text/java">191B1D 01 050505 01 910505 00
+            1F2123 01 050505 01 910505 00</code>
+          <para>will be merged as</para>
+          <code lang="text/java">191B1D 02 1F2123 01 050505 02 050505 01 910505 02 910505 00</code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationKey#merge(android.icu.text.CollationKey)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey.merge(android.icu.text.CollationKey)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -307,10 +501,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Return the source string that this CollationKey represents.</summary>
+        <value>source string that this CollationKey represents</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the source string that this CollationKey represents.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationKey#getSourceString()" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey.getSourceString()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -364,6 +568,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -401,10 +609,44 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Duplicates and returns the value of this CollationKey as a sequence
+            of big-endian bytes terminated by a null.</summary>
+        <returns>CollationKey value in a sequence of big-endian byte bytes
+                    terminated by a null.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Duplicates and returns the value of this CollationKey as a sequence
+            of big-endian bytes terminated by a null.</para>
+          <para>If two CollationKeys can be legitimately compared, then one can
+            compare the byte arrays of each to obtain the same result, e.g.</para>
+          <code lang="text/java">byte key1[] = collationkey1.toByteArray();
+            byte key2[] = collationkey2.toByteArray();
+            int key, targetkey;
+            int i = 0;
+            do {
+                  key = key1[i] &amp;amp; 0xFF;
+                targetkey = key2[i] &amp;amp; 0xFF;
+                if (key &amp;lt; targetkey) {
+                    System.out.println("String 1 is less than string 2");
+                    return;
+                }
+                if (targetkey &amp;lt; key) {
+                    System.out.println("String 1 is more than string 2");
+                }
+                i ++;
+            } while (key != 0 &amp;amp;&amp;amp; targetKey != 0);
+            
+            System.out.println("Strings are equal.");
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationKey#toByteArray()" title="Reference documentation">Java documentation for <code>android.icu.text.CollationKey.toByteArray()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

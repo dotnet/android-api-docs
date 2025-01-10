@@ -157,23 +157,35 @@
           <para>The transform hint can be used by a buffer producer to pre-rotate the rendering such that the
             final transformation in the system composer is identity. This can be very useful when used in
             conjunction with the h/w composer HAL in situations where it cannot handle rotations or
-            handle them with an additional power cost.</para>
-          <para>The transform hint should be used with ASurfaceControl APIs when submitting buffers.
-            Example usage:</para>
-          <para>1. After a configuration change, before dequeuing a buffer, the buffer producer queries the
-               function for the transform hint.</para>
-          <para>2. The desired buffer width and height is rotated by the transform hint.</para>
-          <para>3. The producer dequeues a buffer of the new pre-rotated size.</para>
-          <para>4. The producer renders to the buffer such that the image is already transformed, that is
-               applying the transform hint to the rendering.</para>
-          <para>5. The producer applies the inverse transform hint to the buffer it just rendered.</para>
-          <para>6. The producer queues the pre-transformed buffer with the buffer transform.</para>
-          <para>7. The composer combines the buffer transform with the display transform.  If the buffer
+            handle them with an additional power cost.
+            
+            The transform hint should be used with ASurfaceControl APIs when submitting buffers.
+            Example usage:
+            
+            1. After a configuration change, before dequeuing a buffer, the buffer producer queries the
+               function for the transform hint.
+            
+            2. The desired buffer width and height is rotated by the transform hint.
+            
+            3. The producer dequeues a buffer of the new pre-rotated size.
+            
+            4. The producer renders to the buffer such that the image is already transformed, that is
+               applying the transform hint to the rendering.
+            
+            5. The producer applies the inverse transform hint to the buffer it just rendered.
+            
+            6. The producer queues the pre-transformed buffer with the buffer transform.
+            
+            7. The composer combines the buffer transform with the display transform.  If the buffer
                transform happens to cancel out the display transform then no rotation is needed and there
-               will be no performance penalties.</para>
-          <para>Note, when using ANativeWindow APIs in conjunction with a NativeActivity Surface or
+               will be no performance penalties.
+            
+            Note, when using ANativeWindow APIs in conjunction with a NativeActivity Surface or
             SurfaceView Surface, the buffer producer will already have access to the transform hint and
-            no additional work is needed.</para>
+            no additional work is needed.
+            
+            If the root surface is not available, the API will return <c>BUFFER_TRANSFORM_IDENTITY</c>.
+            The caller should register a listener to listen for any changes.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/AttachedSurfaceControl#getBufferTransformHint()" title="Reference documentation">Java documentation for <code>android.view.AttachedSurfaceControl.getBufferTransformHint()</code>.</a>
@@ -209,6 +221,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Views.SurfaceControl+Transaction</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="child" Type="Android.Views.SurfaceControl" />
@@ -218,6 +236,56 @@
         <summary>To be added.</summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="InputTransferToken">
+      <MemberSignature Language="C#" Value="public virtual Android.Window.InputTransferToken InputTransferToken { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Window.InputTransferToken InputTransferToken" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.IAttachedSurfaceControl.InputTransferToken" />
+      <MemberSignature Language="F#" Value="member this.InputTransferToken : Android.Window.InputTransferToken" Usage="Android.Views.IAttachedSurfaceControl.InputTransferToken" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getInputTransferToken", "()Landroid/window/InputTransferToken;", "GetGetInputTransferTokenHandler:Android.Views.IAttachedSurfaceControl, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInputTransferToken", "()Landroid/window/InputTransferToken;", "GetGetInputTransferTokenHandler:Android.Views.IAttachedSurfaceControl, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Window.InputTransferToken</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the token used for associating this <c>AttachedSurfaceControl</c> with an embedded
+            <c>SurfaceControlViewHost</c> or <c>SurfaceControl</c></summary>
+        <value>The <c>InputTransferToken</c> for the <c>AttachedSurfaceControl</c></value>
+        <remarks>
+          <para>Gets the token used for associating this <c>AttachedSurfaceControl</c> with an embedded
+            <c>SurfaceControlViewHost</c> or <c>SurfaceControl</c></para>
+          <para>This token should be passed to
+            <c>SurfaceControlViewHost#SurfaceControlViewHost(Context, Display, InputTransferToken)</c>
+            or
+            <c>WindowManager#registerBatchedSurfaceControlInputReceiver(int, InputTransferToken,
+            SurfaceControl, Choreographer, SurfaceControlInputReceiver)</c> or
+            <c>WindowManager#registerUnbatchedSurfaceControlInputReceiver(int, InputTransferToken,
+            SurfaceControl, Looper, SurfaceControlInputReceiver)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/AttachedSurfaceControl#getInputTransferToken()" title="Reference documentation">Java documentation for <code>android.view.AttachedSurfaceControl.getInputTransferToken()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveOnBufferTransformHintChangedListener">

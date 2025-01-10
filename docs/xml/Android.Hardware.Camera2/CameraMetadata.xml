@@ -20,6 +20,10 @@
       <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "TKey" })]</AttributeName>
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "TKey" })&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>The base class for camera controls and information.</summary>
@@ -1255,6 +1259,82 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="ControlAeModeOnLowLightBoostBrightnessPriority">
+      <MemberSignature Language="C#" Value="public const Android.Hardware.Camera2.ControlAEMode ControlAeModeOnLowLightBoostBrightnessPriority = 6;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Hardware.Camera2.ControlAEMode ControlAeModeOnLowLightBoostBrightnessPriority = (6)" />
+      <MemberSignature Language="DocId" Value="F:Android.Hardware.Camera2.CameraMetadata.ControlAeModeOnLowLightBoostBrightnessPriority" />
+      <MemberSignature Language="F#" Value="val mutable ControlAeModeOnLowLightBoostBrightnessPriority : Android.Hardware.Camera2.ControlAEMode" Usage="Android.Hardware.Camera2.CameraMetadata.ControlAeModeOnLowLightBoostBrightnessPriority" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Hardware.Camera2.ControlAEMode enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Hardware.Camera2.ControlAEMode enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Hardware.Camera2.ControlAEMode</ReturnType>
+      </ReturnValue>
+      <MemberValue>6</MemberValue>
+      <Docs>
+        <summary>Like 'ON' but applies additional brightness boost in low light scenes.</summary>
+        <remarks>
+          <para>Like 'ON' but applies additional brightness boost in low light scenes.</para>
+          <para>When the scene lighting conditions are within the range defined by
+            <c>CameraCharacteristics#CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE android.control.lowLightBoostInfoLuminanceRange</c> this mode will apply additional
+            brightness boost.</para>
+          <para>This mode will automatically adjust the intensity of low light boost applied
+            according to the scene lighting conditions. A darker scene will receive more boost
+            while a brighter scene will receive less boost.</para>
+          <para>This mode can ignore the set target frame rate to allow more light to be captured
+            which can result in choppier motion. The frame rate can extend to lower than the
+            <c>CameraCharacteristics#CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES android.control.aeAvailableTargetFpsRanges</c> but will not go below 10 FPS. This mode
+            can also increase the sensor sensitivity gain which can result in increased luma
+            and chroma noise. The sensor sensitivity gain can extend to higher values beyond
+            <c>CameraCharacteristics#SENSOR_INFO_SENSITIVITY_RANGE android.sensor.info.sensitivityRange</c>. This mode may also apply additional
+            processing to recover details in dark and bright areas of the image,and noise
+            reduction at high sensitivity gain settings to manage the trade-off between light
+            sensitivity and capture noise.</para>
+          <para>This mode is restricted to two output surfaces. One output surface type can either
+            be SurfaceView or TextureView. Another output surface type can either be MediaCodec
+            or MediaRecorder. This mode cannot be used with a target FPS range higher than 30
+            FPS.</para>
+          <para>If the session configuration is not supported, the AE mode reported in the
+            CaptureResult will be 'ON' instead of 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY'.</para>
+          <para>When this AE mode is enabled, the CaptureResult field
+            <c>CaptureResult#CONTROL_LOW_LIGHT_BOOST_STATE android.control.lowLightBoostState</c> will be present and not null. Otherwise, the
+            <c>CaptureResult#CONTROL_LOW_LIGHT_BOOST_STATE android.control.lowLightBoostState</c> field will not be present in the CaptureResult.</para>
+          <para>The application can observe the CaptureResult field
+            <c>CaptureResult#CONTROL_LOW_LIGHT_BOOST_STATE android.control.lowLightBoostState</c> to determine when low light boost is 'ACTIVE' or
+            'INACTIVE'.</para>
+          <para>The low light boost is 'ACTIVE' once the scene lighting condition is less than the
+            upper bound lux value defined by <c>CameraCharacteristics#CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE android.control.lowLightBoostInfoLuminanceRange</c>.
+            This mode will be 'INACTIVE' once the scene lighting condition is greater than the
+            upper bound lux value defined by <c>CameraCharacteristics#CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE android.control.lowLightBoostInfoLuminanceRange</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ControlAfSceneChangeDetected">
       <MemberSignature Language="C#" Value="public const int ControlAfSceneChangeDetected = 1;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal int32 ControlAfSceneChangeDetected = (1)" />
@@ -1697,6 +1777,96 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_EXTENDED_SCENE_MODE_DISABLED" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraMetadata.CONTROL_EXTENDED_SCENE_MODE_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ControlLowLightBoostStateActive">
+      <MemberSignature Language="C#" Value="public const Android.Hardware.Camera2.ControlLowLightBoostState ControlLowLightBoostStateActive = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Hardware.Camera2.ControlLowLightBoostState ControlLowLightBoostStateActive = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Hardware.Camera2.CameraMetadata.ControlLowLightBoostStateActive" />
+      <MemberSignature Language="F#" Value="val mutable ControlLowLightBoostStateActive : Android.Hardware.Camera2.ControlLowLightBoostState" Usage="Android.Hardware.Camera2.CameraMetadata.ControlLowLightBoostStateActive" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Hardware.Camera2.ControlLowLightBoostState enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Hardware.Camera2.ControlLowLightBoostState enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Hardware.Camera2.ControlLowLightBoostState</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The AE mode 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY' is enabled and applied.</summary>
+        <remarks>
+          <para>The AE mode 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY' is enabled and applied.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraMetadata.CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ControlLowLightBoostStateInactive">
+      <MemberSignature Language="C#" Value="public const Android.Hardware.Camera2.ControlLowLightBoostState ControlLowLightBoostStateInactive = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Hardware.Camera2.ControlLowLightBoostState ControlLowLightBoostStateInactive = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.Hardware.Camera2.CameraMetadata.ControlLowLightBoostStateInactive" />
+      <MemberSignature Language="F#" Value="val mutable ControlLowLightBoostStateInactive : Android.Hardware.Camera2.ControlLowLightBoostState" Usage="Android.Hardware.Camera2.CameraMetadata.ControlLowLightBoostStateInactive" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CONTROL_LOW_LIGHT_BOOST_STATE_INACTIVE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTROL_LOW_LIGHT_BOOST_STATE_INACTIVE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Hardware.Camera2.ControlLowLightBoostState enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Hardware.Camera2.ControlLowLightBoostState enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Hardware.Camera2.ControlLowLightBoostState</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>The AE mode 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY' is enabled but not applied.</summary>
+        <remarks>
+          <para>The AE mode 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY' is enabled but not applied.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_LOW_LIGHT_BOOST_STATE_INACTIVE" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraMetadata.CONTROL_LOW_LIGHT_BOOST_STATE_INACTIVE</code>.</a>
             </format>
           </para>
           <para>
@@ -2484,7 +2654,7 @@
           <para>&lt;ul&gt;
             &lt;li&gt;Profile <c>android.hardware.camera2.params.DynamicRangeProfiles#HLG10 </c>&lt;/li&gt;
             &lt;li&gt;All mandatory stream combinations for this specific capability as per
-              documentation <c>android.hardware.camera2.CameraDevice#createCaptureSession </c>&lt;/li&gt;
+              <see href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#10-bit-output-additional-guaranteed-configurations">documentation</see>&lt;/li&gt;
             &lt;li&gt;In case the device is not able to capture some combination of supported
               standard 8-bit and/or 10-bit dynamic range profiles within the same capture request,
               then those constraints must be listed in
@@ -2729,9 +2899,10 @@
           <para>
             <c>android.hardware.camera2.CameraCharacteristics#SCALER_AVAILABLE_STREAM_USE_CASES </c>
             lists all of the supported stream use cases.</para>
-          <para>Refer to <c>android.hardware.camera2.CameraDevice#createCaptureSession </c> for the
-            mandatory stream combinations involving stream use cases, which can also be queried
-            via <c>android.hardware.camera2.params.MandatoryStreamCombination </c>.</para>
+          <para>Refer to the
+            <see href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#stream-use-case-capability-additional-guaranteed-configurations">guideline</see>
+            for the mandatory stream combinations involving stream use cases, which can also be
+            queried via <c>android.hardware.camera2.params.MandatoryStreamCombination </c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE</code>.</a>

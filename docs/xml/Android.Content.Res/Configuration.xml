@@ -32,6 +32,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/content/res/Configuration", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/content/res/Configuration", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>This class describes all device configuration information that can
@@ -883,7 +887,7 @@
       <ReturnValue>
         <ReturnType>Android.Content.PM.ConfigChanges</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
@@ -1117,9 +1121,8 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Generate a delta Configuration between <c>base</c> and <c>change</c>. The
-            resulting delta can be used with <c>#updateFrom(Configuration)</c>.
-            &lt;p /&gt;
-            Caveat: If the any of the Configuration's members becomes undefined, then
+            resulting delta can be used with <c>#updateFrom(Configuration)</c>.</para>
+          <para>Caveat: If the any of the Configuration's members becomes undefined, then
             <c>#updateFrom(Configuration)</c> will treat it as a no-op and not update that member.
             
             This is fine for device configurations as no member is ever undefined.</para>
@@ -1681,6 +1684,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -1857,6 +1864,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
@@ -2250,19 +2261,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The height of the available screen space in dp units excluding the area
-            occupied by <c>android.view.WindowInsets window insets</c>, such as the
-            status bar, navigation bar, and cutouts.</summary>
+        <summary>The height of the available screen space in dp units.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>The height of the available screen space in dp units excluding the area
-            occupied by <c>android.view.WindowInsets window insets</c>, such as the
-            status bar, navigation bar, and cutouts.
+          <para>The height of the available screen space in dp units.
             
-            "note"&gt;&lt;b&gt;Note:&lt;/b&gt; The height measurement excludes window
-            insets even when the app is displayed edge to edge using
-            &lt;c&gt;android.view.Window#setDecorFitsSystemWindows(boolean)
+            "note"&gt;&lt;b&gt;Note:&lt;/b&gt; If the app targets
+            &lt;c&gt;android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM&lt;/c&gt;
+            or after, the height measurement reflects the window size without excluding insets.
+            Otherwise, the measurement excludes window insets even when the app is displayed edge to edge
+            using &lt;c&gt;android.view.Window#setDecorFitsSystemWindows(boolean)
             Window#setDecorFitsSystemWindows(boolean)&lt;/c&gt;.&lt;/aside&gt;
+            
+            Use &lt;c&gt;android.view.WindowMetrics#getBounds()&lt;/c&gt; to always obtain the vertical
+            display area available to an app or embedded activity including the area
+            occupied by window insets. A version of the API is also available for use on older platforms
+            through &lt;c&gt;androidx.window.layout.WindowMetrics&lt;/c&gt;.
             
             </para>
           <para>Corresponds to the
@@ -2282,14 +2296,14 @@
             window insets. When the app is restricted to a single screen in a
             multiple-screen environment, <c>screenHeightDp</c> is the height of the
             screen on which the app is displayed excluding window insets.</para>
-          <para>Differs from <c>android.view.WindowMetrics</c> by not including
+          <para>If the app targets <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> or after,
+            it is the same as <c>android.view.WindowMetrics</c>, but is expressed rounded to the nearest
+            dp rather than px.</para>
+          <para>Otherwise, differs from <c>android.view.WindowMetrics</c> by not including
             window insets in the height measurement and by expressing the measurement
             in dp rather than px. Use <c>screenHeightDp</c> to obtain the height of
             the display area available to an app or embedded activity excluding the
-            area occupied by window insets. Use
-            <c>android.view.WindowMetrics#getBounds()</c> to obtain the vertical
-            display area available to an app or embedded activity including the area
-            occupied by window insets.</para>
+            area occupied by window insets.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/res/Configuration#screenHeightDp" title="Reference documentation">Java documentation for <code>android.content.res.Configuration.screenHeightDp</code>.</a>
@@ -2403,17 +2417,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The width of the available screen space in dp units excluding the area
-            occupied by <c>android.view.WindowInsets window insets</c>.</summary>
+        <summary>The width of the available screen space in dp units.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>The width of the available screen space in dp units excluding the area
-            occupied by <c>android.view.WindowInsets window insets</c>.
+          <para>The width of the available screen space in dp units.
             
-            "note"&gt;&lt;b&gt;Note:&lt;/b&gt; The width measurement excludes window
-            insets even when the app is displayed edge to edge using
-            &lt;c&gt;android.view.Window#setDecorFitsSystemWindows(boolean)
+            "note"&gt;&lt;b&gt;Note:&lt;/b&gt; If the app targets
+            &lt;c&gt;android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM&lt;/c&gt;
+            or after, The width measurement reflects the window size without excluding insets.
+            Otherwise, the measurement excludes window insets even when the app is displayed edge to edge
+            using &lt;c&gt;android.view.Window#setDecorFitsSystemWindows(boolean)
             Window#setDecorFitsSystemWindows(boolean)&lt;/c&gt;.&lt;/aside&gt;
+            
+            Use &lt;c&gt;android.view.WindowMetrics#getBounds()&lt;/c&gt; to always obtain the horizontal
+            display area available to an app or embedded activity including the area
+            occupied by window insets. A version of the API is also available for use on older platforms
+            through &lt;c&gt;androidx.window.layout.WindowMetrics&lt;/c&gt;.
             
             </para>
           <para>Corresponds to the
@@ -2433,14 +2452,14 @@
             the app is restricted to a single screen in a multiple-screen
             environment, <c>screenWidthDp</c> is the width of the screen on which
             the app is displayed excluding window insets.</para>
-          <para>Differs from <c>android.view.WindowMetrics</c> by not including
+          <para>If the app targets <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> or after,
+            it is the same as <c>android.view.WindowMetrics</c>, but is expressed rounded to the nearest
+            dp rather than px.</para>
+          <para>Otherwise, differs from <c>android.view.WindowMetrics</c> by not including
             window insets in the width measurement and by expressing the measurement
             in dp rather than px. Use <c>screenWidthDp</c> to obtain the width of
             the display area available to an app or embedded activity excluding the
-            area occupied by window insets. Use
-            <c>android.view.WindowMetrics#getBounds()</c> to obtain the horizontal
-            display area available to an app or embedded activity including the area
-            occupied by window insets.</para>
+            area occupied by window insets.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/res/Configuration#screenWidthDp" title="Reference documentation">Java documentation for <code>android.content.res.Configuration.screenWidthDp</code>.</a>
@@ -2810,6 +2829,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -3566,7 +3589,7 @@
       <ReturnValue>
         <ReturnType>Android.Content.PM.ConfigChanges</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-34.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>

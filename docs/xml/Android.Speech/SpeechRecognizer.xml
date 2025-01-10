@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/speech/SpeechRecognizer", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/speech/SpeechRecognizer", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="8">
     <summary>This class provides access to the speech recognition service.</summary>
@@ -25,6 +29,8 @@
             <c>SpeechRecognizer#createSpeechRecognizer(Context)</c>, or
             <c>SpeechRecognizer#createOnDeviceSpeechRecognizer(Context)</c>. This class's methods must be
             invoked only from the main application thread.</para>
+      <para>&lt;strong&gt;Important:&lt;/strong&gt; the caller MUST invoke <c>#destroy()</c> on a
+            SpeechRecognizer object when it is no longer needed.</para>
       <para>The implementation of this API is likely to stream audio to remote servers to perform speech
             recognition. As such this API is not intended to be used for continuous recognition, which would
             consume a significant amount of battery and bandwidth.</para>
@@ -178,8 +184,8 @@
       <Docs>
         <param name="executor">To be added.</param>
         <param name="recognizerIntent">contains parameters for the recognition to be performed. The intent
-                   may also contain optional extras. See <c>RecognizerIntent</c> for the list of
-                   supported extras, any unlisted extra might be ignored.</param>
+                                    may also contain optional extras. See <c>RecognizerIntent</c> for
+                                    the list of supported extras, any unlisted extra might be ignored.</param>
         <param name="supportListener">the listener on which to receive the support query results.</param>
         <summary>Checks whether <c>recognizerIntent</c> is supported by
             <c>SpeechRecognizer#startListening(Intent)</c>.</summary>
@@ -280,6 +286,8 @@
           <para>Please note that <c>#setRecognitionListener(RecognitionListener)</c> should be called
             before dispatching any command to the created <c>SpeechRecognizer</c>, otherwise no
             notifications will be received.</para>
+          <para>&lt;strong&gt;Important:&lt;/strong&gt; the caller MUST invoke <c>#destroy()</c> on a
+            SpeechRecognizer object when it is no longer needed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/speech/SpeechRecognizer#createOnDeviceSpeechRecognizer(android.content.Context)" title="Reference documentation">Java documentation for <code>android.speech.SpeechRecognizer.createOnDeviceSpeechRecognizer(android.content.Context)</code>.</a>
@@ -324,6 +332,8 @@
             <c>#setRecognitionListener(RecognitionListener)</c> should be called before dispatching any
             command to the created <c>SpeechRecognizer</c>, otherwise no notifications will be
             received.</para>
+          <para>&lt;strong&gt;Important:&lt;/strong&gt; the caller MUST invoke <c>#destroy()</c> on a
+            SpeechRecognizer object when it is no longer needed.</para>
           <para>For apps targeting Android 11 (API level 30) interaction with a speech recognition
             service requires &lt;queries&gt; element to be added to the manifest file:</para>
           <code lang="text/java">{@code
@@ -374,7 +384,7 @@
       <Docs>
         <param name="context">in which to create <c>SpeechRecognizer</c></param>
         <param name="serviceComponent">the <c>ComponentName</c> of a specific service to direct this
-                   <c>SpeechRecognizer</c> to</param>
+                                    <c>SpeechRecognizer</c> to</param>
         <summary>Factory method to create a new <c>SpeechRecognizer</c>.</summary>
         <returns>a new <c>SpeechRecognizer</c></returns>
         <remarks>
@@ -384,6 +394,8 @@
             received.
             Use this version of the method to specify a specific service to direct this
             <c>SpeechRecognizer</c> to.</para>
+          <para>&lt;strong&gt;Important:&lt;/strong&gt; the caller MUST invoke <c>#destroy()</c> on a
+            SpeechRecognizer object when it is no longer needed.</para>
           <para>&lt;strong&gt;Important&lt;/strong&gt;: before calling this method, please check via
             <c>android.content.pm.PackageManager#queryIntentServices(Intent, int)</c> that <c>serviceComponent</c> actually exists and provides
             <c>RecognitionService#SERVICE_INTERFACE</c>. Normally you would not use this; call
@@ -2037,7 +2049,7 @@
       </Parameters>
       <Docs>
         <param name="listener">listener that will receive all the callbacks from the created
-                   <c>SpeechRecognizer</c>, this must not be null.</param>
+                            <c>SpeechRecognizer</c>, this must not be null.</param>
         <summary>Sets the listener that will receive all the callbacks.</summary>
         <remarks>
           <para>Sets the listener that will receive all the callbacks. The previous unfinished commands will
@@ -2081,8 +2093,9 @@
       </Parameters>
       <Docs>
         <param name="recognizerIntent">contains parameters for the recognition to be performed. The intent
-                   may also contain optional extras, see <c>RecognizerIntent</c>. If these values are
-                   not set explicitly, default values will be used by the recognizer.</param>
+                                    may also contain optional extras, see <c>RecognizerIntent</c>. If
+                                    these values are not set explicitly, default values will be used by
+                                    the recognizer.</param>
         <summary>Starts listening for speech.</summary>
         <remarks>
           <para>Starts listening for speech. Please note that
@@ -2290,7 +2303,7 @@
       </Parameters>
       <Docs>
         <param name="recognizerIntent">contains parameters for the recognition to be performed. The intent
-                   may also contain optional extras, see <c>RecognizerIntent</c>.</param>
+                                    may also contain optional extras, see <c>RecognizerIntent</c>.</param>
         <summary>Attempts to download the support for the given <c>recognizerIntent</c>.</summary>
         <remarks>
           <para>Attempts to download the support for the given <c>recognizerIntent</c>. This might trigger
@@ -2339,7 +2352,7 @@
       </Parameters>
       <Docs>
         <param name="recognizerIntent">contains parameters for the recognition to be performed. The intent
-                   may also contain optional extras, see <c>RecognizerIntent</c>.</param>
+                                    may also contain optional extras, see <c>RecognizerIntent</c>.</param>
         <param name="executor">for dispatching listener callbacks</param>
         <param name="listener">on which to receive updates about the model download request.</param>
         <summary>Attempts to download the support for the given <c>recognizerIntent</c>.</summary>

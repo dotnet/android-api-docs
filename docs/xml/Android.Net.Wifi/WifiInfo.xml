@@ -32,17 +32,38 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/wifi/WifiInfo", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/WifiInfo", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>Describes the state of any Wifi connection that is active or
- is in the process of being set up.</summary>
+    <summary>Describes the state of any Wi-Fi connection that is active or
+            is in the process of being set up.</summary>
     <remarks>
+      <para>Describes the state of any Wi-Fi connection that is active or
+            is in the process of being set up.
+            
+            In the connected state, access to location sensitive fields requires
+            the same permissions as <c>WifiManager#getScanResults</c>. If such access is not allowed,
+            <c>#getSSID</c> will return <c>WifiManager#UNKNOWN_SSID</c> and
+            <c>#getBSSID</c> will return <c>"02:00:00:00:00:00"</c>.
+            <c>#getApMldMacAddress()</c> will return null.
+            <c>#getNetworkId()</c> will return <c>-1</c>.
+            <c>#getPasspointFqdn()</c> will return null.
+            <c>#getPasspointProviderFriendlyName()</c> will return null.
+            <c>#getInformationElements()</c> will return null.
+            <c>#getMacAddress()</c> will return <c>"02:00:00:00:00:00"</c>.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
     <since version="Added in API level 1" />
   </Docs>
@@ -82,6 +103,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
         </Attribute>
@@ -94,9 +119,27 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.Net.Wifi.MloLink&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the Multi-Link Operation (MLO) affiliated Links for Wi-Fi 7 access points.</summary>
+        <value>List of affiliated MLO links, or an empty list if access point is not Wi-Fi 7</value>
+        <remarks>
+          <para>Return the Multi-Link Operation (MLO) affiliated Links for Wi-Fi 7 access points.
+            i.e. when <c>#getWifiStandard()</c> returns <c>ScanResult#WIFI_STANDARD_11BE</c>.
+            
+            Affiliated links are the links supported by the Access Point Multi Link Device (AP MLD). The
+            Station Multi Link Device (STA MLD) gathers affiliated link information from scan results.
+            Depending on Station's capability, it associates to all or a subset of affiliated links.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt;<c>#getAssociatedMloLinks()</c> returns associated links.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getAffiliatedMloLinks()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getAffiliatedMloLinks()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ApMldMacAddress">
@@ -123,9 +166,26 @@
         <ReturnType>Android.Net.MacAddress</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the Multi-Link Device (MLD) MAC Address for the connected access point.</summary>
+        <value>the MLD Mac address</value>
+        <remarks>
+          <para>Return the Multi-Link Device (MLD) MAC Address for the connected access point.</para>
+          <para>The returned MLD MAC Address will be <c>null</c> in the following cases:
+            &lt;lt&gt;There is no network currently connected&lt;/lt&gt;
+            &lt;lt&gt;The connected access point is not an MLD access point,
+            i.e. <c>#getWifiStandard()</c> returns <c>ScanResult#WIFI_STANDARD_11BE</c>.&lt;/lt&gt;
+            &lt;lt&gt;The caller has insufficient permissions to access the access point MLD MAC Address.&lt;lt&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getApMldMacAddress()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getApMldMacAddress()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ApMloLinkId">
@@ -152,9 +212,26 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the access point Multi-Link Operation (MLO) link-id for Wi-Fi 7 access points.</summary>
+        <value>
+          <c>MloLink#INVALID_MLO_LINK_ID</c> or a valid value (0-15).</value>
+        <remarks>
+          <para>Return the access point Multi-Link Operation (MLO) link-id for Wi-Fi 7 access points.
+            i.e. <c>#getWifiStandard()</c> returns <c>ScanResult#WIFI_STANDARD_11BE</c>,
+            otherwise return <c>MloLink#INVALID_MLO_LINK_ID</c>.
+            
+            Valid values are 0-15 as described in IEEE 802.11be Specification, section 9.4.2.295b.2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getApMloLinkId()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getApMloLinkId()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ApplicableRedactions">
@@ -181,9 +258,23 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns a bitmask of all the applicable redactions (based on the permissions held by the
+            receiving app) to be performed on this TransportInfo.</summary>
+        <value>bitmask of redactions applicable on this instance.</value>
+        <remarks>
+          <para>Returns a bitmask of all the applicable redactions (based on the permissions held by the
+            receiving app) to be performed on this TransportInfo.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getApplicableRedactions()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getApplicableRedactions()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AssociatedMloLinks">
@@ -198,6 +289,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -210,9 +305,28 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.Net.Wifi.MloLink&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Return the associated Multi-Link Operation (MLO) Links for Wi-Fi 7 access points.</summary>
+        <value>List of associated MLO links, or an empty list if access point is not a multi-link
+            device.</value>
+        <remarks>
+          <para>Return the associated Multi-Link Operation (MLO) Links for Wi-Fi 7 access points.
+            i.e. when <c>#getWifiStandard()</c> returns <c>ScanResult#WIFI_STANDARD_11BE</c>.
+            
+            Affiliated links are the links supported by the Access Point Multi Link Device (AP MLD). The
+            Station Multi Link Device (STA MLD) gathers affiliated link information from scan results.
+            Depending on Station's capability, it associates to all or a subset of affiliated links.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt;<c>#getAffiliatedMloLinks()</c> returns affiliated links.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getAssociatedMloLinks()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getAssociatedMloLinks()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="BSSID">
@@ -236,9 +350,25 @@
       </ReturnValue>
       <Docs>
         <summary>Return the basic service set identifier (BSSID) of the current access point.</summary>
-        <value>To be added.</value>
+        <value>the BSSID, in the form of a six-byte MAC address: <c>XX:XX:XX:XX:XX:XX</c></value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the basic service set identifier (BSSID) of the current access point. In case of
+            Multi Link Operation (MLO), the BSSID corresponds to the BSSID of the link used for
+            association.</para>
+          <para>The BSSID may be
+            &lt;lt&gt;<c>null</c>, if there is no network currently connected.&lt;/lt&gt;
+            &lt;lt&gt;<c>"02:00:00:00:00:00"</c>, if the caller has insufficient permissions to access the
+            BSSID.&lt;lt&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getBSSID()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getBSSID()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -267,9 +397,21 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the security type of the current 802.</summary>
+        <value>the security type, or <c>#SECURITY_TYPE_UNKNOWN</c> if not currently connected.</value>
+        <remarks>
+          <para>Returns the security type of the current 802.11 network connection.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getCurrentSecurityType()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getCurrentSecurityType()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -296,10 +438,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Implement the Parcelable interface {</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Implement the Parcelable interface {</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#describeContents()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.describeContents()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -323,10 +475,21 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the current frequency in <see cref="F:Android.Net.Wifi.WifiInfo.FrequencyUnits" />.</summary>
-        <value>To be added.</value>
+        <summary>Returns the current frequency in <c>#FREQUENCY_UNITS</c>.</summary>
+        <value>the frequency.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the current frequency in <c>#FREQUENCY_UNITS</c>. In case of Multi Link Operation
+            (MLO), returned value is the frequency of the associated link with the highest RSSI.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getFrequency()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getFrequency()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <altmember cref="F:Android.Net.Wifi.WifiInfo.FrequencyUnits" />
       </Docs>
@@ -350,15 +513,28 @@
           <AttributeName Language="C#">[Android.Runtime.Register("FREQUENCY_UNITS")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("FREQUENCY_UNITS")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Frequency in MHz
-</summary>
+        <summary>Frequency in MHz</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Frequency in MHz</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#FREQUENCY_UNITS" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.FREQUENCY_UNITS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -416,9 +592,20 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>
+          <c>true</c> if this network does not broadcast its SSID, so an
+            SSID-specific probe request must be used for scans.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getHiddenSSID()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getHiddenSSID()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -435,6 +622,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
         </Attribute>
@@ -447,9 +638,23 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.Net.Wifi.ScanResult+InformationElement&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Get all information elements found in the beacon of the connected bssid.</summary>
+        <value>List of information elements <c>ScanResult.InformationElement</c> or null.</value>
+        <remarks>
+          <para>Get all information elements found in the beacon of the connected bssid.</para>
+          <para>The information elements will be <c>null</c> if there is no network currently connected or
+            if the caller has insufficient permissions to access the info elements.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getInformationElements()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getInformationElements()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IpAddress">
@@ -476,11 +681,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>This member is deprecated.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is deprecated. Use the methods on <c>android.net.LinkProperties</c> which can be obtained
+            either via <c>NetworkCallback#onLinkPropertiesChanged(Network, LinkProperties)</c> or
+            <c>ConnectivityManager#getLinkProperties(Network)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getIpAddress()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getIpAddress()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -509,9 +725,23 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns true if the current Wifi network is a restricted network, false otherwise.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns true if the current Wifi network is a restricted network, false otherwise.
+            A restricted network has its <c>NetworkCapabilities#NET_CAPABILITY_NOT_RESTRICTED</c>
+            capability removed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#isRestricted()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.isRestricted()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -535,6 +765,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -568,10 +802,21 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the current link speed in <see cref="F:Android.Net.Wifi.WifiInfo.LinkSpeedUnits" />.</summary>
-        <value>To be added.</value>
+        <summary>Returns the current link speed in <c>#LINK_SPEED_UNITS</c>.</summary>
+        <value>the link speed or <c>#LINK_SPEED_UNKNOWN</c> if link speed is unknown.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the current link speed in <c>#LINK_SPEED_UNITS</c>. In case of Multi Link Operation
+            (MLO), returned value is the current link speed of the associated link with the highest RSSI.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getLinkSpeed()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getLinkSpeed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
         <altmember cref="F:Android.Net.Wifi.WifiInfo.LinkSpeedUnits" />
@@ -595,15 +840,28 @@
           <AttributeName Language="C#">[Android.Runtime.Register("LINK_SPEED_UNITS")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("LINK_SPEED_UNITS")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Link speed in Mbps
-</summary>
+        <summary>The unit in which links speeds are expressed.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The unit in which links speeds are expressed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#LINK_SPEED_UNITS" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.LINK_SPEED_UNITS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -636,8 +894,20 @@
       </ReturnValue>
       <MemberValue>-1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Constant for unknown link speed.</summary>
+        <remarks>
+          <para>Constant for unknown link speed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#LINK_SPEED_UNKNOWN" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.LINK_SPEED_UNKNOWN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MacAddress">
@@ -660,11 +930,25 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
-        <value>To be added.</value>
+        <summary>Returns the MAC address used for this connection.</summary>
+        <value>MAC address of the connection or <c>"02:00:00:00:00:00"</c> if the caller has
+            insufficient permission.
+            
+            Requires <c>android.Manifest.permission#LOCAL_MAC_ADDRESS</c> and
+            <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the MAC address used for this connection. In case of Multi Link Operation (MLO),
+            returned value is the Station MLD MAC address.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getMacAddress()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getMacAddress()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -696,10 +980,24 @@
         <Parameter Name="redactions" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="redactions">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="redactions">bitmask of redactions that needs to be performed on this instance.</param>
+        <summary>Create a copy of a <c>WifiInfo</c> with some fields redacted based on the permissions
+            held by the receiving app.</summary>
+        <returns>Copy of this instance with the necessary redactions.</returns>
+        <remarks>
+          <para>Create a copy of a <c>WifiInfo</c> with some fields redacted based on the permissions
+            held by the receiving app.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#makeCopy(long)" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.makeCopy(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxSupportedRxLinkSpeedMbps">
@@ -726,9 +1024,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the maximum supported receive link speed in Mbps</summary>
+        <value>the max supported Rx link speed or <c>#LINK_SPEED_UNKNOWN</c> if link speed is
+            unknown.</value>
+        <remarks>
+          <para>Returns the maximum supported receive link speed in Mbps</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getMaxSupportedRxLinkSpeedMbps()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getMaxSupportedRxLinkSpeedMbps()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxSupportedTxLinkSpeedMbps">
@@ -755,9 +1066,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the maximum supported transmit link speed in Mbps</summary>
+        <value>the max supported tx link speed or <c>#LINK_SPEED_UNKNOWN</c> if link speed is
+            unknown.</value>
+        <remarks>
+          <para>Returns the maximum supported transmit link speed in Mbps</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getMaxSupportedTxLinkSpeedMbps()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getMaxSupportedTxLinkSpeedMbps()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="NetworkId">
@@ -781,10 +1105,23 @@
       </ReturnValue>
       <Docs>
         <summary>Each configured network has a unique small integer ID, used to identify
- the network when performing operations on the supplicant.</summary>
-        <value>To be added.</value>
+            the network.</summary>
+        <value>the network ID.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Each configured network has a unique small integer ID, used to identify
+            the network. This method returns the ID for the currently connected network.</para>
+          <para>The networkId may be <c>-1</c> if there is no currently connected network or if the caller
+            has insufficient permissions to access the network ID.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getNetworkId()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getNetworkId()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -813,9 +1150,24 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the Fully Qualified Domain Name of the network if it is a Passpoint network.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the Fully Qualified Domain Name of the network if it is a Passpoint network.</para>
+          <para>The FQDN may be
+            &lt;lt&gt;<c>null</c> if no network currently connected, currently connected network is not
+            passpoint network or the caller has insufficient permissions to access the FQDN.&lt;/lt&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getPasspointFqdn()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getPasspointFqdn()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PasspointProviderFriendlyName">
@@ -842,9 +1194,66 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the Provider Friendly Name of the network if it is a Passpoint network.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the Provider Friendly Name of the network if it is a Passpoint network.</para>
+          <para>The Provider Friendly Name may be
+            &lt;lt&gt;<c>null</c> if no network currently connected, currently connected network is not
+            passpoint network or the caller has insufficient permissions to access the Provider Friendly
+            Name. &lt;/lt&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getPasspointProviderFriendlyName()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getPasspointProviderFriendlyName()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PasspointUniqueId">
+      <MemberSignature Language="C#" Value="public virtual string? PasspointUniqueId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string PasspointUniqueId" />
+      <MemberSignature Language="DocId" Value="P:Android.Net.Wifi.WifiInfo.PasspointUniqueId" />
+      <MemberSignature Language="F#" Value="member this.PasspointUniqueId : string" Usage="Android.Net.Wifi.WifiInfo.PasspointUniqueId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getPasspointUniqueId", "()Ljava/lang/String;", "GetGetPasspointUniqueIdHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getPasspointUniqueId", "()Ljava/lang/String;", "GetGetPasspointUniqueIdHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Get the Passpoint unique identifier for the current connection</summary>
+        <value>Passpoint unique identifier, or null if this connection is not Passpoint.</value>
+        <remarks>
+          <para>Get the Passpoint unique identifier for the current connection</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getPasspointUniqueId()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getPasspointUniqueId()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Rssi">
@@ -867,11 +1276,23 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the received signal strength indicator of the current 802.11
- network, in dBm.</summary>
-        <value>To be added.</value>
+        <summary>Returns the received signal strength indicator of the current 802.</summary>
+        <value>the RSSI.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the received signal strength indicator of the current 802.11 network, in dBm. In
+            case of Multi Link Operation (MLO), returned RSSI is the highest of all associated links.</para>
+          <para>Use <c>android.net.wifi.WifiManager#calculateSignalLevel</c> to convert this number into
+            an absolute signal level which can be displayed to a user.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getRssi()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getRssi()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -900,9 +1321,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the current receive link speed in Mbps.</summary>
+        <value>the Rx link speed or <c>#LINK_SPEED_UNKNOWN</c> if link speed is unknown.</value>
+        <remarks>
+          <para>Returns the current receive link speed in Mbps. In case of Multi Link Operation (MLO),
+            returned value is the receive link speed of the associated link with the highest RSSI.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getRxLinkSpeedMbps()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getRxLinkSpeedMbps()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeDpp">
@@ -937,8 +1371,20 @@
       </ReturnValue>
       <MemberValue>13</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for Easy Connect (DPP) network</summary>
+        <remarks>
+          <para>Security type for Easy Connect (DPP) network</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_DPP" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_DPP</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeEap">
@@ -973,8 +1419,20 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for an EAP network.</summary>
+        <remarks>
+          <para>Security type for an EAP network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_EAP" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_EAP</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeEapWpa3Enterprise">
@@ -1009,8 +1467,20 @@
       </ReturnValue>
       <MemberValue>9</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a WPA3-Enterprise network.</summary>
+        <remarks>
+          <para>Security type for a WPA3-Enterprise network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_EAP_WPA3_ENTERPRISE" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_EAP_WPA3_ENTERPRISE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeEapWpa3Enterprise192Bit">
@@ -1045,8 +1515,20 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a WPA3-Enterprise in 192-bit security network.</summary>
+        <remarks>
+          <para>Security type for a WPA3-Enterprise in 192-bit security network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_EAP_WPA3_ENTERPRISE_192_BIT" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_EAP_WPA3_ENTERPRISE_192_BIT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeOpen">
@@ -1081,8 +1563,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for an open network.</summary>
+        <remarks>
+          <para>Security type for an open network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_OPEN" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_OPEN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeOsen">
@@ -1117,8 +1611,20 @@
       </ReturnValue>
       <MemberValue>10</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for an OSEN network.</summary>
+        <remarks>
+          <para>Security type for an OSEN network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_OSEN" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_OSEN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeOwe">
@@ -1153,8 +1659,20 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for an OWE network.</summary>
+        <remarks>
+          <para>Security type for an OWE network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_OWE" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_OWE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypePasspointR1R2">
@@ -1189,8 +1707,20 @@
       </ReturnValue>
       <MemberValue>11</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a Passpoint R1/R2 network, where TKIP and WEP are not allowed.</summary>
+        <remarks>
+          <para>Security type for a Passpoint R1/R2 network, where TKIP and WEP are not allowed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_PASSPOINT_R1_R2" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_PASSPOINT_R1_R2</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypePasspointR3">
@@ -1225,8 +1755,22 @@
       </ReturnValue>
       <MemberValue>12</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a Passpoint R3 network, where TKIP and WEP are not allowed,
+            and PMF must be set to Required.</summary>
+        <remarks>
+          <para>Security type for a Passpoint R3 network, where TKIP and WEP are not allowed,
+            and PMF must be set to Required.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_PASSPOINT_R3" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_PASSPOINT_R3</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypePsk">
@@ -1261,8 +1805,20 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a PSK network.</summary>
+        <remarks>
+          <para>Security type for a PSK network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_PSK" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_PSK</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeSae">
@@ -1297,8 +1853,20 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for an SAE network.</summary>
+        <remarks>
+          <para>Security type for an SAE network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_SAE" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_SAE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeUnknown">
@@ -1333,8 +1901,20 @@
       </ReturnValue>
       <MemberValue>-1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Unknown security type.</summary>
+        <remarks>
+          <para>Unknown security type.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_UNKNOWN" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_UNKNOWN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeWapiCert">
@@ -1369,8 +1949,20 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a WAPI Certificate network.</summary>
+        <remarks>
+          <para>Security type for a WAPI Certificate network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_WAPI_CERT" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_WAPI_CERT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeWapiPsk">
@@ -1405,8 +1997,20 @@
       </ReturnValue>
       <MemberValue>7</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a WAPI PSK network.</summary>
+        <remarks>
+          <para>Security type for a WAPI PSK network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_WAPI_PSK" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_WAPI_PSK</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SecurityTypeWep">
@@ -1441,8 +2045,20 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Security type for a WEP network.</summary>
+        <remarks>
+          <para>Security type for a WEP network.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#SECURITY_TYPE_WEP" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.SECURITY_TYPE_WEP</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SSID">
@@ -1465,10 +2081,26 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the service set identifier (SSID) of the current 802.11 network.</summary>
-        <value>To be added.</value>
+        <summary>Returns the service set identifier (SSID) of the current 802.</summary>
+        <value>the SSID.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the service set identifier (SSID) of the current 802.11 network.</para>
+          <para>If the SSID can be decoded as UTF-8, it will be returned surrounded by double
+            quotation marks. Otherwise, it is returned as a string of hex digits.
+            The SSID may be <c>WifiManager#UNKNOWN_SSID</c>, if there is no network currently connected
+            or if the caller has insufficient permissions to access the SSID.</para>
+          <para>Prior to <c>android.os.Build.VERSION_CODES#JELLY_BEAN_MR1</c>, this method
+            always returned the SSID with no quotes around it.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getSSID()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getSSID()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -1497,9 +2129,24 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>If this network is provisioned by a carrier, returns subscription Id corresponding to the
+            associated SIM on the device.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>If this network is provisioned by a carrier, returns subscription Id corresponding to the
+            associated SIM on the device. If this network is not provisioned by a carrier, returns
+            <c>android.telephony.SubscriptionManager#INVALID_SUBSCRIPTION_ID</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getSubscriptionId()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getSubscriptionId()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SupplicantState">
@@ -1523,10 +2170,21 @@
       </ReturnValue>
       <Docs>
         <summary>Return the detailed state of the supplicant's negotiation with an
- access point, in the form of a <see cref="T:Android.Net.Wifi.SupplicantState" /> object.</summary>
-        <value>To be added.</value>
+            access point, in the form of a <c>SupplicantState SupplicantState</c> object.</summary>
+        <value>the current <c>SupplicantState SupplicantState</c></value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the detailed state of the supplicant's negotiation with an
+            access point, in the form of a <c>SupplicantState SupplicantState</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getSupplicantState()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getSupplicantState()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -1581,6 +2239,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -1617,9 +2279,23 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the current transmit link speed in Mbps.</summary>
+        <value>the Tx link speed or <c>#LINK_SPEED_UNKNOWN</c> if link speed is unknown.</value>
+        <remarks>
+          <para>Returns the current transmit link speed in Mbps. In case of Multi Link Operation (MLO),
+            returned value is the current transmit link speed of the associated link with the highest
+            RSSI.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getTxLinkSpeedMbps()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getTxLinkSpeedMbps()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WifiStandard">
@@ -1646,9 +2322,21 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Get connection Wi-Fi standard</summary>
+        <value>the connection Wi-Fi standard</value>
+        <remarks>
+          <para>Get connection Wi-Fi standard</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#getWifiStandard()" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.getWifiStandard()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
@@ -1687,9 +2375,19 @@
       <Docs>
         <param name="dest">To be added.</param>
         <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implement the Parcelable interface {</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Implement the Parcelable interface {</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/WifiInfo#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Java documentation for <code>android.net.wifi.WifiInfo.writeToParcel(android.os.Parcel, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

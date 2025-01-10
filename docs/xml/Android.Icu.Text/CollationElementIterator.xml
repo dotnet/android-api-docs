@@ -17,19 +17,96 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/CollationElementIterator", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>CollationElementIterator</c> is an iterator created by
+            a RuleBasedCollator to walk through a string.</summary>
     <remarks>
       <para>
+        <c>CollationElementIterator</c> is an iterator created by
+            a RuleBasedCollator to walk through a string. The return result of
+            each iteration is a 32-bit collation element (CE) that defines the
+            ordering priority of the next character or sequence of characters
+            in the source string.</para>
+      <para>For illustration, consider the following in Slovak and in traditional Spanish collation:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">"ca" -&amp;gt; the first collation element is CE('c') and the second
+                    collation element is CE('a').
+            "cha" -&amp;gt; the first collation element is CE('ch') and the second
+                     collation element is CE('a').
+            </code>
+      <para>&lt;/blockquote&gt;
+            And in German phonebook collation,
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">Since the character '&amp;#230;' is a composed character of 'a' and 'e', the
+            iterator returns two collation elements for the single character '&amp;#230;'
+            
+            "&amp;#230;b" -&amp;gt; the first collation element is collation_element('a'), the
+                         second collation element is collation_element('e'), and the
+                         third collation element is collation_element('b').
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>For collation ordering comparison, the collation element results
+            can not be compared simply by using basic arithmetic operators,
+            e.g. &amp;lt;, == or &amp;gt;, further processing has to be done. Details
+            can be found in the ICU
+            <see href="https://unicode-org.github.io/icu/userguide/collation/architecture">
+            User Guide</see>. An example of using the CollationElementIterator
+            for collation ordering comparison is the class
+            <c>android.icu.text.StringSearch</c>.</para>
+      <para>To construct a CollationElementIterator object, users
+            call the method getCollationElementIterator() on a
+            RuleBasedCollator that defines the desired sorting order.</para>
+      <para>Example:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">String testString = "This is a test";
+             RuleBasedCollator rbc = new RuleBasedCollator("&amp;amp;a&amp;lt;b");
+             CollationElementIterator iterator = rbc.getCollationElementIterator(testString);
+             int primaryOrder = iterator.IGNORABLE;
+             while (primaryOrder != iterator.NULLORDER) {
+                 int order = iterator.next();
+                 if (order != iterator.IGNORABLE &amp;amp;&amp;amp;
+                     order != iterator.NULLORDER) {
+                     // order is valid, not ignorable and we have not passed the end
+                     // of the iteration, we do something
+                     primaryOrder = CollationElementIterator.primaryOrder(order);
+                     System.out.println("Next primary order 0x" +
+                                        Integer.toHexString(primaryOrder));
+                 }
+             }
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>The method next() returns the collation order of the next character based on
+            the comparison level of the collator. The method previous() returns the
+            collation order of the previous character based on the comparison level of
+            the collator. The Collation Element Iterator moves only in one direction
+            between calls to reset(), setOffset(), or setText(). That is, next() and
+            previous() can not be inter-used. Whenever previous() is to be called after
+            next() or vice versa, reset(), setOffset() or setText() has to be called first
+            to reset the status, shifting current position to either the end or the start of
+            the string (reset() or setText()), or the specified position (setOffset()).
+            Hence at the next call of next() or previous(), the first or last collation order,
+            or collation order at the specified position will be returned. If a change of
+            direction is done without one of these calls, the result is undefined.</para>
+      <para>This class is not subclassable.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -60,11 +137,25 @@
         <Parameter Name="ce" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ce">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ce">a collation element returned by previous() or next().</param>
+        <summary>Returns the maximum length of any expansion sequence that ends with
+            the specified collation element.</summary>
+        <returns>the maximum length of any expansion sequence ending
+                    with the specified collation element.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the maximum length of any expansion sequence that ends with
+            the specified collation element. If there is no expansion with this
+            collation element as the last element, returns 1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#getMaxExpansion(int)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.getMaxExpansion(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -93,9 +184,24 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>This constant is returned by the iterator in the methods
+            next() and previous() when a collation element result is to be
+            ignored.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This constant is returned by the iterator in the methods
+            next() and previous() when a collation element result is to be
+            ignored.</para>
+          <para>See class documentation for an example of use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#IGNORABLE" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.IGNORABLE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -155,10 +261,30 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Get the next collation element in the source string.</summary>
+        <returns>the next collation element or NULLORDER if the end of the
+                    iteration has been reached.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the next collation element in the source string.</para>
+          <para>This iterator iterates over a sequence of collation elements
+            that were built from the string. Because there isn't
+            necessarily a one-to-one mapping from characters to collation
+            elements, this doesn't mean the same thing as "return the
+            collation element [or ordering priority] of the next character
+            in the string".</para>
+          <para>This function returns the collation element that the
+            iterator is currently pointing to, and then updates the
+            internal pointer to point to the next element.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#next()" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.next()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -187,9 +313,26 @@
       </ReturnValue>
       <MemberValue>-1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>This constant is returned by the iterator in the methods
+            next() and previous() when the end or the beginning of the
+            source string has been reached, and there are no more valid
+            collation elements to return.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This constant is returned by the iterator in the methods
+            next() and previous() when the end or the beginning of the
+            source string has been reached, and there are no more valid
+            collation elements to return.</para>
+          <para>See class documentation for an example of use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#NULLORDER" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.NULLORDER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -225,10 +368,66 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="newOffset">the character offset into the original source string to
+                   set. Note that this is not an offset into the corresponding
+                   sequence of collation elements.</param>
+        <summary>Returns the character offset in the source string
+            corresponding to the next collation element. -or- Sets the iterator to point to the collation element
+            corresponding to the character at the specified offset.</summary>
+        <value>The character offset in the source string corresponding to the
+                    collation element that will be returned by the next call to
+                    next() or previous().</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the character offset in the source string
+            corresponding to the next collation element. I.e., getOffset()
+            returns the position in the source string corresponding to the
+            collation element that will be returned by the next call to
+            next() or previous(). This value could be any of:
+            &lt;ul&gt;
+            &lt;li&gt; The index of the &lt;b&gt;first&lt;/b&gt; character corresponding to
+            the next collation element. (This means that if
+            <c>setOffset(offset)</c> sets the index in the middle of
+            a contraction, <c>getOffset()</c> returns the index of
+            the first character in the contraction, which may not be equal
+            to the original offset that was set. Hence calling getOffset()
+            immediately after setOffset(offset) does not guarantee that the
+            original offset set will be returned.)
+            &lt;li&gt; If normalization is on, the index of the &lt;b&gt;immediate&lt;/b&gt;
+            subsequent character, or composite character with the first
+            character, having a combining class of 0.
+            &lt;li&gt; The length of the source string, if iteration has reached
+            the end.
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#getOffset()" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.getOffset()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the iterator to point to the collation element
+            corresponding to the character at the specified offset. The
+            value returned by the next call to next() will be the collation
+            element corresponding to the characters at offset.</para>
+          <para>If offset is in the middle of a contracting character
+            sequence, the iterator is adjusted to the start of the
+            contracting sequence. This means that getOffset() is not
+            guaranteed to return the same value set by this method.</para>
+          <para>If the decomposition mode is on, and offset is in the middle
+            of a decomposible range of source text, the iterator may not
+            return a correct result for the next forwards or backwards
+            iteration.  The user must ensure that the offset is not in the
+            middle of a decomposible range.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#setOffset(int)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.setOffset(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -257,10 +456,31 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Get the previous collation element in the source string.</summary>
+        <returns>the previous collation element, or NULLORDER when the start of
+                        the iteration has been reached.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the previous collation element in the source string.</para>
+          <para>This iterator iterates over a sequence of collation elements
+            that were built from the string. Because there isn't
+            necessarily a one-to-one mapping from characters to collation
+            elements, this doesn't mean the same thing as "return the
+            collation element [or ordering priority] of the previous
+            character in the string".</para>
+          <para>This function updates the iterator's internal pointer to
+            point to the collation element preceding the one it's currently
+            pointing to and then returns that element, while next() returns
+            the current element and then updates the pointer.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#previous()" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.previous()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -291,11 +511,23 @@
         <Parameter Name="ce" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ce">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ce">the collation element</param>
+        <summary>Return the primary order of the specified collation element,
+            i.</summary>
+        <returns>the element's 16 bits primary order.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the primary order of the specified collation element,
+            i.e. the first 16 bits.  This value is unsigned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#primaryOrder(int)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.primaryOrder(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -324,9 +556,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Resets the cursor to the beginning of the string.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Resets the cursor to the beginning of the string. The next
+            call to next() or previous() will return the first and last
+            collation element in the string, respectively.</para>
+          <para>If the RuleBasedCollator used by this iterator has had its
+            attributes changed, calling reset() will reinitialize the
+            iterator to use the new attributes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#reset()" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.reset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -357,11 +604,23 @@
         <Parameter Name="ce" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ce">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ce">the collation element</param>
+        <summary>Return the secondary order of the specified collation element,
+            i.</summary>
+        <returns>the element's 8 bits secondary order</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the secondary order of the specified collation element,
+            i.e. the 16th to 23th bits, inclusive.  This value is unsigned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#secondaryOrder(int)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.secondaryOrder(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -392,10 +651,24 @@
         <Parameter Name="source" Type="Android.Icu.Text.UCharacterIterator" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="source">the new source string iterator for iteration.</param>
+        <summary>Set a new source string iterator for iteration, and reset the
+            offset to the beginning of the text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set a new source string iterator for iteration, and reset the
+            offset to the beginning of the text.</para>
+          <para>The source iterator's integrity will be preserved since a new copy
+            will be created for use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#setText(android.icu.text.UCharacterIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.setText(android.icu.text.UCharacterIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -426,10 +699,22 @@
         <Parameter Name="source" Type="Java.Text.ICharacterIterator" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="source">the new source string iterator for iteration.</param>
+        <summary>Set a new source string iterator for iteration, and reset the
+            offset to the beginning of the text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set a new source string iterator for iteration, and reset the
+            offset to the beginning of the text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#setText(java.text.CharacterIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.setText(java.text.CharacterIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -460,10 +745,22 @@
         <Parameter Name="source" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="source">the new source string for iteration.</param>
+        <summary>Set a new source string for iteration, and reset the offset
+            to the beginning of the text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set a new source string for iteration, and reset the offset
+            to the beginning of the text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#setText(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.setText(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -494,11 +791,22 @@
         <Parameter Name="ce" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ce">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ce">the collation element</param>
+        <summary>Return the tertiary order of the specified collation element, i.</summary>
+        <returns>the element's 8 bits tertiary order</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the tertiary order of the specified collation element, i.e. the last
+            8 bits.  This value is unsigned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/CollationElementIterator#tertiaryOrder(int)" title="Reference documentation">Java documentation for <code>android.icu.text.CollationElementIterator.tertiaryOrder(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

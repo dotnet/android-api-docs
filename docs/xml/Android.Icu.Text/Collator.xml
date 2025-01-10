@@ -36,19 +36,116 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/Collator", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.Collator</c>.</summary>
     <remarks>
+      <para>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.Collator</c>.&amp;nbsp;Methods, fields, and other functionality specific to ICU are labeled '&lt;strong&gt;[icu]&lt;/strong&gt;'.</para>
+      <para>Collator performs locale-sensitive string comparison. A concrete
+            subclass, RuleBasedCollator, allows customization of the collation
+            ordering by the use of rule sets.</para>
+      <para>A Collator is thread-safe only when frozen. See <c>#isFrozen()</c> and <c>Freezable</c>.</para>
+      <para>Following the <see href="http://www.unicode.org">Unicode
+            Consortium</see>'s specifications for the
+            <see href="https://www.unicode.org/reports/tr10/">Unicode Collation
+            Algorithm (UCA)</see>, there are 5 different levels of strength used
+            in comparisons:
+            
+            &lt;ul&gt;
+            &lt;li&gt;PRIMARY strength: Typically, this is used to denote differences between
+                base characters (for example, "a" &amp;lt; "b").
+                It is the strongest difference. For example, dictionaries are divided
+                into different sections by base character.
+            &lt;li&gt;SECONDARY strength: Accents in the characters are considered secondary
+                differences (for example, "as" &amp;lt; "&amp;agrave;s" &amp;lt; "at"). Other
+                differences
+                between letters can also be considered secondary differences, depending
+                on the language. A secondary difference is ignored when there is a
+                primary difference anywhere in the strings.
+            &lt;li&gt;TERTIARY strength: Upper and lower case differences in characters are
+                distinguished at tertiary strength (for example, "ao" &amp;lt; "Ao" &amp;lt;
+                "a&amp;ograve;"). In addition, a variant of a letter differs from the base
+                form on the tertiary strength (such as "A" and "Ⓐ"). Another
+                example is the
+                difference between large and small Kana. A tertiary difference is ignored
+                when there is a primary or secondary difference anywhere in the strings.
+            &lt;li&gt;QUATERNARY strength: When punctuation is ignored
+                (see <see href="https://unicode-org.github.io/icu/userguide/collation/concepts#ignoring-punctuation">
+                Ignoring Punctuations in the User Guide</see>) at PRIMARY to TERTIARY
+                strength, an additional strength level can
+                be used to distinguish words with and without punctuation (for example,
+                "ab" &amp;lt; "a-b" &amp;lt; "aB").
+                This difference is ignored when there is a PRIMARY, SECONDARY or TERTIARY
+                difference. The QUATERNARY strength should only be used if ignoring
+                punctuation is required.
+            &lt;li&gt;IDENTICAL strength:
+                When all other strengths are equal, the IDENTICAL strength is used as a
+                tiebreaker. The Unicode code point values of the NFD form of each string
+                are compared, just in case there is no difference.
+                For example, Hebrew cantillation marks are only distinguished at this
+                strength. This strength should be used sparingly, as only code point
+                value differences between two strings is an extremely rare occurrence.
+                Using this strength substantially decreases the performance for both
+                comparison and collation key generation APIs. This strength also
+                increases the size of the collation key.
+            &lt;/ul&gt;
+            
+            Unlike the JDK, ICU4J's Collator deals only with 2 decomposition modes,
+            the canonical decomposition mode and one that does not use any decomposition.
+            The compatibility decomposition mode, java.text.Collator.FULL_DECOMPOSITION
+            is not supported here. If the canonical
+            decomposition mode is set, the Collator handles un-normalized text properly,
+            producing the same results as if the text were normalized in NFD. If
+            canonical decomposition is turned off, it is the user's responsibility to
+            ensure that all text is already in the appropriate form before performing
+            a comparison or before getting a CollationKey.</para>
+      <para>For more information about the collation service see the
+            <see href="https://unicode-org.github.io/icu/userguide/collation">User Guide</see>.</para>
+      <para>Examples of use</para>
+      <code lang="text/java">// Get the Collator for US English and set its strength to PRIMARY
+            Collator usCollator = Collator.getInstance(Locale.US);
+            usCollator.setStrength(Collator.PRIMARY);
+            if (usCollator.compare("abc", "ABC") == 0) {
+                System.out.println("Strings are equivalent");
+            }
+            
+            The following example shows how to compare two strings using the
+            Collator for the default locale.
+            
+            // Compare two strings in the default locale
+            Collator myCollator = Collator.getInstance();
+            myCollator.setDecomposition(NO_DECOMPOSITION);
+            if (myCollator.compare("&amp;agrave;&amp;#92;u0325", "a&amp;#92;u0325&amp;#768;") != 0) {
+                System.out.println("&amp;agrave;&amp;#92;u0325 is not equals to a&amp;#92;u0325&amp;#768; without decomposition");
+                myCollator.setDecomposition(CANONICAL_DECOMPOSITION);
+                if (myCollator.compare("&amp;agrave;&amp;#92;u0325", "a&amp;#92;u0325&amp;#768;") != 0) {
+                    System.out.println("Error: &amp;agrave;&amp;#92;u0325 should be equals to a&amp;#92;u0325&amp;#768; with decomposition");
+                }
+                else {
+                    System.out.println("&amp;agrave;&amp;#92;u0325 is equals to a&amp;#92;u0325&amp;#768; with decomposition");
+                }
+            }
+            else {
+                System.out.println("Error: &amp;agrave;&amp;#92;u0325 should be not equals to a&amp;#92;u0325&amp;#768; without decomposition");
+            }
+            </code>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/Collator" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/Collator" title="Reference documentation">Java documentation for <code>android.icu.text.Collator</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -73,9 +170,19 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Empty default constructor to make javadocs happy</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Empty default constructor to make javadocs happy</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#Collator()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.Collator()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -160,13 +267,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -191,9 +305,24 @@
       </ReturnValue>
       <MemberValue>17</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Decomposition mode value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Decomposition mode value. With CANONICAL_DECOMPOSITION set,
+            characters that are canonical variants according to the Unicode standard
+            will be decomposed for collation.</para>
+          <para>CANONICAL_DECOMPOSITION corresponds to Normalization Form D as
+            described in <see href="https://www.unicode.org/reports/tr15/">
+            Unicode Technical Report #15</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#CANONICAL_DECOMPOSITION" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.CANONICAL_DECOMPOSITION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -222,10 +351,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Clones the collator.</summary>
+        <returns>a clone of this collator.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Clones the collator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#clone()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.clone()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -254,10 +393,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Provides for the clone operation.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Provides for the clone operation. Any clone is initially unfrozen.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#cloneAsThawed()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.cloneAsThawed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -289,12 +438,24 @@
         <Parameter Name="target" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the source Object.</param>
+        <param name="target">the target Object.</param>
+        <summary>Compares the source Object to the target Object.</summary>
+        <returns>Returns an integer value. Value is less than zero if source is
+                    less than target, value is zero if source and target are equal,
+                    value is greater than zero if source is greater than target.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compares the source Object to the target Object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#compare(java.lang.Object,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.compare(java.lang.Object, java.lang.Object)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -326,12 +487,30 @@
         <Parameter Name="target" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the source String.</param>
+        <param name="target">the target String.</param>
+        <summary>Compares the source text String to the target text String according to
+            this Collator's rules, strength and decomposition mode.</summary>
+        <returns>Returns an integer value. Value is less than zero if source is
+                    less than target, value is zero if source and target are equal,
+                    value is greater than zero if source is greater than target.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compares the source text String to the target text String according to
+            this Collator's rules, strength and decomposition mode.
+            Returns an integer less than,
+            equal to or greater than zero depending on whether the source String is
+            less than, equal to or greater than the target String. See the Collator
+            class description for an example of use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#compare(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.compare(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -367,10 +546,47 @@
         <ReturnType>Android.Icu.Text.CollatorDecompositionMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="decomposition">the new decomposition mode</param>
+        <summary>Returns the decomposition mode of this Collator. -or- Sets the decomposition mode of this Collator.</summary>
+        <value>the decomposition mode</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the decomposition mode of this Collator. The decomposition mode
+            determines how Unicode composed characters are handled.</para>
+          <para>See the Collator class description for more details.</para>
+          <para>The base class method always returns <c>#NO_DECOMPOSITION</c>.
+            Subclasses should override it if appropriate.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getDecomposition()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getDecomposition()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the decomposition mode of this Collator.  Setting this
+            decomposition attribute with CANONICAL_DECOMPOSITION allows the
+            Collator to handle un-normalized text properly, producing the
+            same results as if the text were normalized. If
+            NO_DECOMPOSITION is set, it is the user's responsibility to
+            insure that all text is already in the appropriate form before
+            a comparison or before getting a CollationKey. Adjusting
+            decomposition mode allows the user to select between faster and
+            more complete collation behavior.</para>
+          <para>Since a great many of the world's languages do not require
+            text normalization, most locales set NO_DECOMPOSITION as the
+            default decomposition mode.</para>
+          <para>The base class method does nothing. Subclasses should override it if appropriate.</para>
+          <para>See getDecomposition for a description of decomposition
+            mode.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#setDecomposition(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.setDecomposition(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -402,12 +618,25 @@
         <Parameter Name="target" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the source string to be compared.</param>
+        <param name="target">the target string to be compared.</param>
+        <summary>Compares the equality of two text Strings using
+            this Collator's rules, strength and decomposition mode.</summary>
+        <returns>true if the strings are equal according to the collation
+                    rules, otherwise false.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compares the equality of two text Strings using
+            this Collator's rules, strength and decomposition mode.  Convenience method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#equals(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.equals(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -436,10 +665,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Freezes the collator.</summary>
+        <returns>the collator itself.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Freezes the collator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#freeze()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.freeze()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -451,13 +690,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -482,9 +728,21 @@
       </ReturnValue>
       <MemberValue>15</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu] Note:&lt;/strong&gt; This is for backwards compatibility with Java APIs only.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu] Note:&lt;/strong&gt; This is for backwards compatibility with Java APIs only.  It
+            should not be used, IDENTICAL should be used instead.  ICU's
+            collation does not support Java's FULL_DECOMPOSITION mode.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#FULL_DECOMPOSITION" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.FULL_DECOMPOSITION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -510,13 +768,33 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Util.Locale[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the set of locales, as Locale objects, for which collators
+            are installed.</summary>
+        <returns>the list of locales in which collators are installed.
+            This list includes any that have been registered, in addition to
+            those that are installed with ICU4J.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the set of locales, as Locale objects, for which collators
+            are installed.  Note that Locale objects do not support RFC 3066.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getAvailableLocales()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getAvailableLocales()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -542,13 +820,33 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Icu.Util.ULocale[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the set of locales, as ULocale objects, for which collators
+            are installed.</summary>
+        <returns>the list of locales in which collators are installed.
+            This list includes any that have been registered, in addition to
+            those that are installed with ICU4J.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the set of locales, as ULocale objects, for which collators
+            are installed.  ULocale objects support RFC 3066.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getAvailableULocales()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getAvailableULocales()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -579,11 +877,29 @@
         <Parameter Name="source" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the string to be transformed into a CollationKey.</param>
+        <summary>Transforms the String into a CollationKey suitable for efficient
+            repeated comparison.</summary>
+        <returns>the CollationKey for the given String based on this Collator's
+                    collation rules. If the source String is null, a null
+                    CollationKey is returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Transforms the String into a CollationKey suitable for efficient
+            repeated comparison.  The resulting key depends on the collator's
+            rules, strength and decomposition mode.</para>
+          <para>Note that collation keys are often less efficient than simply doing comparison.
+            For more details, see the ICU User Guide.</para>
+          <para>See the CollationKey class documentation for more information.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getCollationKey(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getCollationKey(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -614,11 +930,23 @@
         <Parameter Name="objectLocale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="objectLocale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="objectLocale">the locale of the collator</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            default <c>DISPLAY</c> locale.</summary>
+        <returns>the display name</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            default <c>DISPLAY</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getDisplayName(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getDisplayName(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -649,11 +977,23 @@
         <Parameter Name="objectLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="objectLocale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="objectLocale">the locale of the collator</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            default <c>DISPLAY</c> locale.</summary>
+        <returns>the display name</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            default <c>DISPLAY</c> locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getDisplayName(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getDisplayName(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -685,12 +1025,24 @@
         <Parameter Name="displayLocale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="objectLocale">To be added.</param>
-        <param name="displayLocale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="objectLocale">the locale of the collator</param>
+        <param name="displayLocale">the locale for the collator's display name</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            displayLocale.</summary>
+        <returns>the display name</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            displayLocale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getDisplayName(android.icu.util.ULocale,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getDisplayName(android.icu.util.ULocale, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -722,12 +1074,72 @@
         <Parameter Name="displayLocale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="objectLocale">To be added.</param>
-        <param name="displayLocale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="objectLocale">the locale of the collator</param>
+        <param name="displayLocale">the locale for the collator's display name</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            displayLocale.</summary>
+        <returns>the display name</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the name of the collator for the objectLocale, localized for the
+            displayLocale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getDisplayName(java.util.Locale,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getDisplayName(java.util.Locale, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetEquivalentReorderCodes">
+      <MemberSignature Language="C#" Value="public static int[]? GetEquivalentReorderCodes (int reorderCode);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32[] GetEquivalentReorderCodes(int32 reorderCode) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Icu.Text.Collator.GetEquivalentReorderCodes(System.Int32)" />
+      <MemberSignature Language="F#" Value="static member GetEquivalentReorderCodes : int -&gt; int[]" Usage="Android.Icu.Text.Collator.GetEquivalentReorderCodes reorderCode" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getEquivalentReorderCodes", "(I)[I", "", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getEquivalentReorderCodes", "(I)[I", "", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="reorderCode" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="reorderCode">The reorder code to determine equivalence for.</param>
+        <summary>Retrieves all the reorder codes that are grouped with the given reorder code.</summary>
+        <returns>the set of all reorder codes in the same group as the given reorder code.</returns>
+        <remarks>
+          <para>Retrieves all the reorder codes that are grouped with the given reorder code. Some reorder
+            codes are grouped and must reorder together.
+            Beginning with ICU 55, scripts only reorder together if they are primary-equal,
+            for example Hiragana and Katakana.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getEquivalentReorderCodes(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getEquivalentReorderCodes(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -759,12 +1171,27 @@
         <Parameter Name="locID" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="keyword">To be added.</param>
-        <param name="locID">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="keyword">a particular keyword as enumerated by
+            getKeywords.</param>
+        <param name="locID">The requested locale</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the functionally equivalent locale for the given
+            requested locale, with respect to given keyword, for the
+            collation service.</summary>
+        <returns>the locale</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the functionally equivalent locale for the given
+            requested locale, with respect to given keyword, for the
+            collation service.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getFunctionalEquivalent(java.lang.String,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getFunctionalEquivalent(java.lang.String, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -797,13 +1224,41 @@
         <Parameter Name="isAvailable" Type="System.Boolean[]" />
       </Parameters>
       <Docs>
-        <param name="keyword">To be added.</param>
-        <param name="locID">To be added.</param>
-        <param name="isAvailable">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="keyword">a particular keyword as enumerated by
+            getKeywords.</param>
+        <param name="locID">The requested locale</param>
+        <param name="isAvailable">If non-null, isAvailable[0] will receive and
+            output boolean that indicates whether the requested locale was
+            'available' to the collation service. If non-null, isAvailable
+            must have length &amp;gt;= 1.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the functionally equivalent locale for the given
+            requested locale, with respect to given keyword, for the
+            collation service.</summary>
+        <returns>the locale</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the functionally equivalent locale for the given
+            requested locale, with respect to given keyword, for the
+            collation service.  If two locales return the same result, then
+            collators instantiated for these locales will behave
+            equivalently.  The converse is not always true; two collators
+            may in fact be equivalent, but return different results, due to
+            internal details.  The return result has no other meaning than
+            that stated above, and implies nothing as to the relationship
+            between the two locales.  This is intended for use by
+            applications who wish to cache collators, or otherwise reuse
+            collators when possible.  The functional equivalent may change
+            over time.  For more information, please see the <see href="https://unicode-org.github.io/icu/userguide/locale#locales-and-services">
+            Locales and Services</see> section of the ICU User Guide.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getFunctionalEquivalent(java.lang.String,%20android.icu.util.ULocale,%20boolean[])" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getFunctionalEquivalent(java.lang.String, android.icu.util.ULocale, boolean[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -834,11 +1289,26 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">the desired locale.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the Collator for the desired locale.</summary>
+        <returns>Collator for the desired locale if it is created successfully.
+                    Otherwise if there is no Collator
+                    associated with the current locale, the root collator will
+                    be returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the Collator for the desired locale.</para>
+          <para>For some languages, multiple collation types are available;
+            for example, "de</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -869,11 +1339,28 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">the desired locale.</param>
+        <summary>Returns the Collator for the desired locale.</summary>
+        <returns>Collator for the desired locale if it is created successfully.
+                    Otherwise if there is no Collator
+                    associated with the current locale, the root collator will
+                    be returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the Collator for the desired locale.</para>
+          <para>For some languages, multiple collation types are available;
+            for example, "de-u-co-phonebk".
+            Starting with ICU 54, collation attributes can be specified via locale keywords as well,
+            in the old locale extension syntax ("el</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -899,13 +1386,32 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns an array of all possible keywords that are relevant to
+            collation.</summary>
+        <returns>an array of valid collation keywords.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns an array of all possible keywords that are relevant to
+            collation. At this point, the only recognized keyword for this
+            service is "collation".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getKeywords()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getKeywords()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -931,16 +1437,34 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="keyword" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="keyword">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="keyword">one of the keywords returned by getKeywords.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Given a keyword, returns an array of all values for
+            that keyword that are currently in use.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Given a keyword, returns an array of all values for
+            that keyword that are currently in use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getKeywordValues(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getKeywordValues(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -966,6 +1490,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="key" Type="System.String" />
@@ -973,13 +1503,75 @@
         <Parameter Name="commonlyUsed" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="locale">To be added.</param>
-        <param name="commonlyUsed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">one of the keys supported by this service.  For now, only
+                                 "collation" is supported.</param>
+        <param name="locale">the locale</param>
+        <param name="commonlyUsed">if set to true it will return only commonly used values
+                                 with the given locale in preferred order.  Otherwise,
+                                 it will return all the available values for the locale.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Given a key and a locale, returns an array of string values in a preferred
+            order that would make a difference.</summary>
+        <returns>an array of string values for the given key and the locale.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Given a key and a locale, returns an array of string values in a preferred
+            order that would make a difference. These are all and only those values where
+            the open (creation) of the service with the locale formed from the input locale
+            plus input keyword and that value has different behavior than creation with the
+            input locale alone.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getKeywordValuesForLocale(java.lang.String,%20android.icu.util.ULocale,%20boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getKeywordValuesForLocale(java.lang.String, android.icu.util.ULocale, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetReorderCodes">
+      <MemberSignature Language="C#" Value="public virtual int[]? GetReorderCodes ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32[] GetReorderCodes() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Icu.Text.Collator.GetReorderCodes" />
+      <MemberSignature Language="F#" Value="abstract member GetReorderCodes : unit -&gt; int[]&#xA;override this.GetReorderCodes : unit -&gt; int[]" Usage="collator.GetReorderCodes " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getReorderCodes", "()[I", "GetGetReorderCodesHandler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getReorderCodes", "()[I", "GetGetReorderCodesHandler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Retrieves the reordering codes for this collator.</summary>
+        <returns>a copy of the reordering codes for this collator;
+            if none are set then returns an empty array</returns>
+        <remarks>
+          <para>Retrieves the reordering codes for this collator.
+            These reordering codes are a combination of UScript codes and ReorderCodes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getReorderCodes()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getReorderCodes()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -991,13 +1583,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1022,9 +1621,24 @@
       </ReturnValue>
       <MemberValue>15</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Smallest Collator strength value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Smallest Collator strength value. When all other strengths are equal,
+            the IDENTICAL strength is used as a tiebreaker. The Unicode code point
+            values of the NFD form of each string are compared, just in case there
+            is no difference.
+            See class documentation for more explanation.</para>
+          <para>Note this value is different from JDK's</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#IDENTICAL" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.IDENTICAL</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1052,10 +1666,24 @@
         <ReturnType>Android.Icu.Text.Collator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the Collator for the current default locale.</summary>
+        <value>the Collator for the default locale (for example, en_US) if it
+                    is created successfully. Otherwise if there is no Collator
+                    associated with the current locale, the root collator
+                    will be returned.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the Collator for the current default locale.
+            The default locale is determined by java.util.Locale.getDefault().</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1086,10 +1714,22 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Determines whether the object has been frozen or not.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Determines whether the object has been frozen or not.</para>
+          <para>An unfrozen Collator is mutable and not thread-safe.
+            A frozen Collator is immutable and thread-safe.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#isFrozen()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.isFrozen()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1145,6 +1785,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -1181,10 +1825,23 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the maximum reordering group whose characters are affected by
+            the alternate handling behavior.</summary>
+        <value>the maximum variable reordering group.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the maximum reordering group whose characters are affected by
+            the alternate handling behavior.</para>
+          <para>The base class implementation returns Collator.ReorderCodes.PUNCTUATION.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getMaxVariable()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getMaxVariable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1196,13 +1853,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1227,9 +1891,23 @@
       </ReturnValue>
       <MemberValue>16</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Decomposition mode value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Decomposition mode value. With NO_DECOMPOSITION set, Strings
+            will not be decomposed for collation. This is the default
+            decomposition setting unless otherwise specified by the locale
+            used to create the Collator.</para>
+          <para>&lt;strong&gt;Note&lt;/strong&gt; this value is different from the JDK's.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#NO_DECOMPOSITION" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.NO_DECOMPOSITION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1241,13 +1919,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1272,9 +1957,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Strongest collator strength value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Strongest collator strength value. Typically used to denote differences
+            between base characters. See class documentation for more explanation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#PRIMARY" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.PRIMARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1286,13 +1982,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1317,9 +2020,25 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Fourth level collator strength value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Fourth level collator strength value.
+            When punctuation is ignored
+            (see <see href="https://unicode-org.github.io/icu/userguide/collation/concepts#ignoring-punctuation">
+            Ignoring Punctuation in the User Guide</see>) at PRIMARY to TERTIARY
+            strength, an additional strength level can
+            be used to distinguish words with and without punctuation.
+            See class documentation for more explanation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#QUATERNARY" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.QUATERNARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1331,13 +2050,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1362,9 +2088,23 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Second level collator strength value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Second level collator strength value.
+            Accents in the characters are considered secondary differences.
+            Other differences between letters can also be considered secondary
+            differences, depending on the language.
+            See class documentation for more explanation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#SECONDARY" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.SECONDARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1395,11 +2135,103 @@
         <Parameter Name="group" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="group">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="group">one of Collator.ReorderCodes.SPACE, Collator.ReorderCodes.PUNCTUATION,
+                         Collator.ReorderCodes.SYMBOL, Collator.ReorderCodes.CURRENCY;
+                         or Collator.ReorderCodes.DEFAULT to restore the default max variable group</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Sets the variable top to the top of the specified reordering group.</summary>
+        <returns>this</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Sets the variable top to the top of the specified reordering group.
+            The variable top determines the highest-sorting character
+            which is affected by the alternate handling behavior.
+            If that attribute is set to UCOL_NON_IGNORABLE, then the variable top has no effect.</para>
+          <para>The base class implementation throws an UnsupportedOperationException.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#setMaxVariable(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.setMaxVariable(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetReorderCodes">
+      <MemberSignature Language="C#" Value="public virtual void SetReorderCodes (params int[]? order);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetReorderCodes(int32[] order) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Icu.Text.Collator.SetReorderCodes(System.Int32[])" />
+      <MemberSignature Language="F#" Value="abstract member SetReorderCodes : int[] -&gt; unit&#xA;override this.SetReorderCodes : int[] -&gt; unit" Usage="collator.SetReorderCodes order" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setReorderCodes", "([I)V", "GetSetReorderCodes_arrayIHandler", ApiSince=24)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setReorderCodes", "([I)V", "GetSetReorderCodes_arrayIHandler", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="order" Type="System.Int32[]" Index="0" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.ParamArray]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="order">the reordering codes to apply to this collator; if this is null or an empty array
+            then this clears any existing reordering</param>
+        <summary>Sets the reordering codes for this collator.</summary>
+        <remarks>
+          <para>Sets the reordering codes for this collator.
+            Collation reordering allows scripts and some other groups of characters
+            to be moved relative to each other. This reordering is done on top of
+            the DUCET/CLDR standard collation order. Reordering can specify groups to be placed
+            at the start and/or the end of the collation order. These groups are specified using
+            UScript codes and <c>Collator.ReorderCodes</c> entries.</para>
+          <para>By default, reordering codes specified for the start of the order are placed in the
+            order given after several special non-script blocks. These special groups of characters
+            are space, punctuation, symbol, currency, and digit. These special groups are represented with
+            <c>Collator.ReorderCodes</c> entries. Script groups can be intermingled with
+            these special non-script groups if those special groups are explicitly specified in the reordering.</para>
+          <para>The special code <c>Collator.ReorderCodes#OTHERS OTHERS</c>
+            stands for any script that is not explicitly
+            mentioned in the list of reordering codes given. Anything that is after OTHERS
+            will go at the very end of the reordering in the order given.</para>
+          <para>The special reorder code <c>Collator.ReorderCodes#DEFAULT DEFAULT</c>
+            will reset the reordering for this collator
+            to the default for this collator. The default reordering may be the DUCET/CLDR order or may be a reordering that
+            was specified when this collator was created from resource data or from rules. The
+            DEFAULT code &lt;b&gt;must&lt;/b&gt; be the sole code supplied when it is used.
+            If not, then an <c>IllegalArgumentException</c> will be thrown.</para>
+          <para>The special reorder code <c>Collator.ReorderCodes#NONE NONE</c>
+            will remove any reordering for this collator.
+            The result of setting no reordering will be to have the DUCET/CLDR ordering used. The
+            NONE code &lt;b&gt;must&lt;/b&gt; be the sole code supplied when it is used.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#setReorderCodes(int...)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.setReorderCodes(int...)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1435,10 +2267,39 @@
         <ReturnType>Android.Icu.Text.CollationStrength</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="newStrength">the new strength value.</param>
+        <summary>Returns this Collator's strength attribute. -or- Sets this Collator's strength attribute.</summary>
+        <value>this Collator's current strength attribute.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns this Collator's strength attribute. The strength attribute
+            determines the minimum level of difference considered significant.
+            &lt;strong&gt;[icu] Note:&lt;/strong&gt; This can return QUATERNARY strength, which is not supported by the
+            JDK version.</para>
+          <para>See the Collator class description for more details.</para>
+          <para>The base class method always returns <c>#TERTIARY</c>.
+            Subclasses should override it if appropriate.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getStrength()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getStrength()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets this Collator's strength attribute. The strength attribute
+            determines the minimum level of difference considered significant
+            during comparison.</para>
+          <para>The base class method does nothing. Subclasses should override it if appropriate.</para>
+          <para>See the Collator class description for an example of use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#setStrength(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.setStrength(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1466,10 +2327,24 @@
         <ReturnType>Android.Icu.Text.UnicodeSet</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a UnicodeSet that contains all the characters and sequences tailored
+            in this collator.</summary>
+        <value>a pointer to a UnicodeSet object containing all the
+                    code points and sequences that may sort differently than
+                    in the root collator.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns a UnicodeSet that contains all the characters and sequences tailored
+            in this collator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#getTailoredSet()" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.getTailoredSet()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1481,13 +2356,20 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Java.Util.IComparator._members</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_reversed</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
-        <InterfaceMember>F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_reversed</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparing_Ljava_util_function_Function_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingDouble_Ljava_util_function_ToDoubleFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingInt_Ljava_util_function_ToIntFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Util.IComparator.cb_thenComparingLong_Ljava_util_function_ToLongFunction_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_reversed_Reversed_Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function_Ljava_util_Comparator__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparing_ThenComparing_Ljava_util_function_Function__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingDouble_ThenComparingDouble_Ljava_util_function_ToDoubleFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingInt_ThenComparingInt_Ljava_util_function_ToIntFunction__Ljava_util_Comparator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Util.IComparator.cb_thenComparingLong_ThenComparingLong_Ljava_util_function_ToLongFunction__Ljava_util_Comparator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1512,9 +2394,23 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Third level collator strength value.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Third level collator strength value.
+            Upper and lower case differences in characters are distinguished at this
+            strength level. In addition, a variant of a letter differs from the base
+            form on the tertiary level.
+            See class documentation for more explanation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Collator#TERTIARY" title="Reference documentation">Java documentation for <code>android.icu.text.Collator.TERTIARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1567,6 +2463,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

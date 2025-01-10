@@ -30,13 +30,32 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/adservices/customaudience/CustomAudience", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Represents the information necessary for a custom audience to participate in ad selection.</summary>
+    <remarks>
+      <para>Represents the information necessary for a custom audience to participate in ad selection.</para>
+      <para>A custom audience is an abstract grouping of users with similar demonstrated interests. This
+            class is a collection of some data stored on a device that is necessary to serve advertisements
+            targeting a single custom audience.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="ActivationTime">
@@ -51,6 +70,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -63,9 +86,29 @@
         <ReturnType>Java.Time.Instant</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>On creation of the <c>CustomAudience</c> object, an optional activation time may be set in
+            the future, in order to serve a delayed activation.</summary>
+        <value>the timestamp <c>Instant</c>, truncated to milliseconds, after which the custom
+                audience is active</value>
+        <remarks>
+          <para>On creation of the <c>CustomAudience</c> object, an optional activation time may be set in
+            the future, in order to serve a delayed activation. If the field is not set, the <c>CustomAudience</c> will be activated at the time of joining.</para>
+          <para>For example, a custom audience for lapsed users may not activate until a threshold of
+            inactivity is reached, at which point the custom audience's ads will participate in the ad
+            selection process, potentially redirecting lapsed users to the original owner application.</para>
+          <para>The maximum delay in activation is 60 days from initial creation.</para>
+          <para>If specified, the activation time must be an earlier instant than the expiration time.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getActivationTime()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getActivationTime()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Ads">
@@ -92,9 +135,73 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.AdServices.Common.AdData&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>This list of <c>AdData</c> objects is a full and complete list of the ads that will be
+            served by this <c>CustomAudience</c> during the ad selection process.</summary>
+        <value>a <c>List</c> of <c>AdData</c> objects representing ads currently served by the
+                custom audience</value>
+        <remarks>
+          <para>This list of <c>AdData</c> objects is a full and complete list of the ads that will be
+            served by this <c>CustomAudience</c> during the ad selection process.</para>
+          <para>If not specified, or if an empty list is provided, the <c>CustomAudience</c> will not
+            participate in ad selection until a valid list of ads are provided via the daily update for
+            the custom audience.</para>
+          <para>The combined ads size of the CA is limited and the sizes of each ad's string fields are
+            considered using <c>String#getBytes()</c> in <c>UTF-8</c> encoding.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getAds()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getAds()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AuctionServerRequestFlags">
+      <MemberSignature Language="C#" Value="public Android.AdServices.CustomAudiences.AuctionServerRequest AuctionServerRequestFlags { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.AdServices.CustomAudiences.AuctionServerRequest AuctionServerRequestFlags" />
+      <MemberSignature Language="DocId" Value="P:Android.AdServices.CustomAudiences.CustomAudience.AuctionServerRequestFlags" />
+      <MemberSignature Language="F#" Value="member this.AuctionServerRequestFlags : Android.AdServices.CustomAudiences.AuctionServerRequest" Usage="Android.AdServices.CustomAudiences.CustomAudience.AuctionServerRequestFlags" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAuctionServerRequestFlags", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAuctionServerRequestFlags", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.AdServices.CustomAudiences.AuctionServerRequest</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns the bitfield of auction server request flags.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the bitfield of auction server request flags. These are flags that influence the
+            creation of the payload generated by the <c>android.adservices.adselection.AdSelectionManager#getAdSelectionData(GetAdSelectionDataRequest,
+            Executor, OutcomeReceiver)</c> API.</para>
+          <para>To create this bitfield, place an <c>|</c> bitwise operator between each <c>AuctionServerRequestFlag</c> to be enabled.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getAuctionServerRequestFlags()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getAuctionServerRequestFlags()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="BiddingLogicUri">
@@ -121,9 +228,23 @@
         <ReturnType>Android.Net.Uri</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the target URI used to fetch bidding logic when a custom audience participates in the
+            ad selection process.</summary>
+        <value>the URI for fetching buyer bidding logic</value>
+        <remarks>
+          <para>Returns the target URI used to fetch bidding logic when a custom audience participates in the
+            ad selection process. The URI must use HTTPS.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getBiddingLogicUri()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getBiddingLogicUri()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Buyer">
@@ -150,9 +271,21 @@
         <ReturnType>Android.AdServices.Common.AdTechIdentifier</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>A buyer is identified by a domain in the form "buyerexample.</summary>
+        <value>an <c>AdTechIdentifier</c> containing the custom audience's buyer's domain</value>
+        <remarks>
+          <para>A buyer is identified by a domain in the form "buyerexample.com".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getBuyer()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getBuyer()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -208,9 +341,23 @@
         <ReturnType>Android.Net.Uri</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>This URI points to a buyer-operated server that hosts updated bidding data and ads metadata
+            to be used in the on-device ad selection process.</summary>
+        <value>the custom audience's daily update URI</value>
+        <remarks>
+          <para>This URI points to a buyer-operated server that hosts updated bidding data and ads metadata
+            to be used in the on-device ad selection process. The URI must use HTTPS.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getDailyUpdateUri()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getDailyUpdateUri()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -243,7 +390,18 @@
       <Docs>
         <summary>To be added.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#describeContents()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.describeContents()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExpirationTime">
@@ -258,6 +416,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -270,9 +432,76 @@
         <ReturnType>Java.Time.Instant</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Once the expiration time has passed, a custom audience is no longer eligible for daily
+            ad/bidding data updates or participation in the ad selection process.</summary>
+        <value>the timestamp <c>Instant</c>, truncated to milliseconds, after which the custom
+                audience should be removed</value>
+        <remarks>
+          <para>Once the expiration time has passed, a custom audience is no longer eligible for daily
+            ad/bidding data updates or participation in the ad selection process. The custom audience
+            will then be deleted from memory by the next daily update.</para>
+          <para>If no expiration time is provided on creation of the <c>CustomAudience</c>, expiry will
+            default to 60 days from activation.</para>
+          <para>The maximum expiry is 60 days from initial activation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getExpirationTime()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getExpirationTime()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FlagAuctionServerRequestOmitAds">
+      <MemberSignature Language="C#" Value="public const Android.AdServices.CustomAudiences.AuctionServerRequest FlagAuctionServerRequestOmitAds = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.AdServices.CustomAudiences.AuctionServerRequest FlagAuctionServerRequestOmitAds = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.AdServices.CustomAudiences.CustomAudience.FlagAuctionServerRequestOmitAds" />
+      <MemberSignature Language="F#" Value="val mutable FlagAuctionServerRequestOmitAds : Android.AdServices.CustomAudiences.AuctionServerRequest" Usage="Android.AdServices.CustomAudiences.CustomAudience.FlagAuctionServerRequestOmitAds" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("FLAG_AUCTION_SERVER_REQUEST_OMIT_ADS", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("FLAG_AUCTION_SERVER_REQUEST_OMIT_ADS", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.CustomAudiences.AuctionServerRequest enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.CustomAudiences.AuctionServerRequest enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.AdServices.CustomAudiences.AuctionServerRequest</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>This auction server request flag indicates to the service that ads for this <c>CustomAudience</c> can be omitted in the server auction payload.</summary>
+        <remarks>
+          <para>This auction server request flag indicates to the service that ads for this <c>CustomAudience</c> can be omitted in the server auction payload.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#FLAG_AUCTION_SERVER_REQUEST_OMIT_ADS" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.FLAG_AUCTION_SERVER_REQUEST_OMIT_ADS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -331,9 +560,25 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The custom audience's name is an arbitrary string provided by the owner and buyer on creation
+            of the <c>CustomAudience</c> object.</summary>
+        <value>the String name of the custom audience</value>
+        <remarks>
+          <para>The custom audience's name is an arbitrary string provided by the owner and buyer on creation
+            of the <c>CustomAudience</c> object.</para>
+          <para>The overall size of the CA is limited and the size of this field is considered using
+            <c>String#getBytes()</c> in <c>UTF-8</c> encoding.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getName()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getName()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -406,6 +651,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -418,9 +667,28 @@
         <ReturnType>Android.AdServices.CustomAudiences.TrustedBiddingData</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Trusted bidding data consists of a URI pointing to a trusted server for buyers' bidding data
+            and a list of keys to query the server with.</summary>
+        <value>a <c>TrustedBiddingData</c> object containing the custom audience's trusted bidding
+                data</value>
+        <remarks>
+          <para>Trusted bidding data consists of a URI pointing to a trusted server for buyers' bidding data
+            and a list of keys to query the server with. Note that the keys are arbitrary identifiers
+            that will only be used to query the trusted server for a buyer's bidding logic during ad
+            selection.</para>
+          <para>If not specified, the <c>CustomAudience</c> will not participate in ad selection until
+            trusted bidding data are provided via the daily update for the custom audience.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getTrustedBiddingData()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getTrustedBiddingData()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="UserBiddingSignals">
@@ -435,6 +703,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -447,9 +719,28 @@
         <ReturnType>Android.AdServices.Common.AdSelectionSignals</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>User bidding signals are optionally provided by buyers to be consumed by buyer-provided
+            JavaScript during ad selection in an isolated execution environment.</summary>
+        <value>an <c>AdSelectionSignals</c> object representing the user bidding signals for the
+                custom audience</value>
+        <remarks>
+          <para>User bidding signals are optionally provided by buyers to be consumed by buyer-provided
+            JavaScript during ad selection in an isolated execution environment.</para>
+          <para>If the user bidding signals are not a valid JSON object that can be consumed by the
+            buyer's JS, the custom audience will not be eligible for ad selection.</para>
+          <para>If not specified, the <c>CustomAudience</c> will not participate in ad selection until
+            user bidding signals are provided via the daily update for the custom audience.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/customaudience/CustomAudience#getUserBiddingSignals()" title="Reference documentation">Java documentation for <code>android.adservices.customaudience.CustomAudience.getUserBiddingSignals()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">

@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/util/PropertyResourceBundle", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/PropertyResourceBundle", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>
@@ -34,7 +38,7 @@
             files containing the resource data.  <c>ResourceBundle.getBundle</c>
             will automatically look for the appropriate properties file and create a
             <c>PropertyResourceBundle</c> that refers to it. See
-            <c>ResourceBundle#getBundle(java.lang.String, java.util.Locale, java.lang.ClassLoader) ResourceBundle.getBundle</c>
+            <c>ResourceBundle#getBundle(String, Locale, ClassLoader) ResourceBundle.getBundle</c>
             for a complete description of the search and instantiation strategy.</para>
       <para>The following "sample"&gt;example shows a member of a resource
             bundle family with the base name "MyResources".
@@ -71,19 +75,10 @@
             # sample date
             s7=3. M&amp;auml;rz 1996
             </code>
-      <para>&lt;/blockquote&gt;</para>
-      <para>The implementation of a <c>PropertyResourceBundle</c> subclass must be
-            thread-safe if it's simultaneously used by multiple threads. The default
-            implementations of the non-abstract methods in this class are thread-safe.</para>
-      <para>&lt;strong&gt;Note:&lt;/strong&gt; PropertyResourceBundle can be constructed either
-            from an InputStream or a Reader, which represents a property file.
-            Constructing a PropertyResourceBundle instance from an InputStream requires
-            that the input stream be encoded in ISO-8859-1.  In that case, characters
-            that cannot be represented in ISO-8859-1 encoding must be represented by Unicode Escapes
-            as defined in section 3.3 of
-            &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;
-            whereas the other constructor which takes a Reader does not have that limitation.</para>
-      <para>Added in JDK1.1.</para>
+      <para>&lt;/blockquote&gt;
+            
+             &lt;!-- Android-removed: we're sticking to old behaviour for now.</para>
+      <para>Added in 1.1.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/java/util/PropertyResourceBundle" title="Reference documentation">Java documentation for <code>java.util.PropertyResourceBundle</code>.</a>
@@ -169,8 +164,18 @@
             InputStream</c>.</summary>
         <remarks>
           <para>Creates a property resource bundle from an <c>java.io.InputStream
-            InputStream</c>.  The property file read with this constructor
-            must be encoded in ISO-8859-1.</para>
+            InputStream</c>. This constructor reads the property file in UTF-8 by default.
+            If a <c>java.nio.charset.MalformedInputException</c> or an
+            <c>java.nio.charset.UnmappableCharacterException</c> occurs on reading the
+            input stream, then the PropertyResourceBundle instance resets to the state
+            before the exception, re-reads the input stream in <c>ISO-8859-1</c> and
+            continues reading. If the system property
+            <c>java.util.PropertyResourceBundle.encoding</c> is set to either
+            "ISO-8859-1" or "UTF-8", the input stream is solely read in that encoding,
+            and throws the exception if it encounters an invalid sequence. Other
+            encoding values are ignored for this system property.
+            The system property is read and evaluated when initializing this class.
+            Changing or removing the property has no effect after the initialization.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/PropertyResourceBundle#PropertyResourceBundle(java.io.InputStream)" title="Reference documentation">Java documentation for <code>java.util.PropertyResourceBundle.PropertyResourceBundle(java.io.InputStream)</code>.</a>
@@ -286,6 +291,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getKeys", "()Ljava/util/Enumeration;", "GetGetKeysHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getKeys", "()Ljava/util/Enumeration;", "GetGetKeysHandler")&gt;]</AttributeName>

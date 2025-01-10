@@ -1,8 +1,11 @@
 <Type Name="LinkedHashMap" FullName="Java.Util.LinkedHashMap">
-  <TypeSignature Language="C#" Value="public class LinkedHashMap : Java.Util.HashMap, IDisposable, Java.Interop.IJavaPeerable" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit LinkedHashMap extends Java.Util.HashMap implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.IMap, class System.IDisposable" />
+  <TypeSignature Language="C#" Value="public class LinkedHashMap : Java.Util.HashMap, IDisposable, Java.Interop.IJavaPeerable" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit LinkedHashMap extends Java.Util.HashMap implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.IMap, class System.IDisposable" FrameworkAlternate="net-android-34.0" />
   <TypeSignature Language="DocId" Value="T:Java.Util.LinkedHashMap" />
-  <TypeSignature Language="F#" Value="type LinkedHashMap = class&#xA;    inherit HashMap&#xA;    interface IMap&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="F#" Value="type LinkedHashMap = class&#xA;    inherit HashMap&#xA;    interface IMap&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="C#" Value="public class LinkedHashMap : Java.Util.HashMap, IDisposable, Java.Interop.IJavaPeerable, Java.Util.ISequencedMap" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit LinkedHashMap extends Java.Util.HashMap implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.IMap, class Java.Util.ISequencedMap, class System.IDisposable" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="F#" Value="type LinkedHashMap = class&#xA;    inherit HashMap&#xA;    interface IMap&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface ISequencedMap" FrameworkAlternate="net-android-35.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -23,6 +26,9 @@
     <Interface>
       <InterfaceName>System.IDisposable</InterfaceName>
     </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Java.Util.ISequencedMap</InterfaceName>
+    </Interface>
   </Interfaces>
   <Attributes>
     <Attribute>
@@ -33,39 +39,48 @@
       <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "K", "V" })]</AttributeName>
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "K", "V" })&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <param name="&lt;K&gt;&lt;K&gt;">the type of keys maintained by this map</param>
     <param name="&lt;V&gt;&lt;V&gt;">the type of mapped values</param>
     <summary>Hash table and linked list implementation of the <c>Map</c> interface,
-            with predictable iteration order.</summary>
+            with well-defined encounter order.</summary>
     <remarks>
       <para>Hash table and linked list implementation of the <c>Map</c> interface,
-            with predictable iteration order.  This implementation differs from
-            <c>HashMap</c> in that it maintains a doubly-linked list running through
-            all of its entries.  This linked list defines the iteration ordering,
+            with well-defined encounter order.  This implementation differs from
+            <c>HashMap</c> in that it maintains a doubly-linked list running through all of
+            its entries.  This linked list defines the encounter order (the order of iteration),
             which is normally the order in which keys were inserted into the map
-            (<i>insertion-order</i>).  Note that insertion order is not affected
-            if a key is <i>re-inserted</i> into the map.  (A key <c>k</c> is
-            reinserted into a map <c>m</c> if <c>m.put(k, v)</c> is invoked when
+            (<i>insertion-order</i>). The least recently inserted entry (the eldest) is
+            first, and the youngest entry is last. Note that encounter order is not affected
+            if a key is <i>re-inserted</i> into the map with the <c>put</c> method. (A key
+            <c>k</c> is reinserted into a map <c>m</c> if <c>m.put(k, v)</c> is invoked when
             <c>m.containsKey(k)</c> would return <c>true</c> immediately prior to
-            the invocation.)</para>
+            the invocation.) The reverse-ordered view of this map is in the opposite order, with
+            the youngest entry appearing first and the eldest entry appearing last.
+            The encounter order of entries already in the map can be changed by using
+            the <c>#putFirst putFirst</c> and <c>#putLast putLast</c> methods.</para>
       <para>This implementation spares its clients from the unspecified, generally
             chaotic ordering provided by <c>HashMap</c> (and <c>Hashtable</c>),
             without incurring the increased cost associated with <c>TreeMap</c>.  It
             can be used to produce a copy of a map that has the same order as the
             original, regardless of the original map's implementation:</para>
-      <code lang="text/java">void foo(Map m) {
-                    Map copy = new LinkedHashMap(m);
+      <code lang="text/java">{@code
+                void foo(Map&lt;String, Integer&gt; m) {
+                    Map&lt;String, Integer&gt; copy = new LinkedHashMap&lt;&gt;(m);
                     ...
                 }
-            </code>
+            }</code>
       <para>This technique is particularly useful if a module takes a map on input,
             copies it, and later returns results whose order is determined by that of
             the copy.  (Clients generally appreciate having things returned in the same
             order they were presented.)</para>
       <para>A special <c>#LinkedHashMap(int,float,boolean) constructor</c> is
-            provided to create a linked hash map whose order of iteration is the order
+            provided to create a linked hash map whose encounter order is the order
             in which its entries were last accessed, from least-recently accessed to
             most-recently (<i>access-order</i>).  This kind of map is well-suited to
             building LRU caches.  Invoking the <c>put</c>, <c>putIfAbsent</c>,
@@ -76,14 +91,22 @@
             of the entry if the value is replaced.  The <c>putAll</c> method generates one
             entry access for each mapping in the specified map, in the order that
             key-value mappings are provided by the specified map's entry set iterator.
-            <i>No other methods generate entry accesses.</i>  In particular, operations
-            on collection-views do <i>not</i> affect the order of iteration of the
-            backing map.</para>
+            <i>No other methods generate entry accesses.</i> Invoking these methods on the
+            reversed view generates accesses to entries on the backing map. Note that in the
+            reversed view, an access to an entry moves it first in encounter order.
+            Explicit-positioning methods such as <c>putFirst</c> or <c>lastEntry</c>, whether on
+            the map or on its reverse-ordered view, perform the positioning operation and
+            do not generate entry accesses. Operations on the <c>keySet</c>, <c>values</c>,
+            and <c>entrySet</c> views or on their sequenced counterparts do <i>not</i> affect
+            the encounter order of the backing map.</para>
       <para>The <c>#removeEldestEntry(Map.Entry)</c> method may be overridden to
             impose a policy for removing stale mappings automatically when new mappings
-            are added to the map.</para>
-      <para>This class provides all of the optional <c>Map</c> operations, and
-            permits null elements.  Like <c>HashMap</c>, it provides constant-time
+            are added to the map. Alternatively, since the "eldest" entry is the first
+            entry in encounter order, programs can inspect and remove stale mappings through
+            use of the <c>#firstEntry firstEntry</c> and <c>#pollFirstEntry pollFirstEntry</c>
+            methods.</para>
+      <para>This class provides all of the optional <c>Map</c> and <c>SequencedMap</c> operations,
+            and it permits null elements.  Like <c>HashMap</c>, it provides constant-time
             performance for the basic operations (<c>add</c>, <c>contains</c> and
             <c>remove</c>), assuming the hash function disperses elements
             properly among the buckets.  Performance is likely to be just slightly
@@ -275,7 +298,7 @@
             with the specified initial capacity and a default load factor (0.75).</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#LinkedHashMap(int)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.LinkedHashMap(int)</code>.</a>
+              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#LinkedHashMap(.*int)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.LinkedHashMap(.*int)</code>.</a>
             </format>
           </para>
           <para>
@@ -319,7 +342,7 @@
             with the specified initial capacity and load factor.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#LinkedHashMap(int,%20float)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.LinkedHashMap(int, float)</code>.</a>
+              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#LinkedHashMap(.*int,%20.*float)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.LinkedHashMap(.*int, .*float)</code>.</a>
             </format>
           </para>
           <para>
@@ -390,7 +413,7 @@
             specified initial capacity, load factor and ordering mode.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#LinkedHashMap(int,%20float,%20boolean)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.LinkedHashMap(int, float, boolean)</code>.</a>
+              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#LinkedHashMap(.*int,%20.*float,%20.*boolean)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.LinkedHashMap(.*int, .*float, .*boolean)</code>.</a>
             </format>
           </para>
           <para>
@@ -427,6 +450,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -436,6 +463,149 @@
         <value>To be added.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NewLinkedHashMap">
+      <MemberSignature Language="C#" Value="public static Java.Util.LinkedHashMap? NewLinkedHashMap (int numMappings);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.LinkedHashMap NewLinkedHashMap(int32 numMappings) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashMap.NewLinkedHashMap(System.Int32)" />
+      <MemberSignature Language="F#" Value="static member NewLinkedHashMap : int -&gt; Java.Util.LinkedHashMap" Usage="Java.Util.LinkedHashMap.NewLinkedHashMap numMappings" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("newLinkedHashMap", "(I)Ljava/util/LinkedHashMap;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("newLinkedHashMap", "(I)Ljava/util/LinkedHashMap;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "K", "V" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "K", "V" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.LinkedHashMap</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="numMappings" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="numMappings">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PutFirst">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? PutFirst (Java.Lang.Object? k, Java.Lang.Object? v);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object PutFirst(class Java.Lang.Object k, class Java.Lang.Object v) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashMap.PutFirst(Java.Lang.Object,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member PutFirst : Java.Lang.Object * Java.Lang.Object -&gt; Java.Lang.Object&#xA;override this.PutFirst : Java.Lang.Object * Java.Lang.Object -&gt; Java.Lang.Object" Usage="linkedHashMap.PutFirst (k, v)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedMap.PutFirst(Java.Lang.Object,Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("putFirst", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", "GetPutFirst_Ljava_lang_Object_Ljava_lang_Object_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("putFirst", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", "GetPutFirst_Ljava_lang_Object_Ljava_lang_Object_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="k" Type="Java.Lang.Object" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="v" Type="Java.Lang.Object" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="k">To be added.</param>
+        <param name="v">To be added.</param>
+        <summary>To be added</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>To be added</para>
+          <para>If this map already contains a mapping for this key, the mapping is relocated if necessary
+            so that it is first in encounter order.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#putFirst(K,%20V)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.putFirst(K, V)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="PutLast">
+      <MemberSignature Language="C#" Value="public virtual Java.Lang.Object? PutLast (Java.Lang.Object? k, Java.Lang.Object? v);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Lang.Object PutLast(class Java.Lang.Object k, class Java.Lang.Object v) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashMap.PutLast(Java.Lang.Object,Java.Lang.Object)" />
+      <MemberSignature Language="F#" Value="abstract member PutLast : Java.Lang.Object * Java.Lang.Object -&gt; Java.Lang.Object&#xA;override this.PutLast : Java.Lang.Object * Java.Lang.Object -&gt; Java.Lang.Object" Usage="linkedHashMap.PutLast (k, v)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedMap.PutLast(Java.Lang.Object,Java.Lang.Object)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("putLast", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", "GetPutLast_Ljava_lang_Object_Ljava_lang_Object_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("putLast", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", "GetPutLast_Ljava_lang_Object_Ljava_lang_Object_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="k" Type="Java.Lang.Object" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="v" Type="Java.Lang.Object" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="k">To be added.</param>
+        <param name="v">To be added.</param>
+        <summary>To be added</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>To be added</para>
+          <para>If this map already contains a mapping for this key, the mapping is relocated if necessary
+            so that it is last in encounter order.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/LinkedHashMap#putLast(K,%20V)" title="Reference documentation">Java documentation for <code>java.util.LinkedHashMap.putLast(K, V)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -488,6 +658,138 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Reversed">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.ISequencedMap? Reversed ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.ISequencedMap Reversed() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashMap.Reversed" />
+      <MemberSignature Language="F#" Value="abstract member Reversed : unit -&gt; Java.Util.ISequencedMap&#xA;override this.Reversed : unit -&gt; Java.Util.ISequencedMap" Usage="linkedHashMap.Reversed " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedMap.Reversed</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("reversed", "()Ljava/util/SequencedMap;", "GetReversedHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reversed", "()Ljava/util/SequencedMap;", "GetReversedHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.ISequencedMap</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SequencedEntrySet">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.ISequencedSet? SequencedEntrySet ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.ISequencedSet SequencedEntrySet() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashMap.SequencedEntrySet" />
+      <MemberSignature Language="F#" Value="abstract member SequencedEntrySet : unit -&gt; Java.Util.ISequencedSet&#xA;override this.SequencedEntrySet : unit -&gt; Java.Util.ISequencedSet" Usage="linkedHashMap.SequencedEntrySet " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedMap.SequencedEntrySet</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("sequencedEntrySet", "()Ljava/util/SequencedSet;", "GetSequencedEntrySetHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("sequencedEntrySet", "()Ljava/util/SequencedSet;", "GetSequencedEntrySetHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.ISequencedSet</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SequencedKeySet">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.ISequencedSet? SequencedKeySet ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.ISequencedSet SequencedKeySet() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashMap.SequencedKeySet" />
+      <MemberSignature Language="F#" Value="abstract member SequencedKeySet : unit -&gt; Java.Util.ISequencedSet&#xA;override this.SequencedKeySet : unit -&gt; Java.Util.ISequencedSet" Usage="linkedHashMap.SequencedKeySet " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedMap.SequencedKeySet</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("sequencedKeySet", "()Ljava/util/SequencedSet;", "GetSequencedKeySetHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("sequencedKeySet", "()Ljava/util/SequencedSet;", "GetSequencedKeySetHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.ISequencedSet</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SequencedValues">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.ISequencedCollection? SequencedValues ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.ISequencedCollection SequencedValues() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.LinkedHashMap.SequencedValues" />
+      <MemberSignature Language="F#" Value="abstract member SequencedValues : unit -&gt; Java.Util.ISequencedCollection&#xA;override this.SequencedValues : unit -&gt; Java.Util.ISequencedCollection" Usage="linkedHashMap.SequencedValues " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISequencedMap.SequencedValues</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("sequencedValues", "()Ljava/util/SequencedCollection;", "GetSequencedValuesHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("sequencedValues", "()Ljava/util/SequencedCollection;", "GetSequencedValuesHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.ISequencedCollection</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ThresholdClass">
       <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
@@ -537,6 +839,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

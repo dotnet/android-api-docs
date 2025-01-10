@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/webkit/WebChromeClient$FileChooserParams", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/webkit/WebChromeClient$FileChooserParams", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
     <summary>Parameters used in the <c>#onShowFileChooser</c> method.</summary>
@@ -119,6 +123,11 @@
               requested.&lt;/li&gt;
               &lt;li&gt;Send the result using filePathCallback of <c>WebChromeClient#onShowFileChooser</c>&lt;/li&gt;
             &lt;/ol&gt;</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; The created intent may be handled by
+            third-party applications on device. The received result must be treated
+            as untrusted as it can contain Uris pointing to your own app's sensitive
+            data files. Your app should check the resultant Uris in <c>#parseResult</c>
+            before calling the <c>filePathCallback</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/WebChromeClient.FileChooserParams#createIntent()" title="Reference documentation">Java documentation for <code>android.webkit.WebChromeClient.FileChooserParams.createIntent()</code>.</a>
@@ -177,6 +186,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -245,6 +260,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -302,6 +321,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.Uri[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="resultCode" Type="System.Int32" />
@@ -316,6 +341,14 @@
         <remarks>
           <para>Parse the result returned by the file picker activity. This method should be used with
             <c>#createIntent</c>. Refer to <c>#createIntent</c> for how to use it.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; The intent returned by the file picker activity
+            should be treated as untrusted. A third-party app handling the implicit
+            intent created by <c>#createIntent</c> might return Uris that the third-party
+            app itself does not have access to, such as your own app's sensitive data files.
+            WebView does not enforce any restrictions on the returned Uris. It is the
+            app's responsibility to ensure that the untrusted source (such as a third-party
+            app) has access the Uris it has returned and that the Uris are not pointing
+            to any sensitive data files.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/WebChromeClient.FileChooserParams#parseResult(int,%20android.content.Intent)" title="Reference documentation">Java documentation for <code>android.webkit.WebChromeClient.FileChooserParams.parseResult(int, android.content.Intent)</code>.</a>
@@ -378,6 +411,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

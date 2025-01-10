@@ -17,13 +17,31 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/sdksandbox/SandboxedSdkProvider", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Encapsulates API which SDK sandbox can use to interact with SDKs loaded into it.</summary>
+    <remarks>
+      <para>Encapsulates API which SDK sandbox can use to interact with SDKs loaded into it.</para>
+      <para>SDK has to implement this abstract class to generate an entry point for SDK sandbox to be able
+            to call it through.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdkProvider" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdkProvider</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -99,9 +117,24 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The new base context.</param>
+        <summary>Sets the SDK <c>Context</c> which can then be received using <c>SandboxedSdkProvider#getContext()</c>.</summary>
+        <remarks>
+          <para>Sets the SDK <c>Context</c> which can then be received using <c>SandboxedSdkProvider#getContext()</c>. This is called before <c>SandboxedSdkProvider#onLoadSdk</c> is invoked. No operations requiring a <c>Context</c> should
+            be performed before then, as <c>SandboxedSdkProvider#getContext</c> will return null until
+            this method has been called.</para>
+          <para>Throws IllegalStateException if a base context has already been set.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdkProvider#attachContext(android.content.Context)" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdkProvider.attachContext(android.content.Context)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="BeforeUnloadSdk">
@@ -129,8 +162,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Does the work needed for the SDK to free its resources before being unloaded.</summary>
+        <remarks>
+          <para>Does the work needed for the SDK to free its resources before being unloaded.</para>
+          <para>This function is called by the SDK sandbox manager before it unloads the SDK. The SDK
+            should fail any invocations on the Binder previously returned to the client through <c>SandboxedSdk#getInterface</c>.</para>
+          <para>The SDK should not do any long-running tasks here, like I/O and network calls.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdkProvider#beforeUnloadSdk()" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdkProvider.beforeUnloadSdk()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Context">
@@ -145,6 +193,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -157,9 +209,22 @@
         <ReturnType>Android.Content.Context</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Return the <c>Context</c> previously set through <c>SandboxedSdkProvider#attachContext</c>.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Return the <c>Context</c> previously set through <c>SandboxedSdkProvider#attachContext</c>.
+            This will return null if no context has been previously set.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdkProvider#getContext()" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdkProvider.getContext()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetView">
@@ -181,6 +246,10 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Views.View</ReturnType>
@@ -192,13 +261,29 @@
         <Parameter Name="height" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="windowContext">To be added.</param>
-        <param name="params">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="windowContext">the <c>Context</c> of the display which meant to show the view</param>
+        <param name="params">list of params passed from the client application requesting the view</param>
+        <param name="width">The view returned will be laid as if in a window of this width, in pixels.</param>
+        <param name="height">The view returned will be laid as if in a window of this height, in pixels.</param>
+        <summary>Requests a view to be remotely rendered to the client app process.</summary>
+        <returns>a <c>View</c> which SDK sandbox pass to the client application requesting the view</returns>
+        <remarks>
+          <para>Requests a view to be remotely rendered to the client app process.</para>
+          <para>Returns <c>View</c> will be wrapped into <c>SurfacePackage</c>. the resulting <c>SurfacePackage</c> will be sent back to the client application.</para>
+          <para>The SDK should not do any long-running tasks here, like I/O and network calls. Doing so
+            can prevent the SDK from receiving requests from the client.</para>
+          <para>This member is deprecated. This method will no longer be supported as it is being used by <c>SdkSandboxManager#requestSurfacePackage</c> which is getting deprecated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdkProvider#getView(android.content.Context,%20android.os.Bundle,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdkProvider.getView(android.content.Context, android.os.Bundle, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -257,10 +342,30 @@
         <Parameter Name="params" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="params">list of params passed from the client when it loads the SDK. This can be empty.</param>
+        <summary>Does the work needed for the SDK to start handling requests.</summary>
+        <returns>Returns a <c>SandboxedSdk</c>, passed back to the client. The IBinder used to create
+                the <c>SandboxedSdk</c> object will be used by the client to call into the SDK.</returns>
+        <remarks>
+          <para>Does the work needed for the SDK to start handling requests.</para>
+          <para>This function is called by the SDK sandbox after it loads the SDK.</para>
+          <para>SDK should do any work to be ready to handle upcoming requests. It should not do any
+            long-running tasks here, like I/O and network calls. Doing so can prevent the SDK from
+            receiving requests from the client. Additionally, it should not do initialization that
+            depends on other SDKs being loaded into the SDK sandbox.</para>
+          <para>The SDK should not do any operations requiring a <c>Context</c> object before this method
+            has been called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdkProvider#onLoadSdk(android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdkProvider.onLoadSdk(android.os.Bundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

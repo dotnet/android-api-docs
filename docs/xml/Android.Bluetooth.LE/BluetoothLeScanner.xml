@@ -16,10 +16,18 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/bluetooth/le/BluetoothLeScanner", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/le/BluetoothLeScanner", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>This class provides methods to perform scan related operations for Bluetooth LE devices.</summary>
     <remarks>
+      <para>This class provides methods to perform scan related operations for Bluetooth LE devices. An
+            application can scan for a particular type of Bluetooth LE devices using <c>ScanFilter</c>. It
+            can also request different types of callbacks for delivering the result.</para>
+      <para>Use <c>BluetoothAdapter#getBluetoothLeScanner()</c> to get an instance of <c>BluetoothLeScanner</c>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner</code>.</a>
@@ -57,9 +65,11 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Optional extra indicating the callback type, which will be one of
-            CALLBACK_TYPE_* constants in <c>ScanSettings</c>.</summary>
+        <summary>Optional extra indicating the callback type, which will be one of CALLBACK_TYPE_* constants
+            in <c>ScanSettings</c>.</summary>
         <remarks>
+          <para>Optional extra indicating the callback type, which will be one of CALLBACK_TYPE_* constants
+            in <c>ScanSettings</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#EXTRA_CALLBACK_TYPE" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.EXTRA_CALLBACK_TYPE</code>.</a>
@@ -99,6 +109,8 @@
       <Docs>
         <summary>Optional extra indicating the error code, if any.</summary>
         <remarks>
+          <para>Optional extra indicating the error code, if any. The error code will be one of the
+            SCAN_FAILED_* codes in <c>ScanCallback</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#EXTRA_ERROR_CODE" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.EXTRA_ERROR_CODE</code>.</a>
@@ -138,6 +150,9 @@
       <Docs>
         <summary>Extra containing a list of ScanResults.</summary>
         <remarks>
+          <para>Extra containing a list of ScanResults. It can have one or more results if there was no
+            error. In case of error, <c>#EXTRA_ERROR_CODE</c> will contain the error code and this extra
+            will not be available.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#EXTRA_LIST_SCAN_RESULT" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT</code>.</a>
@@ -179,9 +194,12 @@
       </Parameters>
       <Docs>
         <param name="callback">Callback of the Bluetooth LE Scan, it has to be the same instance as the one
-            used to start scan.</param>
+                used to start scan.</param>
         <summary>Flush pending batch scan results stored in Bluetooth controller.</summary>
         <remarks>
+          <para>Flush pending batch scan results stored in Bluetooth controller. This will return Bluetooth
+            LE scan results batched on bluetooth controller. Returns immediately, batch scan results data
+            will be delivered through the <c>callback</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#flushPendingScanResults(android.bluetooth.le.ScanCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.flushPendingScanResults(android.bluetooth.le.ScanCallback)</code>.</a>
@@ -256,6 +274,13 @@
         <param name="callback">Callback used to deliver scan results.</param>
         <summary>Start Bluetooth LE scan with default parameters and no filters.</summary>
         <remarks>
+          <para>Start Bluetooth LE scan with default parameters and no filters. The scan results will be
+            delivered through <c>callback</c>. For unfiltered scans, scanning is stopped on screen off
+            to save power. Scanning is resumed when screen is turned on again. To avoid this, use <c>#startScan(List, ScanSettings, ScanCallback)</c> with desired <c>ScanFilter</c>.</para>
+          <para>An app must have <c>android.Manifest.permission#ACCESS_COARSE_LOCATION
+            ACCESS_COARSE_LOCATION</c> permission in order to get results. An App targeting Android Q or
+            later must have <c>android.Manifest.permission#ACCESS_FINE_LOCATION ACCESS_FINE_LOCATION</c>
+            permission in order to get results.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#startScan(android.bluetooth.le.ScanCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.startScan(android.bluetooth.le.ScanCallback)</code>.</a>
@@ -299,8 +324,22 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="filters" Type="System.Collections.Generic.IList&lt;Android.Bluetooth.LE.ScanFilter&gt;" />
-        <Parameter Name="settings" Type="Android.Bluetooth.LE.ScanSettings" />
+        <Parameter Name="filters" Type="System.Collections.Generic.IList&lt;Android.Bluetooth.LE.ScanFilter&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="settings" Type="Android.Bluetooth.LE.ScanSettings">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="callbackIntent" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
@@ -309,8 +348,18 @@
         <param name="callbackIntent">The PendingIntent to deliver the result to.</param>
         <summary>Start Bluetooth LE scan using a <c>PendingIntent</c>.</summary>
         <returns>Returns 0 for success or an error code from <c>ScanCallback</c> if the scan request
-            could not be sent.</returns>
+                could not be sent.</returns>
         <remarks>
+          <para>Start Bluetooth LE scan using a <c>PendingIntent</c>. The scan results will be delivered via
+            the PendingIntent. Use this method of scanning if your process is not always running and it
+            should be started when scan results are available.</para>
+          <para>An app must have <c>android.Manifest.permission#ACCESS_COARSE_LOCATION
+            ACCESS_COARSE_LOCATION</c> permission in order to get results. An App targeting Android Q or
+            later must have <c>android.Manifest.permission#ACCESS_FINE_LOCATION ACCESS_FINE_LOCATION</c>
+            permission in order to get results.</para>
+          <para>When the PendingIntent is delivered, the Intent passed to the receiver or activity will
+            contain one or more of the extras <c>#EXTRA_CALLBACK_TYPE</c>, <c>#EXTRA_ERROR_CODE</c> and
+            <c>#EXTRA_LIST_SCAN_RESULT</c> to indicate the result of the scan.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#startScan(java.util.List%3Candroid.bluetooth.le.ScanFilter%3E,%20android.bluetooth.le.ScanSettings,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.startScan(java.util.List&lt;android.bluetooth.le.ScanFilter&gt;, android.bluetooth.le.ScanSettings, android.app.PendingIntent)</code>.</a>
@@ -348,7 +397,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="filters" Type="System.Collections.Generic.IList&lt;Android.Bluetooth.LE.ScanFilter&gt;" />
+        <Parameter Name="filters" Type="System.Collections.Generic.IList&lt;Android.Bluetooth.LE.ScanFilter&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="settings" Type="Android.Bluetooth.LE.ScanSettings" />
         <Parameter Name="callback" Type="Android.Bluetooth.LE.ScanCallback" />
       </Parameters>
@@ -359,6 +415,13 @@
         <param name="callback">Callback used to deliver scan results.</param>
         <summary>Start Bluetooth LE scan.</summary>
         <remarks>
+          <para>Start Bluetooth LE scan. The scan results will be delivered through <c>callback</c>. For
+            unfiltered scans, scanning is stopped on screen off to save power. Scanning is resumed when
+            screen is turned on again. To avoid this, do filtered scanning by using proper <c>ScanFilter</c>.</para>
+          <para>An app must have <c>android.Manifest.permission#ACCESS_COARSE_LOCATION
+            ACCESS_COARSE_LOCATION</c> permission in order to get results. An App targeting Android Q or
+            later must have <c>android.Manifest.permission#ACCESS_FINE_LOCATION ACCESS_FINE_LOCATION</c>
+            permission in order to get results.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#startScan(java.util.List%3Candroid.bluetooth.le.ScanFilter%3E,%20android.bluetooth.le.ScanSettings,%20android.bluetooth.le.ScanCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.startScan(java.util.List&lt;android.bluetooth.le.ScanFilter&gt;, android.bluetooth.le.ScanSettings, android.bluetooth.le.ScanCallback)</code>.</a>
@@ -406,6 +469,9 @@
         <param name="callbackIntent">The PendingIntent that was used to start the scan.</param>
         <summary>Stops an ongoing Bluetooth LE scan started using a PendingIntent.</summary>
         <remarks>
+          <para>Stops an ongoing Bluetooth LE scan started using a PendingIntent. When creating the
+            PendingIntent parameter, please do not use the FLAG_CANCEL_CURRENT flag. Otherwise, the stop
+            scan may have no effect.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#stopScan(android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.stopScan(android.app.PendingIntent)</code>.</a>
@@ -449,6 +515,7 @@
         <param name="callback">callback</param>
         <summary>Stops an ongoing Bluetooth LE scan.</summary>
         <remarks>
+          <para>Stops an ongoing Bluetooth LE scan.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner#stopScan(android.bluetooth.le.ScanCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeScanner.stopScan(android.bluetooth.le.ScanCallback)</code>.</a>

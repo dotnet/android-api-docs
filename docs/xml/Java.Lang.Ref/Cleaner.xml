@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/lang/ref/Cleaner", ApiSince=33, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
     </Attribute>
@@ -46,9 +50,6 @@
             will not be invoked automatically.</para>
       <para>The execution of the cleaning action is performed
             by a thread associated with the cleaner.
-            All exceptions thrown by the cleaning action are ignored.
-            The cleaner and other cleaning actions are not affected by
-            exceptions in a cleaning action.
             The thread runs until all registered cleaning actions have
             completed and the cleaner itself is reclaimed by the garbage collector.</para>
       <para>The behavior of cleaners during <c>System#exit(int) System.exit</c>
@@ -107,6 +108,7 @@
             <c>ClassLoader#getSystemClassLoader() system class loader</c>.
             The thread has no permissions, enforced only if a
             <c>java.lang.System#setSecurityManager(SecurityManager) SecurityManager is set</c>.</para>
+          <para>All exceptions thrown by the cleaning actions in this thread are ignored.</para>
           <para>The cleaner terminates when it is phantom reachable and all of the
             registered cleaning actions are complete.</para>
           <para>

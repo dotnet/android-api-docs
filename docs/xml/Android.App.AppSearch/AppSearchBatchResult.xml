@@ -21,6 +21,10 @@
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "KeyType", "ValueType" })&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -30,6 +34,12 @@
     <param name="&lt;ValueType&gt;&lt;ValueType&gt;">The type of the result objects for successful results.</param>
     <summary>Provides results for AppSearch batch operations which encompass multiple documents.</summary>
     <remarks>
+      <para>Provides results for AppSearch batch operations which encompass multiple documents.</para>
+      <para>Individual results of a batch operation are separated into two maps: one for successes and one
+            for failures. For successes, <c>#getSuccesses()</c> will return a map of keys to instances of
+            the value type. For failures, <c>#getFailures()</c> will return a map of keys to <c>AppSearchResult</c> objects.</para>
+      <para>Alternatively, <c>#getAll()</c> returns a map of keys to <c>AppSearchResult</c> objects for
+            both successes and failures.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchBatchResult" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchBatchResult</code>.</a>
@@ -71,6 +81,9 @@
             individual results.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns a <c>Map</c> of keys mapped to instances of <c>AppSearchResult</c> for all
+            individual results.</para>
+          <para>The values of the <c>Map</c> will not be <c>null</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchBatchResult#getAll()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchBatchResult.getAll()</code>.</a>
@@ -112,6 +125,9 @@
             individual results.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns a <c>Map</c> of keys mapped to instances of <c>AppSearchResult</c> for all failed
+            individual results.</para>
+          <para>The values of the <c>Map</c> will not be <c>null</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchBatchResult#getFailures()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchBatchResult.getFailures()</code>.</a>
@@ -152,6 +168,7 @@
         <summary>Returns <c>true</c> if this <c>AppSearchBatchResult</c> has no failures.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns <c>true</c> if this <c>AppSearchBatchResult</c> has no failures.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchBatchResult#isSuccess()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchBatchResult.isSuccess()</code>.</a>
@@ -222,6 +239,12 @@
             individual results.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Returns a <c>Map</c> of keys mapped to instances of the value type for all successful
+            individual results.</para>
+          <para>Example: <c>AppSearchSession#getByDocumentId</c> returns an <c>AppSearchBatchResult</c>.
+            Each key (the document ID, of <c>String</c> type) will map to a <c>GenericDocument</c>
+            object.</para>
+          <para>The values of the <c>Map</c> will not be <c>null</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchBatchResult#getSuccesses()" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchBatchResult.getSuccesses()</code>.</a>

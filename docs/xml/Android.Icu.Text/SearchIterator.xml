@@ -17,19 +17,61 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/SearchIterator", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>SearchIterator</c> is an abstract base class that provides 
+            methods to search for a pattern within a text string.</summary>
     <remarks>
       <para>
+        <c>SearchIterator</c> is an abstract base class that provides 
+            methods to search for a pattern within a text string. Instances of
+            <c>SearchIterator</c> maintain a current position and scan over the 
+            target text, returning the indices the pattern is matched and the length 
+            of each match.</para>
+      <para>
+        <c>SearchIterator</c> defines a protocol for text searching. 
+            Subclasses provide concrete implementations of various search algorithms. 
+            For example, <c>StringSearch</c> implements language-sensitive pattern 
+            matching based on the comparison rules defined in a 
+            <c>RuleBasedCollator</c> object.</para>
+      <para>Other options for searching include using a BreakIterator to restrict 
+            the points at which matches are detected.</para>
+      <para>
+        <c>SearchIterator</c> provides an API that is similar to that of
+            other text iteration classes such as <c>BreakIterator</c>. Using 
+            this class, it is easy to scan through text looking for all occurrences of 
+            a given pattern. The following example uses a <c>StringSearch</c> 
+            object to find all instances of "fox" in the target string. Any other 
+            subclass of <c>SearchIterator</c> can be used in an identical 
+            manner.</para>
+      <code lang="text/java">&lt;code&gt;
+            String target = "The quick brown fox jumped over the lazy fox";
+            String pattern = "fox";
+            SearchIterator iter = new StringSearch(pattern, target);
+            for (int pos = iter.first(); pos != SearchIterator.DONE;
+                    pos = iter.next()) {
+                System.out.println("Found match at " + pos +
+                        ", length is " + iter.getMatchLength());
+            }
+            &lt;/code&gt;</code>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/SearchIterator" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/SearchIterator" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -58,11 +100,26 @@
         <Parameter Name="breaker" Type="Android.Icu.Text.BreakIterator" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="breaker">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="target">The target text to be searched.</param>
+        <param name="breaker">A <c>BreakIterator</c> that is used to determine the 
+                           boundaries of a logical match. This argument can be null.</param>
+        <summary>Protected constructor for use by subclasses.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Protected constructor for use by subclasses.
+            Initializes the iterator with the argument target text for searching 
+            and sets the BreakIterator.
+            See class documentation for more details on the use of the target text
+            and <c>BreakIterator</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#SearchIterator(java.text.CharacterIterator,%20android.icu.text.BreakIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.SearchIterator(java.text.CharacterIterator, android.icu.text.BreakIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -121,10 +178,42 @@
         <ReturnType>Android.Icu.Text.BreakIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="breakiter">A BreakIterator that will be used to restrict the 
+                           points at which matches are detected. If a match is 
+                           found, but the match's start or end index is not a 
+                           boundary as determined by the <c>BreakIterator</c>, 
+                           the match will be rejected and another will be searched 
+                           for. If this parameter is <c>null</c>, no break
+                           detection is attempted.</param>
+        <summary>Returns the BreakIterator that is used to restrict the indexes at which 
+            matches are detected. -or- Set the BreakIterator that will be used to restrict the points
+            at which matches are detected.</summary>
+        <value>the BreakIterator set to restrict logic matches</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the BreakIterator that is used to restrict the indexes at which 
+            matches are detected. This will be the same object that was passed to 
+            the constructor or to <c>#setBreakIterator</c>.
+            If the <c>BreakIterator</c> has not been set, <c>null</c> will be returned.
+            See <c>#setBreakIterator</c> for more information.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#getBreakIterator()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.getBreakIterator()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the BreakIterator that will be used to restrict the points
+            at which matches are detected.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#setBreakIterator(android.icu.text.BreakIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.setBreakIterator(android.icu.text.BreakIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -153,9 +242,21 @@
       </ReturnValue>
       <MemberValue>-1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>DONE is returned by previous() and next() after all valid matches have 
+            been returned, and by first() and last() if there are no matches at all.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>DONE is returned by previous() and next() after all valid matches have 
+            been returned, and by first() and last() if there are no matches at all.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#DONE" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.DONE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -184,10 +285,28 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the first index at which the string text matches the search 
+            pattern.</summary>
+        <returns>The character index of the first match, or 
+                    <c>#DONE</c> if there are no matches.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the first index at which the string text matches the search 
+            pattern. The iterator is adjusted so that its current index (as 
+            returned by <c>#getIndex()</c>) is the match position if one 
+            
+            was found.
+            If a match is not found, <c>#DONE</c> will be returned and
+            the iterator will be adjusted to the index <c>#DONE</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#first()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.first()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -218,11 +337,28 @@
         <Parameter Name="position" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="position">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="position">where search if to start from.</param>
+        <summary>Returns the first index equal or greater than <c>position</c> at which the 
+            string text matches the search pattern.</summary>
+        <returns>The character index of the first match following 
+                    <c>position</c>, or <c>#DONE</c> if there are no matches.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the first index equal or greater than <c>position</c> at which the 
+            string text matches the search pattern. The iterator is adjusted so 
+            that its current index (as returned by <c>#getIndex()</c>) is the 
+            match position if one was found.
+            If a match is not found, <c>#DONE</c> will be returned and the
+            iterator will be adjusted to the index <c>#DONE</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#following(int)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.following(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -285,11 +421,31 @@
         <Parameter Name="start" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="start">The index in the target text at which the search 
+                         should start.</param>
+        <summary>Abstract method which subclasses override to provide the mechanism
+            for finding the next match in the target text.</summary>
+        <returns>index at which the match starts, else if match is not found 
+                    <c>#DONE</c> is returned</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Abstract method which subclasses override to provide the mechanism
+            for finding the next match in the target text. This allows different
+            subclasses to provide different search algorithms.</para>
+          <para>If a match is found, the implementation should return the index at
+            which the match starts and should call 
+            <c>#setMatchLength</c> with the number of characters 
+            in the target text that make up the match. If no match is found, the 
+            method should return <c>#DONE</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#handleNext(int)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.handleNext(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -320,11 +476,31 @@
         <Parameter Name="startAt" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="startAt">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="startAt">The index in the target text at which the search 
+                             should start.</param>
+        <summary>Abstract method which subclasses override to provide the mechanism for
+            finding the previous match in the target text.</summary>
+        <returns>index at which the match starts, else if match is not found 
+                    <c>#DONE</c> is returned</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Abstract method which subclasses override to provide the mechanism for
+            finding the previous match in the target text. This allows different
+            subclasses to provide different search algorithms.</para>
+          <para>If a match is found, the implementation should return the index at
+            which the match starts and should call 
+            <c>#setMatchLength</c> with the number of characters 
+            in the target text that make up the match. If no match is found, the 
+            method should return <c>#DONE</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#handlePrevious(int)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.handlePrevious(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -378,6 +554,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -415,10 +595,27 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the last index in the target text at which it matches the
+            search pattern.</summary>
+        <returns>The index of the first match, or <c>#DONE</c> if 
+                    there are no matches.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the last index in the target text at which it matches the
+            search pattern. The iterator is adjusted so that its current index
+            (as returned by <c>#getIndex</c>) is the match position if one was
+            found.
+            If a match is not found, <c>#DONE</c> will be returned and
+            the iterator will be adjusted to the index <c>#DONE</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#last()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.last()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -446,10 +643,26 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the text that was matched by the most recent call to 
+            <c>#first</c>, <c>#next</c>, <c>#previous</c>, or <c>#last</c>.</summary>
+        <value>the substring in the target test of the most recent match,
+                     or null if there is no match currently.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the text that was matched by the most recent call to 
+            <c>#first</c>, <c>#next</c>, <c>#previous</c>, or <c>#last</c>.
+            If the iterator is not pointing at a valid match (e.g. just after 
+            construction or after <c>#DONE</c> has been returned, 
+            returns an empty string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#getMatchedText()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.getMatchedText()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -477,10 +690,26 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the length of text in the string which matches the search 
+            pattern.</summary>
+        <value>The length of the match in the target text, or 0 if there
+                    is no match currently.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the length of text in the string which matches the search 
+            pattern. This call returns a valid result only after a successful call 
+            to <c>#first</c>, <c>#next</c>, <c>#previous</c>, or <c>#last</c>.
+            Just after construction, or after a searching method returns 
+            <c>#DONE</c>, this method will return 0.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#getMatchLength()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.getMatchLength()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -508,10 +737,26 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the index to the match in the text string that was searched.</summary>
+        <value>index of a substring within the text string that is being 
+                    searched.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the index to the match in the text string that was searched.
+            This call returns a valid result only after a successful call to 
+            <c>#first</c>, <c>#next</c>, <c>#previous</c>, or <c>#last</c>.
+            Just after construction, or after a searching method returns 
+            <c>#DONE</c>, this method will return <c>#DONE</c>.</para>
+          <para>Use <c>#getMatchLength</c> to get the matched string length.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#getMatchStart()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.getMatchStart()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -540,10 +785,30 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the index of the next point at which the text matches the
+            search pattern, starting from the current position
+            The iterator is adjusted so that its current index (as returned by 
+            <c>#getIndex</c>) is the match position if one was found.</summary>
+        <returns>The index of the next match after the current position,
+                     or <c>#DONE</c> if there are no more matches.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the index of the next point at which the text matches the
+            search pattern, starting from the current position
+            The iterator is adjusted so that its current index (as returned by 
+            <c>#getIndex</c>) is the match position if one was found.
+            If a match is not found, <c>#DONE</c> will be returned and
+            the iterator will be adjusted to a position after the end of the text 
+            string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#next()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.next()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -579,10 +844,32 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="allowOverlap">flag indicator if overlapping matches are allowed</param>
+        <summary>Return true if the overlapping property has been set. -or- Determines whether overlapping matches are returned.</summary>
+        <value>true if the overlapping property has been set, false otherwise</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Return true if the overlapping property has been set.
+            See <c>#setOverlapping(boolean)</c> for more information.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#isOverlapping()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.isOverlapping()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Determines whether overlapping matches are returned. See the class 
+            documentation for more information about overlapping matches.</para>
+          <para>The default setting of this property is false</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#setOverlapping(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.setOverlapping(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -613,11 +900,33 @@
         <Parameter Name="position" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="position">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="position">where search is to start from.</param>
+        <summary>Returns the first index less than <c>position</c> at which the string 
+            text matches the search pattern.</summary>
+        <returns>The character index of the first match preceding 
+                    <c>position</c>, or <c>#DONE</c> if there are 
+                    no matches.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the first index less than <c>position</c> at which the string 
+            text matches the search pattern. The iterator is adjusted so that its 
+            current index (as returned by <c>#getIndex</c>) is the match 
+            position if one was found. If a match is not found, 
+            <c>#DONE</c> will be returned and the iterator will be 
+            adjusted to the index <c>#DONE</c></para>
+          <para>When the overlapping option (<c>#isOverlapping</c>) is off, the last index of the
+            result match is always less than <c>position</c>.
+            When the overlapping option is on, the result match may span across
+            <c>position</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#preceding(int)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.preceding(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -646,10 +955,27 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the index of the previous point at which the string text 
+            matches the search pattern, starting at the current position.</summary>
+        <returns>The index of the previous match before the current position,
+                     or <c>#DONE</c> if there are no more matches.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the index of the previous point at which the string text 
+            matches the search pattern, starting at the current position.
+            The iterator is adjusted so that its current index (as returned by 
+            <c>#getIndex</c>) is the match position if one was found.
+            If a match is not found, <c>#DONE</c> will be returned and
+            the iterator will be adjusted to the index <c>#DONE</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#previous()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.previous()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -678,9 +1004,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Resets the iteration.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Resets the iteration.
+            Search will begin at the start of the text string if a forward
+            iteration is initiated before a backwards iteration. Otherwise if a
+            backwards iteration is initiated before a forwards iteration, the
+            search will begin at the end of the text string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#reset()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.reset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -745,10 +1085,21 @@
         <Parameter Name="position" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="position">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="position">position from which to start the next search</param>
+        <summary>Sets the position in the target text at which the next search will start.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the position in the target text at which the next search will start.
+            This method clears any previous match.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#setIndex(int)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.setIndex(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -779,10 +1130,22 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="length">new length to set</param>
+        <summary>Sets the length of the most recent match in the target text.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the length of the most recent match in the target text. 
+            Subclasses' handleNext() and handlePrevious() methods should call this 
+            after they find a match in the target text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#setMatchLength(int)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.setMatchLength(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -818,10 +1181,31 @@
         <ReturnType>Java.Text.ICharacterIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="text">new text iterator to look for match,</param>
+        <summary>Return the string text to be searched. -or- Set the target text to be searched.</summary>
+        <value>text string to be searched.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Return the string text to be searched.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#getTarget()" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.getTarget()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Set the target text to be searched. Text iteration will then begin at 
+            the start of the text string. This method is useful if you want to 
+            reuse an iterator to search within a different body of text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#setTarget(java.text.CharacterIterator)" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.setTarget(java.text.CharacterIterator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -849,10 +1233,20 @@
         <ReturnType>Java.Text.ICharacterIterator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Target text for searching.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Target text for searching.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SearchIterator#targetText" title="Reference documentation">Java documentation for <code>android.icu.text.SearchIterator.targetText</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -905,6 +1299,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

@@ -17,13 +17,62 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/provider/CloudMediaProvider", ApiSince=33, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Base class for a cloud media provider.</summary>
+    <remarks>
+      <para>Base class for a cloud media provider. A cloud media provider offers read-only access to durable
+            media files, specifically photos and videos stored on a local disk, or files in a cloud storage
+            service. To create a cloud media provider, extend this class, implement the abstract methods,
+            and add it to your manifest like this:</para>
+      <code lang="text/java">&amp;lt;manifest&amp;gt;
+               ...
+               &amp;lt;application&amp;gt;
+                   ...
+                   &amp;lt;provider
+                       android:name="com.example.MyCloudProvider"
+                       android:authorities="com.example.mycloudprovider"
+                       android:exported="true"
+                       android:permission="com.android.providers.media.permission.MANAGE_CLOUD_MEDIA_PROVIDERS"
+                       &amp;lt;intent-filter&amp;gt;
+                           &amp;lt;action android:name="android.content.action.CLOUD_MEDIA_PROVIDER" /&amp;gt;
+                       &amp;lt;/intent-filter&amp;gt;
+                   &amp;lt;/provider&amp;gt;
+                   ...
+               &amp;lt;/application&amp;gt;
+            &amp;lt;/manifest&amp;gt;</code>
+      <para>When defining your provider, you must protect it with the
+            <c>CloudMediaProviderContract#MANAGE_CLOUD_MEDIA_PROVIDERS_PERMISSION</c>, which is a permission
+            only the system can obtain, trying to define an unprotected <c>CloudMediaProvider</c> will
+            result in a <c>SecurityException</c>.</para>
+      <para>Applications cannot use a cloud media provider directly; they must go through
+            <c>MediaStore#ACTION_PICK_IMAGES</c> which requires a user to actively navigate and select
+            media items. When a user selects a media item through that UI, the system issues narrow URI
+            permission grants to the requesting application.
+            &lt;h3&gt;Media items&lt;/h3&gt;</para>
+      <para>A media item must be an openable stream (with a specific MIME type). Media items can belong to
+            zero or more albums. Albums cannot contain other albums.</para>
+      <para>Each item under a provider is uniquely referenced by its media or album id, which must not
+            change which must be unique across all collection IDs as returned by
+            <c>#onGetMediaCollectionInfo</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -102,8 +151,20 @@
       <Docs>
         <param name="context">To be added.</param>
         <param name="info">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Implementation is provided by the parent class.</summary>
+        <remarks>
+          <para>Implementation is provided by the parent class. Cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#attachInfo(android.content.Context,%20android.content.pm.ProviderInfo)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.attachInfo(android.content.Context, android.content.pm.ProviderInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Call">
@@ -131,16 +192,42 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="method" Type="System.String" />
-        <Parameter Name="arg" Type="System.String" />
-        <Parameter Name="extras" Type="Android.OS.Bundle" />
+        <Parameter Name="arg" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="extras" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="method">To be added.</param>
         <param name="arg">To be added.</param>
         <param name="extras">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#call(java.lang.String,%20java.lang.String,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.call(java.lang.String, java.lang.String, android.os.Bundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Canonicalize">
@@ -171,9 +258,22 @@
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Throws by default, and
+            cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#canonicalize(android.net.Uri)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.canonicalize(android.net.Uri)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Delete">
@@ -201,16 +301,43 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selection" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
         <param name="selection">To be added.</param>
         <param name="selectionArgs">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Throws by default, and
+            cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#delete(android.net.Uri,%20java.lang.String,%20java.lang.String[])" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.delete(android.net.Uri, java.lang.String, java.lang.String[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetType">
@@ -241,9 +368,22 @@
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Throws by default, and
+            cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#getType(android.net.Uri)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.getType(android.net.Uri)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -276,9 +416,22 @@
       <Docs>
         <param name="uri">To be added.</param>
         <param name="values">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Throws by default, and
+            cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#insert(android.net.Uri,%20android.content.ContentValues)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.insert(android.net.Uri, android.content.ContentValues)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -332,6 +485,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Provider.CloudMediaProvider+CloudMediaSurfaceController</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="config" Type="Android.OS.Bundle" />
@@ -372,10 +531,32 @@
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="extras">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="extras">containing keys to filter result:
+            &lt;ul&gt;
+            &lt;li&gt; <c>CloudMediaProviderContract#EXTRA_ALBUM_ID</c>&lt;/ul&gt;</param>
+        <summary>Returns metadata about the media collection itself.</summary>
+        <returns>
+          <c>Bundle</c> containing <c>CloudMediaProviderContract.MediaCollectionInfo</c>&lt;ul&gt;
+            &lt;li&gt; <c>CloudMediaProviderContract.MediaCollectionInfo#MEDIA_COLLECTION_ID</c>&lt;li&gt; <c>CloudMediaProviderContract.MediaCollectionInfo#LAST_MEDIA_SYNC_GENERATION</c>&lt;li&gt; <c>CloudMediaProviderContract.MediaCollectionInfo#ACCOUNT_NAME</c>&lt;li&gt; <c>CloudMediaProviderContract.MediaCollectionInfo#ACCOUNT_CONFIGURATION_INTENT</c>&lt;/ul&gt;</returns>
+        <remarks>
+          <para>Returns metadata about the media collection itself.</para>
+          <para>This is useful for the OS to determine if its cache of media items in the collection is
+            still valid and if a full or incremental sync is required with <c>#onQueryMedia</c>.</para>
+          <para>This method might be called by the OS frequently and is performance critical, hence it should
+            avoid long running operations.</para>
+          <para>If the provider handled any filters in <c>extras</c>, it must add the key to the
+            <c>ContentResolver#EXTRA_HONORED_ARGS</c> as part of the returned <c>Bundle</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onGetMediaCollectionInfo(android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.onGetMediaCollectionInfo(android.os.Bundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnOpenMedia">
@@ -403,16 +584,45 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="mediaId" Type="System.String" />
-        <Parameter Name="extras" Type="Android.OS.Bundle" />
-        <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="extras" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="signal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="mediaId">To be added.</param>
-        <param name="extras">To be added.</param>
-        <param name="signal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="mediaId">the media item to return</param>
+        <param name="extras">to modify the way the fd is opened, there's none at the moment, but some
+            might be implemented in the future</param>
+        <param name="signal">used by the OS to signal if the request should be cancelled</param>
+        <summary>Returns the full size media item identified by <c>mediaId</c>.</summary>
+        <returns>read-only file descriptor for accessing the media file</returns>
+        <remarks>
+          <para>Returns the full size media item identified by <c>mediaId</c>.</para>
+          <para>If you block while downloading content, you should periodically check
+            <c>CancellationSignal#isCanceled()</c> to abort abandoned open requests.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onOpenMedia(java.lang.String,%20android.os.Bundle,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.onOpenMedia(java.lang.String, android.os.Bundle, android.os.CancellationSignal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnOpenPreview">
@@ -441,17 +651,54 @@
       <Parameters>
         <Parameter Name="mediaId" Type="System.String" />
         <Parameter Name="size" Type="Android.Graphics.Point" />
-        <Parameter Name="extras" Type="Android.OS.Bundle" />
-        <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="extras" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="signal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="mediaId">To be added.</param>
-        <param name="size">To be added.</param>
-        <param name="extras">To be added.</param>
-        <param name="signal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="mediaId">the media item to return</param>
+        <param name="size">the dimensions of the thumbnail to return. The returned file descriptor doesn't
+            have to match the <c>size</c> precisely because the OS will adjust the dimensions before
+            usage. Implementations can return close approximations especially if the approximation is
+            already locally on the device and doesn't require downloading from the cloud.</param>
+        <param name="extras">to modify the way the fd is opened, e.g. for video files we may request a
+            thumbnail image instead of a video with
+            <c>CloudMediaProviderContract#EXTRA_PREVIEW_THUMBNAIL</c></param>
+        <param name="signal">used by the OS to signal if the request should be cancelled</param>
+        <summary>Returns a thumbnail of <c>size</c> for a media item identified by <c>mediaId</c></summary>
+        <returns>read-only file descriptor for accessing the thumbnail for the media file</returns>
+        <remarks>
+          <para>Returns a thumbnail of <c>size</c> for a media item identified by <c>mediaId</c></para>
+          <para>The cloud media provider should strictly return thumbnail in the original
+            <c>CloudMediaProviderContract.MediaColumns#MIME_TYPE</c> of the item.</para>
+          <para>This is expected to be a much lower resolution version than the item returned by
+            <c>#onOpenMedia</c>.</para>
+          <para>If you block while downloading content, you should periodically check
+            <c>CancellationSignal#isCanceled()</c> to abort abandoned open requests.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onOpenPreview(java.lang.String,%20android.graphics.Point,%20android.os.Bundle,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.onOpenPreview(java.lang.String, android.graphics.Point, android.os.Bundle, android.os.CancellationSignal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnQueryAlbums">
@@ -481,10 +728,37 @@
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="extras">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="extras">containing keys to filter album items:
+            &lt;ul&gt;
+            &lt;li&gt; <c>CloudMediaProviderContract#EXTRA_SYNC_GENERATION</c>&lt;li&gt; <c>CloudMediaProviderContract#EXTRA_PAGE_TOKEN</c>&lt;li&gt; <c>CloudMediaProviderContract#EXTRA_PAGE_SIZE</c>&lt;/ul&gt;</param>
+        <summary>Returns a cursor representing all album items in the media collection optionally filtered
+            by <c>extras</c> and sorted in reverse chronological order of
+            <c>CloudMediaProviderContract.AlbumColumns#DATE_TAKEN_MILLIS</c>, i.</summary>
+        <returns>cursor representing album items containing all
+            <c>CloudMediaProviderContract.AlbumColumns</c> columns</returns>
+        <remarks>
+          <para>Returns a cursor representing all album items in the media collection optionally filtered
+            by <c>extras</c> and sorted in reverse chronological order of
+            <c>CloudMediaProviderContract.AlbumColumns#DATE_TAKEN_MILLIS</c>, i.e. most recent items
+            first.</para>
+          <para>The cloud media provider must set the
+            <c>CloudMediaProviderContract#EXTRA_MEDIA_COLLECTION_ID</c> as part of the returned
+            <c>Cursor#setExtras</c><c>Bundle</c>. Not setting this is an error and invalidates the
+            returned <c>Cursor</c>.</para>
+          <para>If the provider handled any filters in <c>extras</c>, it must add the key to
+            the <c>ContentResolver#EXTRA_HONORED_ARGS</c> as part of the returned
+            <c>Cursor#setExtras</c><c>Bundle</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onQueryAlbums(android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.onQueryAlbums(android.os.Bundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnQueryDeletedMedia">
@@ -514,10 +788,35 @@
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="extras">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="extras">containing keys to filter deleted media items:
+            &lt;ul&gt;
+            &lt;li&gt; <c>CloudMediaProviderContract#EXTRA_SYNC_GENERATION</c>&lt;li&gt; <c>CloudMediaProviderContract#EXTRA_PAGE_TOKEN</c>&lt;/ul&gt;</param>
+        <summary>Returns a <c>Cursor</c> representing all deleted media items in the entire media collection
+            within the current provider version as returned by <c>#onGetMediaCollectionInfo</c>.</summary>
+        <returns>cursor representing deleted media items containing just the
+            <c>CloudMediaProviderContract.MediaColumns#ID</c> column</returns>
+        <remarks>
+          <para>Returns a <c>Cursor</c> representing all deleted media items in the entire media collection
+            within the current provider version as returned by <c>#onGetMediaCollectionInfo</c>. These
+            items can be optionally filtered by <c>extras</c>.</para>
+          <para>The cloud media provider must set the
+            <c>CloudMediaProviderContract#EXTRA_MEDIA_COLLECTION_ID</c> as part of the returned
+            <c>Cursor#setExtras</c><c>Bundle</c>. Not setting this is an error and invalidates the
+            returned <c>Cursor</c>.</para>
+          <para>If the provider handled any filters in <c>extras</c>, it must add the key to
+            the <c>ContentResolver#EXTRA_HONORED_ARGS</c> as part of the returned
+            <c>Cursor#setExtras</c><c>Bundle</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onQueryDeletedMedia(android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.onQueryDeletedMedia(android.os.Bundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnQueryMedia">
@@ -547,10 +846,37 @@
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="extras">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="extras">containing keys to filter media items:
+            &lt;ul&gt;
+            &lt;li&gt; <c>CloudMediaProviderContract#EXTRA_SYNC_GENERATION</c>&lt;li&gt; <c>CloudMediaProviderContract#EXTRA_PAGE_TOKEN</c>&lt;li&gt; <c>CloudMediaProviderContract#EXTRA_ALBUM_ID</c>&lt;li&gt; <c>CloudMediaProviderContract#EXTRA_PAGE_SIZE</c>&lt;/ul&gt;</param>
+        <summary>Returns a cursor representing all media items in the media collection optionally filtered by
+            <c>extras</c> and sorted in reverse chronological order of
+            <c>CloudMediaProviderContract.MediaColumns#DATE_TAKEN_MILLIS</c>, i.</summary>
+        <returns>cursor representing media items containing all
+            <c>CloudMediaProviderContract.MediaColumns</c> columns</returns>
+        <remarks>
+          <para>Returns a cursor representing all media items in the media collection optionally filtered by
+            <c>extras</c> and sorted in reverse chronological order of
+            <c>CloudMediaProviderContract.MediaColumns#DATE_TAKEN_MILLIS</c>, i.e. most recent items
+            first.</para>
+          <para>The cloud media provider must set the
+            <c>CloudMediaProviderContract#EXTRA_MEDIA_COLLECTION_ID</c> as part of the returned
+            <c>Cursor#setExtras</c><c>Bundle</c>. Not setting this is an error and invalidates the
+            returned <c>Cursor</c>.</para>
+          <para>If the cloud media provider handled any filters in <c>extras</c>, it must add the key to
+            the <c>ContentResolver#EXTRA_HONORED_ARGS</c> as part of the returned
+            <c>Cursor#setExtras</c><c>Bundle</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onQueryMedia(android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.onQueryMedia(android.os.Bundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OpenFile">
@@ -583,9 +909,21 @@
       <Docs>
         <param name="uri">To be added.</param>
         <param name="mode">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#openFile(android.net.Uri,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.openFile(android.net.Uri, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OpenFile">
@@ -614,15 +952,34 @@
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="mode" Type="System.String" />
-        <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="signal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
         <param name="mode">To be added.</param>
         <param name="signal">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#openFile(android.net.Uri,%20java.lang.String,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.openFile(android.net.Uri, java.lang.String, android.os.CancellationSignal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OpenTypedAssetFile">
@@ -651,15 +1008,34 @@
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="mimeTypeFilter" Type="System.String" />
-        <Parameter Name="opts" Type="Android.OS.Bundle" />
+        <Parameter Name="opts" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
         <param name="mimeTypeFilter">To be added.</param>
         <param name="opts">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#openTypedAssetFile(android.net.Uri,%20java.lang.String,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.openTypedAssetFile(android.net.Uri, java.lang.String, android.os.Bundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OpenTypedAssetFile">
@@ -688,17 +1064,43 @@
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="mimeTypeFilter" Type="System.String" />
-        <Parameter Name="opts" Type="Android.OS.Bundle" />
-        <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="opts" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="signal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
         <param name="mimeTypeFilter">To be added.</param>
         <param name="opts">To be added.</param>
         <param name="signal">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#openTypedAssetFile(android.net.Uri,%20java.lang.String,%20android.os.Bundle,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.openTypedAssetFile(android.net.Uri, java.lang.String, android.os.Bundle, android.os.CancellationSignal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">
@@ -726,18 +1128,51 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="projection" Type="System.String[]" />
-        <Parameter Name="queryArgs" Type="Android.OS.Bundle" />
-        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="projection" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="queryArgs" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
         <param name="projection">To be added.</param>
         <param name="queryArgs">To be added.</param>
         <param name="cancellationSignal">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#query(android.net.Uri,%20java.lang.String[],%20android.os.Bundle,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.query(android.net.Uri, java.lang.String[], android.os.Bundle, android.os.CancellationSignal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">
@@ -765,10 +1200,38 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="projection" Type="System.String[]" />
-        <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
-        <Parameter Name="sortOrder" Type="System.String" />
+        <Parameter Name="projection" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="selection" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="sortOrder" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
@@ -776,9 +1239,22 @@
         <param name="selection">To be added.</param>
         <param name="selectionArgs">To be added.</param>
         <param name="sortOrder">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Throws by default, and
+            cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#query(android.net.Uri,%20java.lang.String[],%20java.lang.String,%20java.lang.String[],%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">
@@ -803,12 +1279,39 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Database.ICursor</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="projection" Type="System.String[]" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="projection" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sortOrder" Type="System.String" />
         <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
       </Parameters>
@@ -819,9 +1322,22 @@
         <param name="selectionArgs">To be added.</param>
         <param name="sortOrder">To be added.</param>
         <param name="cancellationSignal">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Throws by default, and
+            cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#query(android.net.Uri,%20java.lang.String[],%20java.lang.String,%20java.lang.String[],%20java.lang.String,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String, android.os.CancellationSignal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -908,17 +1424,44 @@
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="values" Type="Android.Content.ContentValues" />
-        <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selection" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">To be added.</param>
         <param name="values">To be added.</param>
         <param name="selection">To be added.</param>
         <param name="selectionArgs">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Implementation is provided by the parent class.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Implementation is provided by the parent class. Throws by default, and
+            cannot be overridden.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#update(android.net.Uri,%20android.content.ContentValues,%20java.lang.String,%20java.lang.String[])" title="Reference documentation">Java documentation for <code>android.provider.CloudMediaProvider.update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

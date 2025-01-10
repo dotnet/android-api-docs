@@ -25,8 +25,27 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Callback interface for receiving state changes of a Child Session.</summary>
+    <remarks>
+      <para>Callback interface for receiving state changes of a Child Session.</para>
+      <para>
+        <c>ChildSessionCallback</c> MUST be unique to each Child Session. It is registered when
+            callers are requesting a new Child Session. It is automatically unregistered when a Child Session
+            or the parent IKE Session is closed.</para>
+      <para>
+        <c>ChildSessionCallback</c>s are also used for identifying Child Sessions. It is required
+            when a caller wants to delete a specific Child Session.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/ipsec/ike/ChildSessionCallback" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.ChildSessionCallback</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="OnClosed">
@@ -54,8 +73,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Called when the Child Session is closed.</summary>
+        <remarks>
+          <para>Called when the Child Session is closed.</para>
+          <para>This method will be called immediately after <c>#onIpSecTransformDeleted(IpSecTransform, int)</c> for the deleted IPsec SA pair is fired.</para>
+          <para>When the closure is caused by a local, fatal error, <c>#onClosedWithException(IkeException)</c> will be fired instead of this method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/ChildSessionCallback#onClosed()" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.ChildSessionCallback.onClosed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnClosedWithException">
@@ -85,9 +118,22 @@
         <Parameter Name="exception" Type="Android.Net.IpSec.Ike.Exceptions.IkeException" />
       </Parameters>
       <Docs>
-        <param name="exception">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="exception">the detailed error information.</param>
+        <summary>Called if the Child Session setup failed or Child Session is closed because of a fatal error.</summary>
+        <remarks>
+          <para>Called if the Child Session setup failed or Child Session is closed because of a fatal error.</para>
+          <para>This method will be called immediately after <c>#onIpSecTransformDeleted(IpSecTransform, int)</c> for the deleted IPsec SA pair is fired.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/ChildSessionCallback#onClosedWithException(android.net.ipsec.ike.exceptions.IkeException)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.ChildSessionCallback.onClosedWithException(android.net.ipsec.ike.exceptions.IkeException)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnIpSecTransformCreated">
@@ -125,10 +171,32 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="ipSecTransform">To be added.</param>
-        <param name="direction">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="ipSecTransform">the created <c>IpSecTransform</c>.</param>
+        <param name="direction">the direction of this <c>IpSecTransform</c>.</param>
+        <summary>Called when an <c>IpSecTransform</c> is created by this Child Session.</summary>
+        <remarks>
+          <para>Called when an <c>IpSecTransform</c> is created by this Child Session.</para>
+          <para>This method is fired when a Child Session is created or rekeyed.</para>
+          <para>The <c>IpSecTransform</c> must be applied to relevant sockets or interfaces when this
+            method is called; traffic may otherwise flow over the socket or interface unprotected.</para>
+          <para>As this method is fired on an executor, there is an inherent race condition during rekeys
+            where traffic may be routed through the old transforms while the remote has switched to using
+            the new set of transforms.</para>
+          <para>To avoid the initial startup race condition where the transforms have not yet been
+            applied, the <c>#onOpened(ChildSessionConfiguration)</c> callback should be used as the
+            authoritative signal that the socket or tunnel is ready, as it is fired after both transforms
+            have had a chance to be applied.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/ChildSessionCallback#onIpSecTransformCreated(android.net.IpSecTransform,%20int)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.ChildSessionCallback.onIpSecTransformCreated(android.net.IpSecTransform, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnIpSecTransformDeleted">
@@ -166,10 +234,28 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="ipSecTransform">To be added.</param>
-        <param name="direction">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="ipSecTransform">the deleted <c>IpSecTransform</c>.</param>
+        <param name="direction">the direction of this <c>IpSecTransform</c>.</param>
+        <summary>Called when an <c>IpSecTransform</c> is deleted by this Child Session.</summary>
+        <remarks>
+          <para>Called when an <c>IpSecTransform</c> is deleted by this Child Session.</para>
+          <para>This method is fired when a Child Session is closed or a Child Session has deleted old
+            IPsec SA during rekey. When this method is fired due to Child Session closure, it will be
+            followed by <c>#onClosed()</c> or <c>#onClosedWithException(IkeException)</c>.</para>
+          <para>Users SHOULD remove the <c>IpSecTransform</c> from the socket or interface when this
+            method is called. Otherwise the IPsec traffic protected by this <c>IpSecTransform</c> will
+            be discarded.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/ChildSessionCallback#onIpSecTransformDeleted(android.net.IpSecTransform,%20int)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.ChildSessionCallback.onIpSecTransformDeleted(android.net.IpSecTransform, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnOpened">
@@ -199,9 +285,23 @@
         <Parameter Name="sessionConfiguration" Type="Android.Net.IpSec.Ike.ChildSessionConfiguration" />
       </Parameters>
       <Docs>
-        <param name="sessionConfiguration">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="sessionConfiguration">the <c>ChildSessionConfiguration</c> of Child Session negotiated
+                during Child creation.</param>
+        <summary>Called when the Child Session setup succeeds.</summary>
+        <remarks>
+          <para>Called when the Child Session setup succeeds.</para>
+          <para>This method will be called immediately after <c>#onIpSecTransformCreated(IpSecTransform, int)</c> for the created IPsec SA pair is fired.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ipsec/ike/ChildSessionCallback#onOpened(android.net.ipsec.ike.ChildSessionConfiguration)" title="Reference documentation">Java documentation for <code>android.net.ipsec.ike.ChildSessionCallback.onOpened(android.net.ipsec.ike.ChildSessionConfiguration)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

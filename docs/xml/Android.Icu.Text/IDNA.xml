@@ -17,19 +17,54 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/IDNA", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Abstract base class for IDNA processing.</summary>
     <remarks>
+      <para>Abstract base class for IDNA processing.
+            See http://www.unicode.org/reports/tr46/
+            and http://www.ietf.org/rfc/rfc3490.txt</para>
+      <para>The IDNA class is not intended for public subclassing.</para>
+      <para>The non-static methods implement UTS #46 and IDNA2008.
+            IDNA2008 is implemented according to UTS #46, see getUTS46Instance().</para>
+      <para>IDNA2003 is obsolete. The static methods implement IDNA2003. They are all deprecated.</para>
+      <para>IDNA2003 API Overview:</para>
+      <para>The static IDNA API methods implement the IDNA protocol as defined in the
+            <see href="http://www.ietf.org/rfc/rfc3490.txt">IDNA RFC</see>.
+            The draft defines 2 operations: ToASCII and ToUnicode. Domain labels 
+            containing non-ASCII code points are required to be processed by
+            ToASCII operation before passing it to resolver libraries. Domain names
+            that are obtained from resolver libraries are required to be processed by
+            ToUnicode operation before displaying the domain name to the user.
+            IDNA requires that implementations process input strings with 
+            <see href="http://www.ietf.org/rfc/rfc3491.txt">Nameprep</see>, 
+            which is a profile of <see href="http://www.ietf.org/rfc/rfc3454.txt">Stringprep</see> , 
+            and then with <see href="http://www.ietf.org/rfc/rfc3492.txt">Punycode</see>. 
+            Implementations of IDNA MUST fully implement Nameprep and Punycode; 
+            neither Nameprep nor Punycode are optional.
+            The input and output of ToASCII and ToUnicode operations are Unicode 
+            and are designed to be chainable, i.e., applying ToASCII or ToUnicode operations
+            multiple times to an input string will yield the same result as applying the operation
+            once.
+            ToUnicode(ToUnicode(ToUnicode...(ToUnicode(string)))) == ToUnicode(string) 
+            ToASCII(ToASCII(ToASCII...(ToASCII(string))) == ToASCII(string).</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/IDNA" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/IDNA" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -85,9 +120,22 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>IDNA option to check for whether the input conforms to the BiDi rules.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>IDNA option to check for whether the input conforms to the BiDi rules.
+            For use in static worker and factory methods.</para>
+          <para>This option is ignored by the IDNA2003 implementation.
+            (IDNA2003 always performs a BiDi check.)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#CHECK_BIDI" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.CHECK_BIDI</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -120,9 +168,22 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>IDNA option to check for whether the input conforms to the CONTEXTJ rules.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>IDNA option to check for whether the input conforms to the CONTEXTJ rules.
+            For use in static worker and factory methods.</para>
+          <para>This option is ignored by the IDNA2003 implementation.
+            (The CONTEXTJ check is new in IDNA2008.)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#CHECK_CONTEXTJ" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.CHECK_CONTEXTJ</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -155,9 +216,24 @@
       </ReturnValue>
       <MemberValue>64</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>IDNA option to check for whether the input conforms to the CONTEXTO rules.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>IDNA option to check for whether the input conforms to the CONTEXTO rules.
+            For use in static worker and factory methods.</para>
+          <para>This option is ignored by the IDNA2003 implementation.
+            (The CONTEXTO check is new in IDNA2008.)</para>
+          <para>This is for use by registries for IDNA2008 conformance.
+            UTS #46 does not require the CONTEXTO check.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#CHECK_CONTEXTO" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.CHECK_CONTEXTO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -190,9 +266,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Default options value: None of the other options are set.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Default options value: None of the other options are set.
+            For use in static worker and factory methods.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#DEFAULT" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.DEFAULT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -230,11 +317,36 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="options">Bit set to modify the processing and error checking.</param>
+        <summary>Returns an IDNA instance which implements UTS #46.</summary>
+        <returns>the UTS #46 IDNA instance, if successful</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns an IDNA instance which implements UTS #46.
+            Returns an unmodifiable instance, owned by the caller.
+            Cache it for multiple operations, and delete it when done.
+            The instance is thread-safe, that is, it can be used concurrently.</para>
+          <para>UTS #46 defines Unicode IDNA Compatibility Processing,
+            updated to the latest version of Unicode and compatible with both
+            IDNA2003 and IDNA2008.</para>
+          <para>The worker functions use transitional processing, including deviation mappings,
+            unless NONTRANSITIONAL_TO_ASCII or NONTRANSITIONAL_TO_UNICODE
+            is used in which case the deviation characters are passed through without change.</para>
+          <para>Disallowed characters are mapped to U+FFFD.</para>
+          <para>Operations with the UTS #46 instance do not support the
+            ALLOW_UNASSIGNED option.</para>
+          <para>By default, the UTS #46 implementation allows all ASCII characters (as valid or mapped).
+            When the USE_STD3_RULES option is used, ASCII characters other than
+            letters, digits, hyphen (LDH) and dot/full stop are disallowed and mapped to U+FFFD.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#getUTS46Instance(int)" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.getUTS46Instance(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -256,6 +368,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -594,9 +710,23 @@
       </ReturnValue>
       <MemberValue>16</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>IDNA option for nontransitional processing in ToASCII().</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>IDNA option for nontransitional processing in ToASCII().
+            For use in static worker and factory methods.</para>
+          <para>By default, ToASCII() uses transitional processing.</para>
+          <para>This option is ignored by the IDNA2003 implementation.
+            (This is only relevant for compatibility of newer IDNA implementations with IDNA2003.)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#NONTRANSITIONAL_TO_ASCII" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.NONTRANSITIONAL_TO_ASCII</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -629,9 +759,23 @@
       </ReturnValue>
       <MemberValue>32</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>IDNA option for nontransitional processing in ToUnicode().</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>IDNA option for nontransitional processing in ToUnicode().
+            For use in static worker and factory methods.</para>
+          <para>By default, ToUnicode() uses transitional processing.</para>
+          <para>This option is ignored by the IDNA2003 implementation.
+            (This is only relevant for compatibility of newer IDNA implementations with IDNA2003.)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#NONTRANSITIONAL_TO_UNICODE" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.NONTRANSITIONAL_TO_UNICODE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -685,6 +829,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -726,9 +874,24 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Option to check whether the input conforms to the STD3 ASCII rules,
+            for example the restriction of labels to LDH characters
+            (ASCII Letters, Digits and Hyphen-Minus).</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Option to check whether the input conforms to the STD3 ASCII rules,
+            for example the restriction of labels to LDH characters
+            (ASCII Letters, Digits and Hyphen-Minus).
+            For use in static worker and factory methods.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/IDNA#USE_STD3_RULES" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.USE_STD3_RULES</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
