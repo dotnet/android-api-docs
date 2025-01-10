@@ -17,13 +17,43 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/wifi/rtt/WifiRttManager", ApiSince=28, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>This class provides the primary API for measuring distance (range) to other devices using the
+            IEEE 802.</summary>
+    <remarks>
+      <para>This class provides the primary API for measuring distance (range) to other devices using the
+            IEEE 802.11mc Wi-Fi Round Trip Time (RTT) technology.</para>
+      <para>The devices which can be ranged include:
+            &lt;li&gt;Access Points (APs)
+            &lt;li&gt;Wi-Fi Aware peers</para>
+      <para>Ranging requests are triggered using
+            <c>#startRanging(RangingRequest, Executor, RangingResultCallback)</c>. Results (in case of
+            successful operation) are returned in the <c>RangingResultCallback#onRangingResults(List)</c>
+            callback.</para>
+      <para>Wi-Fi RTT may not be usable at some points, e.g. when Wi-Fi is disabled. To validate that
+                the functionality is available use the <c>#isAvailable()</c> function. To track
+                changes in RTT usability register for the <c>#ACTION_WIFI_RTT_STATE_CHANGED</c>
+                broadcast. Note that this broadcast is not sticky - you should register for it and then
+                check the above API to avoid a race condition.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -71,8 +101,25 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Broadcast intent action to indicate that the state of Wi-Fi RTT availability has changed.</summary>
+        <remarks>
+          <para>Broadcast intent action to indicate that the state of Wi-Fi RTT availability has changed.
+            Use the <c>#isAvailable()</c> to query the current status.
+            This broadcast is &lt;b&gt;not&lt;/b&gt; sticky, use the <c>#isAvailable()</c> API after registering
+            the broadcast to check the current state of Wi-Fi RTT.</para>
+          <para>Note: The broadcast is only delivered to registered receivers - no manifest registered
+            components will be launched.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#ACTION_WIFI_RTT_STATE_CHANGED" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.ACTION_WIFI_RTT_STATE_CHANGED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CharacteristicsKeyBooleanLci">
@@ -99,8 +146,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Bundle key to access if getting the Location Configuration Information(LCI) from responder is
+            supported.</summary>
+        <remarks>
+          <para>Bundle key to access if getting the Location Configuration Information(LCI) from responder is
+            supported.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#CHARACTERISTICS_KEY_BOOLEAN_LCI" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.CHARACTERISTICS_KEY_BOOLEAN_LCI</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CharacteristicsKeyBooleanLcr">
@@ -127,8 +188,60 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Bundle key to access if getting the Location Civic Report(LCR) from responder is supported.</summary>
+        <remarks>
+          <para>Bundle key to access if getting the Location Civic Report(LCR) from responder is supported.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#CHARACTERISTICS_KEY_BOOLEAN_LCR" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.CHARACTERISTICS_KEY_BOOLEAN_LCR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CharacteristicsKeyBooleanNtbInitiator">
+      <MemberSignature Language="C#" Value="public const string CharacteristicsKeyBooleanNtbInitiator;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string CharacteristicsKeyBooleanNtbInitiator" />
+      <MemberSignature Language="DocId" Value="F:Android.Net.Wifi.Rtt.WifiRttManager.CharacteristicsKeyBooleanNtbInitiator" />
+      <MemberSignature Language="F#" Value="val mutable CharacteristicsKeyBooleanNtbInitiator : string" Usage="Android.Net.Wifi.Rtt.WifiRttManager.CharacteristicsKeyBooleanNtbInitiator" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("CHARACTERISTICS_KEY_BOOLEAN_NTB_INITIATOR", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CHARACTERISTICS_KEY_BOOLEAN_NTB_INITIATOR", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Bundle key to access if device supports to be a IEEE 802.</summary>
+        <remarks>
+          <para>Bundle key to access if device supports to be a IEEE 802.11az non-trigger based initiator</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#CHARACTERISTICS_KEY_BOOLEAN_NTB_INITIATOR" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.CHARACTERISTICS_KEY_BOOLEAN_NTB_INITIATOR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CharacteristicsKeyBooleanOneSidedRtt">
@@ -155,8 +268,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Bundle key to access if one-sided Wi-Fi RTT is supported.</summary>
+        <remarks>
+          <para>Bundle key to access if one-sided Wi-Fi RTT is supported. When it is not supported, only
+            two-sided RTT can be performed, which requires responder supports IEEE 802.11mc and this can
+            be determined by the method <c>ScanResult#is80211mcResponder()</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#CHARACTERISTICS_KEY_BOOLEAN_ONE_SIDED_RTT" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.CHARACTERISTICS_KEY_BOOLEAN_ONE_SIDED_RTT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CharacteristicsKeyBooleanStaResponder">
@@ -183,8 +310,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Bundle key to access if device supports to be a responder in station mode</summary>
+        <remarks>
+          <para>Bundle key to access if device supports to be a responder in station mode</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#CHARACTERISTICS_KEY_BOOLEAN_STA_RESPONDER" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.CHARACTERISTICS_KEY_BOOLEAN_STA_RESPONDER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsAvailable">
@@ -211,9 +350,26 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns the current status of RTT API: whether or not RTT is available.</summary>
+        <value>A boolean indicating whether the app can use the RTT API at this time (true) or
+            not (false).</value>
+        <remarks>
+          <para>Returns the current status of RTT API: whether or not RTT is available. To track
+            changes in the state of RTT API register for the
+            <c>#ACTION_WIFI_RTT_STATE_CHANGED</c> broadcast.</para>
+          <para>Note: availability of RTT does not mean that the app can use the API. The app's
+            permissions and platform Location Mode are validated at run-time.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#isAvailable()" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.isAvailable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -273,9 +429,25 @@
         <ReturnType>Android.OS.Bundle</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Returns a Bundle which represents the characteristics of the Wi-Fi RTT interface: a set of
+            parameters which specify feature support.</summary>
+        <value>A Bundle specifying feature support of RTT.</value>
+        <remarks>
+          <para>Returns a Bundle which represents the characteristics of the Wi-Fi RTT interface: a set of
+            parameters which specify feature support. Each parameter can be accessed by the specified
+            Bundle key, one of the <c>CHARACTERISTICS_KEY_*</c> value.</para>
+          <para>May return an empty Bundle if the Wi-Fi RTT service is not initialized.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#getRttCharacteristics()" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.getRttCharacteristics()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StartRanging">
@@ -307,11 +479,30 @@
         <Parameter Name="callback" Type="Android.Net.Wifi.Rtt.RangingResultCallback" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">A request specifying a set of devices whose distance measurements are
+                            requested.</param>
+        <param name="executor">The Executor on which to run the callback.</param>
+        <param name="callback">A callback for the result of the ranging request.</param>
+        <summary>Initiate a request to range to a set of devices specified in the <c>RangingRequest</c>.</summary>
+        <remarks>
+          <para>Initiate a request to range to a set of devices specified in the <c>RangingRequest</c>.
+            Results will be returned in the <c>RangingResultCallback</c> set of callbacks.</para>
+          <para>Ranging request with only Wifi Aware peers can be performed with either
+            <c>android.Manifest.permission#NEARBY_WIFI_DEVICES</c> with
+            android:usesPermissionFlags="neverForLocation", or
+            <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>. All other types of ranging requests
+            require <c>android.Manifest.permission#ACCESS_FINE_LOCATION</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager#startRanging(android.net.wifi.rtt.RangingRequest,%20java.util.concurrent.Executor,%20android.net.wifi.rtt.RangingResultCallback)" title="Reference documentation">Java documentation for <code>android.net.wifi.rtt.WifiRttManager.startRanging(android.net.wifi.rtt.RangingRequest, java.util.concurrent.Executor, android.net.wifi.rtt.RangingResultCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

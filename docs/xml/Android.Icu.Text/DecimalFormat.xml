@@ -17,19 +17,189 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/DecimalFormat", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.DecimalFormat</c>.</summary>
     <remarks>
+      <para>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.DecimalFormat</c>.&amp;nbsp;Methods, fields, and other functionality specific to ICU are labeled '&lt;strong&gt;[icu]&lt;/strong&gt;'.</para>
+      <para>&lt;strong&gt;IMPORTANT:&lt;/strong&gt; New users are strongly encouraged to see if
+            <c>NumberFormatter</c> fits their use case.  Although not deprecated, this
+            class, DecimalFormat, is only provided for java.text.DecimalFormat compatibility.
+            &lt;hr&gt;
+            
+            <c>DecimalFormat</c> is the primary
+            concrete subclass of <c>NumberFormat</c>. It has a variety of features designed to make it
+            possible to parse and format numbers in any locale, including support for Western, Arabic, or
+            Indic digits. It supports different flavors of numbers, including integers ("123"), fixed-point
+            numbers ("123.4"), scientific notation ("1.23E4"), percentages ("12%"), and currency amounts
+            ("$123.00", "USD123.00", "123.00 US dollars"). All of these flavors can be easily localized.</para>
+      <para>To obtain a number formatter for a specific locale (including the default locale), call one of
+            NumberFormat's factory methods such as <c>NumberFormat#getInstance</c>. Do not call
+            DecimalFormat constructors directly unless you know what you are doing.</para>
+      <para>DecimalFormat aims to comply with the specification <see href="http://unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns">UTS #35</see>. Read
+            the specification for more information on how all the properties in DecimalFormat fit together.</para>
+      <para>&lt;strong&gt;NOTE:&lt;/strong&gt; Starting in ICU 60, there is a new set of APIs for localized number
+            formatting that are designed to be an improvement over DecimalFormat.  New users are discouraged
+            from using DecimalFormat.  For more information, see the package android.icu.number.
+            
+            &lt;h3&gt;Example Usage&lt;/h3&gt;</para>
+      <para>Customize settings on a DecimalFormat instance from the NumberFormat factory:
+            
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">NumberFormat f = NumberFormat.getInstance(loc);
+            if (f instanceof DecimalFormat) {
+                ((DecimalFormat) f).setDecimalSeparatorAlwaysShown(true);
+                ((DecimalFormat) f).setMinimumGroupingDigits(2);
+            }
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>Quick and dirty print out a number using the localized number, currency, and percent format
+            for each locale:
+            
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">for (ULocale uloc : ULocale.getAvailableLocales()) {
+                System.out.print(uloc + ":\t");
+                System.out.print(NumberFormat.getInstance(uloc).format(1.23));
+                System.out.print("\t");
+                System.out.print(NumberFormat.getCurrencyInstance(uloc).format(1.23));
+                System.out.print("\t");
+                System.out.print(NumberFormat.getPercentInstance(uloc).format(1.23));
+                System.out.println();
+            }
+            </code>
+      <para>&lt;/blockquote&gt;
+            
+            &lt;h3&gt;Properties and Symbols&lt;/h3&gt;</para>
+      <para>A DecimalFormat object encapsulates a set of &lt;em&gt;properties&lt;/em&gt; and a set of
+            &lt;em&gt;symbols&lt;/em&gt;. Grouping size, rounding mode, and affixes are examples of properties. Locale
+            digits and the characters used for grouping and decimal separators are examples of symbols.</para>
+      <para>To set a custom set of symbols, use <c>#setDecimalFormatSymbols</c>. Use the various other
+            setters in this class to set custom values for the properties.
+            
+            &lt;h3&gt;Rounding&lt;/h3&gt;</para>
+      <para>DecimalFormat provides three main strategies to specify the position at which numbers should
+            be rounded:
+            
+            &lt;ol&gt;
+              &lt;li&gt;&lt;strong&gt;Magnitude:&lt;/strong&gt; Display a fixed number of fraction digits; this is the most
+                  common form.
+              &lt;li&gt;&lt;strong&gt;Increment:&lt;/strong&gt; Round numbers to the closest multiple of a certain increment,
+                  such as 0.05. This is common in currencies.
+              &lt;li&gt;&lt;strong&gt;Significant Digits:&lt;/strong&gt; Round numbers such that a fixed number of nonzero
+                  digits are shown. This is most common in scientific notation.
+            &lt;/ol&gt;</para>
+      <para>It is not possible to specify more than one rounding strategy. For example, setting a rounding
+            increment in conjunction with significant digits results in undefined behavior.</para>
+      <para>It is also possible to specify the &lt;em&gt;rounding mode&lt;/em&gt; to use. The default rounding mode is
+            "half even", which rounds numbers to their closest increment, with ties broken in favor of
+            trailing numbers being even. For more information, see <c>#setRoundingMode</c> and <see href="https://unicode-org.github.io/icu/userguide/format_parse/numbers/rounding-modes">the ICU
+            User Guide</see>.
+            
+            &lt;h3&gt;Pattern Strings&lt;/h3&gt;</para>
+      <para>A &lt;em&gt;pattern string&lt;/em&gt; is a way to serialize some of the available properties for decimal
+            formatting. However, not all properties are capable of being serialized into a pattern string;
+            see <c>#applyPattern</c> for more information.</para>
+      <para>Most users should not need to interface with pattern strings directly.</para>
+      <para>ICU DecimalFormat aims to follow the specification for pattern strings in <see href="http://unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns">UTS #35</see>.
+            Refer to that specification for more information on pattern string syntax.
+            
+            &lt;h4&gt;Pattern String BNF&lt;/h4&gt;
+            
+            The following BNF is used when parsing the pattern string into property values:</para>
+      <code lang="text/java">pattern    := subpattern (';' subpattern)?
+            subpattern := prefix? number exponent? suffix?
+            number     := (integer ('.' fraction)?) | sigDigits
+            prefix     := '&amp;#92;u0000'..'&amp;#92;uFFFD' - specialCharacters
+            suffix     := '&amp;#92;u0000'..'&amp;#92;uFFFD' - specialCharacters
+            integer    := '#'* '0'* '0'
+            fraction   := '0'* '#'*
+            sigDigits  := '#'* '@' '@'* '#'*
+            exponent   := 'E' '+'? '0'* '0'
+            padSpec    := '*' padChar
+            padChar    := '&amp;#92;u0000'..'&amp;#92;uFFFD' - quote
+            &amp;#32;
+            Notation:
+              X*       0 or more instances of X
+              X?       0 or 1 instances of X
+              X|Y      either X or Y
+              C..D     any character from C up to D, inclusive
+              S-T      characters in S, except those in T
+            </code>
+      <para>The first subpattern is for positive numbers. The second (optional) subpattern is for negative
+            numbers.</para>
+      <para>Not indicated in the BNF syntax above:
+            
+            &lt;ul&gt;
+              &lt;li&gt;The grouping separator ',' can occur inside the integer and sigDigits elements, between any
+                  two pattern characters of that element, as long as the integer or sigDigits element is not
+                  followed by the exponent element.
+              &lt;li&gt;Two grouping intervals are recognized: That between the decimal point and the first
+                  grouping symbol, and that between the first and second grouping symbols. These intervals
+                  are identical in most locales, but in some locales they differ. For example, the pattern
+                  &amp;quot;#,##,###&amp;quot; formats the number 123456789 as &amp;quot;12,34,56,789&amp;quot;.
+              &lt;li&gt;The pad specifier <c>padSpec</c> may appear before the prefix, after the prefix,
+                  before the suffix, after the suffix, or not at all.
+              &lt;li&gt;In place of '0', the digits '1' through '9' may be used to indicate a rounding increment.
+            &lt;/ul&gt;
+            
+            &lt;h3&gt;Parsing&lt;/h3&gt;</para>
+      <para>DecimalFormat aims to be able to parse anything that it can output as a formatted string.</para>
+      <para>There are two primary parse modes: &lt;em&gt;lenient&lt;/em&gt; and &lt;em&gt;strict&lt;/em&gt;. Lenient mode should
+            be used if the goal is to parse user input to a number; strict mode should be used if the goal is
+            validation. The default is lenient mode. For more information, see <c>#setParseStrict</c>.</para>
+      <para>
+        <c>DecimalFormat</c> parses all Unicode characters that represent decimal digits, as
+            defined by <c>UCharacter#digit</c>. In addition, <c>DecimalFormat</c> also recognizes as
+            digits the ten consecutive characters starting with the localized zero digit defined in the
+            <c>DecimalFormatSymbols</c> object. During formatting, the <c>DecimalFormatSymbols</c>-based
+            digits are output.</para>
+      <para>Grouping separators are ignored in lenient mode (default). In strict mode, grouping separators
+            must match the locale-specified grouping sizes.</para>
+      <para>When using <c>#parseCurrency</c>, all currencies are accepted, not just the currency
+            currently set in the formatter. In addition, the formatter is able to parse every currency style
+            format for a particular locale no matter which style the formatter is constructed with. For
+            example, a formatter instance gotten from NumberFormat.getInstance(ULocale,
+            NumberFormat.CURRENCYSTYLE) can parse both "USD1.00" and "3.00 US dollars".</para>
+      <para>Whitespace characters (lenient mode) and control characters (lenient and strict mode),
+            collectively called "ignorables", do not need to match in identity or quantity between the
+            pattern string and the input string. For example, the pattern "# %" matches "35 %" (with a single
+            space), "35%" (with no space), "35&amp;nbsp;%" (with a non-breaking space), and "35&amp;nbsp; %" (with
+            multiple spaces). Arbitrary ignorables are also allowed at boundaries between the parts of the
+            number: prefix, number, exponent separator, and suffix. Ignorable whitespace characters are those
+            having the Unicode "blank" property for regular expressions, defined in UTS #18 Annex C, which is
+            "horizontal" whitespace, like spaces and tabs, but not "vertical" whitespace, like line breaks.
+            Ignorable control characters are those in the Unicode set [:Default_Ignorable_Code_Point:].</para>
+      <para>If <c>#parse(String, ParsePosition)</c> fails to parse a string, it returns <c>null</c>
+            and leaves the parse position unchanged. The convenience method <c>#parse(String)</c> indicates
+            parse failure by throwing a <c>java.text.ParseException</c>.</para>
+      <para>Under the hood, a state table parsing engine is used. To debug a parsing failure during
+            development, use the following pattern to print details about the state table transitions:</para>
+      <code lang="text/java">android.icu.impl.number.Parse.DEBUGGING = true;
+            df.parse("123.45", ppos);
+            android.icu.impl.number.Parse.DEBUGGING = false;
+            </code>
+      <para>&lt;h3&gt;Thread Safety and Best Practices&lt;/h3&gt;</para>
+      <para>Starting with ICU 59, instances of DecimalFormat are thread-safe.</para>
+      <para>Under the hood, DecimalFormat maintains an immutable formatter object that is rebuilt whenever
+            any of the property setters are called. It is therefore best practice to call property setters
+            only during construction and not when formatting numbers online.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -54,9 +224,23 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Creates a DecimalFormat based on the number pattern and symbols for the default locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Creates a DecimalFormat based on the number pattern and symbols for the default locale. This is
+            a convenient way to obtain a DecimalFormat instance when internationalization is not the main
+            concern.</para>
+          <para>Most users should call the factory methods on NumberFormat, such as <c>NumberFormat#getNumberInstance</c>, which return localized formatter objects, instead of the
+            DecimalFormat constructors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#DecimalFormat()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.DecimalFormat()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -84,10 +268,25 @@
         <Parameter Name="pattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">A pattern string such as "#,##0.00" conforming to <see href="http://unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns">UTS
+                #35</see>.</param>
+        <summary>Creates a DecimalFormat based on the given pattern, using symbols for the default locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Creates a DecimalFormat based on the given pattern, using symbols for the default locale. This
+            is a convenient way to obtain a DecimalFormat instance when internationalization is not the
+            main concern.</para>
+          <para>Most users should call the factory methods on NumberFormat, such as <c>NumberFormat#getNumberInstance</c>, which return localized formatter objects, instead of the
+            DecimalFormat constructors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#DecimalFormat(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.DecimalFormat(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -139,11 +338,25 @@
         <Parameter Name="symbols" Type="Android.Icu.Text.DecimalFormatSymbols" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="symbols">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">A pattern string such as "#,##0.00" conforming to <see href="http://unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns">UTS
+                #35</see>.</param>
+        <param name="symbols">The set of symbols to be used.</param>
+        <summary>Creates a DecimalFormat based on the given pattern and symbols.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Creates a DecimalFormat based on the given pattern and symbols. Use this constructor if you
+            want complete control over the behavior of the formatter.</para>
+          <para>Most users should call the factory methods on NumberFormat, such as <c>NumberFormat#getNumberInstance</c>, which return localized formatter objects, instead of the
+            DecimalFormat constructors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#DecimalFormat(java.lang.String,%20android.icu.text.DecimalFormatSymbols)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.DecimalFormat(java.lang.String, android.icu.text.DecimalFormatSymbols)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -181,13 +394,33 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="symbols">To be added.</param>
-        <param name="infoInput">To be added.</param>
-        <param name="style">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">a non-localized pattern string</param>
+        <param name="symbols">the set of symbols to be used</param>
+        <param name="infoInput">the information used for currency plural format, including currency plural
+                patterns and plural rules.</param>
+        <param name="style">the decimal formatting style, it is one of the following values:
+                NumberFormat.NUMBERSTYLE; NumberFormat.CURRENCYSTYLE; NumberFormat.PERCENTSTYLE;
+                NumberFormat.SCIENTIFICSTYLE; NumberFormat.INTEGERSTYLE; NumberFormat.ISOCURRENCYSTYLE;
+                NumberFormat.PLURALCURRENCYSTYLE;</param>
+        <summary>Creates a DecimalFormat based on the given pattern and symbols, with additional control over
+            the behavior of currency.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Creates a DecimalFormat based on the given pattern and symbols, with additional control over
+            the behavior of currency. The style argument determines whether currency rounding rules should
+            override the pattern, and the <c>CurrencyPluralInfo</c> object is used for customizing the
+            plural forms used for currency long names.</para>
+          <para>Most users should call the factory methods on NumberFormat, such as <c>NumberFormat#getNumberInstance</c>, which return localized formatter objects, instead of the
+            DecimalFormat constructors.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#DecimalFormat(java.lang.String,%20android.icu.text.DecimalFormatSymbols,%20android.icu.text.CurrencyPluralInfo,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.DecimalFormat(java.lang.String, android.icu.text.DecimalFormatSymbols, android.icu.text.CurrencyPluralInfo, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -218,10 +451,25 @@
         <Parameter Name="localizedPattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="localizedPattern">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="localizedPattern">The pattern string in localized notation.</param>
+        <summary>Converts the given string to standard notation and then parses it using <c>#applyPattern</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts the given string to standard notation and then parses it using <c>#applyPattern</c>.
+            This method is provided for backwards compatibility and should not be used in new projects.</para>
+          <para>Localized notation means that instead of using generic placeholders in the pattern, you use
+            the corresponding locale-specific characters instead. For example, in locale &lt;em&gt;fr-FR&lt;/em&gt;,
+            the period in the pattern "0.000" means "decimal" in standard notation (as it does in every
+            other locale), but it means "grouping" in localized notation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#applyLocalizedPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.applyLocalizedPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -253,9 +501,28 @@
       </Parameters>
       <Docs>
         <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Parses the given pattern string and overwrites the settings specified in the pattern string.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Parses the given pattern string and overwrites the settings specified in the pattern string.
+            The properties corresponding to the following setters are overwritten, either with their
+            default values or with the value specified in the pattern string:
+            
+            &lt;ol&gt;
+              &lt;li&gt;<c>#setDecimalSeparatorAlwaysShown</c>&lt;li&gt;<c>#setExponentSignAlwaysShown</c>&lt;li&gt;<c>#setFormatWidth</c>&lt;li&gt;<c>#setGroupingSize</c>&lt;li&gt;<c>#setMultiplier</c> (percent/permille)
+              &lt;li&gt;<c>#setMaximumFractionDigits</c>&lt;li&gt;<c>#setMaximumIntegerDigits</c>&lt;li&gt;<c>#setMaximumSignificantDigits</c>&lt;li&gt;<c>#setMinimumExponentDigits</c>&lt;li&gt;<c>#setMinimumFractionDigits</c>&lt;li&gt;<c>#setMinimumIntegerDigits</c>&lt;li&gt;<c>#setMinimumSignificantDigits</c>&lt;li&gt;<c>#setPadPosition</c>&lt;li&gt;<c>#setPadCharacter</c>&lt;li&gt;<c>#setRoundingIncrement</c>&lt;li&gt;<c>#setSecondaryGroupingSize</c>&lt;/ol&gt;
+            
+            All other settings remain untouched.</para>
+          <para>For more information on pattern strings, see <see href="http://unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns">UTS #35</see>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#applyPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.applyPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -284,10 +551,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether significant digits are being used in rounding.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether significant digits are being used in rounding.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#areSignificantDigitsUsed()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.areSignificantDigitsUsed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -323,10 +600,32 @@
         <ReturnType>Android.Icu.Text.CurrencyPluralInfo</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="newInfo">The CurrencyPluralInfo to use when printing currency long names.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the current instance of CurrencyPluralInfo. -or- &lt;strong&gt;[icu]&lt;/strong&gt; Sets a custom instance of CurrencyPluralInfo.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the current instance of CurrencyPluralInfo.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getCurrencyPluralInfo()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getCurrencyPluralInfo()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Sets a custom instance of CurrencyPluralInfo. CurrencyPluralInfo generates pattern
+            strings for printing currency long names.</para>
+          <para>&lt;strong&gt;Most users should not call this method directly.&lt;/strong&gt; You should instead create
+            your formatter via <c>NumberFormat.getInstance(NumberFormat.PLURALCURRENCYSTYLE)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setCurrencyPluralInfo(android.icu.text.CurrencyPluralInfo)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setCurrencyPluralInfo(android.icu.text.CurrencyPluralInfo)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -401,10 +700,30 @@
         <ReturnType>Android.Icu.Text.DecimalFormatSymbols</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="newSymbols">desired DecimalFormatSymbols</param>
+        <summary>Returns a copy of the decimal format symbols used by this formatter. -or- Sets the decimal format symbols used by this formatter.</summary>
+        <value>desired DecimalFormatSymbols</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns a copy of the decimal format symbols used by this formatter.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getDecimalFormatSymbols()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getDecimalFormatSymbols()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the decimal format symbols used by this formatter. The formatter uses a copy of the
+            provided symbols.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setDecimalFormatSymbols(android.icu.text.DecimalFormatSymbols)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setDecimalFormatSymbols(android.icu.text.DecimalFormatSymbols)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -440,10 +759,52 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="value">true to either require or forbid the decimal point according to the pattern; false
+                to disable this feature.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether the presence of a decimal point must match the pattern. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Parsing:&lt;/strong&gt; This method is used to either &lt;em&gt;require&lt;/em&gt; or
+            &lt;em&gt;forbid&lt;/em&gt; the presence of a decimal point in the string being parsed (disabled by
+            default).</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether the presence of a decimal point must match the pattern.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isDecimalPatternMatchRequired()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isDecimalPatternMatchRequired()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Parsing:&lt;/strong&gt; This method is used to either &lt;em&gt;require&lt;/em&gt; or
+            &lt;em&gt;forbid&lt;/em&gt; the presence of a decimal point in the string being parsed (disabled by
+            default). This feature was designed to be an extra layer of strictness on top of strict
+            parsing, although it can be used in either lenient mode or strict mode.</para>
+          <para>To &lt;em&gt;require&lt;/em&gt; a decimal point, call this method in combination with either a pattern
+            containing a decimal point or with <c>#setDecimalSeparatorAlwaysShown</c>.</para>
+          <code lang="text/java">// Require a decimal point in the string being parsed:
+            df.applyPattern("#.");
+            df.setDecimalPatternMatchRequired(true);
+            
+            // Alternatively:
+            df.setDecimalSeparatorAlwaysShown(true);
+            df.setDecimalPatternMatchRequired(true);
+            </code>
+          <para>To &lt;em&gt;forbid&lt;/em&gt; a decimal point, call this method in combination with a pattern containing
+            no decimal point. Alternatively, use <c>#setParseIntegerOnly</c> for the same behavior without
+            depending on the contents of the pattern string.</para>
+          <code lang="text/java">// Forbid a decimal point in the string being parsed:
+            df.applyPattern("#");
+            df.setDecimalPatternMatchRequired(true);
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setDecimalPatternMatchRequired(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setDecimalPatternMatchRequired(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -479,10 +840,34 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="value">true to always show the decimal separator; false to show it only when there is a
+                fraction part of the number.</param>
+        <summary>Returns whether the decimal separator is shown on integers. -or- &lt;strong&gt;Separators:&lt;/strong&gt; Sets whether the decimal separator (a period in &lt;em&gt;en-US&lt;/em&gt;) is
+            shown on integers.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns whether the decimal separator is shown on integers.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isDecimalSeparatorAlwaysShown()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isDecimalSeparatorAlwaysShown()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;Separators:&lt;/strong&gt; Sets whether the decimal separator (a period in &lt;em&gt;en-US&lt;/em&gt;) is
+            shown on integers. For example, if this setting is turned on, formatting 123 will result in
+            "123." with the decimal separator.</para>
+          <para>This setting can be specified in the pattern for integer formats: "#,##0." is an example.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setDecimalSeparatorAlwaysShown(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setDecimalSeparatorAlwaysShown(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -518,10 +903,35 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="expSignAlways">true to always shown the sign in the exponent; false to show it for
+                negatives but not positives.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether the sign (plus or minus) is always printed in scientific notation. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Scientific Notation:&lt;/strong&gt; Sets whether the sign (plus or minus) is always to
+            be shown in the exponent in scientific notation.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether the sign (plus or minus) is always printed in scientific notation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isExponentSignAlwaysShown()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isExponentSignAlwaysShown()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Scientific Notation:&lt;/strong&gt; Sets whether the sign (plus or minus) is always to
+            be shown in the exponent in scientific notation. For example, if this setting is enabled, the
+            number 123000 will be printed as "1.23E+5" in locale &lt;em&gt;en-US&lt;/em&gt;. The number 0.0000123 will
+            always be printed as "1.23E-5" in locale &lt;em&gt;en-US&lt;/em&gt; whether or not this setting is enabled.</para>
+          <para>This setting corresponds to the '+' in a pattern such as "0.00E+0".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setExponentSignAlwaysShown(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setExponentSignAlwaysShown(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -557,10 +967,20 @@
         <param name="number">To be added.</param>
         <param name="result">To be added.</param>
         <param name="fieldPosition">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#format(android.icu.math.BigDecimal,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.format(android.icu.math.BigDecimal, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -596,10 +1016,20 @@
         <param name="number">To be added.</param>
         <param name="result">To be added.</param>
         <param name="fieldPosition">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#format(java.math.BigDecimal,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.format(java.math.BigDecimal, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -635,10 +1065,20 @@
         <param name="number">To be added.</param>
         <param name="result">To be added.</param>
         <param name="fieldPosition">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#format(java.math.BigInteger,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.format(java.math.BigInteger, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -674,10 +1114,20 @@
         <param name="number">To be added.</param>
         <param name="result">To be added.</param>
         <param name="fieldPosition">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#format(double,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.format(double, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -713,10 +1163,20 @@
         <param name="number">To be added.</param>
         <param name="result">To be added.</param>
         <param name="fieldPosition">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#format(long,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.format(long, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -752,10 +1212,37 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="width">The minimum number of characters in the output.</param>
+        <summary>Returns the minimum number of characters in formatted output. -or- &lt;strong&gt;Padding:&lt;/strong&gt; Sets the minimum width of the string output by the formatting
+            pipeline.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the minimum number of characters in formatted output.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getFormatWidth()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getFormatWidth()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;Padding:&lt;/strong&gt; Sets the minimum width of the string output by the formatting
+            pipeline. For example, if padding is enabled and paddingWidth is set to 6, formatting the
+            number "3.14159" with the pattern "0.00" will result in "··3.14" if '·' is your padding string.</para>
+          <para>If the number is longer than your padding width, the number will display as if no padding
+            width had been specified, which may result in strings longer than the padding width.</para>
+          <para>Padding can be specified in the pattern string using the '*' symbol. For example, the format
+            "*x######0" has a format width of 7 and a pad character of 'x'.</para>
+          <para>Padding is currently counted in UTF-16 code units; see <see href="https://unicode-org.atlassian.net/browse/ICU-13034">ticket #13034</see> for more information.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setFormatWidth(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setFormatWidth(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -791,10 +1278,36 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="width">The grouping size to use.</param>
+        <summary>Returns the primary grouping size in use. -or- &lt;strong&gt;Grouping:&lt;/strong&gt; Sets the primary grouping size (distance between grouping
+            separators) used when formatting large numbers.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the primary grouping size in use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getGroupingSize()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getGroupingSize()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;Grouping:&lt;/strong&gt; Sets the primary grouping size (distance between grouping
+            separators) used when formatting large numbers. For most locales, this defaults to 3: the
+            number of digits between the ones and thousands place, between thousands and millions, and so
+            forth.</para>
+          <para>For example, with a grouping size of 3, the number 1234567 will be formatted as "1,234,567".</para>
+          <para>Grouping size can also be specified in the pattern: for example, "#,##0" corresponds to a
+            grouping size of 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setGroupingSize(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setGroupingSize(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -816,6 +1329,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -861,10 +1378,37 @@
         <ReturnType>Java.Math.MathContext</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="mathContext">The MathContext to use when rounding numbers.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the <c>java.math.MathContext</c> being used to round numbers. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets the <c>java.math.MathContext</c> used
+            to round numbers.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the <c>java.math.MathContext</c> being used to round numbers.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getMathContext()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getMathContext()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets the <c>java.math.MathContext</c> used
+            to round numbers. A "math context" encodes both a rounding mode and a number of significant
+            digits. Most users should call <c>#setRoundingMode</c> and/or <c>#setMaximumSignificantDigits</c> instead of this method.</para>
+          <para>When formatting, since no division is ever performed, the default MathContext is unlimited
+            significant digits. However, when division occurs during parsing to correct for percentages and
+            multipliers, a MathContext of 34 digits, the IEEE 754R Decimal128 standard, is used by default.
+            If you require more than 34 digits when parsing, you can set a custom MathContext using this
+            method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setMathContext(java.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setMathContext(java.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -900,10 +1444,31 @@
         <ReturnType>Android.Icu.Math.MathContext</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="mathContextICU">The MathContext to use when rounding numbers.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the <c>android.icu.math.MathContext</c> being used to round numbers. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Overload of <c>#setMathContext</c> for
+            <c>android.icu.math.MathContext</c>.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the <c>android.icu.math.MathContext</c> being used to round numbers.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getMathContextICU()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getMathContextICU()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Overload of <c>#setMathContext</c> for
+            <c>android.icu.math.MathContext</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setMathContextICU(android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setMathContextICU(android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -939,10 +1504,39 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="value">The maximum number of significant digits to display.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the effective maximum number of significant digits displayed. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets the maximum number of significant
+            digits to be displayed.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the effective maximum number of significant digits displayed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getMaximumSignificantDigits()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getMaximumSignificantDigits()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets the maximum number of significant
+            digits to be displayed. If the number of significant digits in the number exceeds this value,
+            the number will be rounded according to the current rounding mode.</para>
+          <para>For example, if maximum significant digits is 3 and the number is 12345, the number will be
+            printed as "12300".</para>
+          <para>If minimum and maximum integer, fraction, or significant digits conflict with each other,
+            the most recently specified value is used. For example, if there is a formatter with minInt=5,
+            and then you set maxInt=3, then minInt will be changed to 3.</para>
+          <para>See <c>#setRoundingIncrement</c> and <c>#setMaximumFractionDigits</c> for two other ways
+            of specifying rounding strategies.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setMaximumSignificantDigits(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setMaximumSignificantDigits(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -978,10 +1572,34 @@
         <ReturnType>System.SByte</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="minExpDig">The minimum number of digits in the exponent.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the minimum number of digits printed in the exponent in scientific notation. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Scientific Notation:&lt;/strong&gt; Sets the minimum number of digits to be printed in
+            the exponent.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the minimum number of digits printed in the exponent in scientific notation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getMinimumExponentDigits()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getMinimumExponentDigits()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Scientific Notation:&lt;/strong&gt; Sets the minimum number of digits to be printed in
+            the exponent. For example, if minimum exponent digits is 3, the number 123000 will be printed
+            as "1.23E005".</para>
+          <para>This setting corresponds to the number of zeros after the 'E' in a pattern string such as
+            "0.00E000".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setMinimumExponentDigits(byte)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setMinimumExponentDigits(byte)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1017,9 +1635,43 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="number">The minimum number of digits before grouping is triggered.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the minimum number of digits before grouping is triggered. -or- &lt;strong&gt;[icu]&lt;/strong&gt; Sets the minimum number of digits that must be before the first grouping separator in
+            order for the grouping separator to be printed.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the minimum number of digits before grouping is triggered.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getMinimumGroupingDigits()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getMinimumGroupingDigits()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Sets the minimum number of digits that must be before the first grouping separator in
+            order for the grouping separator to be printed. For example, if minimum grouping digits is set
+            to 2, in &lt;em&gt;en-US&lt;/em&gt;, 1234 will be printed as "1234" and 12345 will be printed as "12,345".
+            
+            Set the value to:
+            &lt;ul&gt;
+            &lt;li&gt;1 to turn off minimum grouping digits.&lt;/li&gt;
+            &lt;li&gt;MINIMUM_GROUPING_DIGITS_AUTO to display grouping using the default
+            strategy for all locales.&lt;/li&gt;
+            &lt;li&gt;MINIMUM_GROUPING_DIGITS_MIN2 to display grouping using locale defaults,
+            except do not show grouping on values smaller than 10000 (such that there is a minimum of
+            two digits before the first separator).&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setMinimumGroupingDigits(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setMinimumGroupingDigits(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MinimumGroupingDigitsAuto">
@@ -1047,8 +1699,22 @@
       </ReturnValue>
       <MemberValue>-2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#setMinimumGroupingDigits(int)</c> to specify display
+            grouping using the default strategy for all locales.</summary>
+        <remarks>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#setMinimumGroupingDigits(int)</c> to specify display
+            grouping using the default strategy for all locales.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#MINIMUM_GROUPING_DIGITS_AUTO" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.MINIMUM_GROUPING_DIGITS_AUTO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MinimumGroupingDigitsMin2">
@@ -1076,8 +1742,24 @@
       </ReturnValue>
       <MemberValue>-3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#setMinimumGroupingDigits(int)</c> to specify display
+            grouping using locale defaults, except do not show grouping on values smaller than
+            10000 (such that there is a minimum of two digits before the first separator).</summary>
+        <remarks>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#setMinimumGroupingDigits(int)</c> to specify display
+            grouping using locale defaults, except do not show grouping on values smaller than
+            10000 (such that there is a minimum of two digits before the first separator).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#MINIMUM_GROUPING_DIGITS_MIN2" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.MINIMUM_GROUPING_DIGITS_MIN2</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MinimumSignificantDigits">
@@ -1112,10 +1794,37 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="value">The minimum number of significant digits to display.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the effective minimum number of significant digits displayed. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets the minimum number of significant
+            digits to be displayed.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the effective minimum number of significant digits displayed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getMinimumSignificantDigits()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getMinimumSignificantDigits()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets the minimum number of significant
+            digits to be displayed. If the number of significant digits is less than this value, the number
+            will be padded with zeros as necessary.</para>
+          <para>For example, if minimum significant digits is 3 and the number is 1.2, the number will be
+            printed as "1.20".</para>
+          <para>If minimum and maximum integer, fraction, or significant digits conflict with each other,
+            the most recently specified value is used. For example, if there is a formatter with minInt=5,
+            and then you set maxInt=3, then minInt will be changed to 3.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setMinimumSignificantDigits(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setMinimumSignificantDigits(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1151,10 +1860,33 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="multiplier">The number by which all numbers passed to <c>#format</c> will be multiplied.</param>
+        <summary>Returns the multiplier being applied to numbers before they are formatted. -or- Sets a number that will be used to multiply all numbers prior to formatting.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns the multiplier being applied to numbers before they are formatted.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getMultiplier()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getMultiplier()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets a number that will be used to multiply all numbers prior to formatting. For example, when
+            formatting percents, a multiplier of 100 can be used.</para>
+          <para>If a percent or permille sign is specified in the pattern, the multiplier is automatically
+            set to 100 or 1000, respectively.</para>
+          <para>If the number specified here is a power of 10, a more efficient code path will be used.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setMultiplier(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setMultiplier(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1190,10 +1922,39 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="prefix">The literal string to prepend to negative numbers.</param>
+        <summary>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the negative prefix string currently being used to format
+            numbers. -or- &lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to prepend to negative numbers.</summary>
+        <value>The string being prepended to negative numbers.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the negative prefix string currently being used to format
+            numbers.</para>
+          <para>If the affix was specified via the pattern, the string returned by this method will have
+            locale symbols substituted in place of special characters according to the LDML specification.
+            If the affix was specified via <c>#setNegativePrefix</c>, the string will be returned
+            literally.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getNegativePrefix()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getNegativePrefix()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to prepend to negative numbers. For example, if you
+            set the value "#", then the number -123 will be formatted as "#123" in the locale
+            &lt;em&gt;en-US&lt;/em&gt; (overriding the implicit default '-' in the pattern).</para>
+          <para>Using this method overrides the affix specified via the pattern, and unlike the pattern, the
+            string given to this method will be interpreted literally WITHOUT locale symbol substitutions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setNegativePrefix(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setNegativePrefix(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1229,10 +1990,39 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="suffix">The literal string to append to negative numbers.</param>
+        <summary>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the negative suffix string currently being used to format
+            numbers. -or- &lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to append to negative numbers.</summary>
+        <value>The string being appended to negative numbers.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the negative suffix string currently being used to format
+            numbers.</para>
+          <para>If the affix was specified via the pattern, the string returned by this method will have
+            locale symbols substituted in place of special characters according to the LDML specification.
+            If the affix was specified via <c>#setNegativeSuffix</c>, the string will be returned
+            literally.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getNegativeSuffix()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getNegativeSuffix()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to append to negative numbers. For example, if you
+            set the value "#", then the number 123 will be formatted as "123#" in the locale
+            &lt;em&gt;en-US&lt;/em&gt;.</para>
+          <para>Using this method overrides the affix specified via the pattern, and unlike the pattern, the
+            string given to this method will be interpreted literally WITHOUT locale symbol substitutions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setNegativeSuffix(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setNegativeSuffix(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1265,9 +2055,21 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted after the prefix.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted after the prefix.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#PAD_AFTER_PREFIX" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.PAD_AFTER_PREFIX</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1300,9 +2102,21 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted after the suffix.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted after the suffix.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#PAD_AFTER_SUFFIX" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.PAD_AFTER_SUFFIX</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1335,9 +2149,21 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted before the prefix.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted before the prefix.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#PAD_BEFORE_PREFIX" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.PAD_BEFORE_PREFIX</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1370,9 +2196,21 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted before the suffix.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Constant for <c>#getPadPosition()</c> and <c>#setPadPosition(int)</c> to specify pad
+            characters inserted before the suffix.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#PAD_BEFORE_SUFFIX" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.PAD_BEFORE_SUFFIX</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1408,10 +2246,33 @@
         <ReturnType>System.Char</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="padChar">The character used for padding.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the character used for padding. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Padding:&lt;/strong&gt; Sets the character used to pad numbers that are narrower than
+            the width specified in <c>#setFormatWidth</c>.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the character used for padding.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getPadCharacter()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getPadCharacter()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Padding:&lt;/strong&gt; Sets the character used to pad numbers that are narrower than
+            the width specified in <c>#setFormatWidth</c>.</para>
+          <para>In the pattern string, the padding character is the token that follows '*' before or after
+            the prefix or suffix.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setPadCharacter(char)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setPadCharacter(char)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1447,10 +2308,39 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="padPos">The position used for padding.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the position used for padding. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Padding:&lt;/strong&gt; Sets the position where to insert the pad character when
+            narrower than the width specified in <c>#setFormatWidth</c>.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the position used for padding.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getPadPosition()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getPadPosition()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Padding:&lt;/strong&gt; Sets the position where to insert the pad character when
+            narrower than the width specified in <c>#setFormatWidth</c>. For example, consider the pattern
+            "P123S" with padding width 8 and padding char "*". The four positions are:
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>DecimalFormat#PAD_BEFORE_PREFIX</c> ⇒ "***P123S"
+              &lt;li&gt;<c>DecimalFormat#PAD_AFTER_PREFIX</c> ⇒ "P***123S"
+              &lt;li&gt;<c>DecimalFormat#PAD_BEFORE_SUFFIX</c> ⇒ "P123***S"
+              &lt;li&gt;<c>DecimalFormat#PAD_AFTER_SUFFIX</c> ⇒ "P123S***"
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setPadPosition(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setPadPosition(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1484,10 +2374,20 @@
       <Docs>
         <param name="text">To be added.</param>
         <param name="parsePosition">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#parse(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.parse(java.lang.String, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1523,10 +2423,33 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="value">true to cause <c>#parse</c> to prefer BigDecimal; false to let <c>#parse</c>
+                return additional data types like Long or BigInteger.</param>
+        <summary>Returns whether <c>#parse</c> will always return a BigDecimal. -or- Whether to make <c>#parse</c> prefer returning a <c>android.icu.math.BigDecimal</c> when
+            possible.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Returns whether <c>#parse</c> will always return a BigDecimal.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isParseBigDecimal()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isParseBigDecimal()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Whether to make <c>#parse</c> prefer returning a <c>android.icu.math.BigDecimal</c> when
+            possible. For strings corresponding to return values of Infinity, -Infinity, NaN, and -0.0, a
+            Double will be returned even if ParseBigDecimal is enabled.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setParseBigDecimal(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setParseBigDecimal(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1562,9 +2485,33 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="value">true to force case (uppercase/lowercase) to match when parsing; false to ignore
+                case and perform case folding.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether to force case (uppercase/lowercase) to match when parsing. -or- &lt;strong&gt;[icu]&lt;/strong&gt; Specifies whether parsing should require cases to match in affixes, exponent separators,
+            and currency codes.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether to force case (uppercase/lowercase) to match when parsing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isParseCaseSensitive()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isParseCaseSensitive()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Specifies whether parsing should require cases to match in affixes, exponent separators,
+            and currency codes. Case mapping is performed for each code point using <c>UCharacter#foldCase</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setParseCaseSensitive(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setParseCaseSensitive(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ParseMaxDigits">
@@ -1603,10 +2550,31 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="maxDigits">Prior to ICU 59, the maximum number of digits in the output number after
+                exponential notation is applied.</param>
+        <summary>Always returns 1000, the default prior to ICU 59. -or- This member is deprecated.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Always returns 1000, the default prior to ICU 59.</para>
+          <para>This member is deprecated. Setting max parse digits has no effect since ICU4J 59.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getParseMaxDigits()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getParseMaxDigits()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>This member is deprecated. Setting max parse digits has no effect since ICU4J 59.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setParseMaxDigits(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setParseMaxDigits(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1642,9 +2610,32 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="value">true to prevent exponents from being parsed; false to allow them to be parsed.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether to ignore exponents when parsing. -or- &lt;strong&gt;[icu]&lt;/strong&gt; Specifies whether to stop parsing when an exponent separator is encountered.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether to ignore exponents when parsing.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isParseNoExponent()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isParseNoExponent()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Specifies whether to stop parsing when an exponent separator is encountered. For
+            example, parses "123E4" to 123 (with parse position 3) instead of 1230000 (with parse position
+            5).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setParseNoExponent(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setParseNoExponent(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PositivePrefix">
@@ -1679,10 +2670,39 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="prefix">The literal string to prepend to positive numbers.</param>
+        <summary>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the positive prefix string currently being used to format
+            numbers. -or- &lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to prepend to positive numbers.</summary>
+        <value>The string being prepended to positive numbers.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the positive prefix string currently being used to format
+            numbers.</para>
+          <para>If the affix was specified via the pattern, the string returned by this method will have
+            locale symbols substituted in place of special characters according to the LDML specification.
+            If the affix was specified via <c>#setPositivePrefix</c>, the string will be returned
+            literally.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getPositivePrefix()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getPositivePrefix()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to prepend to positive numbers. For example, if you
+            set the value "#", then the number 123 will be formatted as "#123" in the locale
+            &lt;em&gt;en-US&lt;/em&gt;.</para>
+          <para>Using this method overrides the affix specified via the pattern, and unlike the pattern, the
+            string given to this method will be interpreted literally WITHOUT locale symbol substitutions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setPositivePrefix(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setPositivePrefix(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1718,10 +2738,39 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="suffix">The literal string to append to positive numbers.</param>
+        <summary>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the positive suffix string currently being used to format
+            numbers. -or- &lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to append to positive numbers.</summary>
+        <value>The string being appended to positive numbers.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Gets the positive suffix string currently being used to format
+            numbers.</para>
+          <para>If the affix was specified via the pattern, the string returned by this method will have
+            locale symbols substituted in place of special characters according to the LDML specification.
+            If the affix was specified via <c>#setPositiveSuffix</c>, the string will be returned
+            literally.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getPositiveSuffix()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getPositiveSuffix()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;Affixes:&lt;/strong&gt; Sets the string to append to positive numbers. For example, if you
+            set the value "#", then the number 123 will be formatted as "123#" in the locale
+            &lt;em&gt;en-US&lt;/em&gt;.</para>
+          <para>Using this method overrides the affix specified via the pattern, and unlike the pattern, the
+            string given to this method will be interpreted literally WITHOUT locale symbol substitutions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setPositiveSuffix(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setPositiveSuffix(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1757,10 +2806,38 @@
         <ReturnType>Java.Math.BigDecimal</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="increment">The increment to which numbers are to be rounded.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the increment to which numbers are being rounded. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets an increment, or interval, to which
+            numbers are rounded.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the increment to which numbers are being rounded.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getRoundingIncrement()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getRoundingIncrement()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets an increment, or interval, to which
+            numbers are rounded. For example, a rounding increment of 0.05 will cause the number 1.23 to be
+            rounded to 1.25 in the default rounding mode.</para>
+          <para>The rounding increment can be specified via the pattern string: for example, the pattern
+            "#,##0.05" encodes a rounding increment of 0.05.</para>
+          <para>The rounding increment is applied &lt;em&gt;after&lt;/em&gt; any multipliers might take effect; for
+            example, in scientific notation or when <c>#setMultiplier</c> is used.</para>
+          <para>See <c>#setMaximumFractionDigits</c> and <c>#setMaximumSignificantDigits</c> for two other
+            ways of specifying rounding strategies.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setRoundingIncrement(java.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setRoundingIncrement(java.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1796,10 +2873,35 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="useScientific">true to enable scientific notation; false to disable it.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether scientific (exponential) notation is enabled on this formatter. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Scientific Notation:&lt;/strong&gt; Sets whether this formatter should print in
+            scientific (exponential) notation.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether scientific (exponential) notation is enabled on this formatter.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isScientificNotation()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isScientificNotation()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Scientific Notation:&lt;/strong&gt; Sets whether this formatter should print in
+            scientific (exponential) notation. For example, if scientific notation is enabled, the number
+            123000 will be printed as "1.23E5" in locale &lt;em&gt;en-US&lt;/em&gt;. A locale-specific symbol is used
+            as the exponent separator.</para>
+          <para>Calling <c>df.setScientificNotation(true)</c> is functionally equivalent to calling
+            <c>df.setMinimumExponentDigits(1)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setScientificNotation(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setScientificNotation(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1835,10 +2937,36 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <param name="width">The secondary grouping size to use.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the secondary grouping size in use. -or- &lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Grouping:&lt;/strong&gt; Sets the secondary grouping size (distance between grouping
+            separators after the first separator) used when formatting large numbers.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns the secondary grouping size in use.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#getSecondaryGroupingSize()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.getSecondaryGroupingSize()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Grouping:&lt;/strong&gt; Sets the secondary grouping size (distance between grouping
+            separators after the first separator) used when formatting large numbers. In many south Asian
+            locales, this is set to 2.</para>
+          <para>For example, with primary grouping size 3 and secondary grouping size 2, the number 1234567
+            will be formatted as "12,34,567".</para>
+          <para>Grouping size can also be specified in the pattern: for example, "#,##,##0" corresponds to a
+            primary grouping size of 3 and a secondary grouping size of 2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setSecondaryGroupingSize(int)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setSecondaryGroupingSize(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1869,10 +2997,20 @@
         <Parameter Name="increment" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="increment">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="increment">The increment to which numbers are to be rounded.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Overload of <c>#setRoundingIncrement(java.math.BigDecimal)</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Overload of <c>#setRoundingIncrement(java.math.BigDecimal)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setRoundingIncrement(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setRoundingIncrement(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1903,10 +3041,20 @@
         <Parameter Name="increment" Type="System.Double" />
       </Parameters>
       <Docs>
-        <param name="increment">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="increment">The increment to which numbers are to be rounded.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Overload of <c>#setRoundingIncrement(java.math.BigDecimal)</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Overload of <c>#setRoundingIncrement(java.math.BigDecimal)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setRoundingIncrement(double)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setRoundingIncrement(double)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1937,10 +3085,26 @@
         <Parameter Name="useSignificantDigits" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="useSignificantDigits">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="useSignificantDigits">true to enable significant digit rounding; false to disable it.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets whether significant digits are to be
+            used in rounding.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; &lt;strong&gt;Rounding and Digit Limits:&lt;/strong&gt; Sets whether significant digits are to be
+            used in rounding.</para>
+          <para>Calling <c>df.setSignificantDigitsUsed(true)</c> is functionally equivalent to:</para>
+          <code lang="text/java">df.setMinimumSignificantDigits(1);
+            df.setMaximumSignificantDigits(6);
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setSignificantDigitsUsed(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setSignificantDigitsUsed(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1976,9 +3140,46 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <param name="value">true to always show a sign; false to hide the sign on positive numbers and zero.</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether the sign is being shown on positive numbers. -or- Sets whether to always shown the plus sign ('+' in &lt;em&gt;en&lt;/em&gt;) on positive numbers.</summary>
+        <value>Whether the sign is shown on positive numbers and zero.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Returns whether the sign is being shown on positive numbers.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isSignAlwaysShown()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isSignAlwaysShown()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets whether to always shown the plus sign ('+' in &lt;em&gt;en&lt;/em&gt;) on positive numbers. The rules
+            in UTS #35 section 3.2.1 will be followed to ensure a locale-aware placement of the sign.</para>
+          <para>More specifically, the following strategy will be used to place the plus sign:
+            
+            &lt;ol&gt;
+              &lt;li&gt;&lt;em&gt;Patterns without a negative subpattern:&lt;/em&gt; The locale's plus sign will be prepended
+                  to the positive prefix.
+              &lt;li&gt;&lt;em&gt;Patterns with a negative subpattern without a '-' sign (e.g., accounting):&lt;/em&gt; The
+                  locale's plus sign will be prepended to the positive prefix, as in case 1.
+              &lt;li&gt;&lt;em&gt;Patterns with a negative subpattern that has a '-' sign:&lt;/em&gt; The locale's plus sign
+                  will substitute the '-' in the negative subpattern. The positive subpattern will be
+                  unused.
+            &lt;/ol&gt;
+            
+            This method is designed to be used &lt;em&gt;instead of&lt;/em&gt; applying a pattern containing an
+            explicit plus sign, such as "+0;-0". The behavior when combining this method with explicit plus
+            signs in the pattern is undefined.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#setSignAlwaysShown(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.setSignAlwaysShown(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -2031,6 +3232,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -2068,10 +3273,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Calls <c>#toPattern</c> and converts the string to localized notation.</summary>
+        <returns>A decimal format pattern string in localized notation.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Calls <c>#toPattern</c> and converts the string to localized notation. For more information on
+            localized notation, see <c>#applyLocalizedPattern</c>. This method is provided for backwards
+            compatibility and should not be used in new projects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#toLocalizedPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.toLocalizedPattern()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2100,10 +3317,25 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Serializes this formatter object to a decimal format pattern string.</summary>
+        <returns>A decimal format pattern string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Serializes this formatter object to a decimal format pattern string. The result of this method
+            is guaranteed to be &lt;em&gt;functionally&lt;/em&gt; equivalent to the pattern string used to create this
+            instance after incorporating values from the setter methods.</para>
+          <para>For more information on decimal format pattern strings, see <see href="http://unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns">UTS #35</see>.</para>
+          <para>&lt;strong&gt;Important:&lt;/strong&gt; Not all properties are capable of being encoded in a pattern
+            string. See a list of properties in <c>#applyPattern</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#toPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.toPattern()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

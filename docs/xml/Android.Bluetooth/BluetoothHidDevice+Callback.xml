@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothHidDevice$Callback", ApiSince=28, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
     </Attribute>
@@ -25,6 +29,9 @@
     <summary>The template class that applications use to call callback functions on events from the HID
             host.</summary>
     <remarks>
+      <para>The template class that applications use to call callback functions on events from the HID
+            host. Callback functions are wrapped in this class and registered to the Android system
+            during app registration.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback</code>.</a>
@@ -103,6 +110,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -150,6 +161,11 @@
                 otherwise.</param>
         <summary>Callback called when application registration state changes.</summary>
         <remarks>
+          <para>Callback called when application registration state changes. Usually it's called due to
+            either <c>BluetoothHidDevice#registerApp (String, String, String, byte, byte[],
+            Executor, Callback)</c> or <c>BluetoothHidDevice#unregisterApp()</c> , but can be also
+            unsolicited in case e.g. Bluetooth was turned off in which case application is
+            unregistered automatically.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback#onAppStatusChanged(android.bluetooth.BluetoothDevice,%20boolean)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback.onAppStatusChanged(android.bluetooth.BluetoothDevice, boolean)</code>.</a>
@@ -204,6 +220,8 @@
         <param name="state">Connection state as defined in <c>BluetoothProfile</c>.</param>
         <summary>Callback called when connection state with remote host was changed.</summary>
         <remarks>
+          <para>Callback called when connection state with remote host was changed. Application can
+            assume than Virtual Cable is established when called with <c>BluetoothProfile#STATE_CONNECTED</c><c>state</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback#onConnectionStateChanged(android.bluetooth.BluetoothDevice,%20int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback.onConnectionStateChanged(android.bluetooth.BluetoothDevice, int)</code>.</a>
@@ -254,6 +272,9 @@
                 number of bytes.</param>
         <summary>Callback called when GET_REPORT is received from remote host.</summary>
         <remarks>
+          <para>Callback called when GET_REPORT is received from remote host. Should be replied by
+            application using <c>BluetoothHidDevice#replyReport(BluetoothDevice, byte, byte,
+            byte[])</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback#onGetReport(android.bluetooth.BluetoothDevice,%20byte,%20byte,%20int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback.onGetReport(android.bluetooth.BluetoothDevice, byte, byte, int)</code>.</a>
@@ -301,6 +322,8 @@
         <param name="data">Report data.</param>
         <summary>Callback called when report data is received over interrupt channel.</summary>
         <remarks>
+          <para>Callback called when report data is received over interrupt channel. Report Type is
+            assumed to be <c>BluetoothHidDevice#REPORT_TYPE_OUTPUT</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback#onInterruptData(android.bluetooth.BluetoothDevice,%20byte,%20byte[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback.onInterruptData(android.bluetooth.BluetoothDevice, byte, byte[])</code>.</a>
@@ -346,6 +369,8 @@
         <param name="protocol">Protocol Mode.</param>
         <summary>Callback called when SET_PROTOCOL is received from remote host.</summary>
         <remarks>
+          <para>Callback called when SET_PROTOCOL is received from remote host. Application shall use
+            this information to send only reports valid for given protocol mode. By default, <c>BluetoothHidDevice#PROTOCOL_REPORT_MODE</c> shall be assumed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback#onSetProtocol(android.bluetooth.BluetoothDevice,%20byte)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback.onSetProtocol(android.bluetooth.BluetoothDevice, byte)</code>.</a>
@@ -395,6 +420,8 @@
         <param name="data">Report data.</param>
         <summary>Callback called when SET_REPORT is received from remote host.</summary>
         <remarks>
+          <para>Callback called when SET_REPORT is received from remote host. In case received data are
+            invalid, application shall respond with <c>BluetoothHidDevice#reportError(BluetoothDevice, byte)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback#onSetReport(android.bluetooth.BluetoothDevice,%20byte,%20byte,%20byte[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback.onSetReport(android.bluetooth.BluetoothDevice, byte, byte, byte[])</code>.</a>
@@ -438,6 +465,8 @@
         <param name="device">To be added.</param>
         <summary>Callback called when Virtual Cable is removed.</summary>
         <remarks>
+          <para>Callback called when Virtual Cable is removed. After this callback is received connection
+            will be disconnected automatically.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHidDevice.Callback#onVirtualCableUnplug(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHidDevice.Callback.onVirtualCableUnplug(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -498,6 +527,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

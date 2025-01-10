@@ -30,14 +30,18 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/AutomaticZenRule", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>Rule instance information for zen mode.</summary>
+    <summary>Rule instance information for a zen (aka DND or Attention Management) mode.</summary>
     <remarks>
-      <para>Rule instance information for zen mode.</para>
+      <para>Rule instance information for a zen (aka DND or Attention Management) mode.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/AutomaticZenRule" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule</code>.</a>
@@ -134,8 +138,7 @@
         <summary>Creates an automatic zen rule.</summary>
         <remarks>
           <para>Creates an automatic zen rule.</para>
-          <para>This member is deprecated. use <c>#AutomaticZenRule(String, ComponentName, ComponentName, Uri,
-            ZenPolicy, int, boolean)</c>.</para>
+          <para>This member is deprecated. Use <c>AutomaticZenRule.Builder</c> to construct an <c>AutomaticZenRule</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#AutomaticZenRule(java.lang.String,%20android.content.ComponentName,%20android.net.Uri,%20int,%20boolean)" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.AutomaticZenRule(java.lang.String, android.content.ComponentName, android.net.Uri, int, boolean)</code>.</a>
@@ -170,10 +173,24 @@
         </Attribute>
       </Attributes>
       <Parameters>
-        <Parameter Name="name" Type="System.String" />
+        <Parameter Name="name" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="owner" Type="Android.Content.ComponentName" />
         <Parameter Name="configurationActivity" Type="Android.Content.ComponentName" />
-        <Parameter Name="conditionId" Type="Android.Net.Uri" />
+        <Parameter Name="conditionId" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="policy" Type="Android.Service.Notification.ZenPolicy" />
         <Parameter Name="interruptionFilter" Type="System.Int32" />
         <Parameter Name="enabled" Type="System.Boolean" />
@@ -203,6 +220,7 @@
         <summary>Creates an automatic zen rule.</summary>
         <remarks>
           <para>Creates an automatic zen rule.</para>
+          <para>Note: Prefer <c>AutomaticZenRule.Builder</c> to construct an <c>AutomaticZenRule</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#AutomaticZenRule(java.lang.String,%20android.content.ComponentName,%20android.content.ComponentName,%20android.net.Uri,%20android.service.notification.ZenPolicy,%20int,%20boolean)" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.AutomaticZenRule(java.lang.String, android.content.ComponentName, android.content.ComponentName, android.net.Uri, android.service.notification.ZenPolicy, int, boolean)</code>.</a>
@@ -323,7 +341,11 @@
           <para>Sets the configuration activity - an activity that handles
             <c>NotificationManager#ACTION_AUTOMATIC_ZEN_RULE</c> that shows the user more information
             about this rule and/or allows them to configure it. This is required to be non-null for rules
-            that are not backed by <c>android.service.notification.ConditionProviderService</c>.</para>
+            that are not backed by a <c>android.service.notification.ConditionProviderService</c>.</para>
+          <para>This is exclusive with the <c>owner</c> supplied in the constructor; rules where a
+            configuration activity is set will not use the
+            <c>android.service.notification.ConditionProviderService</c> supplied there to determine
+            whether the rule should be active.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#setConfigurationActivity(android.content.ComponentName)" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.setConfigurationActivity(android.content.ComponentName)</code>.</a>
@@ -444,6 +466,67 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="DeviceEffects">
+      <MemberSignature Language="C#" Value="public Android.Service.Notification.ZenDeviceEffects? DeviceEffects { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.Service.Notification.ZenDeviceEffects DeviceEffects" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AutomaticZenRule.DeviceEffects" />
+      <MemberSignature Language="F#" Value="member this.DeviceEffects : Android.Service.Notification.ZenDeviceEffects with get, set" Usage="Android.App.AutomaticZenRule.DeviceEffects" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDeviceEffects", "()Landroid/service/notification/ZenDeviceEffects;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDeviceEffects", "()Landroid/service/notification/ZenDeviceEffects;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setDeviceEffects", "(Landroid/service/notification/ZenDeviceEffects;)V", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setDeviceEffects", "(Landroid/service/notification/ZenDeviceEffects;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Service.Notification.ZenDeviceEffects</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the <c>ZenDeviceEffects</c> of this rule. -or- Sets the <c>ZenDeviceEffects</c> associated to this rule.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Gets the <c>ZenDeviceEffects</c> of this rule.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#getDeviceEffects()" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.getDeviceEffects()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the <c>ZenDeviceEffects</c> associated to this rule. Device effects specify changes to
+            the device behavior that should apply while the rule is active, but are not directly related
+            to suppressing notifications (for example: disabling always-on display).</para>
+          <para>When updating an existing rule via <c>NotificationManager#updateAutomaticZenRule</c>,
+            a <c>null</c> value here means the previous set of effects is retained.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#setDeviceEffects(android.service.notification.ZenDeviceEffects)" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.setDeviceEffects(android.service.notification.ZenDeviceEffects)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Enabled">
       <MemberSignature Language="C#" Value="public bool Enabled { get; set; }" />
       <MemberSignature Language="ILAsm" Value=".property instance bool Enabled" />
@@ -491,6 +574,47 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#setEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.setEnabled(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IconResId">
+      <MemberSignature Language="C#" Value="public int IconResId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 IconResId" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AutomaticZenRule.IconResId" />
+      <MemberSignature Language="F#" Value="member this.IconResId : int" Usage="Android.App.AutomaticZenRule.IconResId" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getIconResId", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getIconResId", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the resource id of the drawable icon for this rule.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the resource id of the drawable icon for this rule.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#getIconResId()" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.getIconResId()</code>.</a>
             </format>
           </para>
           <para>
@@ -559,6 +683,49 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="IsManualInvocationAllowed">
+      <MemberSignature Language="C#" Value="public bool IsManualInvocationAllowed { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsManualInvocationAllowed" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AutomaticZenRule.IsManualInvocationAllowed" />
+      <MemberSignature Language="F#" Value="member this.IsManualInvocationAllowed : bool" Usage="Android.App.AutomaticZenRule.IsManualInvocationAllowed" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isManualInvocationAllowed", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isManualInvocationAllowed", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets whether this rule can be manually activated by the user even when the triggering
+            condition for the rule is not met.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets whether this rule can be manually activated by the user even when the triggering
+            condition for the rule is not met.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#isManualInvocationAllowed()" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.isManualInvocationAllowed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -580,6 +747,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -741,6 +912,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -750,6 +925,535 @@
         <value>To be added.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TriggerDescription">
+      <MemberSignature Language="C#" Value="public string? TriggerDescription { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string TriggerDescription" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AutomaticZenRule.TriggerDescription" />
+      <MemberSignature Language="F#" Value="member this.TriggerDescription : string" Usage="Android.App.AutomaticZenRule.TriggerDescription" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getTriggerDescription", "()Ljava/lang/String;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTriggerDescription", "()Ljava/lang/String;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the user visible description of when this rule is active
+            (see <c>Condition#STATE_TRUE</c>).</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the user visible description of when this rule is active
+            (see <c>Condition#STATE_TRUE</c>).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#getTriggerDescription()" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.getTriggerDescription()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Type">
+      <MemberSignature Language="C#" Value="public Android.App.AutomaticZenRuleType Type { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.App.AutomaticZenRuleType Type" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AutomaticZenRule.Type" />
+      <MemberSignature Language="F#" Value="member this.Type : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.Type" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getType", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getType", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the type of the rule.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the type of the rule.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#getType()" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.getType()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeBedtime">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeBedtime = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeBedtime = (3)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeBedtime" />
+      <MemberSignature Language="F#" Value="val mutable TypeBedtime : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeBedtime" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_BEDTIME", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_BEDTIME", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>The type for rules triggered by bedtime/sleeping, like time of day, or snore detection.</summary>
+        <remarks>
+          <para>The type for rules triggered by bedtime/sleeping, like time of day, or snore detection.</para>
+          <para>Only the 'Wellbeing' app may own rules of this type.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_BEDTIME" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_BEDTIME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeDriving">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeDriving = 4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeDriving = (4)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeDriving" />
+      <MemberSignature Language="F#" Value="val mutable TypeDriving : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeDriving" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_DRIVING", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_DRIVING", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>4</MemberValue>
+      <Docs>
+        <summary>The type for rules triggered by driving detection, like Bluetooth connections or vehicle
+            sounds.</summary>
+        <remarks>
+          <para>The type for rules triggered by driving detection, like Bluetooth connections or vehicle
+            sounds.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_DRIVING" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_DRIVING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeImmersive">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeImmersive = 5;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeImmersive = (5)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeImmersive" />
+      <MemberSignature Language="F#" Value="val mutable TypeImmersive : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeImmersive" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_IMMERSIVE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_IMMERSIVE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>5</MemberValue>
+      <Docs>
+        <summary>The type for rules triggered by the user entering an immersive activity, like opening an app
+            using <c>WindowInsetsController#hide(int)</c>.</summary>
+        <remarks>
+          <para>The type for rules triggered by the user entering an immersive activity, like opening an app
+            using <c>WindowInsetsController#hide(int)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_IMMERSIVE" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_IMMERSIVE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeManaged">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeManaged = 7;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeManaged = (7)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeManaged" />
+      <MemberSignature Language="F#" Value="val mutable TypeManaged : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeManaged" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_MANAGED", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_MANAGED", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>7</MemberValue>
+      <Docs>
+        <summary>The type for rules created and managed by a device owner.</summary>
+        <remarks>
+          <para>The type for rules created and managed by a device owner. These rules may not be fully
+            editable by the device user.</para>
+          <para>Only a 'Device Owner' app may own rules of this type.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_MANAGED" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_MANAGED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeOther">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeOther = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeOther = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeOther" />
+      <MemberSignature Language="F#" Value="val mutable TypeOther : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeOther" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_OTHER", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_OTHER", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Rule is of a known type, but not one of the specific types.</summary>
+        <remarks>
+          <para>Rule is of a known type, but not one of the specific types.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_OTHER" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_OTHER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeScheduleCalendar">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeScheduleCalendar = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeScheduleCalendar = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeScheduleCalendar" />
+      <MemberSignature Language="F#" Value="val mutable TypeScheduleCalendar : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeScheduleCalendar" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_SCHEDULE_CALENDAR", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_SCHEDULE_CALENDAR", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>The type for rules triggered by calendar events.</summary>
+        <remarks>
+          <para>The type for rules triggered by calendar events.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_SCHEDULE_CALENDAR" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_SCHEDULE_CALENDAR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeScheduleTime">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeScheduleTime = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeScheduleTime = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeScheduleTime" />
+      <MemberSignature Language="F#" Value="val mutable TypeScheduleTime : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeScheduleTime" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_SCHEDULE_TIME", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_SCHEDULE_TIME", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The type for rules triggered according to a time-based schedule.</summary>
+        <remarks>
+          <para>The type for rules triggered according to a time-based schedule.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_SCHEDULE_TIME" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_SCHEDULE_TIME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeTheater">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeTheater = 6;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeTheater = (6)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeTheater" />
+      <MemberSignature Language="F#" Value="val mutable TypeTheater : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeTheater" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_THEATER", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_THEATER", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>6</MemberValue>
+      <Docs>
+        <summary>The type for rules that have a <c>ZenPolicy</c> that implies that the
+            device should not make sound and potentially hide some visual effects; may be triggered
+            when entering a location where silence is requested, like a theater.</summary>
+        <remarks>
+          <para>The type for rules that have a <c>ZenPolicy</c> that implies that the
+            device should not make sound and potentially hide some visual effects; may be triggered
+            when entering a location where silence is requested, like a theater.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_THEATER" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_THEATER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeUnknown">
+      <MemberSignature Language="C#" Value="public const Android.App.AutomaticZenRuleType TypeUnknown = -1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AutomaticZenRuleType TypeUnknown = (-1)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AutomaticZenRule.TypeUnknown" />
+      <MemberSignature Language="F#" Value="val mutable TypeUnknown : Android.App.AutomaticZenRuleType" Usage="Android.App.AutomaticZenRule.TypeUnknown" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_UNKNOWN", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_UNKNOWN", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AutomaticZenRuleType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AutomaticZenRuleType</ReturnType>
+      </ReturnValue>
+      <MemberValue>-1</MemberValue>
+      <Docs>
+        <summary>Rule is of an unknown type.</summary>
+        <remarks>
+          <para>Rule is of an unknown type. This is the default value if not provided by the owning app,
+            and the value returned if the true type was added in an API level lower than the calling
+            app's targetSdk.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#TYPE_UNKNOWN" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.TYPE_UNKNOWN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -843,6 +1547,8 @@
           </para>
           <para>Property setter documentation:</para>
           <para>Sets the zen policy.</para>
+          <para>When updating an existing rule via <c>NotificationManager#updateAutomaticZenRule</c>,
+            a <c>null</c> value here means the previous policy is retained.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AutomaticZenRule#setZenPolicy(android.service.notification.ZenPolicy)" title="Reference documentation">Java documentation for <code>android.app.AutomaticZenRule.setZenPolicy(android.service.notification.ZenPolicy)</code>.</a>

@@ -17,13 +17,44 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/role/RoleManager", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>This class provides information about and manages roles.</summary>
+    <remarks>
+      <para>This class provides information about and manages roles.</para>
+      <para>A role is a unique name within the system associated with certain privileges. The list of
+            available roles might change with a system app update, so apps should not make assumption about
+            the availability of roles. Instead, they should always query if the role is available using
+            <c>#isRoleAvailable(String)</c> before trying to do anything with it. Some predefined role names
+            are available as constants in this class, and a list of possibly available roles can be found in
+            the <see href="https://developer.android.com/reference/androidx/core/role/package-summary.html">AndroidX Role
+            library</see>.</para>
+      <para>There can be multiple applications qualifying for a role, but only a subset of them can become
+            role holders. To qualify for a role, an application must meet certain requirements, including
+            defining certain components in its manifest. These requirements can be found in the AndroidX
+            Libraries. Then the application will need user consent to become a role holder, which can be
+            requested using <c>android.app.Activity#startActivityForResult(Intent, int)</c> with the
+            <c>Intent</c> obtained from <c>#createRequestRoleIntent(String)</c>.</para>
+      <para>Upon becoming a role holder, the application may be granted certain privileges that are role
+            specific. When the application loses its role, these privileges will also be revoked.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/role/RoleManager" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="CreateRequestRoleIntent">
@@ -53,10 +84,29 @@
         <Parameter Name="roleName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="roleName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="roleName">the name of requested role</param>
+        <summary>Returns an <c>Intent</c> suitable for passing to
+            <c>android.app.Activity#startActivityForResult(Intent, int)</c> which prompts the user to
+            grant a role to this application.</summary>
+        <returns>the <c>Intent</c> to prompt user to grant the role</returns>
+        <remarks>
+          <para>Returns an <c>Intent</c> suitable for passing to
+            <c>android.app.Activity#startActivityForResult(Intent, int)</c> which prompts the user to
+            grant a role to this application.</para>
+          <para>If the role is granted, the <c>resultCode</c> will be
+            <c>android.app.Activity#RESULT_OK</c>, otherwise it will be
+            <c>android.app.Activity#RESULT_CANCELED</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#createRequestRoleIntent(java.lang.String)" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.createRequestRoleIntent(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsRoleAvailable">
@@ -86,10 +136,22 @@
         <Parameter Name="roleName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="roleName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="roleName">the name of role to checking for</param>
+        <summary>Check whether a role is available in the system.</summary>
+        <returns>whether the role is available in the system</returns>
+        <remarks>
+          <para>Check whether a role is available in the system.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#isRoleAvailable(java.lang.String)" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.isRoleAvailable(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsRoleHeld">
@@ -119,10 +181,22 @@
         <Parameter Name="roleName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="roleName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="roleName">the name of the role to check for</param>
+        <summary>Check whether the calling application is holding a particular role.</summary>
+        <returns>whether the calling application is holding the role</returns>
+        <remarks>
+          <para>Check whether the calling application is holding a particular role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#isRoleHeld(java.lang.String)" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.isRoleHeld(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -178,8 +252,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the assistant app role.</summary>
+        <remarks>
+          <para>The name of the assistant app role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_ASSISTANT" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_ASSISTANT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleBrowser">
@@ -206,8 +292,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the browser role.</summary>
+        <remarks>
+          <para>The name of the browser role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_BROWSER" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_BROWSER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleCallRedirection">
@@ -234,8 +332,22 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the call redirection role.</summary>
+        <remarks>
+          <para>The name of the call redirection role.</para>
+          <para>A call redirection app provides a means to re-write the phone number for an outgoing call to
+            place the call through a call redirection service.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_CALL_REDIRECTION" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_CALL_REDIRECTION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleCallScreening">
@@ -262,8 +374,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the call screening and caller id role.</summary>
+        <remarks>
+          <para>The name of the call screening and caller id role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_CALL_SCREENING" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_CALL_SCREENING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleDialer">
@@ -290,8 +414,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the dialer role.</summary>
+        <remarks>
+          <para>The name of the dialer role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_DIALER" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_DIALER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleEmergency">
@@ -318,8 +454,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the emergency role</summary>
+        <remarks>
+          <para>The name of the emergency role</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_EMERGENCY" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_EMERGENCY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleHome">
@@ -346,8 +494,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the home role.</summary>
+        <remarks>
+          <para>The name of the home role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_HOME" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_HOME</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleNotes">
@@ -374,8 +534,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the notes role.</summary>
+        <remarks>
+          <para>The name of the notes role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_NOTES" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_NOTES</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RoleSms">
@@ -402,8 +574,60 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of the SMS role.</summary>
+        <remarks>
+          <para>The name of the SMS role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_SMS" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_SMS</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RoleWallet">
+      <MemberSignature Language="C#" Value="public const string RoleWallet;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string RoleWallet" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Roles.RoleManager.RoleWallet" />
+      <MemberSignature Language="F#" Value="val mutable RoleWallet : string" Usage="Android.App.Roles.RoleManager.RoleWallet" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ROLE_WALLET", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ROLE_WALLET", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The name of the Wallet role.</summary>
+        <remarks>
+          <para>The name of the Wallet role.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/role/RoleManager#ROLE_WALLET" title="Reference documentation">Java documentation for <code>android.app.role.RoleManager.ROLE_WALLET</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

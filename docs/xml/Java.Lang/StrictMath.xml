@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("java/lang/StrictMath", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/lang/StrictMath", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>The class <c>StrictMath</c> contains methods for performing basic
@@ -32,8 +36,25 @@
             <c>netlib</c> as the package "Freely Distributable Math
             Library," <see href="https://www.netlib.org/fdlibm/"><c>fdlibm</c></see>. These
             algorithms, which are written in the C programming language, are
-            then to be understood as executed with all floating-point
-            operations following the rules of Java floating-point arithmetic.</para>
+            then to be understood to be transliterated into Java and executed
+            with all floating-point and integer operations following the rules
+            of Java arithmetic. The following transformations are used in the
+            transliteration:
+            
+            &lt;ul&gt;
+            &lt;li&gt;Extraction and setting of the high and low halves of a 64-bit
+            <c>double</c> in C is expressed using Java platform methods that
+            perform bit-wise conversions Double#doubleToRawLongBits(double) from {@code double to <c>long</c>} and Double#longBitsToDouble(long) {@code long
+            to <c>double</c>}.
+            
+            &lt;li&gt;Unsigned <c>int</c> values in C are mapped to signed <c>int</c> values in Java with updates to operations to replicate
+            unsigned semantics where the results on the same textual operation
+            would differ. For example, <c>&gt;&gt;</c> shifts on unsigned C values
+            are replaced with <c>&gt;&gt;&gt;</c> shifts on signed Java values. Sized
+            comparisons on unsigned C values (<c>&lt;</c>, <c>&lt;=</c>, <c>&gt;</c>,
+            <c>&gt;=</c>) are replaced with semantically equivalent calls to
+            <c>Integer#compareUnsigned(int, int) compareUnsigned</c>.
+            &lt;/ul&gt;</para>
       <para>The Java math library is defined with respect to
             <c>fdlibm</c> version 5.3. Where <c>fdlibm</c> provides
             more than one definition for a function (such as
@@ -53,13 +74,8 @@
             will not overflow the range of values of the computation.
             The best practice is to choose the primitive type and algorithm to avoid
             overflow. In cases where the size is <c>int</c> or <c>long</c> and
-            overflow errors need to be detected, the methods <c>addExact</c>,
-            <c>subtractExact</c>, <c>multiplyExact</c>, <c>toIntExact</c>,
-            <c>incrementExact</c>, <c>decrementExact</c> and <c>negateExact</c>
-            throw an <c>ArithmeticException</c> when the results overflow.
-            For the arithmetic operations divide and absolute value, overflow
-            occurs only with a specific minimum or maximum value and
-            should be checked against the minimum or maximum as appropriate.
+            overflow errors need to be detected, the methods whose names end with
+            <c>Exact</c> throw an <c>ArithmeticException</c> when the results overflow.
             
             &lt;h2&gt;Ieee754RecommendedOps&gt;IEEE 754 Recommended
             Operations&lt;/h2&gt;
@@ -835,6 +851,691 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="CeilDiv">
+      <MemberSignature Language="C#" Value="public static int CeilDiv (int x, int y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 CeilDiv(int32 x, int32 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilDiv(System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member CeilDiv : int * int -&gt; int" Usage="Java.Lang.StrictMath.CeilDiv (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilDiv", "(II)I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilDiv", "(II)I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the smallest (closest to negative infinity)
+            <c>int</c> value that is greater than or equal to the algebraic quotient.</summary>
+        <returns>the smallest (closest to negative infinity)
+            <c>int</c> value that is greater than or equal to the algebraic quotient.</returns>
+        <remarks>
+          <para>Returns the smallest (closest to negative infinity)
+            <c>int</c> value that is greater than or equal to the algebraic quotient.
+            There is one special case: if the dividend is
+            Integer#MIN_VALUE Integer.MIN_VALUE and the divisor is <c>-1</c>,
+            then integer overflow occurs and
+            the result is equal to <c>Integer.MIN_VALUE</c>.</para>
+          <para>See <c>Math#ceilDiv(int, int) Math.ceilDiv</c> for examples and
+            a comparison to the integer division <c>/</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilDiv(int,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilDiv(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CeilDiv">
+      <MemberSignature Language="C#" Value="public static long CeilDiv (long x, int y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 CeilDiv(int64 x, int32 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilDiv(System.Int64,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member CeilDiv : int64 * int -&gt; int64" Usage="Java.Lang.StrictMath.CeilDiv (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilDiv", "(JI)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilDiv", "(JI)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.</summary>
+        <returns>the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.</returns>
+        <remarks>
+          <para>Returns the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.
+            There is one special case: if the dividend is
+            Long#MIN_VALUE Long.MIN_VALUE and the divisor is <c>-1</c>,
+            then integer overflow occurs and
+            the result is equal to <c>Long.MIN_VALUE</c>.</para>
+          <para>See <c>Math#ceilDiv(int, int) Math.ceilDiv</c> for examples and
+            a comparison to the integer division <c>/</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilDiv(long,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilDiv(long, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CeilDiv">
+      <MemberSignature Language="C#" Value="public static long CeilDiv (long x, long y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 CeilDiv(int64 x, int64 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilDiv(System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="static member CeilDiv : int64 * int64 -&gt; int64" Usage="Java.Lang.StrictMath.CeilDiv (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilDiv", "(JJ)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilDiv", "(JJ)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.</summary>
+        <returns>the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.</returns>
+        <remarks>
+          <para>Returns the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.
+            There is one special case: if the dividend is
+            Long#MIN_VALUE Long.MIN_VALUE and the divisor is <c>-1</c>,
+            then integer overflow occurs and
+            the result is equal to <c>Long.MIN_VALUE</c>.</para>
+          <para>See <c>Math#ceilDiv(int, int) Math.ceilDiv</c> for examples and
+            a comparison to the integer division <c>/</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilDiv(long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilDiv(long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CeilDivExact">
+      <MemberSignature Language="C#" Value="public static int CeilDivExact (int x, int y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 CeilDivExact(int32 x, int32 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilDivExact(System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member CeilDivExact : int * int -&gt; int" Usage="Java.Lang.StrictMath.CeilDivExact (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilDivExact", "(II)I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilDivExact", "(II)I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the smallest (closest to negative infinity)
+            <c>int</c> value that is greater than or equal to the algebraic quotient.</summary>
+        <returns>the smallest (closest to negative infinity)
+            <c>int</c> value that is greater than or equal to the algebraic quotient.</returns>
+        <remarks>
+          <para>Returns the smallest (closest to negative infinity)
+            <c>int</c> value that is greater than or equal to the algebraic quotient.
+            This method is identical to <c>#ceilDiv(int,int)</c> except that it
+            throws an <c>ArithmeticException</c> when the dividend is
+            Integer#MIN_VALUE Integer.MIN_VALUE and the divisor is
+            <c>-1</c> instead of ignoring the integer overflow and returning
+            <c>Integer.MIN_VALUE</c>.</para>
+          <para>The ceil modulus method <c>#ceilMod(int,int)</c> is a suitable
+            counterpart both for this method and for the <c>#ceilDiv(int,int)</c>
+            method.</para>
+          <para>See <c>Math#ceilDiv(int, int) Math.ceilDiv</c> for examples and
+            a comparison to the integer division <c>/</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilDivExact(int,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilDivExact(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CeilDivExact">
+      <MemberSignature Language="C#" Value="public static long CeilDivExact (long x, long y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 CeilDivExact(int64 x, int64 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilDivExact(System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="static member CeilDivExact : int64 * int64 -&gt; int64" Usage="Java.Lang.StrictMath.CeilDivExact (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilDivExact", "(JJ)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilDivExact", "(JJ)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.</summary>
+        <returns>the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.</returns>
+        <remarks>
+          <para>Returns the smallest (closest to negative infinity)
+            <c>long</c> value that is greater than or equal to the algebraic quotient.
+            This method is identical to <c>#ceilDiv(long,long)</c> except that it
+            throws an <c>ArithmeticException</c> when the dividend is
+            Long#MIN_VALUE Long.MIN_VALUE and the divisor is
+            <c>-1</c> instead of ignoring the integer overflow and returning
+            <c>Long.MIN_VALUE</c>.</para>
+          <para>The ceil modulus method <c>#ceilMod(long,long)</c> is a suitable
+            counterpart both for this method and for the <c>#ceilDiv(long,long)</c>
+            method.</para>
+          <para>For examples, see <c>Math#ceilDiv(int, int) Math.ceilDiv</c>.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilDivExact(long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilDivExact(long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CeilMod">
+      <MemberSignature Language="C#" Value="public static int CeilMod (int x, int y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 CeilMod(int32 x, int32 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilMod(System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member CeilMod : int * int -&gt; int" Usage="Java.Lang.StrictMath.CeilMod (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilMod", "(II)I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilMod", "(II)I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the ceiling modulus of the <c>int</c> arguments.</summary>
+        <returns>the ceiling modulus <c>x - (ceilDiv(x, y) * y)</c></returns>
+        <remarks>
+          <para>Returns the ceiling modulus of the <c>int</c> arguments.</para>
+          <para>The ceiling modulus is <c>r = x - (ceilDiv(x, y) * y)</c>,
+            has the opposite sign as the divisor <c>y</c> or is zero, and
+            is in the range of <c>-abs(y) &lt; r &lt; +abs(y)</c>.</para>
+          <para>The relationship between <c>ceilDiv</c> and <c>ceilMod</c> is such that:
+            &lt;ul&gt;
+              &lt;li&gt;<c>ceilDiv(x, y) * y + ceilMod(x, y) == x</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>See <c>Math#ceilMod(int, int) Math.ceilMod</c> for examples and
+            a comparison to the <c>%</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilMod(int,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilMod(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CeilMod">
+      <MemberSignature Language="C#" Value="public static int CeilMod (long x, int y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 CeilMod(int64 x, int32 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilMod(System.Int64,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member CeilMod : int64 * int -&gt; int" Usage="Java.Lang.StrictMath.CeilMod (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilMod", "(JI)I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilMod", "(JI)I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the ceiling modulus of the <c>long</c> and <c>int</c> arguments.</summary>
+        <returns>the ceiling modulus <c>x - (ceilDiv(x, y) * y)</c></returns>
+        <remarks>
+          <para>Returns the ceiling modulus of the <c>long</c> and <c>int</c> arguments.</para>
+          <para>The ceiling modulus is <c>r = x - (ceilDiv(x, y) * y)</c>,
+            has the opposite sign as the divisor <c>y</c> or is zero, and
+            is in the range of <c>-abs(y) &lt; r &lt; +abs(y)</c>.</para>
+          <para>The relationship between <c>ceilDiv</c> and <c>ceilMod</c> is such that:
+            &lt;ul&gt;
+              &lt;li&gt;<c>ceilDiv(x, y) * y + ceilMod(x, y) == x</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>See <c>Math#ceilMod(int, int) Math.ceilMod</c> for examples and
+            a comparison to the <c>%</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilMod(long,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilMod(long, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CeilMod">
+      <MemberSignature Language="C#" Value="public static long CeilMod (long x, long y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 CeilMod(int64 x, int64 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.CeilMod(System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="static member CeilMod : int64 * int64 -&gt; int64" Usage="Java.Lang.StrictMath.CeilMod (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("ceilMod", "(JJ)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ceilMod", "(JJ)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the ceiling modulus of the <c>long</c> arguments.</summary>
+        <returns>the ceiling modulus <c>x - (ceilDiv(x, y) * y)</c></returns>
+        <remarks>
+          <para>Returns the ceiling modulus of the <c>long</c> arguments.</para>
+          <para>The ceiling modulus is <c>r = x - (ceilDiv(x, y) * y)</c>,
+            has the opposite sign as the divisor <c>y</c> or is zero, and
+            is in the range of <c>-abs(y) &lt; r &lt; +abs(y)</c>.</para>
+          <para>The relationship between <c>ceilDiv</c> and <c>ceilMod</c> is such that:
+            &lt;ul&gt;
+              &lt;li&gt;<c>ceilDiv(x, y) * y + ceilMod(x, y) == x</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>See <c>Math#ceilMod(int, int) Math.ceilMod</c> for examples and
+            a comparison to the <c>%</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#ceilMod(long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.ceilMod(long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clamp">
+      <MemberSignature Language="C#" Value="public static double Clamp (double value, double min, double max);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig float64 Clamp(float64 value, float64 min, float64 max) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.Clamp(System.Double,System.Double,System.Double)" />
+      <MemberSignature Language="F#" Value="static member Clamp : double * double * double -&gt; double" Usage="Java.Lang.StrictMath.Clamp (value, min, max)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("clamp", "(DDD)D", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clamp", "(DDD)D", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="value" Type="System.Double" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="min" Type="System.Double" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="max" Type="System.Double" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="value">value to clamp</param>
+        <param name="min">minimal allowed value</param>
+        <param name="max">maximal allowed value</param>
+        <summary>Clamps the value to fit between min and max.</summary>
+        <returns>a clamped value that fits into <c>min..max</c> interval</returns>
+        <remarks>
+          <para>Clamps the value to fit between min and max. If the value is less
+            than <c>min</c>, then <c>min</c> is returned. If the value is greater
+            than <c>max</c>, then <c>max</c> is returned. Otherwise, the original
+            value is returned. If value is NaN, the result is also NaN.</para>
+          <para>Unlike the numerical comparison operators, this method considers
+            negative zero to be strictly smaller than positive zero.
+            E.g., <c>clamp(-0.0, 0.0, 1.0)</c> returns 0.0.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#clamp(double,%20double,%20double)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.clamp(double, double, double)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clamp">
+      <MemberSignature Language="C#" Value="public static int Clamp (long value, int min, int max);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 Clamp(int64 value, int32 min, int32 max) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.Clamp(System.Int64,System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member Clamp : int64 * int * int -&gt; int" Usage="Java.Lang.StrictMath.Clamp (value, min, max)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("clamp", "(JII)I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clamp", "(JII)I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="value" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="min" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="max" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="value">value to clamp</param>
+        <param name="min">minimal allowed value</param>
+        <param name="max">maximal allowed value</param>
+        <summary>Clamps the value to fit between min and max.</summary>
+        <returns>a clamped value that fits into <c>min..max</c> interval</returns>
+        <remarks>
+          <para>Clamps the value to fit between min and max. If the value is less
+            than <c>min</c>, then <c>min</c> is returned. If the value is greater
+            than <c>max</c>, then <c>max</c> is returned. Otherwise, the original
+            value is returned.</para>
+          <para>While the original value of type long may not fit into the int type,
+            the bounds have the int type, so the result always fits the int type.
+            This allows to use method to safely cast long value to int with
+            saturation.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#clamp(long,%20int,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.clamp(long, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clamp">
+      <MemberSignature Language="C#" Value="public static long Clamp (long value, long min, long max);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 Clamp(int64 value, int64 min, int64 max) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.Clamp(System.Int64,System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="static member Clamp : int64 * int64 * int64 -&gt; int64" Usage="Java.Lang.StrictMath.Clamp (value, min, max)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("clamp", "(JJJ)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clamp", "(JJJ)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="value" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="min" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="max" Type="System.Int64" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="value">value to clamp</param>
+        <param name="min">minimal allowed value</param>
+        <param name="max">maximal allowed value</param>
+        <summary>Clamps the value to fit between min and max.</summary>
+        <returns>a clamped value that fits into <c>min..max</c> interval</returns>
+        <remarks>
+          <para>Clamps the value to fit between min and max. If the value is less
+            than <c>min</c>, then <c>min</c> is returned. If the value is greater
+            than <c>max</c>, then <c>max</c> is returned. Otherwise, the original
+            value is returned.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#clamp(long,%20long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.clamp(long, long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Clamp">
+      <MemberSignature Language="C#" Value="public static float Clamp (float value, float min, float max);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig float32 Clamp(float32 value, float32 min, float32 max) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.Clamp(System.Single,System.Single,System.Single)" />
+      <MemberSignature Language="F#" Value="static member Clamp : single * single * single -&gt; single" Usage="Java.Lang.StrictMath.Clamp (value, min, max)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("clamp", "(FFF)F", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clamp", "(FFF)F", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Single</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="value" Type="System.Single" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="min" Type="System.Single" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="max" Type="System.Single" Index="2" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="value">value to clamp</param>
+        <param name="min">minimal allowed value</param>
+        <param name="max">maximal allowed value</param>
+        <summary>Clamps the value to fit between min and max.</summary>
+        <returns>a clamped value that fits into <c>min..max</c> interval</returns>
+        <remarks>
+          <para>Clamps the value to fit between min and max. If the value is less
+            than <c>min</c>, then <c>min</c> is returned. If the value is greater
+            than <c>max</c>, then <c>max</c> is returned. Otherwise, the original
+            value is returned. If value is NaN, the result is also NaN.</para>
+          <para>Unlike the numerical comparison operators, this method considers
+            negative zero to be strictly smaller than positive zero.
+            E.g., <c>clamp(-0.0f, 0.0f, 1.0f)</c> returns 0.0f.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#clamp(float,%20float,%20float)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.clamp(float, float, float)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="CopySign">
       <MemberSignature Language="C#" Value="public static double CopySign (double magnitude, double sign);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig float64 CopySign(float64 magnitude, float64 sign) cil managed" />
@@ -1136,6 +1837,118 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="DivideExact">
+      <MemberSignature Language="C#" Value="public static int DivideExact (int x, int y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 DivideExact(int32 x, int32 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.DivideExact(System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member DivideExact : int * int -&gt; int" Usage="Java.Lang.StrictMath.DivideExact (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("divideExact", "(II)I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("divideExact", "(II)I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the quotient of the arguments, throwing an exception if the
+            result overflows an <c>int</c>.</summary>
+        <returns>the quotient <c>x / y</c></returns>
+        <remarks>
+          <para>Returns the quotient of the arguments, throwing an exception if the
+            result overflows an <c>int</c>.  Such overflow occurs in this method if
+            <c>x</c> is <c>Integer#MIN_VALUE</c> and <c>y</c> is <c>-1</c>.
+            In contrast, if <c>Integer.MIN_VALUE / -1</c> were evaluated directly,
+            the result would be <c>Integer.MIN_VALUE</c> and no exception would be
+            thrown.</para>
+          <para>If <c>y</c> is zero, an <c>ArithmeticException</c> is thrown
+            (JLS {</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#divideExact(int,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.divideExact(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DivideExact">
+      <MemberSignature Language="C#" Value="public static long DivideExact (long x, long y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 DivideExact(int64 x, int64 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.DivideExact(System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="static member DivideExact : int64 * int64 -&gt; int64" Usage="Java.Lang.StrictMath.DivideExact (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("divideExact", "(JJ)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("divideExact", "(JJ)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the quotient of the arguments, throwing an exception if the
+            result overflows a <c>long</c>.</summary>
+        <returns>the quotient <c>x / y</c></returns>
+        <remarks>
+          <para>Returns the quotient of the arguments, throwing an exception if the
+            result overflows a <c>long</c>.  Such overflow occurs in this method if
+            <c>x</c> is <c>Long#MIN_VALUE</c> and <c>y</c> is <c>-1</c>.
+            In contrast, if <c>Long.MIN_VALUE / -1</c> were evaluated directly,
+            the result would be <c>Long.MIN_VALUE</c> and no exception would be
+            thrown.</para>
+          <para>If <c>y</c> is zero, an <c>ArithmeticException</c> is thrown
+            (JLS {</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#divideExact(long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.divideExact(long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="E">
       <MemberSignature Language="C#" Value="public const double E = 2.7182818284590451;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal float64 E = (2.7182818284590451)" />
@@ -1379,10 +2192,10 @@
         <remarks>
           <para>Returns the largest (closest to positive infinity)
             <c>int</c> value that is less than or equal to the algebraic quotient.
-            There is one special case, if the dividend is the
+            There is one special case: if the dividend is
             Integer#MIN_VALUE Integer.MIN_VALUE and the divisor is <c>-1</c>,
             then integer overflow occurs and
-            the result is equal to the <c>Integer.MIN_VALUE</c>.</para>
+            the result is equal to <c>Integer.MIN_VALUE</c>.</para>
           <para>See <c>Math#floorDiv(int, int) Math.floorDiv</c> for examples and
             a comparison to the integer division <c>/</c> operator.</para>
           <para>Added in 1.8.</para>
@@ -1432,11 +2245,11 @@
         <summary>Returns the largest (closest to positive infinity)
             <c>long</c> value that is less than or equal to the algebraic quotient.</summary>
         <returns>the largest (closest to positive infinity)
-            <c>int</c> value that is less than or equal to the algebraic quotient.</returns>
+            <c>long</c> value that is less than or equal to the algebraic quotient.</returns>
         <remarks>
           <para>Returns the largest (closest to positive infinity)
             <c>long</c> value that is less than or equal to the algebraic quotient.
-            There is one special case, if the dividend is the
+            There is one special case: if the dividend is
             Long#MIN_VALUE Long.MIN_VALUE and the divisor is <c>-1</c>,
             then integer overflow occurs and
             the result is equal to <c>Long.MIN_VALUE</c>.</para>
@@ -1493,16 +2306,137 @@
         <remarks>
           <para>Returns the largest (closest to positive infinity)
             <c>long</c> value that is less than or equal to the algebraic quotient.
-            There is one special case, if the dividend is the
+            There is one special case: if the dividend is
             Long#MIN_VALUE Long.MIN_VALUE and the divisor is <c>-1</c>,
             then integer overflow occurs and
-            the result is equal to the <c>Long.MIN_VALUE</c>.</para>
+            the result is equal to <c>Long.MIN_VALUE</c>.</para>
           <para>See <c>Math#floorDiv(int, int) Math.floorDiv</c> for examples and
             a comparison to the integer division <c>/</c> operator.</para>
           <para>Added in 1.8.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/lang/StrictMath#floorDiv(long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.floorDiv(long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FloorDivExact">
+      <MemberSignature Language="C#" Value="public static int FloorDivExact (int x, int y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int32 FloorDivExact(int32 x, int32 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.FloorDivExact(System.Int32,System.Int32)" />
+      <MemberSignature Language="F#" Value="static member FloorDivExact : int * int -&gt; int" Usage="Java.Lang.StrictMath.FloorDivExact (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("floorDivExact", "(II)I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("floorDivExact", "(II)I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the largest (closest to positive infinity)
+            <c>int</c> value that is less than or equal to the algebraic quotient.</summary>
+        <returns>the largest (closest to positive infinity)
+            <c>int</c> value that is less than or equal to the algebraic quotient.</returns>
+        <remarks>
+          <para>Returns the largest (closest to positive infinity)
+            <c>int</c> value that is less than or equal to the algebraic quotient.
+            This method is identical to <c>#floorDiv(int,int)</c> except that it
+            throws an <c>ArithmeticException</c> when the dividend is
+            Integer#MIN_VALUE Integer.MIN_VALUE and the divisor is
+            <c>-1</c> instead of ignoring the integer overflow and returning
+            <c>Integer.MIN_VALUE</c>.</para>
+          <para>The floor modulus method <c>#floorMod(int,int)</c> is a suitable
+            counterpart both for this method and for the <c>#floorDiv(int,int)</c>
+            method.</para>
+          <para>See <c>Math#floorDiv(int, int) Math.floorDiv</c> for examples and
+            a comparison to the integer division <c>/</c> operator.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#floorDivExact(int,%20int)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.floorDivExact(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FloorDivExact">
+      <MemberSignature Language="C#" Value="public static long FloorDivExact (long x, long y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 FloorDivExact(int64 x, int64 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.FloorDivExact(System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="static member FloorDivExact : int64 * int64 -&gt; int64" Usage="Java.Lang.StrictMath.FloorDivExact (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("floorDivExact", "(JJ)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("floorDivExact", "(JJ)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the dividend</param>
+        <param name="y">the divisor</param>
+        <summary>Returns the largest (closest to positive infinity)
+            <c>long</c> value that is less than or equal to the algebraic quotient.</summary>
+        <returns>the largest (closest to positive infinity)
+            <c>long</c> value that is less than or equal to the algebraic quotient.</returns>
+        <remarks>
+          <para>Returns the largest (closest to positive infinity)
+            <c>long</c> value that is less than or equal to the algebraic quotient.
+            This method is identical to <c>#floorDiv(long,long)</c> except that it
+            throws an <c>ArithmeticException</c> when the dividend is
+            Long#MIN_VALUE Long.MIN_VALUE and the divisor is
+            <c>-1</c> instead of ignoring the integer overflow and returning
+            <c>Long.MIN_VALUE</c>.</para>
+          <para>The floor modulus method <c>#floorMod(long,long)</c> is a suitable
+            counterpart both for this method and for the <c>#floorDiv(long,long)</c>
+            method.</para>
+          <para>For examples, see <c>Math#floorDiv(int, int) Math.floorDiv</c>.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#floorDivExact(long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.floorDivExact(long, long)</code>.</a>
             </format>
           </para>
           <para>
@@ -1547,12 +2481,13 @@
         <returns>the floor modulus <c>x - (floorDiv(x, y) * y)</c></returns>
         <remarks>
           <para>Returns the floor modulus of the <c>int</c> arguments.</para>
-          <para>The floor modulus is <c>x - (floorDiv(x, y) * y)</c>,
-            has the same sign as the divisor <c>y</c>, and
+          <para>The floor modulus is <c>r = x - (floorDiv(x, y) * y)</c>,
+            has the same sign as the divisor <c>y</c> or is zero, and
             is in the range of <c>-abs(y) &lt; r &lt; +abs(y)</c>.</para>
           <para>The relationship between <c>floorDiv</c> and <c>floorMod</c> is such that:
             &lt;ul&gt;
-              &lt;li&gt;<c>floorDiv(x, y) * y + floorMod(x, y) == x</c>&lt;/ul&gt;</para>
+              &lt;li&gt;<c>floorDiv(x, y) * y + floorMod(x, y) == x</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>See <c>Math#floorMod(int, int) Math.floorMod</c> for examples and
             a comparison to the <c>%</c> operator.</para>
           <para>Added in 1.8.</para>
@@ -1603,12 +2538,13 @@
         <returns>the floor modulus <c>x - (floorDiv(x, y) * y)</c></returns>
         <remarks>
           <para>Returns the floor modulus of the <c>long</c> and <c>int</c> arguments.</para>
-          <para>The floor modulus is <c>x - (floorDiv(x, y) * y)</c>,
-            has the same sign as the divisor <c>y</c>, and
+          <para>The floor modulus is <c>r = x - (floorDiv(x, y) * y)</c>,
+            has the same sign as the divisor <c>y</c> or is zero, and
             is in the range of <c>-abs(y) &lt; r &lt; +abs(y)</c>.</para>
           <para>The relationship between <c>floorDiv</c> and <c>floorMod</c> is such that:
             &lt;ul&gt;
-              &lt;li&gt;<c>floorDiv(x, y) * y + floorMod(x, y) == x</c>&lt;/ul&gt;</para>
+              &lt;li&gt;<c>floorDiv(x, y) * y + floorMod(x, y) == x</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>See <c>Math#floorMod(int, int) Math.floorMod</c> for examples and
             a comparison to the <c>%</c> operator.</para>
           <para>Added in 9.</para>
@@ -1659,12 +2595,13 @@
         <returns>the floor modulus <c>x - (floorDiv(x, y) * y)</c></returns>
         <remarks>
           <para>Returns the floor modulus of the <c>long</c> arguments.</para>
-          <para>The floor modulus is <c>x - (floorDiv(x, y) * y)</c>,
-            has the same sign as the divisor <c>y</c>, and
+          <para>The floor modulus is <c>r = x - (floorDiv(x, y) * y)</c>,
+            has the same sign as the divisor <c>y</c> or is zero, and
             is in the range of <c>-abs(y) &lt; r &lt; +abs(y)</c>.</para>
           <para>The relationship between <c>floorDiv</c> and <c>floorMod</c> is such that:
             &lt;ul&gt;
-              &lt;li&gt;<c>floorDiv(x, y) * y + floorMod(x, y) == x</c>&lt;/ul&gt;</para>
+              &lt;li&gt;<c>floorDiv(x, y) * y + floorMod(x, y) == x</c>&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>See <c>Math#floorMod(int, int) Math.floorMod</c> for examples and
             a comparison to the <c>%</c> operator.</para>
           <para>Added in 1.8.</para>
@@ -3532,11 +4469,11 @@
       <MemberValue>3.1415926535897931</MemberValue>
       <Docs>
         <summary>The <c>double</c> value that is closer than any other to
-            <i>pi</i>, the ratio of the circumference of a circle to its
+            <i>pi</i> (&amp;pi;), the ratio of the circumference of a circle to its
             diameter.</summary>
         <remarks>
           <para>The <c>double</c> value that is closer than any other to
-            <i>pi</i>, the ratio of the circumference of a circle to its
+            <i>pi</i> (&amp;pi;), the ratio of the circumference of a circle to its
             diameter.</para>
           <para>
             <format type="text/html">
@@ -4522,6 +5459,52 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="Tau">
+      <MemberSignature Language="C#" Value="public const double Tau = 6.2831853071795862;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal float64 Tau = (6.2831853071795862)" />
+      <MemberSignature Language="DocId" Value="F:Java.Lang.StrictMath.Tau" />
+      <MemberSignature Language="F#" Value="val mutable Tau : double" Usage="Java.Lang.StrictMath.Tau" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TAU", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TAU", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Double</ReturnType>
+      </ReturnValue>
+      <MemberValue>6.2831853071795862</MemberValue>
+      <Docs>
+        <summary>The <c>double</c> value that is closer than any other to
+            <i>tau</i> (&amp;tau;), the ratio of the circumference of a circle
+            to its radius.</summary>
+        <remarks>
+          <para>The <c>double</c> value that is closer than any other to
+            <i>tau</i> (&amp;tau;), the ratio of the circumference of a circle
+            to its radius.</para>
+          <para>Added in 19.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#TAU" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.TAU</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ThresholdClass">
       <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
@@ -4836,6 +5819,56 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+      </Docs>
+    </Member>
+    <Member MemberName="UnsignedMultiplyHigh">
+      <MemberSignature Language="C#" Value="public static long UnsignedMultiplyHigh (long x, long y);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 UnsignedMultiplyHigh(int64 x, int64 y) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.StrictMath.UnsignedMultiplyHigh(System.Int64,System.Int64)" />
+      <MemberSignature Language="F#" Value="static member UnsignedMultiplyHigh : int64 * int64 -&gt; int64" Usage="Java.Lang.StrictMath.UnsignedMultiplyHigh (x, y)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("unsignedMultiplyHigh", "(JJ)J", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("unsignedMultiplyHigh", "(JJ)J", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="x" Type="System.Int64" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="y" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="x">the first value</param>
+        <param name="y">the second value</param>
+        <summary>Returns as a <c>long</c> the most significant 64 bits of the unsigned
+            128-bit product of two unsigned 64-bit factors.</summary>
+        <returns>the result</returns>
+        <remarks>
+          <para>Returns as a <c>long</c> the most significant 64 bits of the unsigned
+            128-bit product of two unsigned 64-bit factors.</para>
+          <para>Added in 18.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/StrictMath#unsignedMultiplyHigh(long,%20long)" title="Reference documentation">Java documentation for <code>java.lang.StrictMath.unsignedMultiplyHigh(long, long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

@@ -17,19 +17,60 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/Normalizer2", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Unicode normalization functionality for standard Unicode normalization or
+            for using custom mapping tables.</summary>
     <remarks>
+      <para>Unicode normalization functionality for standard Unicode normalization or
+            for using custom mapping tables.
+            All instances of this class are unmodifiable/immutable.
+            The Normalizer2 class is not intended for public subclassing.</para>
+      <para>The primary functions are to produce a normalized string and to detect whether
+            a string is already normalized.
+            The most commonly used normalization forms are those defined in
+            https://www.unicode.org/reports/tr15/
+            However, this API supports additional normalization forms for specialized purposes.
+            For example, NFKC_Casefold is provided via getInstance("nfkc_cf", COMPOSE)
+            and can be used in implementations of UTS #46.</para>
+      <para>Not only are the standard compose and decompose modes supplied,
+            but additional modes are provided as documented in the Mode enum.</para>
+      <para>Some of the functions in this class identify normalization boundaries.
+            At a normalization boundary, the portions of the string
+            before it and starting from it do not interact and can be handled independently.</para>
+      <para>The spanQuickCheckYes() stops at a normalization boundary.
+            When the goal is a normalized string, then the text before the boundary
+            can be copied, and the remainder can be processed with normalizeSecondAndAppend().</para>
+      <para>The hasBoundaryBefore(), hasBoundaryAfter() and isInert() functions test whether
+            a character is guaranteed to be at a normalization boundary,
+            regardless of context.
+            This is used for moving from one normalization boundary to the next
+            or preceding boundary, and for performing iterative normalization.</para>
+      <para>Iterative normalization is useful when only a small portion of a
+            longer string needs to be processed.
+            For example, in ICU, iterative normalization is used by the NormalizationTransliterator
+            (to avoid replacing already-normalized text) and ucol_nextSortKeyPart()
+            (to process only the substring for which sort key bytes are computed).</para>
+      <para>The set of normalization boundaries returned by these functions may not be
+            complete: There may be more boundaries that could be returned.
+            Different functions may return different boundaries.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/Normalizer2" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/Normalizer2" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -84,12 +125,26 @@
         <Parameter Name="second" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="first">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="first">string, should be normalized</param>
+        <param name="second">string, should be normalized</param>
+        <summary>Appends the second string to the first string
+            (merging them at the boundary) and returns the first string.</summary>
+        <returns>first</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Appends the second string to the first string
+            (merging them at the boundary) and returns the first string.
+            The result is normalized if both the strings were normalized.
+            The first and second strings must be different objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#append(java.lang.StringBuilder,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.append(java.lang.StringBuilder, java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -117,12 +172,26 @@
         <Parameter Name="second" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="first">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="first">string, should be normalized</param>
+        <param name="second">string, should be normalized</param>
+        <summary>Appends the second string to the first string
+            (merging them at the boundary) and returns the first string.</summary>
+        <returns>first</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Appends the second string to the first string
+            (merging them at the boundary) and returns the first string.
+            The result is normalized if both the strings were normalized.
+            The first and second strings must be different objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#append(java.lang.StringBuilder,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.append(java.lang.StringBuilder, java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -154,12 +223,28 @@
         <Parameter Name="b" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="a">To be added.</param>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="a">A (normalization starter) code point.</param>
+        <param name="b">Another code point.</param>
+        <summary>Performs pairwise composition of a &amp;amp; b and returns the composite if there is one.</summary>
+        <returns>The non-negative composite code point if there is one; otherwise a negative value.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Performs pairwise composition of a &amp;amp; b and returns the composite if there is one.</para>
+          <para>Returns a composite code point c only if c has a two-way mapping to a+b.
+            In standard Unicode normalization, this means that
+            c has a canonical decomposition to a+b
+            and c does not have the Full_Composition_Exclusion property.</para>
+          <para>This function is independent of the mode of the Normalizer2.
+            The default implementation returns a negative value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#composePair(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.composePair(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -190,11 +275,23 @@
         <Parameter Name="c" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="c">code point</param>
+        <summary>Gets the combining class of c.</summary>
+        <returns>c's combining class</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the combining class of c.
+            The default implementation returns 0
+            but all standard implementations return the Unicode Canonical_Combining_Class value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getCombiningClass(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getCombiningClass(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -225,11 +322,25 @@
         <Parameter Name="c" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="c">code point</param>
+        <summary>Gets the decomposition mapping of c.</summary>
+        <returns>c's decomposition mapping, if any; otherwise null</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the decomposition mapping of c.
+            Roughly equivalent to normalizing the String form of c
+            on a DECOMPOSE Normalizer2 instance, but much faster, and except that this function
+            returns null if c does not have a decomposition mapping in this instance's data.
+            This function is independent of the mode of the Normalizer2.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getDecomposition(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getDecomposition(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -303,11 +414,33 @@
         <Parameter Name="c" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="c">code point</param>
+        <summary>Gets the raw decomposition mapping of c.</summary>
+        <returns>c's raw decomposition mapping, if any; otherwise null</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the raw decomposition mapping of c.</para>
+          <para>This is similar to the getDecomposition() method but returns the
+            raw decomposition mapping as specified in UnicodeData.txt or
+            (for custom data) in the mapping files processed by the gennorm2 tool.
+            By contrast, getDecomposition() returns the processed,
+            recursively-decomposed version of this mapping.</para>
+          <para>When used on a standard NFKC Normalizer2 instance,
+            getRawDecomposition() returns the Unicode Decomposition_Mapping (dm) property.</para>
+          <para>When used on a standard NFC Normalizer2 instance,
+            it returns the Decomposition_Mapping only if the Decomposition_Type (dt) is Canonical (Can);
+            in this case, the result contains either one or two code points (=1..4 Java chars).</para>
+          <para>This function is independent of the mode of the Normalizer2.
+            The default implementation returns null.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getRawDecomposition(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getRawDecomposition(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -338,11 +471,30 @@
         <Parameter Name="c" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="c">character to test</param>
+        <summary>Tests if the character always has a normalization boundary after it,
+            regardless of context.</summary>
+        <returns>true if c has a normalization boundary after it</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tests if the character always has a normalization boundary after it,
+            regardless of context.
+            If true, then the character does not normalization-interact with
+            following characters.
+            In other words, a string containing this character can be normalized
+            by processing portions up to this character and after this
+            character independently.
+            This is used for iterative normalization. See the class documentation for details.</para>
+          <para>Note that this operation may be significantly slower than hasBoundaryBefore().</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#hasBoundaryAfter(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.hasBoundaryAfter(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -373,11 +525,29 @@
         <Parameter Name="c" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="c">character to test</param>
+        <summary>Tests if the character always has a normalization boundary before it,
+            regardless of context.</summary>
+        <returns>true if c has a normalization boundary before it</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tests if the character always has a normalization boundary before it,
+            regardless of context.
+            If true, then the character does not normalization-interact with
+            preceding characters.
+            In other words, a string containing this character can be normalized
+            by processing portions before this character and starting from this
+            character independently.
+            This is used for iterative normalization. See the class documentation for details.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#hasBoundaryBefore(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.hasBoundaryBefore(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -408,11 +578,28 @@
         <Parameter Name="c" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="c">character to test</param>
+        <summary>Tests if the character is normalization-inert.</summary>
+        <returns>true if c is normalization-inert</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tests if the character is normalization-inert.
+            If true, then the character does not change, nor normalization-interact with
+            preceding or following characters.
+            In other words, a string containing this character can be normalized
+            by processing portions before this character and after this
+            character independently.
+            This is used for iterative normalization. See the class documentation for details.</para>
+          <para>Note that this operation may be significantly slower than hasBoundaryBefore().</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#isInert(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.isInert(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -443,11 +630,25 @@
         <Parameter Name="s" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">input string</param>
+        <summary>Tests if the string is normalized.</summary>
+        <returns>true if s is normalized</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tests if the string is normalized.
+            Internally, in cases where the quickCheck() method would return "maybe"
+            (which is only possible for the two COMPOSE modes) this method
+            resolves to "yes" or "no" to provide a definitive result,
+            at the cost of doing more work in those cases.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#isNormalized(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.isNormalized(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -474,11 +675,25 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">input string</param>
+        <summary>Tests if the string is normalized.</summary>
+        <returns>true if s is normalized</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Tests if the string is normalized.
+            Internally, in cases where the quickCheck() method would return "maybe"
+            (which is only possible for the two COMPOSE modes) this method
+            resolves to "yes" or "no" to provide a definitive result,
+            at the cost of doing more work in those cases.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#isNormalized(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.isNormalized(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -500,6 +715,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -537,10 +756,22 @@
         <ReturnType>Android.Icu.Text.Normalizer2</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a Normalizer2 instance for Unicode NFC normalization.</summary>
+        <value>the requested Normalizer2, if successful</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a Normalizer2 instance for Unicode NFC normalization.
+            Same as getInstance(null, "nfc", Mode.COMPOSE).
+            Returns an unmodifiable singleton instance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getNFCInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getNFCInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -568,10 +799,22 @@
         <ReturnType>Android.Icu.Text.Normalizer2</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a Normalizer2 instance for Unicode NFD normalization.</summary>
+        <value>the requested Normalizer2, if successful</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a Normalizer2 instance for Unicode NFD normalization.
+            Same as getInstance(null, "nfc", Mode.DECOMPOSE).
+            Returns an unmodifiable singleton instance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getNFDInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getNFDInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -599,10 +842,25 @@
         <ReturnType>Android.Icu.Text.Normalizer2</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a Normalizer2 instance for Unicode toNFKC_Casefold() normalization
+            which is equivalent to applying the NFKC_Casefold mappings and then NFC.</summary>
+        <value>the requested Normalizer2, if successful</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a Normalizer2 instance for Unicode toNFKC_Casefold() normalization
+            which is equivalent to applying the NFKC_Casefold mappings and then NFC.
+            See https://www.unicode.org/reports/tr44/#NFKC_Casefold</para>
+          <para>Same as getInstance(null, "nfkc_cf", Mode.COMPOSE).
+            Returns an unmodifiable singleton instance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getNFKCCasefoldInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getNFKCCasefoldInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -630,10 +888,22 @@
         <ReturnType>Android.Icu.Text.Normalizer2</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a Normalizer2 instance for Unicode NFKC normalization.</summary>
+        <value>the requested Normalizer2, if successful</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a Normalizer2 instance for Unicode NFKC normalization.
+            Same as getInstance(null, "nfkc", Mode.COMPOSE).
+            Returns an unmodifiable singleton instance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getNFKCInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getNFKCInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -661,10 +931,22 @@
         <ReturnType>Android.Icu.Text.Normalizer2</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a Normalizer2 instance for Unicode NFKD normalization.</summary>
+        <value>the requested Normalizer2, if successful</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a Normalizer2 instance for Unicode NFKD normalization.
+            Same as getInstance(null, "nfkc", Mode.DECOMPOSE).
+            Returns an unmodifiable singleton instance.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getNFKDInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.getNFKDInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -695,11 +977,21 @@
         <Parameter Name="src" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">source string</param>
+        <summary>Returns the normalized form of the source string.</summary>
+        <returns>normalized src</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the normalized form of the source string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalize(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalize(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -726,11 +1018,21 @@
         <Parameter Name="src" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">source string</param>
+        <summary>Returns the normalized form of the source string.</summary>
+        <returns>normalized src</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the normalized form of the source string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalize(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalize(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -762,12 +1064,26 @@
         <Parameter Name="dest" Type="Java.Lang.IAppendable" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <param name="dest">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">source string</param>
+        <param name="dest">destination Appendable; gets normalized src appended</param>
+        <summary>Writes the normalized form of the source string to the destination Appendable
+            and returns the destination Appendable.</summary>
+        <returns>dest</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Writes the normalized form of the source string to the destination Appendable
+            and returns the destination Appendable.
+            The source and destination strings must be different objects.</para>
+          <para>Any <c>java.io.IOException</c> is wrapped into a <c>android.icu.util.ICUUncheckedIOException</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalize(java.lang.CharSequence,%20java.lang.Appendable)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalize(java.lang.CharSequence, java.lang.Appendable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -799,12 +1115,25 @@
         <Parameter Name="dest" Type="Java.Lang.StringBuilder" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <param name="dest">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">source string</param>
+        <param name="dest">destination string; its contents is replaced with normalized src</param>
+        <summary>Writes the normalized form of the source string to the destination string
+            (replacing its contents) and returns the destination string.</summary>
+        <returns>dest</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Writes the normalized form of the source string to the destination string
+            (replacing its contents) and returns the destination string.
+            The source and destination strings must be different objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalize(java.lang.CharSequence,%20java.lang.StringBuilder)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalize(java.lang.CharSequence, java.lang.StringBuilder)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -832,12 +1161,26 @@
         <Parameter Name="dest" Type="Java.Lang.IAppendable" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <param name="dest">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">source string</param>
+        <param name="dest">destination Appendable; gets normalized src appended</param>
+        <summary>Writes the normalized form of the source string to the destination Appendable
+            and returns the destination Appendable.</summary>
+        <returns>dest</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Writes the normalized form of the source string to the destination Appendable
+            and returns the destination Appendable.
+            The source and destination strings must be different objects.</para>
+          <para>Any <c>java.io.IOException</c> is wrapped into a <c>android.icu.util.ICUUncheckedIOException</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalize(java.lang.CharSequence,%20java.lang.Appendable)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalize(java.lang.CharSequence, java.lang.Appendable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -865,12 +1208,25 @@
         <Parameter Name="dest" Type="Java.Lang.StringBuilder" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <param name="dest">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">source string</param>
+        <param name="dest">destination string; its contents is replaced with normalized src</param>
+        <summary>Writes the normalized form of the source string to the destination string
+            (replacing its contents) and returns the destination string.</summary>
+        <returns>dest</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Writes the normalized form of the source string to the destination string
+            (replacing its contents) and returns the destination string.
+            The source and destination strings must be different objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalize(java.lang.CharSequence,%20java.lang.StringBuilder)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalize(java.lang.CharSequence, java.lang.StringBuilder)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -902,12 +1258,26 @@
         <Parameter Name="second" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="first">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="first">string, should be normalized</param>
+        <param name="second">string, will be normalized</param>
+        <summary>Appends the normalized form of the second string to the first string
+            (merging them at the boundary) and returns the first string.</summary>
+        <returns>first</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Appends the normalized form of the second string to the first string
+            (merging them at the boundary) and returns the first string.
+            The result is normalized if the first string was normalized.
+            The first and second strings must be different objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalizeSecondAndAppend(java.lang.StringBuilder,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalizeSecondAndAppend(java.lang.StringBuilder, java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -935,12 +1305,26 @@
         <Parameter Name="second" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="first">To be added.</param>
-        <param name="second">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="first">string, should be normalized</param>
+        <param name="second">string, will be normalized</param>
+        <summary>Appends the normalized form of the second string to the first string
+            (merging them at the boundary) and returns the first string.</summary>
+        <returns>first</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Appends the normalized form of the second string to the first string
+            (merging them at the boundary) and returns the first string.
+            The result is normalized if the first string was normalized.
+            The first and second strings must be different objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#normalizeSecondAndAppend(java.lang.StringBuilder,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.normalizeSecondAndAppend(java.lang.StringBuilder, java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1037,11 +1421,31 @@
         <Parameter Name="s" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">input string</param>
+        <summary>Returns the end of the normalized substring of the input string.</summary>
+        <returns>"yes" span end index</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the end of the normalized substring of the input string.
+            In other words, with <c>end=spanQuickCheckYes(s);</c>
+            the substring <c>s.subSequence(0, end)</c>
+            will pass the quick check with a "yes" result.</para>
+          <para>The returned end index is usually one or more characters before the
+            "no" or "maybe" character: The end index is at a normalization boundary.
+            (See the class documentation for more about normalization boundaries.)</para>
+          <para>When the goal is a normalized string and most input strings are expected
+            to be normalized already, then call this method,
+            and if it returns a prefix shorter than the input string,
+            copy that prefix and use normalizeSecondAndAppend() for the remainder.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#spanQuickCheckYes(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.spanQuickCheckYes(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1068,11 +1472,31 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">input string</param>
+        <summary>Returns the end of the normalized substring of the input string.</summary>
+        <returns>"yes" span end index</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the end of the normalized substring of the input string.
+            In other words, with <c>end=spanQuickCheckYes(s);</c>
+            the substring <c>s.subSequence(0, end)</c>
+            will pass the quick check with a "yes" result.</para>
+          <para>The returned end index is usually one or more characters before the
+            "no" or "maybe" character: The end index is at a normalization boundary.
+            (See the class documentation for more about normalization boundaries.)</para>
+          <para>When the goal is a normalized string and most input strings are expected
+            to be normalized already, then call this method,
+            and if it returns a prefix shorter than the input string,
+            copy that prefix and use normalizeSecondAndAppend() for the remainder.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Normalizer2#spanQuickCheckYes(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.Normalizer2.spanQuickCheckYes(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1125,6 +1549,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

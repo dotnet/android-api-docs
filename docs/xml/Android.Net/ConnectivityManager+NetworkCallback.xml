@@ -16,16 +16,34 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/net/ConnectivityManager$NetworkCallback", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/ConnectivityManager$NetworkCallback", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Base class for <c>NetworkRequest</c> callbacks.</summary>
     <remarks>
+      <para>Base class for <c>NetworkRequest</c> callbacks. Used for notifications about network
+            changes. Should be extended by applications wanting notifications.
+            
+            A <c>NetworkCallback</c> is registered by calling
+            <c>#requestNetwork(NetworkRequest, NetworkCallback)</c>,
+            <c>#registerNetworkCallback(NetworkRequest, NetworkCallback)</c>,
+            or <c>#registerDefaultNetworkCallback(NetworkCallback)</c>. A <c>NetworkCallback</c> is
+            unregistered by calling <c>#unregisterNetworkCallback(NetworkCallback)</c>.
+            A <c>NetworkCallback</c> should be registered at most once at any time.
+            A <c>NetworkCallback</c> that has been unregistered can be registered again.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/net/ConnectivityManager$NetworkCallback" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -133,8 +151,45 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Inclusion of this flag means location-sensitive redaction requests keeping location info.</summary>
+        <remarks>
+          <para>Inclusion of this flag means location-sensitive redaction requests keeping location info.
+            
+            Some objects like <c>NetworkCapabilities</c> may contain location-sensitive information.
+            Prior to Android 12, this information is always returned to apps holding the appropriate
+            permission, possibly noting that the app has used location.</para>
+          <para>In Android 12 and above, by default the sent objects do not contain any location
+            information, even if the app holds the necessary permissions, and the system does not
+            take note of location usage by the app. Apps can request that location information is
+            included, in which case the system will check location permission and the location
+            toggle state, and take note of location usage by the app if any such information is
+            returned.
+            
+            Use this flag to include any location sensitive data in <c>NetworkCapabilities</c> sent
+            via <c>#onCapabilitiesChanged(Network, NetworkCapabilities)</c>.</para>
+          <para>These include:
+            &lt;li&gt; Some transport info instances (retrieved via
+            <c>NetworkCapabilities#getTransportInfo()</c>) like <c>android.net.wifi.WifiInfo</c>
+            contain location sensitive information.
+            &lt;li&gt; OwnerUid (retrieved via <c>NetworkCapabilities#getOwnerUid()</c> is location
+            sensitive for wifi suggestor apps (i.e using
+            <c>android.net.wifi.WifiNetworkSuggestion WifiNetworkSuggestion</c>).&lt;/li&gt;</para>
+          <para>Note:
+            &lt;li&gt; Retrieving this location sensitive information (subject to app's location
+            permissions) will be noted by system. &lt;/li&gt;
+            &lt;li&gt; Without this flag any <c>NetworkCapabilities</c> provided via the callback does
+            not include location sensitive information.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#FLAG_INCLUDE_LOCATION_INFO" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.FLAG_INCLUDE_LOCATION_INFO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -191,10 +246,40 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="network">The <c>Network</c> of the satisfying network.</param>
+        <summary>Called when the framework connects and has declared a new network ready for use.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when the framework connects and has declared a new network ready for use.</para>
+          <para>For callbacks registered with <c>#registerNetworkCallback</c>, multiple networks may
+            be available at the same time, and onAvailable will be called for each of these as they
+            appear.</para>
+          <para>For callbacks registered with <c>#requestNetwork</c> and
+            <c>#registerDefaultNetworkCallback</c>, this means the network passed as an argument
+            is the new best network for this request and is now tracked by this callback ; this
+            callback will no longer receive method calls about other networks that may have been
+            passed to this method previously. The previously-best network may have disconnected, or
+            it may still be around and the newly-best network may simply be better.</para>
+          <para>Starting with <c>android.os.Build.VERSION_CODES#O</c>, this will always immediately
+            be followed by a call to <c>#onCapabilitiesChanged(Network, NetworkCapabilities)</c>
+            then by a call to <c>#onLinkPropertiesChanged(Network, LinkProperties)</c>, and a call
+            to <c>#onBlockedStatusChanged(Network, boolean)</c>.</para>
+          <para>Do NOT call <c>#getNetworkCapabilities(Network)</c> or
+            <c>#getLinkProperties(Network)</c> or other synchronous ConnectivityManager methods in
+            this callback as this is prone to race conditions (there is no guarantee the objects
+            returned by these methods will be current). Instead, wait for a call to
+            <c>#onCapabilitiesChanged(Network, NetworkCapabilities)</c> and
+            <c>#onLinkPropertiesChanged(Network, LinkProperties)</c> whose arguments are guaranteed
+            to be well-ordered with respect to other callbacks.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onAvailable(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onAvailable(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -226,10 +311,26 @@
         <Parameter Name="blocked" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <param name="blocked">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="network">The <c>Network</c> whose blocked status has changed.</param>
+        <param name="blocked">The blocked status of this <c>Network</c>.</param>
+        <summary>Called when access to the specified network is blocked or unblocked.</summary>
+        <remarks>
+          <para>Called when access to the specified network is blocked or unblocked.</para>
+          <para>Do NOT call <c>#getNetworkCapabilities(Network)</c> or
+            <c>#getLinkProperties(Network)</c> or other synchronous ConnectivityManager methods in
+            this callback as this is prone to race conditions : calling these methods while in a
+            callback may return an outdated or even a null object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onBlockedStatusChanged(android.net.Network,%20boolean)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onBlockedStatusChanged(android.net.Network, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnCapabilitiesChanged">
@@ -256,11 +357,29 @@
         <Parameter Name="networkCapabilities" Type="Android.Net.NetworkCapabilities" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <param name="networkCapabilities">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="network">The <c>Network</c> whose capabilities have changed.</param>
+        <param name="networkCapabilities">The new <c>NetworkCapabilities</c> for this
+                                       network.</param>
+        <summary>Called when the network corresponding to this request changes capabilities but still
+            satisfies the requested criteria.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when the network corresponding to this request changes capabilities but still
+            satisfies the requested criteria.</para>
+          <para>Starting with <c>android.os.Build.VERSION_CODES#O</c> this method is guaranteed
+            to be called immediately after <c>#onAvailable</c>.</para>
+          <para>Do NOT call <c>#getLinkProperties(Network)</c> or other synchronous
+            ConnectivityManager methods in this callback as this is prone to race conditions :
+            calling these methods while in a callback may return an outdated or even a null object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onCapabilitiesChanged(android.net.Network,%20android.net.NetworkCapabilities)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onCapabilitiesChanged(android.net.Network, android.net.NetworkCapabilities)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -288,11 +407,26 @@
         <Parameter Name="linkProperties" Type="Android.Net.LinkProperties" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <param name="linkProperties">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="network">The <c>Network</c> whose link properties have changed.</param>
+        <param name="linkProperties">The new <c>LinkProperties</c> for this network.</param>
+        <summary>Called when the network corresponding to this request changes <c>LinkProperties</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when the network corresponding to this request changes <c>LinkProperties</c>.</para>
+          <para>Starting with <c>android.os.Build.VERSION_CODES#O</c> this method is guaranteed
+            to be called immediately after <c>#onAvailable</c>.</para>
+          <para>Do NOT call <c>#getNetworkCapabilities(Network)</c> or other synchronous
+            ConnectivityManager methods in this callback as this is prone to race conditions :
+            calling these methods while in a callback may return an outdated or even a null object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onLinkPropertiesChanged(android.net.Network,%20android.net.LinkProperties)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onLinkPropertiesChanged(android.net.Network, android.net.LinkProperties)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -320,11 +454,32 @@
         <Parameter Name="maxMsToLive" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <param name="maxMsToLive">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="network">The <c>Network</c> that is about to be lost.</param>
+        <param name="maxMsToLive">The time in milliseconds the system intends to keep the network
+                               connected for graceful handover; note that the network may still
+                               suffer a hard loss at any time.</param>
+        <summary>Called when the network is about to be lost, typically because there are no outstanding
+            requests left for it.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when the network is about to be lost, typically because there are no outstanding
+            requests left for it. This may be paired with a <c>NetworkCallback#onAvailable</c> call
+            with the new replacement network for graceful handover. This method is not guaranteed
+            to be called before <c>NetworkCallback#onLost</c> is called, for example in case a
+            network is suddenly disconnected.</para>
+          <para>Do NOT call <c>#getNetworkCapabilities(Network)</c> or
+            <c>#getLinkProperties(Network)</c> or other synchronous ConnectivityManager methods in
+            this callback as this is prone to race conditions ; calling these methods while in a
+            callback may return an outdated or even a null object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onLosing(android.net.Network,%20int)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onLosing(android.net.Network, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -351,10 +506,32 @@
         <Parameter Name="network" Type="Android.Net.Network" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="network">The <c>Network</c> lost.</param>
+        <summary>Called when a network disconnects or otherwise no longer satisfies this request or
+            callback.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when a network disconnects or otherwise no longer satisfies this request or
+            callback.</para>
+          <para>If the callback was registered with requestNetwork() or
+            registerDefaultNetworkCallback(), it will only be invoked against the last network
+            returned by onAvailable() when that network is lost and no other network satisfies
+            the criteria of the request.</para>
+          <para>If the callback was registered with registerNetworkCallback() it will be called for
+            each network which no longer satisfies the criteria of the callback.</para>
+          <para>Do NOT call <c>#getNetworkCapabilities(Network)</c> or
+            <c>#getLinkProperties(Network)</c> or other synchronous ConnectivityManager methods in
+            this callback as this is prone to race conditions ; calling these methods while in a
+            callback may return an outdated or even a null object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onLost(android.net.Network)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onLost(android.net.Network)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -383,9 +560,27 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Called if no network is found within the timeout time specified in
+            <c>#requestNetwork(NetworkRequest, NetworkCallback, int)</c> call or if the
+            requested network request cannot be fulfilled (whether or not a timeout was
+            specified).</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called if no network is found within the timeout time specified in
+            <c>#requestNetwork(NetworkRequest, NetworkCallback, int)</c> call or if the
+            requested network request cannot be fulfilled (whether or not a timeout was
+            specified). When this callback is invoked the associated
+            <c>NetworkRequest</c> will have already been removed and released, as if
+            <c>#unregisterNetworkCallback(NetworkCallback)</c> had been called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onUnavailable()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onUnavailable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

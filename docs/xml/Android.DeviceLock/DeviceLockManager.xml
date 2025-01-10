@@ -17,13 +17,37 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/devicelock/DeviceLockManager", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Manager used to interact with the system device lock service.</summary>
+    <remarks>
+      <para>Manager used to interact with the system device lock service.
+            The device lock feature is used by special applications ('kiosk apps', downloaded and installed
+            by the device lock solution) to lock and unlock a device.
+            A typical use case is a financed device, where the financing entity has the capability to lock
+            the device in case of a missed payment.
+            When a device is locked, only a limited set of interactions with the device is allowed (for
+            example, placing emergency calls).</para>
+      <para>Use <c>android.content.Context#getSystemService(java.lang.String)</c>
+            with <c>Context#DEVICE_LOCK_SERVICE</c> to create a <c>DeviceLockManager</c>.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="DeviceLockRoleFinancing">
@@ -55,8 +79,20 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Constant representing a financed device role, returned by <c>#getKioskApps</c>.</summary>
+        <remarks>
+          <para>Constant representing a financed device role, returned by <c>#getKioskApps</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#DEVICE_LOCK_ROLE_FINANCING" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.DEVICE_LOCK_ROLE_FINANCING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetDeviceId">
@@ -91,10 +127,22 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="callback">this returns either the <c>DeviceId</c> or an exception.</param>
+        <summary>Get the device id.</summary>
+        <remarks>
+          <para>Get the device id.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#getDeviceId(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Candroid.devicelock.DeviceId,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.getDeviceId(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;android.devicelock.DeviceId, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetKioskApps">
@@ -125,10 +173,26 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="callback">this returns either a <c>Map</c> of device roles/package names,
+                            or an exception. The Integer in the map represent the device lock role
+                            (at this moment, the only supported role is
+                            <c>#DEVICE_LOCK_ROLE_FINANCING</c>. The String represents tha package
+                            name of the kiosk app for that role.</param>
+        <summary>Get the kiosk app roles and packages.</summary>
+        <remarks>
+          <para>Get the kiosk app roles and packages.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#getKioskApps(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.util.Map%3Cjava.lang.Integer,%20java.lang.String%3E,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.getKioskApps(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.util.Map&lt;java.lang.Integer, java.lang.String&gt;, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsDeviceLocked">
@@ -163,10 +227,22 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="callback">this returns either the lock status or an exception.</param>
+        <summary>Check if the device is locked or not.</summary>
+        <remarks>
+          <para>Check if the device is locked or not.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#isDeviceLocked(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Boolean,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.isDeviceLocked(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Boolean, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -230,10 +306,22 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="callback">this returns either success or an exception.</param>
+        <summary>Lock the device.</summary>
+        <remarks>
+          <para>Lock the device.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#lockDevice(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.lockDevice(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -326,10 +414,22 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="callback">this returns either success or an exception.</param>
+        <summary>Unlock the device.</summary>
+        <remarks>
+          <para>Unlock the device.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#unlockDevice(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.unlockDevice(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

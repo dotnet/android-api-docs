@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/appsearch/PackageIdentifier", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,7 @@
   <Docs>
     <summary>This class represents a uniquely identifiable package.</summary>
     <remarks>
+      <para>This class represents a uniquely identifiable package.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/PackageIdentifier" title="Reference documentation">Java documentation for <code>android.app.appsearch.PackageIdentifier</code>.</a>
@@ -84,9 +89,16 @@
       </Parameters>
       <Docs>
         <param name="packageName">Name of the package.</param>
-        <param name="sha256Certificate">SHA256 certificate digest of the package.</param>
+        <param name="sha256Certificate">SHA-256 certificate digest of the package.</param>
         <summary>Creates a unique identifier for a package.</summary>
         <remarks>
+          <para>Creates a unique identifier for a package.</para>
+          <para>SHA-256 certificate digests for a signed application can be retrieved with the <see href="https://developer.android.com/studio/command-line/apksigner/">apksigner tool</see> that is part of the
+            Android SDK build tools. Use <c>apksigner verify --print-certs path/to/apk.apk</c> to
+            retrieve the SHA-256 certificate digest for the target application. Once retrieved, the
+            SHA-256 certificate digest should be converted to a <c>byte[]</c> by decoding it in base16:</para>
+          <code lang="text/java">new android.content.pm.Signature(outputDigest).toByteArray();
+            </code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/PackageIdentifier#PackageIdentifier(java.lang.String,%20byte[])" title="Reference documentation">Java documentation for <code>android.app.appsearch.PackageIdentifier.PackageIdentifier(java.lang.String, byte[])</code>.</a>

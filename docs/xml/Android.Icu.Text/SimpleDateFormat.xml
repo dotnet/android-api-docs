@@ -17,19 +17,256 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/SimpleDateFormat", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.SimpleDateFormat</c>.</summary>
     <remarks>
+      <para>&lt;strong&gt;[icu enhancement]&lt;/strong&gt; ICU's replacement for <c>java.text.SimpleDateFormat</c>.&amp;nbsp;Methods, fields, and other functionality specific to ICU are labeled '&lt;strong&gt;[icu]&lt;/strong&gt;'.</para>
+      <para>
+        <c>SimpleDateFormat</c> is a concrete class for formatting and
+            parsing dates in a locale-sensitive manner. It allows for formatting
+            (date -&amp;gt; text), parsing (text -&amp;gt; date), and normalization.</para>
+      <para>Clients are encouraged to create a date-time formatter using
+            <c>DateFormat.getDateInstance()</c>, <c>DateFormat.getDateInstance()</c>,
+            or <c>DateFormat.getDateTimeInstance()</c> rather than
+            explicitly constructing an instance of <c>SimpleDateFormat</c>.  This way, the client
+            is guaranteed to get an appropriate formatting pattern for whatever locale the
+            program is running in.  If the client needs more control, they should consider using
+            <c>DateFormat.getInstanceForSkeleton()</c>.
+            However, if the client needs something more unusual than
+            the default patterns in the locales, he can construct a <c>SimpleDateFormat</c> directly
+            and give it an appropriate pattern (or use one of the factory methods on DateFormat
+            and modify the pattern after the fact with <c>toPattern()</c> and <c>applyPattern()</c>.
+            For more information on using these methods, see
+            <c>DateFormat</c>.</para>
+      <para>&lt;strong&gt;Date and Time Patterns:&lt;/strong&gt;</para>
+      <para>Date and time formats are specified by &lt;em&gt;date and time pattern&lt;/em&gt; strings.
+            The full syntax for date and time patterns can be found at
+            <see href="https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns">https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns</see>.</para>
+      <para>Within date and time pattern strings, all unquoted ASCII letters [A-Za-z] are reserved
+            as pattern letters representing calendar fields. Some of the most commonly used pattern letters are:</para>
+      <para>&lt;blockquote&gt;
+            &lt;table border="1"&gt;
+                &lt;tr&gt;
+                    &lt;th style="text-align: center"&gt;Sym.&lt;/th&gt;
+                    &lt;th style="text-align: center"&gt;No.&lt;/th&gt;
+                    &lt;th&gt;Example&lt;/th&gt;
+                    &lt;th&gt;Description&lt;/th&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;G&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..3&lt;/td&gt;
+                    &lt;td&gt;AD&lt;/td&gt;
+                    &lt;td&gt;Era - Replaced with the Era string for the current date. One to three letters for the
+                    abbreviated form, four letters for the long (wide) form, five for the narrow form.&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;y&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..n&lt;/td&gt;
+                    &lt;td&gt;1996&lt;/td&gt;
+                    &lt;td&gt;Year. Normally the length specifies the padding, but for two letters it also specifies the maximum
+                    length. Example:&lt;div style="text-align: center"&gt;
+                        &lt;center&gt;
+                        &lt;table border="1" cellpadding="2" cellspacing="0"&gt;
+                            &lt;tr&gt;
+                                &lt;th&gt;Year&lt;/th&gt;
+                                &lt;th style="text-align: right"&gt;y&lt;/th&gt;
+                                &lt;th style="text-align: right"&gt;yy&lt;/th&gt;
+                                &lt;th style="text-align: right"&gt;yyy&lt;/th&gt;
+                                &lt;th style="text-align: right"&gt;yyyy&lt;/th&gt;
+                                &lt;th style="text-align: right"&gt;yyyyy&lt;/th&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td&gt;AD 1&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;1&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;01&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;001&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;0001&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;00001&lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td&gt;AD 12&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;12&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;12&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;012&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;0012&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;00012&lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td&gt;AD 123&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;123&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;23&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;123&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;0123&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;00123&lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td&gt;AD 1234&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;1234&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;34&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;1234&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;1234&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;01234&lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td&gt;AD 12345&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;12345&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;45&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;12345&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;12345&lt;/td&gt;
+                                &lt;td style="text-align: right"&gt;12345&lt;/td&gt;
+                            &lt;/tr&gt;
+                        &lt;/table&gt;
+                        &lt;/center&gt;&lt;/div&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td rowspan="3" style="text-align: center"&gt;Q&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..2&lt;/td&gt;
+                    &lt;td&gt;02&lt;/td&gt;
+                    &lt;td rowspan="3"&gt;Quarter - Use one or two for the numerical quarter, three for the abbreviation, or four
+                    for the full (wide) name (five for the narrow name is not yet supported).&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;3&lt;/td&gt;
+                    &lt;td&gt;Q2&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;4&lt;/td&gt;
+                    &lt;td&gt;2nd quarter&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td rowspan="4" style="text-align: center"&gt;M&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..2&lt;/td&gt;
+                    &lt;td&gt;09&lt;/td&gt;
+                    &lt;td rowspan="4"&gt;Month - Use one or two for the numerical month, three for the abbreviation, four for
+                    the full (wide) name, or five for the narrow name. With two ("MM"), the month number is zero-padded
+                    if necessary (e.g. "08").&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;3&lt;/td&gt;
+                    &lt;td&gt;Sep&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;4&lt;/td&gt;
+                    &lt;td&gt;September&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;5&lt;/td&gt;
+                    &lt;td&gt;S&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;d&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..2&lt;/td&gt;
+                    &lt;td&gt;1&lt;/td&gt;
+                    &lt;td&gt;Date - Day of the month. Use "d" to show the minimum number of digits, or "dd" to always show
+                    two digits (zero-padding if necessary, e.g. "08").&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td rowspan="4" style="text-align: center"&gt;E&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..3&lt;/td&gt;
+                    &lt;td&gt;Tue&lt;/td&gt;
+                    &lt;td rowspan="4"&gt;Day of week - Use one through three letters for the short day, four for the full (wide) name,
+                    five for the narrow name, or six for the short name.&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;4&lt;/td&gt;
+                    &lt;td&gt;Tuesday&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;5&lt;/td&gt;
+                    &lt;td&gt;T&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;6&lt;/td&gt;
+                    &lt;td&gt;Tu&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;a&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1&lt;/td&gt;
+                    &lt;td&gt;AM&lt;/td&gt;
+                    &lt;td&gt;AM or PM&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;h&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..2&lt;/td&gt;
+                    &lt;td&gt;11&lt;/td&gt;
+                    &lt;td&gt;Hour [1-12]. When used in skeleton data or in a skeleton passed in an API for flexible data pattern
+                    generation, it should match the 12-hour-cycle format preferred by the locale (h or K); it should not match
+                    a 24-hour-cycle format (H or k). Use hh for zero padding.&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;H&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..2&lt;/td&gt;
+                    &lt;td&gt;13&lt;/td&gt;
+                    &lt;td&gt;Hour [0-23]. When used in skeleton data or in a skeleton passed in an API for flexible data pattern
+                    generation, it should match the 24-hour-cycle format preferred by the locale (H or k); it should not match a
+                    12-hour-cycle format (h or K). Use HH for zero padding.&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;m&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..2&lt;/td&gt;
+                    &lt;td&gt;59&lt;/td&gt;
+                    &lt;td&gt;Minute. Use "m" to show the minimum number of digits, or "mm" to always show two digits
+                    (zero-padding if necessary, e.g. "08")..&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;s&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..2&lt;/td&gt;
+                    &lt;td&gt;12&lt;/td&gt;
+                    &lt;td&gt;Second. Use "s" to show the minimum number of digits, or "ss" to always show two digits
+                    (zero-padding if necessary, e.g. "08").&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td rowspan="2" style="text-align: center"&gt;z&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1..3&lt;/td&gt;
+                    &lt;td&gt;PDT&lt;/td&gt;
+                    &lt;td&gt;Time zone.  The <i>short specific non-location format</i>.
+                    Where that is unavailable, falls back to the <i>short localized GMT format</i> ("O").&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;4&lt;/td&gt;
+                    &lt;td&gt;Pacific Daylight Time&lt;/td&gt;
+                    &lt;td&gt;The <i>long specific non-location format</i>.
+                    Where that is unavailable, falls back to the <i>long localized GMT format</i> ("OOOO").&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td rowspan="2" style="text-align: center"&gt;v&lt;/td&gt;
+                    &lt;td style="text-align: center"&gt;1&lt;/td&gt;
+                    &lt;td&gt;PT&lt;/td&gt;
+                    &lt;td&gt;Time zone. The <i>short generic non-location format</i>.
+                    Where that is unavailable, falls back to the <i>generic location format</i> ("VVVV"),
+                    then the <i>short localized GMT format</i> as the final fallback.&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td style="text-align: center"&gt;4&lt;/td&gt;
+                    &lt;td&gt;Pacific Time&lt;/td&gt;
+                    &lt;td&gt;The <i>long generic non-location format</i>.
+                    Where that is unavailable, falls back to <i>generic location format</i> ("VVVV").
+                &lt;/tr&gt;
+            &lt;/table&gt;
+            
+            &lt;/blockquote&gt;</para>
+      <para>Any characters in the pattern that are not in the ranges of ['a'..'z']
+            and ['A'..'Z'] will be treated as quoted text. For instance, characters
+            like ':', '.', ' ', '#' and '</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -54,9 +291,22 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Constructs a SimpleDateFormat using the default pattern for the default <c>FORMAT</c>
+            locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a SimpleDateFormat using the default pattern for the default <c>FORMAT</c>
+            locale.  &lt;b&gt;Note:&lt;/b&gt; Not all locales support SimpleDateFormat; for full
+            generality, use the factory methods in the DateFormat class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#SimpleDateFormat()" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.SimpleDateFormat()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -85,9 +335,22 @@
       </Parameters>
       <Docs>
         <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Constructs a SimpleDateFormat using the given pattern in the default <c>FORMAT</c>
+            locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a SimpleDateFormat using the given pattern in the default <c>FORMAT</c>
+            locale.  &lt;b&gt;Note:&lt;/b&gt; Not all locales support SimpleDateFormat; for full
+            generality, use the factory methods in the DateFormat class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#SimpleDateFormat(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.SimpleDateFormat(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -141,9 +404,22 @@
       <Docs>
         <param name="pattern">To be added.</param>
         <param name="formatData">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Constructs a SimpleDateFormat using the given pattern and
+            locale-specific symbol data.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a SimpleDateFormat using the given pattern and
+            locale-specific symbol data.
+            Warning: uses default <c>FORMAT</c> locale for digits!</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#SimpleDateFormat(java.lang.String,%20android.icu.text.DateFormatSymbols)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.SimpleDateFormat(java.lang.String, android.icu.text.DateFormatSymbols)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -174,9 +450,21 @@
       <Docs>
         <param name="pattern">To be added.</param>
         <param name="loc">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Constructs a SimpleDateFormat using the given pattern and locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a SimpleDateFormat using the given pattern and locale.
+            &lt;b&gt;Note:&lt;/b&gt; Not all locales support SimpleDateFormat; for full
+            generality, use the factory methods in the DateFormat class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#SimpleDateFormat(java.lang.String,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.SimpleDateFormat(java.lang.String, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -207,9 +495,21 @@
       <Docs>
         <param name="pattern">To be added.</param>
         <param name="loc">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Constructs a SimpleDateFormat using the given pattern and locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a SimpleDateFormat using the given pattern and locale.
+            &lt;b&gt;Note:&lt;/b&gt; Not all locales support SimpleDateFormat; for full
+            generality, use the factory methods in the DateFormat class.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#SimpleDateFormat(java.lang.String,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.SimpleDateFormat(java.lang.String, java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -239,12 +539,28 @@
         <Parameter Name="loc" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="override">To be added.</param>
-        <param name="loc">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">The pattern to be used</param>
+        <param name="override">The override string.  A numbering system override string can take one of the following forms:
+                1). If just a numbering system name is specified, it applies to all numeric fields in the date format pattern.
+                2). To specify an alternate numbering system on a field by field basis, use the field letters from the pattern
+                    followed by an = sign, followed by the numbering system name.  For example, to specify that just the year
+                    be formatted using Hebrew digits, use the override "y=hebr".  Multiple overrides can be specified in a single
+                    string by separating them with a semi-colon. For example, the override string "m=thai;y=deva" would format using
+                    Thai digits for the month and Devanagari digits for the year.</param>
+        <param name="loc">The locale to be used</param>
+        <summary>Constructs a SimpleDateFormat using the given pattern , override and locale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a SimpleDateFormat using the given pattern , override and locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#SimpleDateFormat(java.lang.String,%20java.lang.String,%20android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.SimpleDateFormat(java.lang.String, java.lang.String, android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -276,9 +592,19 @@
       </Parameters>
       <Docs>
         <param name="pat">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Apply the given localized pattern string to this date format.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Apply the given localized pattern string to this date format.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#applyLocalizedPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.applyLocalizedPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -310,9 +636,19 @@
       </Parameters>
       <Docs>
         <param name="pat">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Apply the given unlocalized pattern string to this date format.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Apply the given unlocalized pattern string to this date format.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#applyPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.applyPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -348,10 +684,30 @@
         <ReturnType>Android.Icu.Text.DateFormatSymbols</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="newFormatSymbols">the new symbols</param>
+        <summary>Gets the date/time formatting data. -or- Allows you to set the date/time formatting data.</summary>
+        <value>a copy of the date-time formatting data associated
+            with this date-time formatter.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>Gets the date/time formatting data.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#getDateFormatSymbols()" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.getDateFormatSymbols()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Allows you to set the date/time formatting data.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#setDateFormatSymbols(android.icu.text.DateFormatSymbols)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.setDateFormatSymbols(android.icu.text.DateFormatSymbols)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -384,13 +740,28 @@
         <Parameter Name="pos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="cal">To be added.</param>
-        <param name="toAppendTo">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cal">the calendar whose date-time value is to be formatted into a date-time string</param>
+        <param name="toAppendTo">where the new date-time text is to be appended</param>
+        <param name="pos">the formatting position. On input: an alignment field,
+            if desired. On output: the offsets of the alignment field.</param>
+        <summary>Formats a date or time, which is the standard millis
+            since January 1, 1970, 00:00:00 GMT.</summary>
+        <returns>the formatted date-time string.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Formats a date or time, which is the standard millis
+            since January 1, 1970, 00:00:00 GMT.</para>
+          <para>Example: using the US locale:
+            "yyyy.MM.dd G 'at' HH:mm:ss zzz" -&amp;gt;&amp;gt; 1996.07.10 AD at 15:08:56 PDT</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#format(android.icu.util.Calendar,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.format(android.icu.util.Calendar, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -419,10 +790,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the beginning date of the 100-year period 2-digit years are interpreted
+            as being within.</summary>
+        <returns>the start of the 100-year period into which two digit years are
+            parsed</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the beginning date of the 100-year period 2-digit years are interpreted
+            as being within.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#get2DigitYearStart()" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.get2DigitYearStart()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -453,11 +837,21 @@
         <Parameter Name="field" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="field">the field the user wants</param>
+        <summary>give the NumberFormat used for the field like 'y'(year) and 'M'(year)</summary>
+        <returns>override NumberFormat used for the field</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>give the NumberFormat used for the field like 'y'(year) and 'M'(year)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#getNumberFormat(char)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.getNumberFormat(char)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -479,6 +873,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -519,19 +917,45 @@
         <Parameter Name="text" Type="System.String" />
         <Parameter Name="start" Type="System.Int32" />
         <Parameter Name="field" Type="System.Int32" />
-        <Parameter Name="data" Type="System.String[]" />
+        <Parameter Name="data" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="cal" Type="Android.Icu.Util.Calendar" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="data">To be added.</param>
         <param name="cal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">the time text being parsed.</param>
+        <param name="start">where to start parsing.</param>
+        <param name="field">the date field being parsed.</param>
+        <param name="data">the string array to parsed.</param>
+        <summary>Attempt to match the text at a given position against an array of quarter
+            strings.</summary>
+        <returns>the new start position if matching succeeded; a negative
+            number indicating matching failure, otherwise.  As a side effect,
+            sets the <c>cal</c> field <c>field</c> to the index
+            of the best match, if matching succeeded.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Attempt to match the text at a given position against an array of quarter
+            strings.  Since multiple strings in the array may match (for
+            example, if the array contains "a", "ab", and "abc", all will match
+            the input string "abcd") the longest match is returned.  As a side
+            effect, the given field of <c>cal</c> is set to the index
+            of the best match, if there is one.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#matchQuarterString(java.lang.String,%20int,%20int,%20java.lang.String[],%20android.icu.util.Calendar)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.matchQuarterString(java.lang.String, int, int, java.lang.String[], android.icu.util.Calendar)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -562,19 +986,45 @@
         <Parameter Name="text" Type="System.String" />
         <Parameter Name="start" Type="System.Int32" />
         <Parameter Name="field" Type="System.Int32" />
-        <Parameter Name="data" Type="System.String[]" />
+        <Parameter Name="data" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="cal" Type="Android.Icu.Util.Calendar" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="data">To be added.</param>
-        <param name="cal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">the time text being parsed.</param>
+        <param name="start">where to start parsing.</param>
+        <param name="field">the date field being parsed.</param>
+        <param name="data">the string array to parsed.</param>
+        <param name="cal">cal</param>
+        <summary>Attempt to match the text at a given position against an array of
+            strings.</summary>
+        <returns>the new start position if matching succeeded; a negative
+            number indicating matching failure, otherwise.  As a side effect,
+            sets the <c>cal</c> field <c>field</c> to the index
+            of the best match, if matching succeeded.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Attempt to match the text at a given position against an array of
+            strings.  Since multiple strings in the array may match (for
+            example, if the array contains "a", "ab", and "abc", all will match
+            the input string "abcd") the longest match is returned.  As a side
+            effect, the given field of <c>cal</c> is set to the index
+            of the best match, if there is one.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#matchString(java.lang.String,%20int,%20int,%20java.lang.String[],%20android.icu.util.Calendar)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.matchString(java.lang.String, int, int, java.lang.String[], android.icu.util.Calendar)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -610,9 +1060,19 @@
         <param name="text">To be added.</param>
         <param name="cal">To be added.</param>
         <param name="parsePos">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Overrides DateFormat</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Overrides DateFormat</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#parse(java.lang.String,%20android.icu.util.Calendar,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.parse(java.lang.String, android.icu.util.Calendar, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -678,10 +1138,23 @@
         <Parameter Name="startDate" Type="Java.Util.Date" />
       </Parameters>
       <Docs>
-        <param name="startDate">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="startDate">During parsing, two digit years will be placed in the range
+            <c>startDate</c> to <c>startDate + 100 years</c>.</param>
+        <summary>Sets the 100-year period 2-digit years will be interpreted as being in
+            to begin on the date the user specifies.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the 100-year period 2-digit years will be interpreted as being in
+            to begin on the date the user specifies.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#set2DigitYearStart(java.util.Date)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.set2DigitYearStart(java.util.Date)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -713,11 +1186,31 @@
         <Parameter Name="overrideNF" Type="Android.Icu.Text.NumberFormat" />
       </Parameters>
       <Docs>
-        <param name="fields">To be added.</param>
-        <param name="overrideNF">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="fields">the fields to override</param>
+        <param name="overrideNF">the NumbeferFormat used</param>
+        <summary>allow the user to set the NumberFormat for several fields
+            It can be a single field like: "y"(year) or "M"(month)
+            It can be several field combined together: "yMd"(year, month and date)
+            Note:
+            1 symbol field is enough for multiple symbol fields (so "y" will override "yy", "yyy")
+            If the field is not numeric, then override has no effect (like "MMM" will use abbreviation, not numerical field)</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>allow the user to set the NumberFormat for several fields
+            It can be a single field like: "y"(year) or "M"(month)
+            It can be several field combined together: "yMd"(year, month and date)
+            Note:
+            1 symbol field is enough for multiple symbol fields (so "y" will override "yy", "yyy")
+            If the field is not numeric, then override has no effect (like "MMM" will use abbreviation, not numerical field)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#setNumberFormat(java.lang.String,%20android.icu.text.NumberFormat)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.setNumberFormat(java.lang.String, android.icu.text.NumberFormat)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -753,16 +1246,29 @@
         <Parameter Name="cal" Type="Android.Icu.Util.Calendar" />
       </Parameters>
       <Docs>
-        <param name="ch">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="beginOffset">To be added.</param>
-        <param name="pos">To be added.</param>
-        <param name="fmtData">To be added.</param>
         <param name="cal">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ch">the pattern character</param>
+        <param name="count">the number of times ch is repeated in the pattern</param>
+        <param name="beginOffset">the offset of the output string at the start of
+            this field; used to set pos when appropriate</param>
+        <param name="pos">receives the position of a field, when appropriate</param>
+        <param name="fmtData">the symbols for this formatter</param>
+        <summary>Formats a single field, given its pattern character.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Formats a single field, given its pattern character.  Subclasses may
+            override this method in order to modify or add formatting
+            capabilities.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#subFormat(char,%20int,%20int,%20java.text.FieldPosition,%20android.icu.text.DateFormatSymbols,%20android.icu.util.Calendar)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.subFormat(char, int, int, java.text.FieldPosition, android.icu.text.DateFormatSymbols, android.icu.util.Calendar)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -800,18 +1306,37 @@
         <Parameter Name="cal" Type="Android.Icu.Util.Calendar" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="obeyCount">To be added.</param>
         <param name="allowNegative">To be added.</param>
-        <param name="ambiguousYear">To be added.</param>
-        <param name="cal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">the time text to be parsed.</param>
+        <param name="start">where to start parsing.</param>
+        <param name="ch">the pattern character for the date field text to be parsed.</param>
+        <param name="count">the count of a pattern character.</param>
+        <param name="obeyCount">if true, then the next field directly abuts this one,
+            and we should use the count to know when to stop parsing.</param>
+        <param name="ambiguousYear">return parameter; upon return, if ambiguousYear[0]
+            is true, then a two-digit year was parsed and may need to be readjusted.</param>
+        <param name="cal">cal</param>
+        <summary>Protected method that converts one field of the input string into a
+            numeric field value in <c>cal</c>.</summary>
+        <returns>the new start position if matching succeeded; a negative
+            number indicating matching failure, otherwise.  As a side effect,
+            set the appropriate field of <c>cal</c> with the parsed
+            value.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Protected method that converts one field of the input string into a
+            numeric field value in <c>cal</c>.  Returns -start (for
+            ParsePosition) if failed.  Subclasses may override this method to
+            modify or add parsing capabilities.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#subParse(java.lang.String,%20int,%20char,%20int,%20boolean,%20boolean,%20boolean[],%20android.icu.util.Calendar)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.subParse(java.lang.String, int, char, int, boolean, boolean, boolean[], android.icu.util.Calendar)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -839,10 +1364,20 @@
         <ReturnType>Android.Icu.Text.DateFormatSymbols</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Method for subclasses to access the DateFormatSymbols.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Method for subclasses to access the DateFormatSymbols.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#getSymbols()" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.getSymbols()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -896,6 +1431,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -940,10 +1479,32 @@
         <ReturnType>Android.Icu.Text.TimeZoneFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="tzfmt">the new time zone formatter</param>
+        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Gets the time zone formatter which this date/time
+            formatter uses to format and parse a time zone. -or- &lt;strong&gt;[icu]&lt;/strong&gt; Allows you to set the time zone formatter.</summary>
+        <value>the time zone formatter which this date/time
+            formatter uses.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Property getter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Gets the time zone formatter which this date/time
+            formatter uses to format and parse a time zone.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#getTimeZoneFormat()" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.getTimeZoneFormat()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Allows you to set the time zone formatter.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#setTimeZoneFormat(android.icu.text.TimeZoneFormat)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.setTimeZoneFormat(android.icu.text.TimeZoneFormat)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -972,10 +1533,25 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Return a localized pattern string describing this date format.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a localized pattern string describing this date format.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; This implementation depends on <c>DateFormatSymbols#getLocalPatternChars()</c>
+            to get localized format pattern characters. ICU does not include
+            localized pattern character data, therefore, unless user sets localized
+            pattern characters manually, this method returns the same result as
+            <c>#toPattern()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#toLocalizedPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.toLocalizedPattern()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1004,10 +1580,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Return a pattern string describing this date format.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a pattern string describing this date format.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#toPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.toPattern()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1043,10 +1629,20 @@
         <param name="value">To be added.</param>
         <param name="minDigits">To be added.</param>
         <param name="maxDigits">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Formats a number with the specified minimum and maximum number of digits.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Formats a number with the specified minimum and maximum number of digits.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SimpleDateFormat#zeroPaddingNumber(long,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.SimpleDateFormat.zeroPaddingNumber(long, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

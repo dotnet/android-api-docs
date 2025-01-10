@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/webkit/CookieManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/webkit/CookieManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>Manages the cookies used by an application's <c>WebView</c> instances.</summary>
@@ -301,6 +305,8 @@
           <para>Gets all the cookies for the given URL. This may return multiple key-value pairs if multiple
             cookies are associated with this URL, in which case each cookie will be delimited by <c>"; "</c> characters (semicolon followed by a space). Each key-value pair will be of the form
             <c>"key=value"</c>.</para>
+          <para>&lt;b&gt;Note:&lt;/b&gt; Any cookies set with the <c>"Partitioned"</c> attribute will only be returned
+            for the top-level partition of <c>url</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/CookieManager#getCookie(java.lang.String)" title="Reference documentation">Java documentation for <code>android.webkit.CookieManager.getCookie(java.lang.String)</code>.</a>
@@ -399,6 +405,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -724,9 +734,8 @@
             file scheme URLs.</para>
           <para>Use of cookies with file scheme URLs is potentially insecure and turned off by default. All
             <c>file://</c> URLs share all their cookies, which may lead to leaking private app cookies
-            (ex. any malicious file can access cookies previously set by other (trusted) files).
-            &lt;p class="note"&gt;
-            Loading content via <c>file://</c> URLs is generally discouraged. See the note in
+            (ex. any malicious file can access cookies previously set by other (trusted) files).</para>
+          <para>Loading content via <c>file://</c> URLs is generally discouraged. See the note in
             <c>WebSettings#setAllowFileAccess</c>.
             Using <see href="https://developer.android.com/reference/androidx/webkit/WebViewAssetLoader.html">
             androidx.webkit.WebViewAssetLoader</see> to load files over <c>http(s)://</c> URLs allows
@@ -832,15 +841,19 @@
             host, path and name will be replaced with the new cookie. The cookie being set
             will be ignored if it is expired. To set multiple cookies, your application should invoke
             this method multiple times.</para>
-          <para>The <c>value</c> parameter must follow the format of the <c>Set-Cookie</c> HTTP
-            response header defined by
-            <see href="https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03">RFC6265bis</see>.
-            This is a key-value pair of the form <c>"key=value"</c>, optionally followed by a list of
-            cookie attributes delimited with semicolons (ex. <c>"key=value; Max-Age=123"</c>). Please
-            consult the RFC specification for a list of valid attributes.
-            
-            &lt;p class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; if specifying a <c>value</c> containing the <c>"Secure"</c>
-            attribute, <c>url</c> must use the <c>"https://"</c> scheme.</para>
+          <para>The <c>value</c> parameter must follow the format of the <c>Set-Cookie</c> HTTP response
+            header. This is a key-value pair of the form <c>"key=value"</c>, optionally followed by a
+            list of cookie attributes delimited with semicolons (ex. <c>"key=value; Max-Age=123"</c>).
+            For the header format and attributes supported by WebView, see the <see href="https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie"><c>Set-Cookie</c>
+            documentation on MDN</see>.</para>
+          <para>&lt;b&gt;Notes:&lt;/b&gt;
+            &lt;ul&gt;
+            &lt;li&gt;If specifying a <c>value</c> containing the <c>"Secure"</c> attribute,
+            <c>url</c> must use the <c>"https://"</c> scheme.&lt;/li&gt;
+            &lt;li&gt;if specifying a <c>value</c> containing the <c>"Partitioned"</c>
+            attribute, the cookie will be set for the top-level partition of the
+            <c>url</c>.&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/CookieManager#setCookie(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.webkit.CookieManager.setCookie(java.lang.String, java.lang.String)</code>.</a>
@@ -890,22 +903,26 @@
             host, path and name will be replaced with the new cookie. The cookie being set
             will be ignored if it is expired. To set multiple cookies, your application should invoke
             this method multiple times.</para>
-          <para>The <c>value</c> parameter must follow the format of the <c>Set-Cookie</c> HTTP
-            response header defined by
-            <see href="https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03">RFC6265bis</see>.
-            This is a key-value pair of the form <c>"key=value"</c>, optionally followed by a list of
-            cookie attributes delimited with semicolons (ex. <c>"key=value; Max-Age=123"</c>). Please
-            consult the RFC specification for a list of valid attributes.</para>
+          <para>The <c>value</c> parameter must follow the format of the <c>Set-Cookie</c> HTTP response
+            header. This is a key-value pair of the form <c>"key=value"</c>, optionally followed by a
+            list of cookie attributes delimited with semicolons (ex. <c>"key=value; Max-Age=123"</c>).
+            For the header format and attributes supported by WebView, see the <see href="https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie"><c>Set-Cookie</c>
+            documentation on MDN</see>.</para>
           <para>This method is asynchronous. If a <c>ValueCallback</c> is provided,
             <c>ValueCallback#onReceiveValue</c> will be called on the current
             thread's <c>android.os.Looper</c> once the operation is complete.
             The value provided to the callback indicates whether the cookie was set successfully.
             You can pass <c>null</c> as the callback if you don't need to know when the operation
             completes or whether it succeeded, and in this case it is safe to call the method from a
-            thread without a Looper.
-            
-            &lt;p class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; if specifying a <c>value</c> containing the <c>"Secure"</c>
-            attribute, <c>url</c> must use the <c>"https://"</c> scheme.</para>
+            thread without a Looper.</para>
+          <para>&lt;b&gt;Notes:&lt;/b&gt;
+            &lt;ul&gt;
+            &lt;li&gt;If specifying a <c>value</c> containing the <c>"Secure"</c> attribute,
+            <c>url</c> must use the <c>"https://"</c> scheme.&lt;/li&gt;
+            &lt;li&gt;if specifying a <c>value</c> containing the <c>"Partitioned"</c>
+            attribute, the cookie will be set for the top-level partition of the
+            <c>url</c>.&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/webkit/CookieManager#setCookie(java.lang.String,%20java.lang.String,%20android.webkit.ValueCallback%3Cjava.lang.Boolean%3E)" title="Reference documentation">Java documentation for <code>android.webkit.CookieManager.setCookie(java.lang.String, java.lang.String, android.webkit.ValueCallback&lt;java.lang.Boolean&gt;)</code>.</a>
@@ -968,6 +985,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

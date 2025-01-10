@@ -30,13 +30,33 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/net/http/UploadDataProvider", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Abstract class allowing the embedder to provide an upload body to <c>UrlRequest</c>.</summary>
+    <remarks>
+      <para>Abstract class allowing the embedder to provide an upload body to <c>UrlRequest</c>. It supports
+            both non-chunked (size known in advanced) and chunked (size not known in advance) uploads. Be
+            aware that not all servers support chunked uploads.</para>
+      <para>An upload is either always chunked, across multiple uploads if the data
+            ends up being sent more than once, or never chunked.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/net/http/UploadDataProvider" title="Reference documentation">Java documentation for <code>android.net.http.UploadDataProvider</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -113,8 +133,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Called when this UploadDataProvider is no longer needed by a request, so that resources (like
+            a file) can be explicitly released.</summary>
+        <remarks>
+          <para>Called when this UploadDataProvider is no longer needed by a request, so that resources (like
+            a file) can be explicitly released.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UploadDataProvider#close()" title="Reference documentation">Java documentation for <code>android.net.http.UploadDataProvider.close()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -206,10 +240,28 @@
         <Parameter Name="byteBuffer" Type="Java.Nio.ByteBuffer" />
       </Parameters>
       <Docs>
-        <param name="uploadDataSink">To be added.</param>
-        <param name="byteBuffer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="uploadDataSink">The object to notify when the read has completed, successfully or
+            otherwise.</param>
+        <param name="byteBuffer">The buffer to copy the read bytes into. Do not change byteBuffer's limit.</param>
+        <summary>Reads upload data into <c>byteBuffer</c>.</summary>
+        <remarks>
+          <para>Reads upload data into <c>byteBuffer</c>. Upon completion, the buffer's position is updated
+            to the end of the bytes that were read. The buffer's limit is not changed. Each call of this
+            method must be followed be a single call, either synchronous or asynchronous, to <c>uploadDataSink</c>: <c>UploadDataSink#onReadSucceeded</c> on success or <c>UploadDataSink#onReadError</c> on failure. Neither read nor rewind will be called until one of
+            those methods or the other is called. Even if the associated <c>UrlRequest</c> is canceled,
+            one or the other must still be called before resources can be safely freed. Throwing an
+            exception will also result in resources being freed and the request being errored out.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UploadDataProvider#read(android.net.http.UploadDataSink,%20java.nio.ByteBuffer)" title="Reference documentation">Java documentation for <code>android.net.http.UploadDataProvider.read(android.net.http.UploadDataSink, java.nio.ByteBuffer)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Rewind">
@@ -239,9 +291,32 @@
         <Parameter Name="uploadDataSink" Type="Android.Net.Http.UploadDataSink" />
       </Parameters>
       <Docs>
-        <param name="uploadDataSink">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="uploadDataSink">The object to notify when the rewind operation has completed,
+            successfully or otherwise.</param>
+        <summary>Rewinds upload data.</summary>
+        <remarks>
+          <para>Rewinds upload data. Each call must be followed be a single call, either synchronous or
+            asynchronous, to <c>uploadDataSink</c>: <c>UploadDataSink#onRewindSucceeded</c> on success
+            or
+            <c>UploadDataSink#onRewindError</c> on failure. Neither read nor rewind will be called until
+            one of those methods or the other is called. Even if the associated <c>UrlRequest</c> is
+            canceled, one or the other must still be called before resources can be safely freed.
+            Throwing an exception will also result in resources being freed and the request being errored
+            out.</para>
+          <para>If rewinding is not supported, this should call
+            <c>UploadDataSink#onRewindError</c>. Note that rewinding is required to follow redirects
+            that preserve the upload body, and for retrying when the server times out stale sockets.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/UploadDataProvider#rewind(android.net.http.UploadDataSink)" title="Reference documentation">Java documentation for <code>android.net.http.UploadDataProvider.rewind(android.net.http.UploadDataSink)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

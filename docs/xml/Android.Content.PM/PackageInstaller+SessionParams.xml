@@ -29,6 +29,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/content/pm/PackageInstaller$SessionParams", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/content/pm/PackageInstaller$SessionParams", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
     <summary>Parameters for creating a new <c>PackageInstaller.Session</c>.</summary>
@@ -195,6 +199,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -377,6 +385,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("RESTRICTED_PERMISSIONS_ALL", ApiSince=29)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("RESTRICTED_PERMISSIONS_ALL", ApiSince=29)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
@@ -743,12 +755,18 @@
         <Parameter Name="installerPackageName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="installerPackageName">name of the installer package</param>
+        <param name="installerPackageName">The name of the installer package, its length must be less
+                                       than <c>255</c>, otherwise it will be invalid.</param>
         <summary>Set the installer package for the app.</summary>
         <remarks>
           <para>Set the installer package for the app.
             
-            By default this is the app that created the <c>PackageInstaller</c> object.</para>
+            By default this is the app that created the <c>PackageInstaller</c> object.
+            
+            Note: Only applications with <c>android.Manifest.permission#INSTALL_PACKAGES</c>
+            permission are allowed to set an installer that is not the caller's own installer
+            package name, otherwise it will cause a <c>SecurityException</c> when creating the
+            install session.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/pm/PackageInstaller.SessionParams#setInstallerPackageName(java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.pm.PackageInstaller.SessionParams.setInstallerPackageName(java.lang.String)</code>.</a>
@@ -1213,10 +1231,6 @@
             The update ownership enforcement can only be enabled on initial installation. Set
             this to <c>true</c> on package update is a no-op.
             
-            Apps may opt themselves out of update ownership by setting the
-            <see href="https://developer.android.com/guide/topics/manifest/manifest-element.html#allowupdateownership">android:alllowUpdateOwnership</see>
-            attribute in their manifest to <c>false</c>.
-            
             Note: To enable the update ownership enforcement, the installer must have the
             <c>android.Manifest.permission#ENFORCE_UPDATE_OWNERSHIP ENFORCE_UPDATE_OWNERSHIP</c>
             permission.</para>
@@ -1283,6 +1297,8 @@
                 &lt;li&gt;<c>requireUserAction</c> is set to <c>#USER_ACTION_NOT_REQUIRED</c>.&lt;/li&gt;
                 &lt;li&gt;The app being installed targets:
                      &lt;ul&gt;
+                         &lt;li&gt;<c>android.os.Build.VERSION_CODES#Q API 29</c> or higher on
+                         Android S  (<c>android.os.Build.VERSION_CODES#S API 31</c>)&lt;/li&gt;
                          &lt;li&gt;<c>android.os.Build.VERSION_CODES#R API 30</c> or higher on
                          Android T (<c>android.os.Build.VERSION_CODES#TIRAMISU API 33</c>)&lt;/li&gt;
                          &lt;li&gt;<c>android.os.Build.VERSION_CODES#S API 31</c> or higher &lt;b&gt;after&lt;/b&gt;
@@ -1365,6 +1381,55 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="SetUnarchiveId">
+      <MemberSignature Language="C#" Value="public virtual void SetUnarchiveId (int unarchiveId);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetUnarchiveId(int32 unarchiveId) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Content.PM.PackageInstaller.SessionParams.SetUnarchiveId(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetUnarchiveId : int -&gt; unit&#xA;override this.SetUnarchiveId : int -&gt; unit" Usage="sessionParams.SetUnarchiveId unarchiveId" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setUnarchiveId", "(I)V", "GetSetUnarchiveId_IHandler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setUnarchiveId", "(I)V", "GetSetUnarchiveId_IHandler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="unarchiveId" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="unarchiveId">To be added.</param>
+        <summary>Used to set the unarchive ID received as part of an
+            <c>Intent#ACTION_UNARCHIVE_PACKAGE</c>.</summary>
+        <remarks>
+          <para>Used to set the unarchive ID received as part of an
+            <c>Intent#ACTION_UNARCHIVE_PACKAGE</c>.</para>
+          <para>The ID should be retrieved from the unarchive intent and passed into the
+            session that's being created to unarchive the app in question. Used to link the unarchive
+            intent and the install session to disambiguate.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/content/pm/PackageInstaller.SessionParams#setUnarchiveId(int)" title="Reference documentation">Java documentation for <code>android.content.pm.PackageInstaller.SessionParams.setUnarchiveId(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="SetWhitelistedRestrictedPermissions">
       <MemberSignature Language="C#" Value="public virtual void SetWhitelistedRestrictedPermissions (System.Collections.Generic.ICollection&lt;string&gt;? permissions);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetWhitelistedRestrictedPermissions(class System.Collections.Generic.ICollection`1&lt;string&gt; permissions) cil managed" />
@@ -1389,7 +1454,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="permissions" Type="System.Collections.Generic.ICollection&lt;System.String&gt;" />
+        <Parameter Name="permissions" Type="System.Collections.Generic.ICollection&lt;System.String&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="permissions">To be added.</param>
@@ -1475,6 +1547,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

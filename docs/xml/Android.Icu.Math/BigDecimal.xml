@@ -33,19 +33,121 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/math/BigDecimal", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>The <c>BigDecimal</c> class implements immutable arbitrary-precision decimal numbers.</summary>
     <remarks>
+      <para>The <c>BigDecimal</c> class implements immutable arbitrary-precision decimal numbers. The methods of the
+            <c>BigDecimal</c> class provide operations for fixed and floating point arithmetic, comparison, format
+            conversions, and hashing.</para>
+      <para>As the numbers are decimal, there is an exact correspondence between an instance of a <c>BigDecimal</c> object
+            and its <c>String</c> representation; the <c>BigDecimal</c> class provides direct conversions to and from
+            <c>String</c> and character array (<c>char[]</c>) objects, as well as conversions to and from the Java
+            primitive types (which may not be exact) and <c>BigInteger</c>.</para>
+      <para>In the descriptions of constructors and methods in this documentation, the value of a <c>BigDecimal</c> number
+            object is shown as the result of invoking the <c>toString()</c> method on the object. The internal
+            representation of a decimal number is neither defined nor exposed, and is not permitted to affect the result of any
+            operation.</para>
+      <para>The floating point arithmetic provided by this class is defined by the ANSI X3.274-1996 standard, and is also
+            documented at <c>http://www2.hursley.ibm.com/decimal</c>&lt;br&gt;
+            <i>[This URL will change.]</i>&lt;h3&gt;Operator methods&lt;/h3&gt;</para>
+      <para>Operations on <c>BigDecimal</c> numbers are controlled by a <c>MathContext</c> object, which provides the
+            context (precision and other information) for the operation. Methods that can take a <c>MathContext</c>
+            parameter implement the standard arithmetic operators for <c>BigDecimal</c> objects and are known as
+            <i>operator methods</i>. The default settings provided by the constant <c>MathContext#DEFAULT</c> (<c>digits=9,
+            form=SCIENTIFIC, lostDigits=false, roundingMode=ROUND_HALF_UP</c>) perform general-purpose floating point
+            arithmetic to nine digits of precision. The <c>MathContext</c> parameter must not be <c>null</c>.</para>
+      <para>Each operator method also has a version provided which does not take a <c>MathContext</c> parameter. For this
+            version of each method, the context settings used are <c>digits=0,
+            form=PLAIN, lostDigits=false, roundingMode=ROUND_HALF_UP</c>; these settings perform fixed point arithmetic with
+            unlimited precision, as defined for the original BigDecimal class in Java 1.1 and Java 1.2.</para>
+      <para>For monadic operators, only the optional <c>MathContext</c> parameter is present; the operation acts upon the
+            current object.</para>
+      <para>For dyadic operators, a <c>BigDecimal</c> parameter is always present; it must not be <c>null</c>. The
+            operation acts with the current object being the left-hand operand and the <c>BigDecimal</c> parameter being
+            the right-hand operand.</para>
+      <para>For example, adding two <c>BigDecimal</c> objects referred to by the names <c>award</c> and
+            <c>extra</c> could be written as any of:</para>
+      <para>
+        <c>
+                award.add(extra)
+            &lt;br&gt;award.add(extra, MathContext.DEFAULT)
+            &lt;br&gt;award.add(extra, acontext)
+            </c>
+      </para>
+      <para>(where <c>acontext</c> is a <c>MathContext</c> object), which would return a <c>BigDecimal</c>
+            object whose value is the result of adding <c>award</c> and <c>extra</c> under the appropriate context
+            settings.</para>
+      <para>When a <c>BigDecimal</c> operator method is used, a set of rules define what the result will be (and, by
+            implication, how the result would be represented as a character string). These rules are defined in the BigDecimal
+            arithmetic documentation (see the URL above), but in summary:
+            &lt;ul&gt;
+            &lt;li&gt;Results are normally calculated with up to some maximum number of significant digits. For example, if the
+            <c>MathContext</c> parameter for an operation were <c>MathContext.DEFAULT</c> then the result would be
+            rounded to 9 digits; the division of 2 by 3 would then result in 0.666666667. &lt;br&gt;
+            You can change the default of 9 significant digits by providing the method with a suitable <c>MathContext</c>
+            object. This lets you calculate using as many digits as you need -- thousands, if necessary. Fixed point (scaled)
+            arithmetic is indicated by using a <c>digits</c> setting of 0 (or omitting the <c>MathContext</c>
+            parameter). &lt;br&gt;
+            Similarly, you can change the algorithm used for rounding from the default "classic" algorithm.
+            &lt;li&gt;
+            In standard arithmetic (that is, when the <c>form</c> setting is not <c>PLAIN</c>), a zero result is
+            always expressed as the single digit <c>'0'</c> (that is, with no sign, decimal point, or exponent part).
+            &lt;li&gt;
+            Except for the division and power operators in standard arithmetic, trailing zeros are preserved (this is in contrast
+            to binary floating point operations and most electronic calculators, which lose the information about trailing zeros
+            in the fractional part of results). &lt;br&gt;
+            So, for example:</para>
+      <para>
+        <c>
+                new BigDecimal("2.40").add(     new BigDecimal("2"))      =&amp;gt; "4.40"
+            &lt;br&gt;new BigDecimal("2.40").subtract(new BigDecimal("2"))      =&amp;gt; "0.40"
+            &lt;br&gt;new BigDecimal("2.40").multiply(new BigDecimal("2"))      =&amp;gt; "4.80"
+            &lt;br&gt;new BigDecimal("2.40").divide(  new BigDecimal("2"), def) =&amp;gt; "1.2"
+            </c>
+      </para>
+      <para>where the value on the right of the <c>=&amp;gt;</c> would be the result of the operation, expressed as a
+            <c>String</c>, and <c>def</c> (in this and following examples) refers to <c>MathContext.DEFAULT</c>
+            ). This preservation of trailing zeros is desirable for most calculations (including financial calculations). If
+            necessary, trailing zeros may be easily removed using division by 1.
+            &lt;li&gt;
+            In standard arithmetic, exponential form is used for a result depending on its value and the current setting of
+            <c>digits</c> (the default is 9 digits). If the number of places needed before the decimal point exceeds the
+            <c>digits</c> setting, or the absolute value of the number is less than <c>0.000001</c>, then the number
+            will be expressed in exponential notation; thus</para>
+      <para>
+        <c>
+              new BigDecimal("1e+6").multiply(new BigDecimal("1e+6"), def)
+            </c>
+      </para>
+      <para>results in <c>1E+12</c> instead of <c>1000000000000</c>, and</para>
+      <para>
+        <c>
+              new BigDecimal("1").divide(new BigDecimal("3E+10"), def)
+            </c>
+      </para>
+      <para>results in <c>3.33333333E-11</c> instead of <c>0.0000000000333333333</c>.</para>
+      <para>The form of the exponential notation (scientific or engineering) is determined by the <c>form</c> setting.
+            &lt;/ul&gt;</para>
+      <para>The names of methods in this class follow the conventions established by <c>java.lang.Number</c>,
+            <c>java.math.BigInteger</c>, and <c>java.math.BigDecimal</c> in Java 1.1 and Java 1.2.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/math/BigDecimal" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/math/BigDecimal" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -73,10 +175,27 @@
         <Parameter Name="bd" Type="Java.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="bd">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="bd">The <c>BigDecimal</c> to be translated.</param>
+        <summary>Constructs a <c>BigDecimal</c> object from a <c>java.math.BigDecimal</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object from a <c>java.math.BigDecimal</c>.</para>
+          <para>Constructs a <c>BigDecimal</c> as though the parameter had been represented as a <c>String</c> (using
+            its <c>toString</c> method) and the <c>#BigDecimal(java.lang.String)</c> constructor had then been used.
+            The parameter must not be <c>null</c>.</para>
+          <para>
+            <i>(Note: this constructor is provided only in the <c>android.icu.math</c> version of the BigDecimal class.
+            It would not be present in a <c>java.math</c> version.)</i>
+          </para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(java.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(java.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -104,10 +223,25 @@
         <Parameter Name="bi" Type="Java.Math.BigInteger" />
       </Parameters>
       <Docs>
-        <param name="bi">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="bi">The <c>BigInteger</c> to be converted.</param>
+        <summary>Constructs a <c>BigDecimal</c> object from a <c>BigInteger</c>, with scale 0.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object from a <c>BigInteger</c>, with scale 0.</para>
+          <para>Constructs a <c>BigDecimal</c> which is the exact decimal representation of the <c>BigInteger</c>,
+            with a scale of zero. The value of the <c>BigDecimal</c> is identical to the value of the <c>BigInteger
+            </c>. The parameter must not be <c>null</c>.</para>
+          <para>The <c>BigDecimal</c> will contain only decimal digits, prefixed with a leading minus sign (hyphen) if the
+            <c>BigInteger</c> is negative. A leading zero will be present only if the <c>BigInteger</c> is zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(java.math.BigInteger)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(java.math.BigInteger)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -135,10 +269,25 @@
         <Parameter Name="inchars" Type="System.Char[]" />
       </Parameters>
       <Docs>
-        <param name="inchars">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="inchars">The <c>char[]</c> array containing the number to be converted.</param>
+        <summary>Constructs a <c>BigDecimal</c> object from an array of characters.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object from an array of characters.</para>
+          <para>Constructs a <c>BigDecimal</c> as though a <c>String</c> had been constructed from the character
+            array and the <c>#BigDecimal(java.lang.String)</c> constructor had then been used. The parameter must not be
+            <c>null</c>.</para>
+          <para>Using this constructor is faster than using the <c>BigDecimal(String)</c> constructor if the string is
+            already available in character array form.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(char[])" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(char[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -166,10 +315,26 @@
         <Parameter Name="num" Type="System.Double" />
       </Parameters>
       <Docs>
-        <param name="num">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="num">The <c>double</c> to be converted.</param>
+        <summary>Constructs a <c>BigDecimal</c> object directly from a <c>double</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object directly from a <c>double</c>.</para>
+          <para>Constructs a <c>BigDecimal</c> which is the exact decimal representation of the 64-bit signed binary
+            floating point parameter.</para>
+          <para>Note that this constructor it an exact conversion; it does not give the same result as converting <c>num
+            </c> to a <c>String</c> using the <c>Double.toString()</c> method and then using the
+            <c>#BigDecimal(java.lang.String)</c> constructor. To get that result, use the static <c>#valueOf(double)</c>
+            method to construct a <c>BigDecimal</c> from a <c>double</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(double)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(double)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -197,10 +362,23 @@
         <Parameter Name="num" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="num">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="num">The <c>int</c> to be converted.</param>
+        <summary>Constructs a <c>BigDecimal</c> object directly from a <c>int</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object directly from a <c>int</c>.</para>
+          <para>Constructs a <c>BigDecimal</c> which is the exact decimal representation of the 32-bit signed binary
+            integer parameter. The <c>BigDecimal</c> will contain only decimal digits, prefixed with a leading minus
+            sign (hyphen) if the parameter is negative. A leading zero will be present only if the parameter is zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -228,10 +406,23 @@
         <Parameter Name="num" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="num">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="num">The <c>long</c> to be converted.</param>
+        <summary>Constructs a <c>BigDecimal</c> object directly from a <c>long</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object directly from a <c>long</c>.</para>
+          <para>Constructs a <c>BigDecimal</c> which is the exact decimal representation of the 64-bit signed binary
+            integer parameter. The <c>BigDecimal</c> will contain only decimal digits, prefixed with a leading minus
+            sign (hyphen) if the parameter is negative. A leading zero will be present only if the parameter is zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(long)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -259,10 +450,43 @@
         <Parameter Name="string" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="string">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="string">The <c>String</c> to be converted.</param>
+        <summary>Constructs a <c>BigDecimal</c> object from a <c>String</c>.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object from a <c>String</c>.</para>
+          <para>Constructs a <c>BigDecimal</c> from the parameter, which must not be <c>null</c> and must represent a
+            valid <i>number</i>, as described formally in the documentation referred to <c>BigDecimal above</c>.</para>
+          <para>In summary, numbers in <c>String</c> form must have at least one digit, may have a leading sign, may have a
+            decimal point, and exponential notation may be used. They follow conventional syntax, and may not contain blanks.</para>
+          <para>Some valid strings from which a <c>BigDecimal</c> might be constructed are:</para>
+          <code lang="text/java">"0" -- Zero "12" -- A whole number "-76" -- A signed whole number "12.70" -- Some decimal places "+0.003" -- Plus
+            sign is allowed "17." -- The same as 17 ".5" -- The same as 0.5 "4E+9" -- Exponential notation "0.73e-7" --
+            Exponential notation
+            
+            </code>
+          <para>(Exponential notation means that the number includes an optional sign and a power of ten following an
+            '<c>E</c>' that indicates how the decimal point will be shifted. Thus the <c>"4E+9"</c> above is
+            just a short way of writing <c>4000000000</c>, and the <c>"0.73e-7"</c> is short for <c>
+            0.000000073</c>.)</para>
+          <para>The <c>BigDecimal</c> constructed from the String is in a standard form, with no blanks, as though the
+            <c>#add(BigDecimal)</c> method had been used to add zero to the number with unlimited precision. If the string
+            uses exponential notation (that is, includes an <c>e</c> or an <c>E</c>), then the <c>BigDecimal
+            </c> number will be expressed in scientific notation (where the power of ten is adjusted so there is a single
+            non-zero digit to the left of the decimal point); in this case if the number is zero then it will be expressed as
+            the single digit 0, and if non-zero it will have an exponent unless that exponent would be 0. The exponent must
+            fit in nine digits both before and after it is expressed in scientific notation.</para>
+          <para>Any digits in the parameter must be decimal; that is, <c>Character.digit(c, 10)</c> (where <c>c</c>
+            is the character in question) would not return -1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -291,11 +515,28 @@
         <Parameter Name="scale" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="bi">To be added.</param>
-        <param name="scale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="bi">The <c>BigInteger</c> to be converted.</param>
+        <param name="scale">The <c>int</c> specifying the scale.</param>
+        <summary>Constructs a <c>BigDecimal</c> object from a <c>BigInteger</c> and a scale.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object from a <c>BigInteger</c> and a scale.</para>
+          <para>Constructs a <c>BigDecimal</c> which is the exact decimal representation of the <c>BigInteger</c>,
+            scaled by the second parameter, which may not be negative. The value of the <c>BigDecimal</c> is the <c>
+            BigInteger</c> divided by ten to the power of the scale. The <c>BigInteger</c> parameter must not be
+            <c>null</c>.</para>
+          <para>The <c>BigDecimal</c> will contain only decimal digits, (with an embedded decimal point followed by <c>
+            scale</c> decimal digits if the scale is positive), prefixed with a leading minus sign (hyphen) if the <c>
+            BigInteger</c> is negative. A leading zero will be present only if the <c>BigInteger</c> is zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(java.math.BigInteger,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(java.math.BigInteger, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -348,12 +589,27 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="inchars">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="inchars">The <c>char[]</c> array containing the number to be converted.</param>
+        <param name="offset">The <c>int</c> offset into the array of the start of the number to be converted.</param>
+        <param name="length">The <c>int</c> length of the number.</param>
+        <summary>Constructs a <c>BigDecimal</c> object from an array of characters.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Constructs a <c>BigDecimal</c> object from an array of characters.</para>
+          <para>Constructs a <c>BigDecimal</c> as though a <c>String</c> had been constructed from the character
+            array (or a subarray of that array) and the <c>#BigDecimal(java.lang.String)</c> constructor had then been used.
+            The first parameter must not be <c>null</c>, and the subarray must be wholly contained within it.</para>
+          <para>Using this constructor is faster than using the <c>BigDecimal(String)</c> constructor if the string is
+            already available within a character array.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#BigDecimal(char[],%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.BigDecimal(char[], int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -382,10 +638,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is the absolute value of this <c>BigDecimal</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the absolute value of this <c>BigDecimal</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is the absolute value of this <c>BigDecimal</c>.</para>
+          <para>The same as <c>#abs(MathContext)</c>, where the context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>The length of the decimal part (the scale) of the result will be <c>this.scale()</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#abs()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.abs()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -416,11 +684,24 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is the absolute value of this <c>BigDecimal</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the absolute value of this <c>BigDecimal</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is the absolute value of this <c>BigDecimal</c>.</para>
+          <para>If the current object is zero or positive, then the same result as invoking the <c>#plus(MathContext)</c> method
+            with the same parameter is returned. Otherwise, the same result as invoking the <c>#negate(MathContext)</c>
+            method with the same parameter is returned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#abs(android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.abs(android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -451,11 +732,24 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the addition.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>this+rhs</c>, using fixed point arithmetic.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this+rhs</c>, using fixed point arithmetic.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>this+rhs</c>, using fixed point arithmetic.</para>
+          <para>The same as <c>#add(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>, and the
+            context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>The length of the decimal part (the scale) of the result will be the maximum of the scales of the two operands.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#add(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.add(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -487,12 +781,24 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the addition.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is <c>this+rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this+rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is <c>this+rhs</c>.</para>
+          <para>Implements the addition (&lt;b&gt;<c>+</c>&lt;/b&gt;) operator (as defined in the decimal documentation, see
+            <c>BigDecimal class header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#add(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.add(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -521,10 +827,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>byte</c>.</summary>
+        <returns>A <c>byte</c> equal in value to <c>this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>byte</c>. If the <c>BigDecimal</c> has a non-zero
+            decimal part or is out of the possible range for a <c>byte</c> (8-bit signed integer) result then an <c>
+            ArithmeticException</c> is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#byteValueExact()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.byteValueExact()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -555,11 +873,24 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the comparison.</param>
+        <summary>Compares this <c>BigDecimal</c> to another, using unlimited precision.</summary>
+        <returns>An <c>int</c> whose value is -1, 0, or 1 as <c>this</c> is numerically less than, equal to,
+                    or greater than <c>rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compares this <c>BigDecimal</c> to another, using unlimited precision.</para>
+          <para>The same as <c>#compareTo(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>,
+            and the context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#compareTo(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.compareTo(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -591,12 +922,38 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the comparison.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Compares this <c>BigDecimal</c> to another.</summary>
+        <returns>An <c>int</c> whose value is -1, 0, or 1 as <c>this</c> is numerically less than, equal to,
+                    or greater than <c>rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Compares this <c>BigDecimal</c> to another.</para>
+          <para>Implements numeric comparison, (as defined in the decimal documentation, see <c>BigDecimal class header</c>),
+            and returns a result of type <c>int</c>.</para>
+          <para>The result will be:
+            &lt;table cellpadding=2&gt;
+            &lt;tr&gt;
+            &lt;td align=right&gt;&lt;b&gt;-1&lt;/b&gt;&lt;/td&gt; &lt;td&gt;if the current object is less than the first parameter&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td align=right&gt;&lt;b&gt;0&lt;/b&gt;&lt;/td&gt; &lt;td&gt;if the current object is equal to the first parameter&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td align=right&gt;&lt;b&gt;1&lt;/b&gt;&lt;/td&gt; &lt;td&gt;if the current object is greater than the first parameter.&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;/table&gt;</para>
+          <para>A <c>#compareTo(BigDecimal)</c> method is also provided.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#compareTo(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.compareTo(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -627,11 +984,26 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the division.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic.</summary>
+        <returns>A plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic.</para>
+          <para>The same as <c>#divide(BigDecimal, int)</c>, where the <c>BigDecimal</c> is <c>rhs</c>, and the
+            rounding mode is <c>MathContext#ROUND_HALF_UP</c>.
+            
+            The length of the decimal part (the scale) of the result will be the same as the scale of the current object, if
+            the latter were formatted without exponential notation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#divide(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.divide(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -663,12 +1035,24 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the division.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is <c>this/rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this/rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is <c>this/rhs</c>.</para>
+          <para>Implements the division (&lt;b&gt;<c>/</c>&lt;/b&gt;) operator (as defined in the decimal documentation, see
+            <c>BigDecimal class header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#divide(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.divide(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -707,12 +1091,30 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="round">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the division.</param>
+        <param name="round">The <c>int</c> rounding mode to be used for the division (see the <c>MathContext</c> class).</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic and a
+            rounding mode.</summary>
+        <returns>A plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic and
+                    the specified rounding mode.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic and a
+            rounding mode.</para>
+          <para>The same as <c>#divide(BigDecimal, int, int)</c>, where the <c>BigDecimal</c> is <c>rhs</c>, and the
+            second parameter is <c>this.scale()</c>, and the third is <c>round</c>.</para>
+          <para>The length of the decimal part (the scale) of the result will therefore be the same as the scale of the current
+            object, if the latter were formatted without exponential notation.</para>
+          <para />
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#divide(android.icu.math.BigDecimal,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.divide(android.icu.math.BigDecimal, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -752,13 +1154,32 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="scale">To be added.</param>
-        <param name="round">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the division.</param>
+        <param name="scale">The <c>int</c> scale to be used for the result.</param>
+        <param name="round">The <c>int</c> rounding mode to be used for the division (see the <c>MathContext</c> class).</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic and a
+            given scale and rounding mode.</summary>
+        <returns>A plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic and
+                    the specified rounding mode.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>this/rhs</c>, using fixed point arithmetic and a
+            given scale and rounding mode.</para>
+          <para>The same as <c>#divide(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>,
+            <c>new MathContext(0, MathContext.PLAIN, false, round)</c>, except that the length of the decimal part (the
+            scale) to be used for the result is explicit rather than being taken from <c>this</c>.</para>
+          <para>The length of the decimal part (the scale) of the result will be the same as the scale of the current object, if
+            the latter were formatted without exponential notation.</para>
+          <para />
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#divide(android.icu.math.BigDecimal,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.divide(android.icu.math.BigDecimal, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -789,11 +1210,23 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the integer division.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is the integer part of <c>this/rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the integer part of <c>this/rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is the integer part of <c>this/rhs</c>.</para>
+          <para>The same as <c>#divideInteger(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs
+            </c>, and the context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#divideInteger(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.divideInteger(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -825,12 +1258,24 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the integer division.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is the integer part of <c>this/rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the integer part of <c>this/rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is the integer part of <c>this/rhs</c>.</para>
+          <para>Implements the integer division operator (as defined in the decimal documentation, see <c>BigDecimal class
+            header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#divideInteger(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.divideInteger(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -859,10 +1304,25 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>double</c>.</summary>
+        <returns>A <c>double</c> corresponding to <c>this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>double</c>. If the <c>BigDecimal</c> is out of the
+            possible range for a <c>double</c> (64-bit signed floating point) result then an <c>ArithmeticException
+            </c> is thrown.</para>
+          <para>The double produced is identical to result of expressing the <c>BigDecimal</c> as a <c>String</c> and
+            then converting it using the <c>Double(String)</c> constructor; this can result in values of <c>
+            Double.NEGATIVE_INFINITY</c> or <c>Double.POSITIVE_INFINITY</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#doubleValue()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.doubleValue()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -891,10 +1351,25 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>float</c>.</summary>
+        <returns>A <c>float</c> corresponding to <c>this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>float</c>. If the <c>BigDecimal</c> is out of the
+            possible range for a <c>float</c> (32-bit signed floating point) result then an <c>ArithmeticException
+            </c> is thrown.</para>
+          <para>The float produced is identical to result of expressing the <c>BigDecimal</c> as a <c>String</c> and
+            then converting it using the <c>Float(String)</c> constructor; this can result in values of <c>
+            Float.NEGATIVE_INFINITY</c> or <c>Float.POSITIVE_INFINITY</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#floatValue()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.floatValue()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -926,12 +1401,47 @@
         <Parameter Name="after" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="before">To be added.</param>
-        <param name="after">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="before">The <c>int</c> specifying the number of places before the decimal point. Use -1 for 'as many as are needed'.</param>
+        <param name="after">The <c>int</c> specifying the number of places after the decimal point. Use -1 for 'as many as are needed'.</param>
+        <summary>Returns the <c>String</c> representation of this <c>BigDecimal</c>, modified by layout parameters.</summary>
+        <returns>A <c>String</c> representing this <c>BigDecimal</c>, laid out according to the specified parameters</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the <c>String</c> representation of this <c>BigDecimal</c>, modified by layout parameters.</para>
+          <para>
+            <i>This method is provided as a primitive for use by more sophisticated classes, such as <c>DecimalFormat
+            </c>, that can apply locale-sensitive editing of the result. The level of formatting that it provides is a
+            necessary part of the BigDecimal class as it is sensitive to and must follow the calculation and rounding rules
+            for BigDecimal arithmetic. However, if the function is provided elsewhere, it may be removed from this class.
+            </i>
+          </para>
+          <para>The parameters, for both forms of the <c>format</c> method are all of type <c>int</c>. A value of -1
+            for any parameter indicates that the default action or value for that parameter should be used.</para>
+          <para>The parameters, <c>before</c> and <c>after</c>, specify the number of characters to be used for the
+            integer part and decimal part of the result respectively. Exponential notation is not used. If either parameter
+            is -1 (which indicates the default action), the number of characters used will be exactly as many as are needed
+            for that part.</para>
+          <para>
+            <c>before</c> must be a positive number; if it is larger than is needed to contain the integer part, that
+            part is padded on the left with blanks to the requested length. If <c>before</c> is not large enough to
+            contain the integer part of the number (including the sign, for negative numbers) an exception is thrown.</para>
+          <para>
+            <c>after</c> must be a non-negative number; if it is not the same size as the decimal part of the number,
+            the number will be rounded (or extended with zeros) to fit. Specifying 0 for <c>after</c> will cause the
+            number to be rounded to an integer (that is, it will have no decimal part or decimal point). The rounding method
+            will be the default, <c>MathContext.ROUND_HALF_UP</c>.</para>
+          <para>Other rounding methods, and the use of exponential notation, can be selected by using
+            <c>#format(int,int,int,int,int,int)</c>. Using the two-parameter form of the method has exactly the same effect
+            as using the six-parameter form with the final four parameters all being -1.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#format(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.format(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -974,16 +1484,76 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="before">To be added.</param>
-        <param name="after">To be added.</param>
-        <param name="explaces">To be added.</param>
-        <param name="exdigits">To be added.</param>
-        <param name="exformint">To be added.</param>
-        <param name="exround">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="before">The <c>int</c> specifying the number of places before the decimal point. Use -1 for 'as many as
+                       are needed'.</param>
+        <param name="after">The <c>int</c> specifying the number of places after the decimal point. Use -1 for 'as many as
+                       are needed'.</param>
+        <param name="explaces">The <c>int</c> specifying the number of places to be used for any exponent. Use -1 for 'as many
+                       as are needed'.</param>
+        <param name="exdigits">The <c>int</c> specifying the trigger (digits before the decimal point) which if exceeded causes
+                       exponential notation to be used. Use 0 to force exponential notation. Use -1 to force plain notation
+                       (no exponential notation).</param>
+        <param name="exformint">The <c>int</c> specifying the form of exponential notation to be used (
+                       <c>MathContext#SCIENTIFIC</c> or <c>MathContext#ENGINEERING</c>).</param>
+        <param name="exround">The <c>int</c> specifying the rounding mode to use. Use -1 for the default,
+                       <c>MathContext#ROUND_HALF_UP</c>.</param>
+        <summary>Returns the <c>String</c> representation of this <c>BigDecimal</c>, modified by layout parameters and
+            allowing exponential notation.</summary>
+        <returns>A <c>String</c> representing this <c>BigDecimal</c>, laid out according to the specified
+                    parameters</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the <c>String</c> representation of this <c>BigDecimal</c>, modified by layout parameters and
+            allowing exponential notation.</para>
+          <para>
+            <i>This method is provided as a primitive for use by more sophisticated classes, such as <c>DecimalFormat
+            </c>, that can apply locale-sensitive editing of the result. The level of formatting that it provides is a
+            necessary part of the BigDecimal class as it is sensitive to and must follow the calculation and rounding rules
+            for BigDecimal arithmetic. However, if the function is provided elsewhere, it may be removed from this class.
+            </i>
+          </para>
+          <para>The parameters are all of type <c>int</c>. A value of -1 for any parameter indicates that the default
+            action or value for that parameter should be used.</para>
+          <para>The first two parameters (<c>before</c> and <c>after</c>) specify the number of characters to be used
+            for the integer part and decimal part of the result respectively, as defined for <c>#format(int,int)</c>. If
+            either of these is -1 (which indicates the default action), the number of characters used will be exactly as many
+            as are needed for that part.</para>
+          <para>The remaining parameters control the use of exponential notation and rounding. Three (<c>explaces</c>,
+            <c>exdigits</c>, and <c>exform</c>) control the exponent part of the result. As before, the default
+            action for any of these parameters may be selected by using the value -1.</para>
+          <para>
+            <c>explaces</c> must be a positive number; it sets the number of places (digits after the sign of the
+            exponent) to be used for any exponent part, the default (when <c>explaces</c> is -1) being to use as many
+            as are needed. If <c>explaces</c> is not -1, space is always reserved for an exponent; if one is not needed
+            (for example, if the exponent will be 0) then <c>explaces</c>+2 blanks are appended to the result.
+            (This preserves vertical alignment of similarly formatted numbers in a monospace font.) If <c>explaces
+            </c> is not -1 and is not large enough to contain the exponent, an exception is thrown.</para>
+          <para>
+            <c>exdigits</c> sets the trigger point for use of exponential notation. If, before any rounding, the number
+            of places needed before the decimal point exceeds <c>exdigits</c>, or if the absolute value of the result
+            is less than <c>0.000001</c>, then exponential form will be used, provided that <c>exdigits</c> was
+            specified. When <c>exdigits</c> is -1, exponential notation will never be used. If 0 is specified for
+            <c>exdigits</c>, exponential notation is always used unless the exponent would be 0.</para>
+          <para>
+            <c>exform</c> sets the form for exponential notation (if needed). It may be either
+            <c>MathContext#SCIENTIFIC</c> or <c>MathContext#ENGINEERING</c>. If the latter, engineering, form is requested,
+            up to three digits (plus sign, if negative) may be needed for the integer part of the result (<c>before</c>
+            ). Otherwise, only one digit (plus sign, if negative) is needed.</para>
+          <para>Finally, the sixth argument, <c>exround</c>, selects the rounding algorithm to be used, and must be one of
+            the values indicated by a public constant in the <c>MathContext</c> class whose name starts with <c>ROUND_
+            </c>. The default (<c>ROUND_HALF_UP</c>) may also be selected by using the value -1, as before.</para>
+          <para>The special value <c>MathContext.ROUND_UNNECESSARY</c> may be used to detect whether non-zero digits are
+            discarded -- if <c>exround</c> has this value than if non-zero digits would be discarded (rounded) during
+            formatting then an <c>ArithmeticException</c> is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#format(int,%20int,%20int,%20int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.format(int, int, int, int, int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1012,10 +1582,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to an <c>int</c>.</summary>
+        <returns>An <c>int</c> converted from <c>this</c>, truncated and decapitated if necessary.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to an <c>int</c>. If the <c>BigDecimal</c> has a non-zero
+            decimal part it is discarded. If the <c>BigDecimal</c> is out of the possible range for an <c>int</c>
+            (32-bit signed integer) result then only the low-order 32 bits are used. (That is, the number may be
+            <i>decapitated</i>.) To avoid unexpected errors when these conditions occur, use the <c>#intValueExact</c>
+            method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#intValue()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.intValue()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1044,10 +1628,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to an <c>int</c>.</summary>
+        <returns>An <c>int</c> equal in value to <c>this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to an <c>int</c>. If the <c>BigDecimal</c> has a non-zero
+            decimal part or is out of the possible range for an <c>int</c> (32-bit signed integer) result then an
+            <c>ArithmeticException</c> is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#intValueExact()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.intValueExact()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1101,6 +1697,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -1138,10 +1738,24 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>long</c>.</summary>
+        <returns>A <c>long</c> converted from <c>this</c>, truncated and decapitated if necessary.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>long</c>. If the <c>BigDecimal</c> has a non-zero
+            decimal part it is discarded. If the <c>BigDecimal</c> is out of the possible range for a <c>long</c>
+            (64-bit signed integer) result then only the low-order 64 bits are used. (That is, the number may be
+            <i>decapitated</i>.) To avoid unexpected errors when these conditions occur, use the <c>#longValueExact</c>
+            method.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#longValue()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.longValue()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1170,10 +1784,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>long</c>.</summary>
+        <returns>A <c>long</c> equal in value to <c>this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>long</c>. If the <c>BigDecimal</c> has a non-zero
+            decimal part or is out of the possible range for a <c>long</c> (64-bit signed integer) result then an
+            <c>ArithmeticException</c> is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#longValueExact()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.longValueExact()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1204,11 +1830,23 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the comparison.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is the maximum of <c>this</c> and <c>rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the maximum of <c>this</c> and <c>rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is the maximum of <c>this</c> and <c>rhs</c>.</para>
+          <para>The same as <c>#max(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>, and the
+            context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#max(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.max(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1240,12 +1878,28 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the comparison.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is the maximum of <c>this</c> and <c>rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the maximum of <c>this</c> and <c>rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is the maximum of <c>this</c> and <c>rhs</c>.</para>
+          <para>Returns the larger of the current object and the first parameter.</para>
+          <para>If calling the <c>#compareTo(BigDecimal, MathContext)</c> method with the same parameters would return <c>1
+            </c> or <c>0</c>, then the result of calling the <c>#plus(MathContext)</c> method on the current object
+            (using the same <c>MathContext</c> parameter) is returned. Otherwise, the result of calling the
+            <c>#plus(MathContext)</c> method on the first parameter object (using the same <c>MathContext</c>
+            parameter) is returned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#max(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.max(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1276,11 +1930,23 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the comparison.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is the minimum of <c>this</c> and <c>rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the minimum of <c>this</c> and <c>rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is the minimum of <c>this</c> and <c>rhs</c>.</para>
+          <para>The same as <c>#min(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>, and the
+            context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#min(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.min(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1312,12 +1978,28 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the comparison.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is the minimum of <c>this</c> and <c>rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the minimum of <c>this</c> and <c>rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is the minimum of <c>this</c> and <c>rhs</c>.</para>
+          <para>Returns the smaller of the current object and the first parameter.</para>
+          <para>If calling the <c>#compareTo(BigDecimal, MathContext)</c> method with the same parameters would return <c>-1
+            </c> or <c>0</c>, then the result of calling the <c>#plus(MathContext)</c> method on the current object
+            (using the same <c>MathContext</c> parameter) is returned. Otherwise, the result of calling the
+            <c>#plus(MathContext)</c> method on the first parameter object (using the same <c>MathContext</c>
+            parameter) is returned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#min(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.min(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1348,11 +2030,31 @@
         <Parameter Name="n" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="n">The <c>int</c> specifying the number of places to move the decimal point leftwards.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose decimal point has been moved to the left by a specified number of
+            positions.</summary>
+        <returns>A <c>BigDecimal</c> derived from <c>this</c>, with the decimal point moved <c>n</c>
+                    places to the left.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose decimal point has been moved to the left by a specified number of
+            positions. The parameter, <c>n</c>, specifies the number of positions to move the decimal point. That is,
+            if <c>n</c> is 0 or positive, the number returned is given by:</para>
+          <para>
+            <c> this.multiply(TEN.pow(new BigDecimal(-n))) </c>
+          </para>
+          <para>
+            <c>n</c> may be negative, in which case the method returns the same result as <c>movePointRight(-n)
+            </c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#movePointLeft(int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.movePointLeft(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1383,11 +2085,31 @@
         <Parameter Name="n" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="n">The <c>int</c> specifying the number of places to move the decimal point rightwards.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose decimal point has been moved to the right by a specified number of
+            positions.</summary>
+        <returns>A <c>BigDecimal</c> derived from <c>this</c>, with the decimal point moved <c>n</c>
+                    places to the right.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose decimal point has been moved to the right by a specified number of
+            positions. The parameter, <c>n</c>, specifies the number of positions to move the decimal point. That is,
+            if <c>n</c> is 0 or positive, the number returned is given by:</para>
+          <para>
+            <c> this.multiply(TEN.pow(new BigDecimal(n))) </c>
+          </para>
+          <para>
+            <c>n</c> may be negative, in which case the method returns the same result as <c>movePointLeft(-n)
+            </c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#movePointRight(int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.movePointRight(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1418,11 +2140,25 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the multiplication.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>this*rhs</c>, using fixed point arithmetic.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this*rhs</c>, using fixed point arithmetic.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>this*rhs</c>, using fixed point arithmetic.</para>
+          <para>The same as <c>#add(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>, and the
+            context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>The length of the decimal part (the scale) of the result will be the sum of the scales of the operands, if they
+            were formatted without exponential notation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#multiply(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.multiply(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1454,12 +2190,24 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the multiplication.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is <c>this*rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this*rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is <c>this*rhs</c>.</para>
+          <para>Implements the multiplication (&lt;b&gt;<c>&amp;#42;</c>&lt;/b&gt;) operator (as defined in the decimal documentation, see
+            <c>BigDecimal class header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#multiply(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.multiply(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1488,10 +2236,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>-this</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>-this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>-this</c>.</para>
+          <para>The same as <c>#negate(MathContext)</c>, where the context is <c>new MathContext(0, MathContext.PLAIN)</c>
+            .</para>
+          <para>The length of the decimal part (the scale) of the result will be be <c>this.scale()</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#negate()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.negate()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1522,11 +2283,23 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is <c>-this</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>-this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is <c>-this</c>.</para>
+          <para>Implements the negation (Prefix &lt;b&gt;<c>-</c>&lt;/b&gt;) operator (as defined in the decimal documentation, see
+            <c>BigDecimal class header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#negate(android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.negate(android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1554,10 +2327,20 @@
         <ReturnType>Android.Icu.Math.BigDecimal</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The <c>BigDecimal</c> constant "1".</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The <c>BigDecimal</c> constant "1".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ONE" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ONE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1586,10 +2369,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>+this</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>+this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>+this</c>. Note that <c>this</c> is not
+            necessarily a plain <c>BigDecimal</c>, but the result will always be.</para>
+          <para>The same as <c>#plus(MathContext)</c>, where the context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>The length of the decimal part (the scale) of the result will be be <c>this.scale()</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#plus()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.plus()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1620,11 +2416,24 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is <c>+this</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>+this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is <c>+this</c>.</para>
+          <para>Implements the plus (Prefix &lt;b&gt;<c>+</c>&lt;/b&gt;) operator (as defined in the decimal documentation, see
+            <c>BigDecimal class header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>This method is useful for rounding or otherwise applying a context to a decimal value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#plus(android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.plus(android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1655,11 +2464,28 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the operation (the power).</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>this**rhs</c>, using fixed point arithmetic.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this**rhs</c>, using fixed point arithmetic.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>this**rhs</c>, using fixed point arithmetic.</para>
+          <para>The same as <c>#pow(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>, and the
+            context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>The parameter is the power to which the <c>this</c> will be raised; it must be in the range 0 through
+            999999999, and must have a decimal part of zero. Note that these restrictions may be removed in the future, so
+            they should not be used as a test for a whole number.</para>
+          <para>In addition, the power must not be negative, as no <c>MathContext</c> is used and so the result would then
+            always be 0.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#pow(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.pow(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1691,12 +2517,29 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the operation (the power).</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is <c>this**rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this**rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is <c>this**rhs</c>.</para>
+          <para>Implements the power (&lt;b&gt;<c>^</c>&lt;/b&gt;) operator (as defined in the decimal documentation, see
+            <c>BigDecimal class header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>The first parameter is the power to which the <c>this</c> will be raised; it must be in the range
+            -999999999 through 999999999, and must have a decimal part of zero. Note that these restrictions may be removed
+            in the future, so they should not be used as a test for a whole number.</para>
+          <para>If the <c>digits</c> setting of the <c>MathContext</c> parameter is 0, the power must be zero or
+            positive.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#pow(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.pow(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1727,11 +2570,27 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the remainder operation.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is the remainder of <c>this/rhs</c>, using fixed point
+            arithmetic.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the remainder of <c>this/rhs</c>, using fixed point
+                    arithmetic.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is the remainder of <c>this/rhs</c>, using fixed point
+            arithmetic.</para>
+          <para>The same as <c>#remainder(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>,
+            and the context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>This is not the modulo operator -- the result may be negative.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#remainder(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.remainder(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1763,12 +2622,25 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the remainder operation.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is the remainder of <c>this/rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is the remainder of <c>this+rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is the remainder of <c>this/rhs</c>.</para>
+          <para>Implements the remainder operator (as defined in the decimal documentation, see <c>BigDecimal class header</c>),
+            and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>This is not the modulo operator -- the result may be negative.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#remainder(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.remainder(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1801,9 +2673,19 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to round to a more positive number.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to round to a more positive number.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_CEILING" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_CEILING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1836,9 +2718,19 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to round towards zero.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to round towards zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_DOWN" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_DOWN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1871,9 +2763,19 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to round to a more negative number.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to round to a more negative number.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_FLOOR" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_FLOOR</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1906,9 +2808,19 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to round to nearest neighbor, where an equidistant value is rounded down.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to round to nearest neighbor, where an equidistant value is rounded down.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_HALF_DOWN" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_HALF_DOWN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1941,9 +2853,19 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to round to nearest neighbor, where an equidistant value is rounded to the nearest even neighbor.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to round to nearest neighbor, where an equidistant value is rounded to the nearest even neighbor.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_HALF_EVEN" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_HALF_EVEN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1976,9 +2898,19 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to round to nearest neighbor, where an equidistant value is rounded up.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to round to nearest neighbor, where an equidistant value is rounded up.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_HALF_UP" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_HALF_UP</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2011,9 +2943,19 @@
       </ReturnValue>
       <MemberValue>7</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to assert that no rounding is necessary.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to assert that no rounding is necessary.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_UNNECESSARY" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_UNNECESSARY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2046,9 +2988,19 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Rounding mode to round away from zero.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Rounding mode to round away from zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ROUND_UP" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ROUND_UP</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2077,10 +3029,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the scale of this <c>BigDecimal</c>.</summary>
+        <returns>An <c>int</c> whose value is the scale of this <c>BigDecimal</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the scale of this <c>BigDecimal</c>. Returns a non-negative <c>int</c> which is the scale of
+            the number. The scale is the number of digits in the decimal part of the number if the number were formatted
+            without exponential notation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#scale()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.scale()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2111,11 +3075,28 @@
         <Parameter Name="scale" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="scale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="scale">The <c>int</c> specifying the scale of the resulting <c>BigDecimal</c>.</param>
+        <summary>Returns a plain <c>BigDecimal</c> with a given scale.</summary>
+        <returns>A plain <c>BigDecimal</c> with the given scale.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> with a given scale.</para>
+          <para>If the given scale (which must be zero or positive) is the same as or greater than the length of the decimal part
+            (the scale) of this <c>BigDecimal</c> then trailing zeros will be added to the decimal part as necessary.</para>
+          <para>If the given scale is less than the length of the decimal part (the scale) of this <c>BigDecimal</c> then
+            trailing digits will be removed, and in this case an <c>ArithmeticException</c> is thrown if any discarded
+            digits are non-zero.</para>
+          <para>The same as <c>#setScale(int, int)</c>, where the first parameter is the scale, and the second is <c>
+            MathContext.ROUND_UNNECESSARY</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#setScale(int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.setScale(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2154,12 +3135,30 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="scale">To be added.</param>
-        <param name="round">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="scale">The <c>int</c> specifying the scale of the resulting <c>BigDecimal</c>.</param>
+        <param name="round">The <c>int</c> rounding mode to be used for the division (see the <c>MathContext</c> class).</param>
+        <summary>Returns a plain <c>BigDecimal</c> with a given scale.</summary>
+        <returns>A plain <c>BigDecimal</c> with the given scale.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> with a given scale.</para>
+          <para>If the given scale (which must be zero or positive) is the same as or greater than the length of the decimal part
+            (the scale) of this <c>BigDecimal</c> then trailing zeros will be added to the decimal part as necessary.</para>
+          <para>If the given scale is less than the length of the decimal part (the scale) of this <c>BigDecimal</c> then
+            trailing digits will be removed, and the rounding mode given by the second parameter is used to determine if the
+            remaining digits are affected by a carry. In this case, an <c>IllegalArgumentException</c> is thrown if
+            <c>round</c> is not a valid rounding mode.</para>
+          <para>If <c>round</c> is <c>MathContext.ROUND_UNNECESSARY</c>, an <c>ArithmeticException</c> is
+            thrown if any discarded digits are non-zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#setScale(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.setScale(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2188,10 +3187,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>short</c>.</summary>
+        <returns>A <c>short</c> equal in value to <c>this</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>short</c>. If the <c>BigDecimal</c> has a non-zero
+            decimal part or is out of the possible range for a <c>short</c> (16-bit signed integer) result then an
+            <c>ArithmeticException</c> is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#shortValueExact()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.shortValueExact()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2220,10 +3231,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the sign of this <c>BigDecimal</c>, as an <c>int</c>.</summary>
+        <returns>An <c>int</c> which is -1 if the <c>BigDecimal</c> is negative, 0 if it is numerically equal
+                    to zero, or 1 if it is positive.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the sign of this <c>BigDecimal</c>, as an <c>int</c>. This returns the <i>signum</i> function
+            value that represents the sign of this <c>BigDecimal</c>. That is, -1 if the <c>BigDecimal</c> is
+            negative, 0 if it is numerically equal to zero, or 1 if it is positive.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#signum()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.signum()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2254,11 +3278,24 @@
         <Parameter Name="rhs" Type="Android.Icu.Math.BigDecimal" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the subtraction.</param>
+        <summary>Returns a plain <c>BigDecimal</c> whose value is <c>this-rhs</c>, using fixed point arithmetic.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this-rhs</c>, using fixed point arithmetic.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a plain <c>BigDecimal</c> whose value is <c>this-rhs</c>, using fixed point arithmetic.</para>
+          <para>The same as <c>#subtract(BigDecimal, MathContext)</c>, where the <c>BigDecimal</c> is <c>rhs</c>,
+            and the context is <c>new MathContext(0, MathContext.PLAIN)</c>.</para>
+          <para>The length of the decimal part (the scale) of the result will be the maximum of the scales of the two operands.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#subtract(android.icu.math.BigDecimal)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.subtract(android.icu.math.BigDecimal)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2290,12 +3327,24 @@
         <Parameter Name="set" Type="Android.Icu.Math.MathContext" />
       </Parameters>
       <Docs>
-        <param name="rhs">To be added.</param>
-        <param name="set">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rhs">The <c>BigDecimal</c> for the right hand side of the subtraction.</param>
+        <param name="set">The <c>MathContext</c> arithmetic settings.</param>
+        <summary>Returns a <c>BigDecimal</c> whose value is <c>this-rhs</c>.</summary>
+        <returns>A <c>BigDecimal</c> whose value is <c>this-rhs</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a <c>BigDecimal</c> whose value is <c>this-rhs</c>.</para>
+          <para>Implements the subtraction (&lt;b&gt;<c>-</c>&lt;/b&gt;) operator (as defined in the decimal documentation, see
+            <c>BigDecimal class header</c>), and returns the result as a <c>BigDecimal</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#subtract(android.icu.math.BigDecimal,%20android.icu.math.MathContext)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.subtract(android.icu.math.BigDecimal, android.icu.math.MathContext)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2323,10 +3372,20 @@
         <ReturnType>Android.Icu.Math.BigDecimal</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The <c>BigDecimal</c> constant "10".</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The <c>BigDecimal</c> constant "10".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#TEN" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.TEN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2380,6 +3439,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -2417,10 +3480,27 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>java.math.BigDecimal</c>.</summary>
+        <returns>The <c>java.math.BigDecimal</c> equal in value to this <c>BigDecimal</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>java.math.BigDecimal</c>.</para>
+          <para>This is an exact conversion; the result is the same as if the <c>BigDecimal</c> were formatted as a plain
+            number without any rounding or exponent and then the <c>java.math.BigDecimal(java.lang.String)</c>
+            constructor were used to construct the result.</para>
+          <para>
+            <i>(Note: this method is provided only in the <c>android.icu.math</c> version of the BigDecimal class. It
+            would not be present in a <c>java.math</c> version.)</i>
+          </para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#toBigDecimal()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.toBigDecimal()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2449,10 +3529,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>java.math.BigInteger</c>.</summary>
+        <returns>The <c>java.math.BigInteger</c> equal in value to the integer part of this <c>BigDecimal</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>java.math.BigInteger</c>.</para>
+          <para>Any decimal part is truncated (discarded). If an exception is desired should the decimal part be non-zero, use
+            <c>#toBigIntegerExact()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#toBigInteger()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.toBigInteger()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2481,10 +3573,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Converts this <c>BigDecimal</c> to a <c>java.math.BigInteger</c>.</summary>
+        <returns>The <c>java.math.BigInteger</c> equal in value to the integer part of this <c>BigDecimal</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this <c>BigDecimal</c> to a <c>java.math.BigInteger</c>.</para>
+          <para>An exception is thrown if the decimal part (if any) is non-zero.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#toBigIntegerExact()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.toBigIntegerExact()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2513,10 +3616,22 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the <c>BigDecimal</c> as a character array.</summary>
+        <returns>The <c>char[]</c> array corresponding to this <c>BigDecimal</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the <c>BigDecimal</c> as a character array. The result of this method is the same as using the
+            sequence <c>toString().toCharArray()</c>, but avoids creating the intermediate <c>String</c> and
+            <c>char[]</c> objects.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#toCharArray()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.toCharArray()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2545,10 +3660,23 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the number as a <c>BigInteger</c> after removing the scale.</summary>
+        <returns>The <c>java.math.BigInteger</c> equal in value to this <c>BigDecimal</c> multiplied by ten to
+                    the power of <c>this.scale()</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the number as a <c>BigInteger</c> after removing the scale. That is, the number is expressed as a
+            plain number, any decimal point is then removed (retaining the digits of any decimal part), and the result is
+            then converted to a <c>BigInteger</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#unscaledValue()" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.unscaledValue()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2579,11 +3707,27 @@
         <Parameter Name="dub" Type="System.Double" />
       </Parameters>
       <Docs>
-        <param name="dub">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="dub">The <c>double</c> to be translated.</param>
+        <summary>Translates a <c>double</c> to a <c>BigDecimal</c>.</summary>
+        <returns>The <c>BigDecimal</c> equal in value to <c>dub</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Translates a <c>double</c> to a <c>BigDecimal</c>.</para>
+          <para>Returns a <c>BigDecimal</c> which is the decimal representation of the 64-bit signed binary floating point
+            parameter. If the parameter is infinite, or is not a number (NaN), a <c>NumberFormatException</c> is
+            thrown.</para>
+          <para>The number is constructed as though <c>num</c> had been converted to a <c>String</c> using the <c>
+            Double.toString()</c> method and the <c>#BigDecimal(java.lang.String)</c> constructor had then been used.
+            This is typically not an exact conversion.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#valueOf(double)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.valueOf(double)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2614,11 +3758,22 @@
         <Parameter Name="lint" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="lint">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="lint">The <c>long</c> to be translated.</param>
+        <summary>Translates a <c>long</c> to a <c>BigDecimal</c>.</summary>
+        <returns>The <c>BigDecimal</c> equal in value to <c>lint</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Translates a <c>long</c> to a <c>BigDecimal</c>. That is, returns a plain <c>BigDecimal</c>
+            whose value is equal to the given <c>long</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#valueOf(long)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.valueOf(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2650,12 +3805,29 @@
         <Parameter Name="scale" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="lint">To be added.</param>
-        <param name="scale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="lint">The <c>long</c> to be translated.</param>
+        <param name="scale">The <c>int</c> scale to be applied.</param>
+        <summary>Translates a <c>long</c> to a <c>BigDecimal</c> with a given scale.</summary>
+        <returns>The <c>BigDecimal</c> equal in value to <c>lint</c>.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Translates a <c>long</c> to a <c>BigDecimal</c> with a given scale. That is, returns a plain <c>
+            BigDecimal</c> whose unscaled value is equal to the given <c>long</c>, adjusted by the second parameter,
+            <c>scale</c>.</para>
+          <para>The result is given by:</para>
+          <para>
+            <c> (new BigDecimal(lint)).divide(TEN.pow(new BigDecimal(scale))) </c>
+          </para>
+          <para>A <c>NumberFormatException</c> is thrown if <c>scale</c> is negative.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#valueOf(long,%20int)" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.valueOf(long, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -2683,10 +3855,20 @@
         <ReturnType>Android.Icu.Math.BigDecimal</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The <c>BigDecimal</c> constant "0".</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The <c>BigDecimal</c> constant "0".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/math/BigDecimal#ZERO" title="Reference documentation">Java documentation for <code>android.icu.math.BigDecimal.ZERO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

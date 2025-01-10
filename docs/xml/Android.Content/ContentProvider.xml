@@ -32,6 +32,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/content/ContentProvider", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/content/ContentProvider", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>Content providers are one of the primary building blocks of Android applications, providing
@@ -58,11 +62,11 @@
               &lt;li&gt;<c>#delete</c> which deletes data from the content provider&lt;/li&gt;
               &lt;li&gt;<c>#getType</c> which returns the MIME type of data in the content provider&lt;/li&gt;
             &lt;/ul&gt;</para>
-      <para>&lt;p class="caution"&gt;Data access methods (such as <c>#insert</c> and
+      <para>Data access methods (such as <c>#insert</c> and
             <c>#update</c>) may be called from many threads at once, and must be thread-safe.
             Other methods (such as <c>#onCreate</c>) are only called from the application
             main thread, and must avoid performing lengthy operations.  See the method
-            descriptions for their expected thread behavior.&lt;/p&gt;</para>
+            descriptions for their expected thread behavior.</para>
       <para>Requests to <c>ContentResolver</c> are automatically forwarded to the appropriate
             ContentProvider instance, so subclasses don't have to worry about the details of
             cross-process calls.</para>
@@ -372,7 +376,14 @@
         <ReturnType>Android.OS.Bundle</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="method" Type="System.String" />
+        <Parameter Name="method" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="arg" Type="System.String" />
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
@@ -422,8 +433,22 @@
         <ReturnType>Android.OS.Bundle</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="authority" Type="System.String" />
-        <Parameter Name="method" Type="System.String" />
+        <Parameter Name="authority" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="method" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="arg" Type="System.String" />
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
@@ -438,14 +463,13 @@
         <remarks>
           <para>Call a provider-defined method.  This can be used to implement
             interfaces that are cheaper and/or unnatural for a table-like
-            model.
-            
-            &lt;p class="note"&gt;&lt;strong&gt;WARNING:&lt;/strong&gt; The framework does no permission checking
+            model.</para>
+          <para>&lt;strong&gt;WARNING:&lt;/strong&gt; The framework does no permission checking
             on this entry into the content provider besides the basic ability for the application
             to get access to the provider at all.  For example, it has no idea whether the call
             being executed may read or write data in the provider, so can't enforce those
             individual permissions.  Any implementation of this method &lt;strong&gt;must&lt;/strong&gt;
-            do its own permission checks on incoming calls to make sure they are allowed.&lt;/p&gt;</para>
+            do its own permission checks on incoming calls to make sure they are allowed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#call(java.lang.String,%20java.lang.String,%20java.lang.String,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.call(java.lang.String, java.lang.String, java.lang.String, android.os.Bundle)</code>.</a>
@@ -673,6 +697,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.Uri</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="url" Type="Android.Net.Uri" />
@@ -825,7 +855,14 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="extras" Type="Android.OS.Bundle" />
+        <Parameter Name="extras" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">The full URI to query, including a row ID (if a specific
@@ -885,8 +922,22 @@
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selection" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="selectionArgs">To be added.</param>
@@ -946,7 +997,14 @@
       <Parameters>
         <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
         <Parameter Name="writer" Type="Java.IO.PrintWriter" />
-        <Parameter Name="args" Type="System.String[]" />
+        <Parameter Name="args" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="fd">The raw file descriptor that the dump is being sent to.</param>
@@ -983,11 +1041,24 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Threading.Tasks.Task</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
         <Parameter Name="writer" Type="Java.IO.PrintWriter" />
-        <Parameter Name="args" Type="System.String[]" />
+        <Parameter Name="args" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="fd">To be added.</param>
@@ -1018,6 +1089,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.PM.PathPermission[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -1062,6 +1139,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
@@ -1118,6 +1201,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
@@ -1179,6 +1268,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
@@ -1230,7 +1325,14 @@
         <ReturnType>Android.Net.Uri</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="values" Type="Android.Content.ContentValues" />
       </Parameters>
       <Docs>
@@ -1283,7 +1385,14 @@
         <ReturnType>Android.Net.Uri</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="values" Type="Android.Content.ContentValues" />
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
@@ -1376,6 +1485,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1659,6 +1772,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Res.AssetFileDescriptor</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
@@ -1688,20 +1807,18 @@
             or <c>ContentResolver#openOutputStream ContentResolver.openOutputStream</c>
             methods.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;If you are implementing this to return a full file, you
+            streaming of data.</para>
+          <para>If you are implementing this to return a full file, you
             should create the AssetFileDescriptor with
             <c>AssetFileDescriptor#UNKNOWN_LENGTH</c> to be compatible with
             applications that cannot handle sub-sections of files.</para>
-          <para>&lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
-            type and select the appropriate matching targets as part of its operation.&lt;/p&gt;
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            type and select the appropriate matching targets as part of its operation.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
-            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.&lt;/p&gt;</para>
+            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openAssetFile(android.net.Uri,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openAssetFile(android.net.Uri, java.lang.String)</code>.</a>
@@ -1741,11 +1858,24 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Res.AssetFileDescriptor</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="mode" Type="System.String" />
-        <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="signal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">The URI whose file is to be opened.</param>
@@ -1777,20 +1907,18 @@
             or <c>ContentResolver#openOutputStream ContentResolver.openOutputStream</c>
             methods.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;If you are implementing this to return a full file, you
+            streaming of data.</para>
+          <para>If you are implementing this to return a full file, you
             should create the AssetFileDescriptor with
             <c>AssetFileDescriptor#UNKNOWN_LENGTH</c> to be compatible with
             applications that cannot handle sub-sections of files.</para>
-          <para>&lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
-            type and select the appropriate matching targets as part of its operation.&lt;/p&gt;
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            type and select the appropriate matching targets as part of its operation.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
-            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.&lt;/p&gt;</para>
+            containing at least the columns specified by <c>android.provider.OpenableColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openAssetFile(android.net.Uri,%20java.lang.String,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openAssetFile(android.net.Uri, java.lang.String, android.os.CancellationSignal)</code>.</a>
@@ -1829,6 +1957,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.OS.ParcelFileDescriptor</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
@@ -1868,18 +2002,17 @@
             disk, such as a file on a network share or cloud storage service,
             consider using
             <c>StorageManager#openProxyFileDescriptor(int, android.os.ProxyFileDescriptorCallback, android.os.Handler)</c>
-            which will let you to stream the content on-demand.
-            
-            &lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+            which will let you to stream the content on-demand.</para>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
             type and select the appropriate matching targets as part of its operation.</para>
-          <para>&lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
             to supply, such as <c>android.provider.MediaStore.MediaColumns#DATE_ADDED</c>
-            in <c>android.provider.MediaStore.MediaColumns</c>.&lt;/p&gt;</para>
+            in <c>android.provider.MediaStore.MediaColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openFile(android.net.Uri,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openFile(android.net.Uri, java.lang.String)</code>.</a>
@@ -1920,11 +2053,24 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.OS.ParcelFileDescriptor</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="mode" Type="System.String" />
-        <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="signal" Type="Android.OS.CancellationSignal">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">The URI whose file is to be opened.</param>
@@ -1961,18 +2107,17 @@
             error, you can use <c>ParcelFileDescriptor#open(File, int,
             android.os.Handler, android.os.ParcelFileDescriptor.OnCloseListener)</c>,
             <c>ParcelFileDescriptor#createReliablePipe()</c>, or
-            <c>ParcelFileDescriptor#createReliableSocketPair()</c>.
-            
-            &lt;p class="note"&gt;For use in Intents, you will want to implement <c>#getType</c>
+            <c>ParcelFileDescriptor#createReliableSocketPair()</c>.</para>
+          <para>For use in Intents, you will want to implement <c>#getType</c>
             to return the appropriate MIME type for the data returned here with
             the same URI.  This will allow intent resolution to automatically determine the data MIME
             type and select the appropriate matching targets as part of its operation.</para>
-          <para>&lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
             to supply, such as <c>android.provider.MediaStore.MediaColumns#DATE_ADDED</c>
-            in <c>android.provider.MediaStore.MediaColumns</c>.&lt;/p&gt;</para>
+            in <c>android.provider.MediaStore.MediaColumns</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/ContentProvider#openFile(android.net.Uri,%20java.lang.String,%20android.os.CancellationSignal)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.openFile(android.net.Uri, java.lang.String, android.os.CancellationSignal)</code>.</a>
@@ -2070,8 +2215,22 @@
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="mimeType" Type="System.String" />
-        <Parameter Name="opts" Type="Android.OS.Bundle" />
-        <Parameter Name="args" Type="Java.Lang.Object" />
+        <Parameter Name="opts" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="args" Type="Java.Lang.Object">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="func" Type="Android.Content.ContentProvider+IPipeDataWriter" />
       </Parameters>
       <Docs>
@@ -2119,11 +2278,24 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Content.Res.AssetFileDescriptor</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="uri" Type="Android.Net.Uri" />
         <Parameter Name="mimeTypeFilter" Type="System.String" />
-        <Parameter Name="opts" Type="Android.OS.Bundle" />
+        <Parameter Name="opts" Type="Android.OS.Bundle">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="uri">The data in the content provider being queried.</param>
@@ -2148,9 +2320,8 @@
           <para>See <c>ClipData</c> for examples of the use and implementation
             of this method.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            streaming of data.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
@@ -2199,8 +2370,22 @@
         <ReturnType>Android.Content.Res.AssetFileDescriptor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="mimeTypeFilter" Type="System.String" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="mimeTypeFilter" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="opts" Type="Android.OS.Bundle" />
         <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
       </Parameters>
@@ -2233,9 +2418,8 @@
           <para>See <c>ClipData</c> for examples of the use and implementation
             of this method.</para>
           <para>The returned AssetFileDescriptor can be a pipe or socket pair to enable
-            streaming of data.
-            
-            &lt;p class="note"&gt;For better interoperability with other applications, it is recommended
+            streaming of data.</para>
+          <para>For better interoperability with other applications, it is recommended
             that for any URIs that can be opened, you also support queries on them
             containing at least the columns specified by <c>android.provider.OpenableColumns</c>.
             You may also want to support other common columns if you have additional meta-data
@@ -2287,8 +2471,22 @@
         <ReturnType>Android.Database.ICursor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="projection" Type="System.String[]" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="projection" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="queryArgs" Type="Android.OS.Bundle" />
         <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
       </Parameters>
@@ -2398,10 +2596,31 @@
         <ReturnType>Android.Database.ICursor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="projection" Type="System.String[]" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="projection" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sortOrder" Type="System.String" />
       </Parameters>
       <Docs>
@@ -2442,6 +2661,12 @@
           <code lang="text/java">// SQLiteQueryBuilder is a helper class that creates the
                     // proper SQL syntax for us.
                     SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
+            
+                    // Guard against SQL injection attacks
+                    qBuilder.setStrict(true);
+                    qBuilder.setProjectionMap(MAP_OF_QUERYABLE_COLUMNS);
+                    qBuilder.setStrictColumns(true);
+                    qBuilder.setStrictGrammar(true);
             
                     // Set the table we're querying.
                     qBuilder.setTables(DATABASE_TABLE_NAME);
@@ -2497,10 +2722,31 @@
         <ReturnType>Android.Database.ICursor</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
-        <Parameter Name="projection" Type="System.String[]" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="projection" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="sortOrder" Type="System.String" />
         <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
       </Parameters>
@@ -2544,6 +2790,12 @@
           <code lang="text/java">// SQLiteQueryBuilder is a helper class that creates the
                     // proper SQL syntax for us.
                     SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
+            
+                    // Guard against SQL injection attacks
+                    qBuilder.setStrict(true);
+                    qBuilder.setProjectionMap(MAP_OF_QUERYABLE_COLUMNS);
+                    qBuilder.setStrictColumns(true);
+                    qBuilder.setStrictGrammar(true);
             
                     // Set the table we're querying.
                     qBuilder.setTables(DATABASE_TABLE_NAME);
@@ -2822,7 +3074,14 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="permissions" Type="Android.Content.PM.PathPermission[]" />
+        <Parameter Name="permissions" Type="Android.Content.PM.PathPermission[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="permissions">Array of path permission descriptions.</param>
@@ -2996,6 +3255,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -3026,6 +3289,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.Uri</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="url" Type="Android.Net.Uri" />
@@ -3081,7 +3350,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="values" Type="Android.Content.ContentValues" />
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
@@ -3137,10 +3413,24 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="uri" Type="Android.Net.Uri" />
+        <Parameter Name="uri" Type="Android.Net.Uri">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="values" Type="Android.Content.ContentValues" />
         <Parameter Name="selection" Type="System.String" />
-        <Parameter Name="selectionArgs" Type="System.String[]" />
+        <Parameter Name="selectionArgs" Type="System.String[]">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="selectionArgs">To be added.</param>

@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/hardware/camera2/CameraExtensionCharacteristics", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -339,6 +343,58 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Get">
+      <MemberSignature Language="C#" Value="public Java.Lang.Object? Get (Android.Hardware.Camera2.CameraExtensionTypes extension, Android.Hardware.Camera2.CameraCharacteristics.Key key);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Lang.Object Get(valuetype Android.Hardware.Camera2.CameraExtensionTypes extension, class Android.Hardware.Camera2.CameraCharacteristics/Key key) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Hardware.Camera2.CameraExtensionCharacteristics.Get(Android.Hardware.Camera2.CameraExtensionTypes,Android.Hardware.Camera2.CameraCharacteristics.Key)" />
+      <MemberSignature Language="F#" Value="member this.Get : Android.Hardware.Camera2.CameraExtensionTypes * Android.Hardware.Camera2.CameraCharacteristics.Key -&gt; Java.Lang.Object" Usage="cameraExtensionCharacteristics.Get (extension, key)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("get", "(ILandroid/hardware/camera2/CameraCharacteristics$Key;)Ljava/lang/Object;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("get", "(ILandroid/hardware/camera2/CameraCharacteristics$Key;)Ljava/lang/Object;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="extension" Type="Android.Hardware.Camera2.CameraExtensionTypes" Index="0" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="key" Type="Android.Hardware.Camera2.CameraCharacteristics+Key" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="extension">To be added.</param>
+        <param name="key">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetAvailableCaptureRequestKeys">
       <MemberSignature Language="C#" Value="public System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.CaptureRequest.Key&gt; GetAvailableCaptureRequestKeys (int extension);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.ICollection`1&lt;class Android.Hardware.Camera2.CaptureRequest/Key&gt; GetAvailableCaptureRequestKeys(int32 extension) cil managed" />
@@ -383,6 +439,11 @@
             <c>CameraExtensionSession</c> with a given extension type.</para>
           <para>The set returned is not modifiable, so any attempts to modify it will throw
             a <c>UnsupportedOperationException</c>.</para>
+          <para>Devices launching on Android <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>
+            or newer versions are required to support <c>CaptureRequest#CONTROL_AF_MODE</c>,
+            <c>CaptureRequest#CONTROL_AF_REGIONS</c>, <c>CaptureRequest#CONTROL_AF_TRIGGER</c>,
+            <c>CaptureRequest#CONTROL_ZOOM_RATIO</c> for
+            <c>CameraExtensionCharacteristics#EXTENSION_NIGHT</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraExtensionCharacteristics#getAvailableCaptureRequestKeys(int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraExtensionCharacteristics.getAvailableCaptureRequestKeys(int)</code>.</a>
@@ -443,6 +504,11 @@
           <para>In case the set is empty, then the extension is not able to support any capture results
             and the <c>CameraExtensionSession.ExtensionCaptureCallback#onCaptureResultAvailable</c>
             callback will not be fired.</para>
+          <para>Devices launching on Android <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>
+            or newer versions are required to support <c>CaptureResult#CONTROL_AF_MODE</c>,
+            <c>CaptureResult#CONTROL_AF_REGIONS</c>, <c>CaptureResult#CONTROL_AF_TRIGGER</c>,
+            <c>CaptureResult#CONTROL_AF_STATE</c>, <c>CaptureResult#CONTROL_ZOOM_RATIO</c> for
+            <c>CameraExtensionCharacteristics#EXTENSION_NIGHT</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraExtensionCharacteristics#getAvailableCaptureResultKeys(int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraExtensionCharacteristics.getAvailableCaptureResultKeys(int)</code>.</a>
@@ -478,6 +544,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Util.Range</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="extension" Type="System.Int32">
@@ -649,12 +721,67 @@
           <para>Note that device-specific extensions are allowed to support only a subset
             of the camera resolutions advertised by
             <c>StreamConfigurationMap#getOutputSizes</c>.</para>
-          <para>Device-specific extensions currently support at most two
+          <para>Device-specific extensions currently support at most three
             multi-frame capture surface formats. ImageFormat.JPEG will be supported by all
-            extensions and ImageFormat.YUV_420_888 may or may not be supported.</para>
+            extensions while ImageFormat.YUV_420_888, ImageFormat.JPEG_R, or ImageFormat.YCBCR_P010
+            may or may not be supported.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraExtensionCharacteristics#getExtensionSupportedSizes(int,%20int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraExtensionCharacteristics.getExtensionSupportedSizes(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetKeys">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.CameraCharacteristics.Key&gt; GetKeys (Android.Hardware.Camera2.CameraExtensionTypes extension);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Collections.Generic.ICollection`1&lt;class Android.Hardware.Camera2.CameraCharacteristics/Key&gt; GetKeys(valuetype Android.Hardware.Camera2.CameraExtensionTypes extension) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Hardware.Camera2.CameraExtensionCharacteristics.GetKeys(Android.Hardware.Camera2.CameraExtensionTypes)" />
+      <MemberSignature Language="F#" Value="member this.GetKeys : Android.Hardware.Camera2.CameraExtensionTypes -&gt; System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.CameraCharacteristics.Key&gt;" Usage="cameraExtensionCharacteristics.GetKeys extension" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getKeys", "(I)Ljava/util/Set;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getKeys", "(I)Ljava/util/Set;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.CameraCharacteristics+Key&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="extension" Type="Android.Hardware.Camera2.CameraExtensionTypes" Index="0" FrameworkAlternate="net-android-35.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="extension">The extension type.</param>
+        <summary>Returns the <c>CameraCharacteristics</c> keys that have extension-specific values.</summary>
+        <returns>An unmodifiable set of keys that are extension specific.</returns>
+        <remarks>
+          <para>Returns the <c>CameraCharacteristics</c> keys that have extension-specific values.</para>
+          <para>An application can query the value from the key using
+            <c>#get(int, CameraCharacteristics.Key)</c> API.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraExtensionCharacteristics#getKeys(int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraExtensionCharacteristics.getKeys(int)</code>.</a>
             </format>
           </para>
           <para>
@@ -703,8 +830,7 @@
       <Docs>
         <param name="extension">the extension type</param>
         <param name="captureSize">size of the still capture for which the postview is requested</param>
-        <param name="format">device-specific extension output format of the still capture and
-            postview</param>
+        <param name="format">device-specific extension output format of the postview</param>
         <summary>Get a list of the postview sizes supported for a still capture, using its
             capture size <c>captureSize</c>, to use as an output for the postview request.</summary>
         <returns>non-modifiable list of available sizes or an empty list if the format and
@@ -833,8 +959,10 @@
             image. For example, it can be used as a temporary placeholder for the requested capture
             while the final image is being processed. The supported sizes for a still capture's postview
             can be retrieved using
-            <c>CameraExtensionCharacteristics#getPostviewSupportedSizes(int, Size, int)</c>.
-            The formats of the still capture and postview should be equivalent upon capture request.</para>
+            <c>CameraExtensionCharacteristics#getPostviewSupportedSizes(int, Size, int)</c>.</para>
+          <para>Starting with Android <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>,
+            the formats of the still capture and postview are not required to be equivalent upon capture
+            request.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraExtensionCharacteristics#isPostviewAvailable(int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraExtensionCharacteristics.isPostviewAvailable(int)</code>.</a>

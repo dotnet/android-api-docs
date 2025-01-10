@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/os/UserManager", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/os/UserManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="17">
     <summary>Manages users and user details on a multi-user system.</summary>
@@ -146,15 +150,15 @@
         <Parameter Name="accountOptions" Type="Android.OS.PersistableBundle" />
       </Parameters>
       <Docs>
-        <param name="userName">Optional name to assign to the user.</param>
+        <param name="userName">Optional name to assign to the user. Character limit is 100.</param>
         <param name="accountName">Optional account name that will be used by the setup wizard to initialize
-                               the user.</param>
+                               the user. Character limit is 500.</param>
         <param name="accountType">Optional account type for the account to be created. This is required
-                               if the account name is specified.</param>
+                               if the account name is specified. Character limit is 500.</param>
         <param name="accountOptions">Optional bundle of data to be passed in during account creation in the
                                   new user via <c>AccountManager#addAccount(String, String, String[],
                                   Bundle, android.app.Activity, android.accounts.AccountManagerCallback,
-                                  Handler)</c>.</param>
+                                  Handler)</c>. Character limit is 1000.</param>
         <summary>Returns an intent to create a user for the provided name and account name.</summary>
         <returns>An Intent that can be launched from an Activity.</returns>
         <remarks>
@@ -238,6 +242,57 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="DisallowAddPrivateProfile">
+      <MemberSignature Language="C#" Value="public const string DisallowAddPrivateProfile;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowAddPrivateProfile" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.DisallowAddPrivateProfile" />
+      <MemberSignature Language="F#" Value="val mutable DisallowAddPrivateProfile : string" Usage="Android.OS.UserManager.DisallowAddPrivateProfile" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DISALLOW_ADD_PRIVATE_PROFILE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DISALLOW_ADD_PRIVATE_PROFILE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Specifies if a user is disallowed from creating a private profile.</summary>
+        <remarks>
+          <para>Specifies if a user is disallowed from creating a private profile.</para>
+          <para>The default value for an unmanaged user is <c>false</c>.
+            For users with a device owner set, the default value is <c>true</c> and the
+            device owner currently cannot change it to <c>false</c>.
+            On organization-owned managed profile devices, the default value is <c>false</c> but
+            the profile owner can change it to <c>true</c> via the parent profile to block creating
+            of private profiles on the personal user.</para>
+          <para>Holders of the permission
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_PROFILES</c>
+            can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
+          <para>Key for user restrictions.</para>
+          <para>Type: Boolean</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/UserManager#DISALLOW_ADD_PRIVATE_PROFILE" title="Reference documentation">Java documentation for <code>android.os.UserManager.DISALLOW_ADD_PRIVATE_PROFILE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="DisallowAddUser">
       <MemberSignature Language="C#" Value="public const string DisallowAddUser;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowAddUser" />
@@ -267,7 +322,7 @@
           <para>When the device is an organization-owned device provisioned with a managed profile,
             this restriction will be set as a base restriction which cannot be removed by any admin.</para>
           <para>Holders of the permission
-            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_USERS</c>
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MODIFY_USERS</c>
             can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
           <para>Key for user restrictions.</para>
           <para>Type: Boolean</para>
@@ -538,6 +593,55 @@
         <altmember cref="P:Android.OS.UserManager.UserRestrictions" />
       </Docs>
     </Member>
+    <Member MemberName="DisallowAssistContent">
+      <MemberSignature Language="C#" Value="public const string DisallowAssistContent;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowAssistContent" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.DisallowAssistContent" />
+      <MemberSignature Language="F#" Value="val mutable DisallowAssistContent : string" Usage="Android.OS.UserManager.DisallowAssistContent" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DISALLOW_ASSIST_CONTENT", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DISALLOW_ASSIST_CONTENT", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This user restriction specifies if assist content is disallowed from being sent to
+            a privileged app such as the Assistant app.</summary>
+        <remarks>
+          <para>This user restriction specifies if assist content is disallowed from being sent to
+            a privileged app such as the Assistant app. Assist content includes screenshots and
+            information about an app, such as package name.</para>
+          <para>This restriction can only be set by a device owner or a profile owner. When it is set
+            by a device owner, it disables the assist contextual data on the entire device. When it is
+            set by a profile owner, it disables assist content on the profile.</para>
+          <para>Default is <c>false</c>.</para>
+          <para>Key for user restrictions.</para>
+          <para>Type: Boolean</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/UserManager#DISALLOW_ASSIST_CONTENT" title="Reference documentation">Java documentation for <code>android.os.UserManager.DISALLOW_ASSIST_CONTENT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="DisallowAutofill">
       <MemberSignature Language="C#" Value="public const string DisallowAutofill;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowAutofill" />
@@ -672,7 +776,7 @@
           <para>Holders of the permission
             <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_BLUETOOTH</c>
             can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
-          <para>Default is <c>true</c> for managed profiles and false otherwise.</para>
+          <para>Default is <c>true</c> for managed and private profiles, false otherwise.</para>
           <para>When a device upgrades to <c>android.os.Build.VERSION_CODES#O</c>, the system sets it
             for all existing managed profiles.</para>
           <para>Key for user restrictions.</para>
@@ -761,10 +865,17 @@
         <summary>Specifies if a user is not allowed to use 2g networks.</summary>
         <remarks>
           <para>Specifies if a user is not allowed to use 2g networks.</para>
+          <para>This is a security feature. 2g has no mutual authentication between a device and
+            cellular base station and downgrading a device's connection to 2g is a common tactic for
+            several types of privacy and security compromising attacks that could allow an adversary
+            to intercept, inject, or modify cellular communications.</para>
           <para>This restriction can only be set by a device owner or a profile owner of an
             organization-owned managed profile on the parent profile.
-            In all cases, the setting applies globally on the device and will prevent the device from
-            scanning for or connecting to 2g networks, except in the case of an emergency.</para>
+            In all cases, the setting applies globally on the device.</para>
+          <para>Cellular connectivity loss (where a device would have otherwise successfully
+            connected to a 2g network) occurs if the device is in an area where only 2g networks are
+            available. Emergency calls are an exception and are never impacted. The device will still
+            scan for and connect to a 2g network for emergency calls.</para>
           <para>Holders of the permission
             <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MOBILE_NETWORK</c>
             can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
@@ -1105,7 +1216,11 @@
         <summary>Specifies whether the user is allowed to modify default apps in settings.</summary>
         <remarks>
           <para>Specifies whether the user is allowed to modify default apps in settings.</para>
-          <para>This restriction can be set by device or profile owner.</para>
+          <para>A device owner and a profile owner can set this restriction. When it is set by a
+            device owner, it applies globally - i.e., modifying of default apps in Settings for all
+            users is disallowed. When it is set by a profile owner on the primary user or by a profile
+            owner of an organization-owned managed profile on the parent profile, modifying of
+            default apps in Settings for the primary user is disallowed.</para>
           <para>The default value is <c>false</c>.</para>
           <para>Key for user restrictions.</para>
           <para>Type: Boolean</para>
@@ -2239,6 +2354,57 @@
         <altmember cref="P:Android.OS.UserManager.UserRestrictions" />
       </Docs>
     </Member>
+    <Member MemberName="DisallowNearFieldCommunicationRadio">
+      <MemberSignature Language="C#" Value="public const string DisallowNearFieldCommunicationRadio;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowNearFieldCommunicationRadio" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.DisallowNearFieldCommunicationRadio" />
+      <MemberSignature Language="F#" Value="val mutable DisallowNearFieldCommunicationRadio : string" Usage="Android.OS.UserManager.DisallowNearFieldCommunicationRadio" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DISALLOW_NEAR_FIELD_COMMUNICATION_RADIO", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DISALLOW_NEAR_FIELD_COMMUNICATION_RADIO", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This user restriction specifies if Near-field communication is disallowed on the device.</summary>
+        <remarks>
+          <para>This user restriction specifies if Near-field communication is disallowed on the device. If
+            Near-field communication is disallowed it cannot be turned on via Settings.</para>
+          <para>This restriction can only be set by a device owner or a profile owner of an
+            organization-owned managed profile on the parent profile.
+            In both cases, the restriction applies globally on the device and will turn off the
+            Near-field communication radio if it's currently on and prevent the radio from being turned
+            on in the future.</para>
+          <para>Near-field communication (NFC) is a radio technology that allows two devices (like your phone
+            and a payments terminal) to communicate with each other when they're close together.</para>
+          <para>Default is <c>false</c>.</para>
+          <para>Key for user restrictions.</para>
+          <para>Type: Boolean</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/UserManager#DISALLOW_NEAR_FIELD_COMMUNICATION_RADIO" title="Reference documentation">Java documentation for <code>android.os.UserManager.DISALLOW_NEAR_FIELD_COMMUNICATION_RADIO</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="DisallowNetworkReset">
       <MemberSignature Language="C#" Value="public const string DisallowNetworkReset;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowNetworkReset" />
@@ -2509,7 +2675,7 @@
             This restriction has no effect on managed profiles.
             The default value is <c>false</c>.</para>
           <para>Holders of the permission
-            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_USERS</c>
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MODIFY_USERS</c>
             can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
           <para>Key for user restrictions.</para>
           <para>Type: Boolean</para>
@@ -2610,7 +2776,7 @@
             can set this restriction. When it is set by device owner, only the target user will be
             affected. The default value is <c>false</c>.</para>
           <para>Holders of the permission
-            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_USERS</c>
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MODIFY_USERS</c>
             can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
           <para>Key for user restrictions.</para>
           <para>Type: Boolean</para>
@@ -2819,6 +2985,56 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/UserManager#DISALLOW_SHARING_ADMIN_CONFIGURED_WIFI" title="Reference documentation">Java documentation for <code>android.os.UserManager.DISALLOW_SHARING_ADMIN_CONFIGURED_WIFI</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DisallowSimGlobally">
+      <MemberSignature Language="C#" Value="public const string DisallowSimGlobally;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowSimGlobally" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.DisallowSimGlobally" />
+      <MemberSignature Language="F#" Value="val mutable DisallowSimGlobally : string" Usage="Android.OS.UserManager.DisallowSimGlobally" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("DISALLOW_SIM_GLOBALLY", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DISALLOW_SIM_GLOBALLY", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>This user restriction specifies if the user is able to add embedded SIMs to the device.</summary>
+        <remarks>
+          <para>This user restriction specifies if the user is able to add embedded SIMs to the device.</para>
+          <para>This restriction blocks the download of embedded SIMs.</para>
+          <para>This restriction can only be set by a device owner or a profile owner of an
+            organization-owned managed profile.
+            In both cases, the restriction applies globally on the device.</para>
+          <para>Holders of the permission
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MOBILE_NETWORK</c>
+            can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
+          <para>Default is <c>false</c>.</para>
+          <para>Key for user restrictions.</para>
+          <para>Type: Boolean</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/UserManager#DISALLOW_SIM_GLOBALLY" title="Reference documentation">Java documentation for <code>android.os.UserManager.DISALLOW_SIM_GLOBALLY</code>.</a>
             </format>
           </para>
           <para>
@@ -3214,7 +3430,7 @@
             <c>DevicePolicyManager#switchUser(ComponentName, UserHandle)</c> when this restriction is
             set.</para>
           <para>Holders of the permission
-            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_USERS</c>
+            <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_MODIFY_USERS</c>
             can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
           <para>The default value is <c>false</c>.</para>
           <para>
@@ -3639,9 +3855,13 @@
       <Parameters>
         <Parameter Name="restrictionKey" Type="System.String">
           <Attributes>
-            <Attribute>
+            <Attribute FrameworkAlternate="net-android-34.0">
               <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "DisallowModifyAccounts", "DisallowConfigWifi", "DisallowConfigLocale", "DisallowInstallApps", "DisallowUninstallApps", "DisallowShareLocation", "DisallowAirplaneMode", "DisallowConfigBrightness", "DisallowAmbientDisplay", "DisallowConfigScreenTimeout", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowConfigBluetooth", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowUsbFileTransfer", "DisallowConfigCredentials", "DisallowRemoveUser", "DisallowRemoveManagedProfile", "DisallowDebuggingFeatures", "DisallowConfigVpn", "DisallowConfigLocation", "DisallowConfigDateTime", "DisallowConfigTethering", "DisallowNetworkReset", "DisallowFactoryReset", "DisallowAddUser", "DisallowAddManagedProfile", "EnsureVerifyApps", "DisallowConfigCellBroadcasts", "DisallowConfigMobileNetworks", "DisallowAppsControl", "DisallowMountPhysicalMedia", "DisallowUnmuteMicrophone", "DisallowAdjustVolume", "DisallowOutgoingCalls", "DisallowSms", "DisallowFun", "DisallowCreateWindows", "DisallowSystemErrorDialogs", "DisallowCrossProfileCopyPaste", "DisallowOutgoingBeam", "DisallowSetWallpaper", "DisallowSafeBoot", "DisallowDataRoaming", "DisallowSetUserIcon", "DisallowUnifiedPassword", "AllowParentProfileAppLinking", "DisallowAutofill", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowUserSwitch", "DisallowShareIntoManagedProfile", "DisallowPrinting", "DisallowConfigPrivateDns", "DisallowMicrophoneToggle", "DisallowCameraToggle", "KeyRestrictionsPending", "DisallowChangeWifiState", "DisallowWifiTethering", "DisallowSharingAdminConfiguredWifi", "DisallowWifiDirect", "DisallowAddWifiConfig", "DisallowCellular2g", "DisallowUltraWidebandRadio", "DisallowGrantAdmin" }, Type="Android.OS.UserManager")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "DisallowModifyAccounts", "DisallowConfigWifi", "DisallowConfigLocale", "DisallowInstallApps", "DisallowUninstallApps", "DisallowShareLocation", "DisallowAirplaneMode", "DisallowConfigBrightness", "DisallowAmbientDisplay", "DisallowConfigScreenTimeout", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowConfigBluetooth", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowUsbFileTransfer", "DisallowConfigCredentials", "DisallowRemoveUser", "DisallowRemoveManagedProfile", "DisallowDebuggingFeatures", "DisallowConfigVpn", "DisallowConfigLocation", "DisallowConfigDateTime", "DisallowConfigTethering", "DisallowNetworkReset", "DisallowFactoryReset", "DisallowAddUser", "DisallowAddManagedProfile", "EnsureVerifyApps", "DisallowConfigCellBroadcasts", "DisallowConfigMobileNetworks", "DisallowAppsControl", "DisallowMountPhysicalMedia", "DisallowUnmuteMicrophone", "DisallowAdjustVolume", "DisallowOutgoingCalls", "DisallowSms", "DisallowFun", "DisallowCreateWindows", "DisallowSystemErrorDialogs", "DisallowCrossProfileCopyPaste", "DisallowOutgoingBeam", "DisallowSetWallpaper", "DisallowSafeBoot", "DisallowDataRoaming", "DisallowSetUserIcon", "DisallowUnifiedPassword", "AllowParentProfileAppLinking", "DisallowAutofill", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowUserSwitch", "DisallowShareIntoManagedProfile", "DisallowPrinting", "DisallowConfigPrivateDns", "DisallowMicrophoneToggle", "DisallowCameraToggle", "KeyRestrictionsPending", "DisallowChangeWifiState", "DisallowWifiTethering", "DisallowSharingAdminConfiguredWifi", "DisallowWifiDirect", "DisallowAddWifiConfig", "DisallowCellular2g", "DisallowUltraWidebandRadio", "DisallowGrantAdmin" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
+            </Attribute>
+            <Attribute FrameworkAlternate="net-android-35.0">
+              <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -3919,10 +4139,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Checks if the calling context user is running in a profile.</summary>
-        <value>whether the caller is in a profile.</value>
+        <summary>Checks if the context user is running in a profile.</summary>
+        <value>whether the context user is in a profile.</value>
         <remarks>
-          <para>Checks if the calling context user is running in a profile. A profile is a user that
+          <para>Checks if the context user is running in a profile. A profile is a user that
             typically has its own separate data but shares its UI with some parent user. For example, a
             <c>#isManagedProfile() managed profile</c> is a type of profile.</para>
           <para>
@@ -5265,6 +5485,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getUserProfiles", "()Ljava/util/List;", "GetGetUserProfilesHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getUserProfiles", "()Ljava/util/List;", "GetGetUserProfilesHandler")&gt;]</AttributeName>
         </Attribute>
@@ -5304,6 +5528,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getUserRestrictions", "()Landroid/os/Bundle;", "GetGetUserRestrictionsHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getUserRestrictions", "()Landroid/os/Bundle;", "GetGetUserRestrictionsHandler")&gt;]</AttributeName>
@@ -5346,6 +5574,134 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 18" />
+      </Docs>
+    </Member>
+    <Member MemberName="UserTypeProfileClone">
+      <MemberSignature Language="C#" Value="public const string UserTypeProfileClone;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string UserTypeProfileClone" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.UserTypeProfileClone" />
+      <MemberSignature Language="F#" Value="val mutable UserTypeProfileClone : string" Usage="Android.OS.UserManager.UserTypeProfileClone" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("USER_TYPE_PROFILE_CLONE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("USER_TYPE_PROFILE_CLONE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>User type representing a clone profile.</summary>
+        <remarks>
+          <para>User type representing a clone profile. Clone profile is a user profile type used to run
+            second instance of an otherwise single user App (eg, messengers). Currently only the
+            <c>android.content.pm.UserInfo#isMain()</c> user can have a clone profile.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/UserManager#USER_TYPE_PROFILE_CLONE" title="Reference documentation">Java documentation for <code>android.os.UserManager.USER_TYPE_PROFILE_CLONE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="UserTypeProfileManaged">
+      <MemberSignature Language="C#" Value="public const string UserTypeProfileManaged;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string UserTypeProfileManaged" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.UserTypeProfileManaged" />
+      <MemberSignature Language="F#" Value="val mutable UserTypeProfileManaged : string" Usage="Android.OS.UserManager.UserTypeProfileManaged" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("USER_TYPE_PROFILE_MANAGED", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("USER_TYPE_PROFILE_MANAGED", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>User type representing a managed profile, which is a profile that is to be managed by a
+            device policy controller (DPC).</summary>
+        <remarks>
+          <para>User type representing a managed profile, which is a profile that is to be managed by a
+            device policy controller (DPC).
+            The intended purpose is for work profiles, which are managed by a corporate entity.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/UserManager#USER_TYPE_PROFILE_MANAGED" title="Reference documentation">Java documentation for <code>android.os.UserManager.USER_TYPE_PROFILE_MANAGED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="UserTypeProfilePrivate">
+      <MemberSignature Language="C#" Value="public const string UserTypeProfilePrivate;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string UserTypeProfilePrivate" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.UserTypeProfilePrivate" />
+      <MemberSignature Language="F#" Value="val mutable UserTypeProfilePrivate : string" Usage="Android.OS.UserManager.UserTypeProfilePrivate" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("USER_TYPE_PROFILE_PRIVATE", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("USER_TYPE_PROFILE_PRIVATE", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>User type representing a private profile.</summary>
+        <remarks>
+          <para>User type representing a private profile. Private profile is a user profile that can be used
+            as an alternative user-space to install and use sensitive apps.
+            UI surfaces can adopt an alternative strategy to show apps belonging to this profile, in line
+            with their sensitive nature.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/UserManager#USER_TYPE_PROFILE_PRIVATE" title="Reference documentation">Java documentation for <code>android.os.UserManager.USER_TYPE_PROFILE_PRIVATE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/bluetooth/BluetoothHearingAid", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
@@ -37,6 +41,11 @@
   <Docs>
     <summary>This class provides the public APIs to control the Hearing Aid profile.</summary>
     <remarks>
+      <para>This class provides the public APIs to control the Hearing Aid profile.</para>
+      <para>BluetoothHearingAid is a proxy object for controlling the Bluetooth Hearing Aid Service via
+            IPC. Use <c>BluetoothAdapter#getProfileProxy</c> to get the BluetoothHearingAid proxy object.</para>
+      <para>Android only supports one set of connected Bluetooth Hearing Aid device at a time. Each method
+            is protected with its appropriate permission.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHearingAid" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHearingAid</code>.</a>
@@ -83,9 +92,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Intent used to broadcast the change in connection state of the Hearing Aid
-            profile.</summary>
+        <summary>Intent used to broadcast the change in connection state of the Hearing Aid profile.</summary>
         <remarks>
+          <para>Intent used to broadcast the change in connection state of the Hearing Aid profile. Please
+            note that in the binaural case, there will be two different LE devices for the left and right
+            side and each device will have their own connection state changes.S</para>
+          <para>This intent will have 3 extras:
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>#EXTRA_STATE</c> - The current state of the profile.
+              &lt;li&gt;<c>#EXTRA_PREVIOUS_STATE</c>- The previous state of the profile.
+              &lt;li&gt;<c>BluetoothDevice#EXTRA_DEVICE</c> - The remote device.
+            &lt;/ul&gt;</para>
+          <para>
+            <c>#EXTRA_STATE</c> or <c>#EXTRA_PREVIOUS_STATE</c> can be any of <c>#STATE_DISCONNECTED</c>, <c>#STATE_CONNECTING</c>, <c>#STATE_CONNECTED</c>, <c>#STATE_DISCONNECTING</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHearingAid#ACTION_CONNECTION_STATE_CHANGED" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHearingAid.ACTION_CONNECTION_STATE_CHANGED</code>.</a>
@@ -133,6 +153,7 @@
         <summary>To be added</summary>
         <value>To be added.</value>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHearingAid#getConnectedDevices()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHearingAid.getConnectedDevices()</code>.</a>
@@ -184,6 +205,7 @@
         <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHearingAid#getConnectionState(android.bluetooth.BluetoothDevice)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHearingAid.getConnectionState(android.bluetooth.BluetoothDevice)</code>.</a>
@@ -242,6 +264,7 @@
         <summary>To be added</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>To be added</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothHearingAid#getDevicesMatchingConnectionStates(int[])" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothHearingAid.getDevicesMatchingConnectionStates(int[])</code>.</a>

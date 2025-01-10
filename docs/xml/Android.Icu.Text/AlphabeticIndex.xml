@@ -34,19 +34,109 @@
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "V" })&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>AlphabeticIndex supports the creation of a UI index appropriate for a given language.</summary>
     <remarks>
+      <para>AlphabeticIndex supports the creation of a UI index appropriate for a given language.
+            It can support either direct use, or use with a client that doesn't support localized collation.
+            The following is an example of what an index might look like in a UI:</para>
+      <code lang="text/java">&lt;b&gt;... A B C D E F G H I J K L M N O P Q R S T U V W X Y Z  ...&lt;/b&gt;
+            
+             &lt;b&gt;A&lt;/b&gt;
+                Addison
+                Albertson
+                Azensky
+             &lt;b&gt;B&lt;/b&gt;
+                Baecker
+             ...
+            </code>
+      <para>The class can generate a list of labels for use as a UI "index", that is, a list of
+            clickable characters (or character sequences) that allow the user to see a segment
+            (bucket) of a larger "target" list. That is, each label corresponds to a bucket in
+            the target list, where everything in the bucket is greater than or equal to the character
+            (according to the locale's collation). Strings can be added to the index;
+            they will be in sorted order in the right bucket.</para>
+      <para>The class also supports having buckets for strings before the first (underflow),
+            after the last (overflow), and between scripts (inflow). For example, if the index
+            is constructed with labels for Russian and English, Greek characters would fall
+            into an inflow bucket between the other two scripts.</para>
+      <para>&lt;em&gt;Note:&lt;/em&gt; If you expect to have a lot of ASCII or Latin characters
+            as well as characters from the user's language,
+            then it is a good idea to call addLabels(ULocale.English).
+            
+            &lt;h2&gt;Direct Use&lt;/h2&gt;</para>
+      <para>The following shows an example of building an index directly.
+             The "show..." methods below are just to illustrate usage.</para>
+      <code lang="text/java">// Create a simple index where the values for the strings are Integers, and add the strings
+            
+            AlphabeticIndex&amp;lt;Integer&amp;gt; index = new AlphabeticIndex&amp;lt;Integer&amp;gt;(desiredLocale).addLabels(additionalLocale);
+            int counter = 0;
+            for (String item : test) {
+                index.addRecord(item, counter++);
+            }
+            ...
+            // Show index at top. We could skip or gray out empty buckets
+            
+            for (AlphabeticIndex.Bucket&amp;lt;Integer&amp;gt; bucket : index) {
+                if (showAll || bucket.size() != 0) {
+                    showLabelAtTop(UI, bucket.getLabel());
+                }
+            }
+             ...
+            // Show the buckets with their contents, skipping empty buckets
+            
+            for (AlphabeticIndex.Bucket&amp;lt;Integer&amp;gt; bucket : index) {
+                if (bucket.size() != 0) {
+                    showLabelInList(UI, bucket.getLabel());
+                    for (AlphabeticIndex.Record&amp;lt;Integer&amp;gt; item : bucket) {
+                        showIndexedItem(UI, item.getName(), item.getData());
+                    }
+            </code>
+      <para>The caller can build different UIs using this class.
+            For example, an index character could be omitted or grayed-out
+            if its bucket is empty. Small buckets could also be combined based on size, such as:</para>
+      <code lang="text/java">&lt;b&gt;... A-F G-N O-Z ...&lt;/b&gt;
+            </code>
+      <para>&lt;h2&gt;Client Support&lt;/h2&gt;</para>
+      <para>Callers can also use the <c>AlphabeticIndex.ImmutableIndex</c>, or the AlphabeticIndex itself,
+            to support sorting on a client that doesn't support AlphabeticIndex functionality.</para>
+      <para>The ImmutableIndex is both immutable and thread-safe.
+            The corresponding AlphabeticIndex methods are not thread-safe because
+            they "lazily" build the index buckets.
+            &lt;ul&gt;
+            &lt;li&gt;ImmutableIndex.getBucket(index) provides random access to all
+                buckets and their labels and label types.
+            &lt;li&gt;AlphabeticIndex.getBucketLabels() or the bucket iterator on either class
+                can be used to get a list of the labels,
+                such as "...", "A", "B",..., and send that list to the client.
+            &lt;li&gt;When the client has a new name, it sends that name to the server.
+            The server needs to call the following methods,
+            and communicate the bucketIndex and collationKey back to the client.</para>
+      <code lang="text/java">int bucketIndex = index.getBucketIndex(name);
+            String label = immutableIndex.getBucket(bucketIndex).getLabel();  // optional
+            RawCollationKey collationKey = collator.getRawCollationKey(name, null);
+            </code>
+      <para>&lt;li&gt;The client would put the name (and associated information) into its bucket for bucketIndex. The collationKey is a
+            sequence of bytes that can be compared with a binary compare, and produce the right localized result.&lt;/li&gt;
+            &lt;/ul&gt;</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -74,10 +164,25 @@
         <Parameter Name="collator" Type="Android.Icu.Text.RuleBasedCollator" />
       </Parameters>
       <Docs>
-        <param name="collator">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="collator">The collator to use to order the contents of this index.</param>
+        <summary>Create an AlphabeticIndex that uses a specific collator.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create an AlphabeticIndex that uses a specific collator.</para>
+          <para>The index will be created with no labels; the addLabels() function must be called
+            after creation to add the desired labels to the index.</para>
+          <para>The index will work directly with the supplied collator. If the caller will need to
+            continue working with the collator it should be cloned first, so that the
+            collator provided to the AlphabeticIndex remains unchanged after creation of the index.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#AlphabeticIndex(android.icu.text.RuleBasedCollator)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.AlphabeticIndex(android.icu.text.RuleBasedCollator)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -105,10 +210,20 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">The locale for the index.</param>
+        <summary>Create the index object.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create the index object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#AlphabeticIndex(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.AlphabeticIndex(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -136,10 +251,20 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">The locale for the index.</param>
+        <summary>Create the index object.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Create the index object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#AlphabeticIndex(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.AlphabeticIndex(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -170,11 +295,21 @@
         <Parameter Name="additions" Type="Android.Icu.Text.UnicodeSet" />
       </Parameters>
       <Docs>
-        <param name="additions">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="additions">additional characters to add to the index, such as A-Z.</param>
+        <summary>Add more index characters (aside from what are in the locale)</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add more index characters (aside from what are in the locale)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#addLabels(android.icu.text.UnicodeSet)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.addLabels(android.icu.text.UnicodeSet)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -207,6 +342,10 @@
             <Attribute>
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
+            </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -250,6 +389,10 @@
               <AttributeName Language="C#">[System.ParamArray]</AttributeName>
               <AttributeName Language="F#">[&lt;System.ParamArray&gt;]</AttributeName>
             </Attribute>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
@@ -290,12 +433,24 @@
         <Parameter Name="data" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">Name, such as a name</param>
+        <param name="data">Data, such as an address or link</param>
+        <summary>Add a record (name and data) to the index.</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add a record (name and data) to the index. The name will be used to sort the items into buckets, and to sort
+            within the bucket. Two records may have the same name. When they do, the sort order is according to the order added:
+            the first added comes first.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#addRecord(java.lang.CharSequence,%20V)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.addRecord(java.lang.CharSequence, V)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -323,12 +478,24 @@
         <Parameter Name="data" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">Name, such as a name</param>
+        <param name="data">Data, such as an address or link</param>
+        <summary>Add a record (name and data) to the index.</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add a record (name and data) to the index. The name will be used to sort the items into buckets, and to sort
+            within the bucket. Two records may have the same name. When they do, the sort order is according to the order added:
+            the first added comes first.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#addRecord(java.lang.CharSequence,%20V)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.addRecord(java.lang.CharSequence, V)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -356,10 +523,20 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Return the number of buckets in the index.</summary>
+        <value>number of buckets</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the number of buckets in the index. This will be the same as the number of labels, plus buckets for the underflow, overflow, and inflow(s).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getBucketCount()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getBucketCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -375,6 +552,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
         </Attribute>
@@ -387,10 +568,20 @@
         <ReturnType>System.Collections.Generic.IList&lt;System.String&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the labels.</summary>
+        <value>The list of bucket labels, after processing.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the labels.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getBucketLabels()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getBucketLabels()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -451,10 +642,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Clear the index.</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Clear the index.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#clearRecords()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.clearRecords()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -482,10 +683,23 @@
         <ReturnType>Android.Icu.Text.RuleBasedCollator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get a clone of the collator used internally.</summary>
+        <value>a clone of the collator used internally</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get a clone of the collator used internally. Note that for performance reasons, the clone is only done once, and
+            then stored. The next time it is accessed, the same instance is returned.</para>
+          <para>&lt;b&gt;<i>Don't use this method across threads if you are changing the settings on the collator, at least not without
+            synchronizing.</i>&lt;/b&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getCollator()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getCollator()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -516,11 +730,27 @@
         <Parameter Name="name" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">Name, such as a name</param>
+        <summary>Get the bucket number for the given name.</summary>
+        <returns>the bucket index for the name</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the bucket number for the given name. This routine permits callers to implement their own bucket handling
+            mechanisms, including client-server handling. For example, when a new name is created on the client, it can ask
+            the server for the bucket for that name, and the sortkey (using getCollator). Once the client has that
+            information, it can put the name into the right bucket, and sort it within that bucket, without having access to
+            the index or collator.</para>
+          <para>Note that the bucket number (and sort key) are only valid for the settings of the current AlphabeticIndex; if
+            those are changed, then the bucket number and sort key must be regenerated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getBucketIndex(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getBucketIndex(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -547,11 +777,27 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">Name, such as a name</param>
+        <summary>Get the bucket number for the given name.</summary>
+        <returns>the bucket index for the name</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the bucket number for the given name. This routine permits callers to implement their own bucket handling
+            mechanisms, including client-server handling. For example, when a new name is created on the client, it can ask
+            the server for the bucket for that name, and the sortkey (using getCollator). Once the client has that
+            information, it can put the name into the right bucket, and sort it within that bucket, without having access to
+            the index or collator.</para>
+          <para>Note that the bucket number (and sort key) are only valid for the settings of the current AlphabeticIndex; if
+            those are changed, then the bucket number and sort key must be regenerated.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getBucketIndex(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getBucketIndex(java.lang.CharSequence)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -579,10 +825,21 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the default label used for abbreviated buckets <i>between</i> other labels.</summary>
+        <value>inflow label</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the default label used for abbreviated buckets <i>between</i> other labels. For example, consider the labels
+            for Latin and Greek are used: X Y Z ... &amp;#x0391; &amp;#x0392; &amp;#x0393;.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getInflowLabel()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getInflowLabel()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -614,10 +871,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Return an iterator over the buckets.</summary>
+        <returns>iterator over buckets.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return an iterator over the buckets.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#iterator()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.iterator()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -642,6 +909,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -679,10 +950,20 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the limit on the number of labels in the index.</summary>
+        <value>maxLabelCount maximum number of labels.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the limit on the number of labels in the index. The number of buckets can be slightly larger: see getBucketCount().</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getMaxLabelCount()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getMaxLabelCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -710,10 +991,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the default label used in the IndexCharacters' locale for overflow, eg the first item in: .</summary>
+        <value>overflow label</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the default label used in the IndexCharacters' locale for overflow, eg the first item in: ... A B C</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getOverflowLabel()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getOverflowLabel()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -741,10 +1032,20 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Return the number of records in the index: that is, the total number of distinct &amp;lt;name,data&amp;gt; pairs added with addRecord(.</summary>
+        <value>total number of records in buckets</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the number of records in the index: that is, the total number of distinct &amp;lt;name,data&amp;gt; pairs added with addRecord(...), over all the buckets.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getRecordCount()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getRecordCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -775,11 +1076,21 @@
         <Parameter Name="inflowLabel" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="inflowLabel">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="inflowLabel">see class description</param>
+        <summary>Set the inflowLabel label</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set the inflowLabel label</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#setInflowLabel(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.setInflowLabel(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -810,11 +1121,24 @@
         <Parameter Name="maxLabelCount" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="maxLabelCount">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="maxLabelCount">Set the maximum number of labels. Currently, if the number is exceeded, then every
+                    nth item is removed to bring the count down. A more sophisticated mechanism may be available in the
+                    future.</param>
+        <summary>Set a limit on the number of labels in the index.</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set a limit on the number of labels in the index. The number of buckets can be slightly larger: see
+            getBucketCount().</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#setMaxLabelCount(int)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.setMaxLabelCount(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -845,11 +1169,21 @@
         <Parameter Name="overflowLabel" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="overflowLabel">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="overflowLabel">see class description</param>
+        <summary>Set the overflow label</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set the overflow label</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#setOverflowLabel(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.setOverflowLabel(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -880,11 +1214,21 @@
         <Parameter Name="underflowLabel" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="underflowLabel">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="underflowLabel">see class description</param>
+        <summary>Set the underflowLabel label</summary>
+        <returns>this, for chaining</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set the underflowLabel label</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#setUnderflowLabel(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.setUnderflowLabel(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -938,6 +1282,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -974,10 +1322,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get the default label used in the IndexCharacters' locale for underflow, eg the last item in: X Y Z .</summary>
+        <value>underflow label</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Get the default label used in the IndexCharacters' locale for underflow, eg the last item in: X Y Z ...</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/AlphabeticIndex#getUnderflowLabel()" title="Reference documentation">Java documentation for <code>android.icu.text.AlphabeticIndex.getUnderflowLabel()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

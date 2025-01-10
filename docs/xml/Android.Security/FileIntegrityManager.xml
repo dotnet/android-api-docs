@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/security/FileIntegrityManager", ApiSince=30, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android30.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android30.0")&gt;]</AttributeName>
     </Attribute>
@@ -62,12 +66,19 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns true if APK Verity is supported on the device.</summary>
+        <summary>Returns whether fs-verity is supported on the device.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Returns true if APK Verity is supported on the device. When supported, an APK can be
-            installed with a fs-verity signature (if verified with trusted App Source Certificate) for
-            continuous on-access verification.</para>
+          <para>Returns whether fs-verity is supported on the device. fs-verity provides on-access
+            verification, although the app APIs are only made available to apps in a later SDK version.
+            Only when this method returns true, the other fs-verity APIs in the same class can succeed.</para>
+          <para>The app may not need this method and just call the other APIs normally and handle any
+            failure. If some app feature really depends on fs-verity (e.g. protecting integrity of a
+            large file download), an early check of support status may avoid any cost if it is to fail
+            late.</para>
+          <para>Note: for historical reasons this is named <c>isApkVeritySupported()</c> instead of
+            <c>isFsVeritySupported()</c>. It has also been available since API level 30, predating the
+            other fs-verity APIs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/security/FileIntegrityManager#isApkVeritySupported()" title="Reference documentation">Java documentation for <code>android.security.FileIntegrityManager.isApkVeritySupported()</code>.</a>
@@ -100,6 +111,10 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android30.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android30.0")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -117,6 +132,7 @@
           <para>A store can use this API to decide if a signature file needs to be downloaded. Also, if a
             store has shipped different certificates before (e.g. with stronger and weaker key), it can
             also use this API to download the best signature on the running device.</para>
+          <para>This member is deprecated. The feature is no longer supported, and this API now always returns false.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/security/FileIntegrityManager#isAppSourceCertificateTrusted(java.security.cert.X509Certificate)" title="Reference documentation">Java documentation for <code>android.security.FileIntegrityManager.isAppSourceCertificateTrusted(java.security.cert.X509Certificate)</code>.</a>

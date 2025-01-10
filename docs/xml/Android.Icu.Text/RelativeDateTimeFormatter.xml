@@ -17,19 +17,64 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/RelativeDateTimeFormatter", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Formats simple relative dates.</summary>
     <remarks>
+      <para>Formats simple relative dates. There are two types of relative dates that
+            it handles:
+            &lt;ul&gt;
+              &lt;li&gt;relative dates with a quantity e.g "in 5 days"&lt;/li&gt;
+              &lt;li&gt;relative dates without a quantity e.g "next Tuesday"&lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>This API is very basic and is intended to be a building block for more
+            fancy APIs. The caller tells it exactly what to display in a locale
+            independent way. While this class automatically provides the correct plural
+            forms, the grammatical form is otherwise as neutral as possible. It is the
+            caller's responsibility to handle cut-off logic such as deciding between
+            displaying "in 7 days" or "in 1 week." This API supports relative dates
+            involving one single unit. This API does not support relative dates
+            involving compound units.
+            e.g "in 5 days and 4 hours" nor does it support parsing.
+            This class is both immutable and thread-safe.</para>
+      <para>Here are some examples of use:
+            &lt;blockquote&gt;</para>
+      <code lang="text/java">RelativeDateTimeFormatter fmt = RelativeDateTimeFormatter.getInstance();
+            fmt.format(1, Direction.NEXT, RelativeUnit.DAYS); // "in 1 day"
+            fmt.format(3, Direction.NEXT, RelativeUnit.DAYS); // "in 3 days"
+            fmt.format(3.2, Direction.LAST, RelativeUnit.YEARS); // "3.2 years ago"
+            
+            fmt.format(Direction.LAST, AbsoluteUnit.SUNDAY); // "last Sunday"
+            fmt.format(Direction.THIS, AbsoluteUnit.SUNDAY); // "this Sunday"
+            fmt.format(Direction.NEXT, AbsoluteUnit.SUNDAY); // "next Sunday"
+            fmt.format(Direction.PLAIN, AbsoluteUnit.SUNDAY); // "Sunday"
+            
+            fmt.format(Direction.LAST, AbsoluteUnit.DAY); // "yesterday"
+            fmt.format(Direction.THIS, AbsoluteUnit.DAY); // "today"
+            fmt.format(Direction.NEXT, AbsoluteUnit.DAY); // "tomorrow"
+            
+            fmt.format(Direction.PLAIN, AbsoluteUnit.NOW); // "now"
+            </code>
+      <para>&lt;/blockquote&gt;</para>
+      <para>In the future, we may add more forms, such as abbreviated/short forms
+            (3 secs ago), and relative day periods ("yesterday afternoon"), etc.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -57,10 +102,20 @@
         <ReturnType>Android.Icu.Text.DisplayContext</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Return capitalization context.</summary>
+        <value>The capitalization context.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return capitalization context.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#getCapitalizationContext()" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.getCapitalizationContext()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -92,12 +147,26 @@
         <Parameter Name="timeString" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="relativeDateString">To be added.</param>
-        <param name="timeString">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="relativeDateString">the relative date e.g 'yesterday'</param>
+        <param name="timeString">the time e.g '3:45'</param>
+        <summary>Combines a relative date string and a time string in this object's
+            locale.</summary>
+        <returns>the date and time concatenated according to the default
+            calendar in this locale e.g 'yesterday, 3:45'</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Combines a relative date string and a time string in this object's
+            locale. This is done with the same date-time separator used for the
+            default calendar in this locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#combineDateAndTime(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.combineDateAndTime(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -447,11 +516,21 @@
         <Parameter Name="locale" Type="Android.Icu.Util.ULocale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">the locale.</param>
+        <summary>Returns a RelativeDateTimeFormatter for a particular locale.</summary>
+        <returns>An instance of RelativeDateTimeFormatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a RelativeDateTimeFormatter for a particular locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#getInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.getInstance(android.icu.util.ULocale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -482,11 +561,21 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">the <c>java.util.Locale</c>.</param>
+        <summary>Returns a RelativeDateTimeFormatter for a particular <c>java.util.Locale</c>.</summary>
+        <returns>An instance of RelativeDateTimeFormatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a RelativeDateTimeFormatter for a particular <c>java.util.Locale</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#getInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.getInstance(java.util.Locale)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -518,12 +607,25 @@
         <Parameter Name="nf" Type="Android.Icu.Text.NumberFormat" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <param name="nf">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">the locale</param>
+        <param name="nf">the number format object. It is defensively copied to ensure thread-safety
+            and immutability of this class.</param>
+        <summary>Returns a RelativeDateTimeFormatter for a particular locale that uses a particular
+            NumberFormat object.</summary>
+        <returns>An instance of RelativeDateTimeFormatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a RelativeDateTimeFormatter for a particular locale that uses a particular
+            NumberFormat object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#getInstance(android.icu.util.ULocale,%20android.icu.text.NumberFormat)" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.getInstance(android.icu.util.ULocale, android.icu.text.NumberFormat)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -555,12 +657,25 @@
         <Parameter Name="nf" Type="Android.Icu.Text.NumberFormat" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <param name="nf">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="locale">the <c>java.util.Locale</c></param>
+        <param name="nf">the number format object. It is defensively copied to ensure thread-safety
+            and immutability of this class.</param>
+        <summary>Returns a RelativeDateTimeFormatter for a particular <c>java.util.Locale</c> that uses a
+            particular NumberFormat object.</summary>
+        <returns>An instance of RelativeDateTimeFormatter.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a RelativeDateTimeFormatter for a particular <c>java.util.Locale</c> that uses a
+            particular NumberFormat object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#getInstance(java.util.Locale,%20android.icu.text.NumberFormat)" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.getInstance(java.util.Locale, android.icu.text.NumberFormat)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -629,10 +744,20 @@
         <ReturnType>Android.Icu.Text.RelativeDateTimeFormatter</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns a RelativeDateTimeFormatter for the default locale.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a RelativeDateTimeFormatter for the default locale.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#getInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.getInstance()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -654,6 +779,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -691,10 +820,20 @@
         <ReturnType>Android.Icu.Text.NumberFormat</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns a copy of the NumberFormat this object is using.</summary>
+        <value>A copy of the NumberFormat.</value>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a copy of the NumberFormat this object is using.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/RelativeDateTimeFormatter#getNumberFormat()" title="Reference documentation">Java documentation for <code>android.icu.text.RelativeDateTimeFormatter.getNumberFormat()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -747,6 +886,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

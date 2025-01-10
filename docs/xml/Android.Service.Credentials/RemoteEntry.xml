@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/service/credentials/RemoteEntry", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
@@ -89,7 +93,14 @@
         <Parameter Name="slice" Type="Android.App.Slices.Slice" />
       </Parameters>
       <Docs>
-        <param name="slice">the display content to be displayed on the UI, along with this entry</param>
+        <param name="slice">the slice containing the metadata to be shown on the UI, must be constructed
+                         through the <c>androidx.credentials.provider</c> Jetpack library;
+                         If constructed manually, the <c>slice</c> object must
+                         contain the non-null properties of the
+                         <c>androidx.credentials.provider.RemoteEntry</c> class populated as slice items
+                         against specific hints as used in the class's <c>toSlice</c> method,
+                         since the Android System uses this library to parse the <c>slice</c> and
+                         extract the required attributes</param>
         <summary>Constructs a RemoteEntry to be displayed on the UI.</summary>
         <remarks>
           <para>Constructs a RemoteEntry to be displayed on the UI.</para>

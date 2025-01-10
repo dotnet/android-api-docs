@@ -16,6 +16,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/app/job/JobService", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/job/JobService", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>Entry point for the callback from the <c>android.app.job.JobScheduler</c>.</summary>
@@ -27,9 +31,23 @@
       <para>This service executes each incoming job on a <c>android.os.Handler</c> running on your
             application's main thread. This means that you &lt;b&gt;must&lt;/b&gt; offload your execution logic to
             another thread/handler/<c>android.os.AsyncTask</c> of your choosing. Not doing so will result
-            in blocking any future callbacks from the JobManager - specifically
+            in blocking any future callbacks from the JobScheduler - specifically
             <c>#onStopJob(android.app.job.JobParameters)</c>, which is meant to inform you that the
             scheduling requirements are no longer being met.</para>
+      <para>Since the introduction of JobScheduler, if an app did not return from
+            <c>#onStartJob(JobParameters)</c> within several seconds, JobScheduler would consider the app
+            unresponsive and clean up job execution. In such cases, the app was no longer considered
+            to be running a job and therefore did not have any of the job lifecycle guarantees outlined
+            in <c>JobScheduler</c>. However, prior to Android version
+            <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, the failure and cleanup were silent
+            and apps had no indication that they no longer had job lifecycle guarantees.
+            Starting with Android version <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>,
+            JobScheduler will explicitly trigger an ANR in such cases so that apps and developers
+            can be aware of the issue.
+            Similar behavior applies to the return time from <c>#onStopJob(JobParameters)</c> as well.
+            &lt;br /&gt; &lt;br /&gt;
+            If you see ANRs, then the app may be doing too much work on the UI thread. Ensure that
+            potentially long operations are moved to a worker thread.</para>
       <para>As a subclass of <c>Service</c>, there will only be one active instance of any JobService
             subclasses, regardless of job ID. This means that if you schedule multiple jobs with different
             job IDs but using the same JobService class, that JobService may receive multiple calls to
@@ -264,13 +282,11 @@
             <c>android.app.job.JobInfo.Builder#setBackoffCriteria(long, int)</c> method
             when the job is originally scheduled.  The job's initial
             requirements are preserved when jobs are rescheduled, regardless of backed-off
-            policy.
-            &lt;p class="note"&gt;
-            A job running while the device is dozing will not be rescheduled with the normal back-off
+            policy.</para>
+          <para>A job running while the device is dozing will not be rescheduled with the normal back-off
             policy.  Instead, the job will be re-added to the queue and executed again during
             a future idle maintenance window.</para>
-          <para>&lt;p class="note"&gt;
-            Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
+          <para>Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
             cannot be rescheduled when the user has asked to stop the app
             via a system provided affordance (such as the Task Manager).
             In such situations, the value of <c>wantsReschedule</c> is always treated as <c>false</c>.</para>
@@ -474,7 +490,7 @@
         <summary>This method is called if the system has determined that you must stop execution of your job
             even before you've had a chance to call <c>#jobFinished(JobParameters, boolean)</c>.</summary>
         <returns>
-          <c>true</c> to indicate to the JobManager whether you'd like to reschedule
+          <c>true</c> to indicate to the JobScheduler whether you'd like to reschedule
             this job based on the retry criteria provided at job creation-time; or <c>false</c>
             to end the job entirely (or, for a periodic job, to reschedule it according to its
             requested periodic criteria). Regardless of the value returned, your job must stop executing.</returns>
@@ -495,13 +511,11 @@
             ignore it.</para>
           <para>Once this method returns (or times out), the system releases the wakelock that it is holding
             on behalf of the job.</para>
-          <para>&lt;p class="note"&gt;
-            Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
+          <para>Any <c>JobInfo.Builder#setUserInitiated(boolean) user-initiated job</c>
             cannot be rescheduled when stopped by the user via a system provided affordance (such as
             the Task Manager). In such situations, the returned value from this method call is always
-            treated as <c>false</c>.
-            
-            &lt;p class="caution"&gt;&lt;strong&gt;Note:&lt;/strong&gt; When a job is stopped and rescheduled via this
+            treated as <c>false</c>.</para>
+          <para>&lt;strong&gt;Note:&lt;/strong&gt; When a job is stopped and rescheduled via this
             method call, the deadline constraint is excluded from the rescheduled job's constraint set.
             The rescheduled job will run again once all remaining constraints are satisfied.</para>
           <para>

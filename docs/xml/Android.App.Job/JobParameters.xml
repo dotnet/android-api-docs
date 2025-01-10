@@ -29,6 +29,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/app/job/JobParameters", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/job/JobParameters", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>Contains the parameters used to configure/identify your job.</summary>
@@ -82,6 +86,10 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
@@ -224,6 +232,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("CREATOR")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -397,6 +409,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -445,6 +463,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Net.Uri[]</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -543,7 +567,10 @@
           <para>For jobs with <c>android.app.job.JobInfo.Builder#setOverrideDeadline(long)</c> set, this
             provides an easy way to tell whether the job is being executed due to the deadline
             expiring. Note: If the job is running because its deadline expired, it implies that its
-            constraints will not be met.</para>
+            constraints will not be met. However,
+            <c>android.app.job.JobInfo.Builder#setPeriodic(long) periodic jobs</c> will only ever
+            run when their constraints are satisfied, therefore, the constraints will still be satisfied
+            for a periodic job even if the deadline has expired.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/job/JobParameters#isOverrideDeadlineExpired()" title="Reference documentation">Java documentation for <code>android.app.job.JobParameters.isOverrideDeadlineExpired()</code>.</a>
@@ -685,6 +712,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -727,6 +758,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
         </Attribute>
@@ -745,6 +780,19 @@
                     for this job, or <c>null</c> if this job didn't set any required
                     network type or if the job executed when there was no available network to use.</value>
         <remarks>
+          <para>Return the network that should be used to perform any network requests
+            for this job.</para>
+          <para>Devices may have multiple active network connections simultaneously, or
+            they may not have a default network route at all. To correctly handle all
+            situations like this, your job should always use the network returned by
+            this method instead of implicitly using the default network route.</para>
+          <para>Note that the system may relax the constraints you originally requested,
+            such as allowing a <c>JobInfo#NETWORK_TYPE_UNMETERED</c> job to run over
+            a metered network when there is a surplus of metered data available.
+            
+            Starting in Android version <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>,
+            this will return <c>null</c> if the app does not hold the permissions specified in
+            <c>JobInfo.Builder#setRequiredNetwork(NetworkRequest)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/job/JobParameters#getNetwork()" title="Reference documentation">Java documentation for <code>android.app.job.JobParameters.getNetwork()</code>.</a>

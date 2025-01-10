@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/PictureInPictureUiState", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -141,8 +145,8 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns whether Picture-in-Picture is stashed or not. A stashed PiP means it is only
-            partially visible to the user, with some parts of it being off-screen. This is usually
-            an UI state that is triggered by the user, such as flinging the PiP to the edge or letting go
+            partially visible to the user, with some parts of it being off-screen. This is usually a
+            UI state that is triggered by the user, such as flinging the PiP to the edge or letting go
             of PiP while dragging partially off-screen.
             
             Developers can use this in conjunction with
@@ -150,10 +154,69 @@
             when the PiP stash state has changed. For example, if the state changed from <c>false</c> to
             <c>true</c>, developers can choose to temporarily pause video playback if PiP is of video
             content. Vice versa, if changing from <c>true</c> to <c>false</c> and video content is
-            paused, developers can resumevideo playback.</para>
+            paused, developers can resume video playback.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/PictureInPictureUiState#isStashed()" title="Reference documentation">Java documentation for <code>android.app.PictureInPictureUiState.isStashed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsTransitioningToPip">
+      <MemberSignature Language="C#" Value="public bool IsTransitioningToPip { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsTransitioningToPip" />
+      <MemberSignature Language="DocId" Value="P:Android.App.PictureInPictureUiState.IsTransitioningToPip" />
+      <MemberSignature Language="F#" Value="member this.IsTransitioningToPip : bool" Usage="Android.App.PictureInPictureUiState.IsTransitioningToPip" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isTransitioningToPip", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isTransitioningToPip", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns <c>true</c> if the app is going to enter Picture-in-Picture (PiP) mode.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Returns <c>true</c> if the app is going to enter Picture-in-Picture (PiP) mode.
+            
+            This state is associated with the entering PiP animation. When that animation starts,
+            whether via auto enter PiP or calling
+            <c>Activity#enterPictureInPictureMode(PictureInPictureParams)</c> explicitly, app can expect
+            <c>Activity#onPictureInPictureUiStateChanged(PictureInPictureUiState)</c> callback with
+            <c>#isTransitioningToPip()</c> to be <c>true</c> first,
+            followed by <c>Activity#onPictureInPictureModeChanged(boolean, Configuration)</c> when it
+            fully settles in PiP mode.
+            
+            When app receives the
+            <c>Activity#onPictureInPictureUiStateChanged(PictureInPictureUiState)</c> callback with
+            <c>#isTransitioningToPip()</c> being <c>true</c>, it's recommended to hide certain UI
+            elements, such as video controls, to archive a clean entering PiP animation.
+            
+            In case an application wants to restore the previously hidden UI elements when exiting
+            PiP, it is recommended to do that in
+            <c>onPictureInPictureModeChanged(isInPictureInPictureMode=false)</c> callback rather
+            than the beginning of exit PiP animation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/PictureInPictureUiState#isTransitioningToPip()" title="Reference documentation">Java documentation for <code>android.app.PictureInPictureUiState.isTransitioningToPip()</code>.</a>
             </format>
           </para>
           <para>

@@ -33,6 +33,33 @@
   <Docs since="5">
     <summary>A listening Bluetooth socket.</summary>
     <remarks>
+      <para>A listening Bluetooth socket.</para>
+      <para>The interface for Bluetooth Sockets is similar to that of TCP sockets: <c>java.net.Socket</c>
+            and <c>java.net.ServerSocket</c>. On the server side, use a <c>BluetoothServerSocket</c> to
+            create a listening server socket. When a connection is accepted by the <c>BluetoothServerSocket</c>, it will return a new <c>BluetoothSocket</c> to manage the connection. On
+            the client side, use a single <c>BluetoothSocket</c> to both initiate an outgoing connection and
+            to manage the connection.</para>
+      <para>For Bluetooth BR/EDR, the most common type of socket is RFCOMM, which is the type supported by
+            the Android APIs. RFCOMM is a connection-oriented, streaming transport over Bluetooth BR/EDR. It
+            is also known as the Serial Port Profile (SPP). To create a listening <c>BluetoothServerSocket</c> that's ready for incoming Bluetooth BR/EDR connections, use <c>BluetoothAdapter#listenUsingRfcommWithServiceRecord
+            BluetoothAdapter.listenUsingRfcommWithServiceRecord()</c>.</para>
+      <para>For Bluetooth LE, the socket uses LE Connection-oriented Channel (CoC). LE CoC is a
+            connection-oriented, streaming transport over Bluetooth LE and has a credit-based flow control.
+            Correspondingly, use <c>BluetoothAdapter#listenUsingL2capChannel
+            BluetoothAdapter.listenUsingL2capChannel()</c> to create a listening <c>BluetoothServerSocket</c>
+            that's ready for incoming Bluetooth LE CoC connections. For LE CoC, you can use <c>#getPsm()</c>
+            to get the protocol/service multiplexer (PSM) value that the peer needs to use to connect to your
+            socket.</para>
+      <para>After the listening <c>BluetoothServerSocket</c> is created, call <c>#accept()</c> to listen
+            for incoming connection requests. This call will block until a connection is established, at
+            which point, it will return a <c>BluetoothSocket</c> to manage the connection. Once the <c>BluetoothSocket</c> is acquired, it's a good idea to call <c>#close()</c> on the <c>BluetoothServerSocket</c> when it's no longer needed for accepting connections. Closing the <c>BluetoothServerSocket</c> will &lt;em&gt;not&lt;/em&gt; close the returned <c>BluetoothSocket</c>.</para>
+      <para>
+        <c>BluetoothServerSocket</c> is thread safe. In particular, <c>#close</c> will always
+            immediately abort ongoing operations and close the server socket.</para>
+      <para>&lt;div class="special reference"&gt;
+            
+            &lt;h3&gt;Developer Guides&lt;/h3&gt;</para>
+      <para>For more information about using Bluetooth, read the <see href="https://developer.android.com/guide/topics/connectivity/bluetooth.html">Bluetooth</see> developer guide. &lt;/div&gt;</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/bluetooth/BluetoothServerSocket" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothServerSocket</code>.</a>
@@ -71,6 +98,11 @@
         <summary>Block until a connection is established.</summary>
         <returns>a connected <c>BluetoothSocket</c></returns>
         <remarks>
+          <para>Block until a connection is established.</para>
+          <para>Returns a connected <c>BluetoothSocket</c> on successful connection.</para>
+          <para>Once this call returns, it can be called again to accept subsequent incoming connections.</para>
+          <para>
+            <c>#close</c> can be used to abort this call from another thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothServerSocket#accept()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothServerSocket.accept()</code>.</a>
@@ -115,6 +147,11 @@
         <summary>Block until a connection is established, with timeout.</summary>
         <returns>a connected <c>BluetoothSocket</c></returns>
         <remarks>
+          <para>Block until a connection is established, with timeout.</para>
+          <para>Returns a connected <c>BluetoothSocket</c> on successful connection.</para>
+          <para>Once this call returns, it can be called again to accept subsequent incoming connections.</para>
+          <para>
+            <c>#close</c> can be used to abort this call from another thread.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothServerSocket#accept(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothServerSocket.accept(int)</code>.</a>
@@ -144,6 +181,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Threading.Tasks.Task&lt;Android.Bluetooth.BluetoothSocket&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters />
       <Docs>
@@ -166,6 +209,12 @@
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Threading.Tasks.Task&lt;Android.Bluetooth.BluetoothSocket&gt;</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 1, 2 })&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="timeout" Type="System.Int32" />
@@ -205,6 +254,9 @@
       <Docs>
         <summary>Immediately close this socket, and release all associated resources.</summary>
         <remarks>
+          <para>Immediately close this socket, and release all associated resources.</para>
+          <para>Causes blocked calls on this socket in other threads to immediately throw an IOException.</para>
+          <para>Closing the <c>BluetoothServerSocket</c> will &lt;em&gt;not&lt;/em&gt; close any <c>BluetoothSocket</c> received from <c>#accept()</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothServerSocket#close()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothServerSocket.close()</code>.</a>
@@ -241,6 +293,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -282,6 +338,10 @@
             Connection-oriented Channel (CoC) server socket.</summary>
         <value>the assigned PSM or LE_PSM value depending on transport</value>
         <remarks>
+          <para>Returns the assigned dynamic protocol/service multiplexer (PSM) value for the listening L2CAP
+            Connection-oriented Channel (CoC) server socket. This server socket must be returned by the
+            <c>BluetoothAdapter#listenUsingL2capChannel()</c> or <c>BluetoothAdapter#listenUsingInsecureL2capChannel()</c>. The returned value is undefined if this
+            method is called on non-L2CAP server sockets.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothServerSocket#getPsm()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothServerSocket.getPsm()</code>.</a>
@@ -344,6 +404,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

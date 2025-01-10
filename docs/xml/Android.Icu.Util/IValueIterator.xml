@@ -25,14 +25,40 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Interface for enabling iteration over sets of &amp;lt;int, Object&amp;gt;, where
+            int is the sorted integer index in ascending order, and Object its
+            associated value.</summary>
     <remarks>
+      <para>Interface for enabling iteration over sets of &amp;lt;int, Object&amp;gt;, where
+            int is the sorted integer index in ascending order, and Object its
+            associated value.</para>
+      <para>The ValueIterator allows iterations over integer indexes in the range
+            of Integer.MIN_VALUE to Integer.MAX_VALUE inclusive. Implementations of
+            ValueIterator should specify their own maximum subrange within the above
+            range that is meaningful to its applications.</para>
+      <para>Most implementations will be created by factory methods, such as the
+            character name iterator in UCharacter.getNameIterator. See example below.
+            
+            Example of use:&lt;br&gt;</para>
+      <code lang="text/java">ValueIterator iterator = UCharacter.getNameIterator();
+            ValueIterator.Element result = new ValueIterator.Element();
+            iterator.setRange(UCharacter.MIN_VALUE, UCharacter.MAX_VALUE);
+            while (iterator.next(result)) {
+                System.out.println("Codepoint \\u" +
+                                   Integer.toHexString(result.integer) +
+                                   " has the character name " + (String)result.value);
+            }
+            </code>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/util/ValueIterator" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/util/ValueIterator" title="Reference documentation">Java documentation for <code>android.icu.util.ValueIterator</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -96,9 +122,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Resets the iterator to start iterating from the integer index
+            Integer.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Resets the iterator to start iterating from the integer index
+            Integer.MIN_VALUE or X if a setRange(X, Y) has been called previously.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ValueIterator#reset()" title="Reference documentation">Java documentation for <code>android.icu.util.ValueIterator.reset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -130,11 +168,28 @@
         <Parameter Name="limit" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="limit">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="start">first integer in the range to iterate</param>
+        <param name="limit">one more than the last integer in the range</param>
+        <summary>Restricts the range of integers to iterate and resets the iteration
+            to begin at the index argument start.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Restricts the range of integers to iterate and resets the iteration
+            to begin at the index argument start.</para>
+          <para>If setRange(start, end) is not performed before next(element) is
+            called, the iteration will start from the integer index
+            Integer.MIN_VALUE and end at Integer.MAX_VALUE.</para>
+          <para>If this range is set outside the meaningful range specified by the
+            implementation, next(element) will always return false.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/ValueIterator#setRange(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.util.ValueIterator.setRange(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

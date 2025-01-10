@@ -17,19 +17,52 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/CompactDecimalFormat", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Formats numbers in compact (abbreviated) notation, like "1.</summary>
     <remarks>
+      <para>Formats numbers in compact (abbreviated) notation, like "1.2K" instead of "1200".</para>
+      <para>&lt;strong&gt;IMPORTANT:&lt;/strong&gt; New users are strongly encouraged to see if
+            <c>NumberFormatter</c> fits their use case.  Although not deprecated, this
+            class, CompactDecimalFormat, is provided for backwards compatibility only.
+            &lt;hr&gt;
+            
+            The CompactDecimalFormat produces abbreviated numbers, suitable for display in environments will
+            limited real estate. For example, 'Hits: 1.2B' instead of 'Hits: 1,200,000,000'. The format will
+            be appropriate for the given language, such as "1,2 Mrd." for German.</para>
+      <para>For numbers under 1000 trillion (under 10^15, such as 123,456,789,012,345), the result will be
+            short for supported languages. However, the result may sometimes exceed 7 characters, such as
+            when there are combining marks or thin characters. In such cases, the visual width in fonts
+            should still be short.</para>
+      <para>By default, there are 2 significant digits. After creation, if more than three significant
+            digits are set (with setMaximumSignificantDigits), or if a fixed number of digits are set (with
+            setMaximumIntegerDigits or setMaximumFractionDigits), then result may be wider.</para>
+      <para>The "short" style is also capable of formatting currency amounts, such as "$1.2M" instead of
+            "$1,200,000.00" (English) or "5,3 Mio. €" instead of "5.300.000,00 €" (German). Localized data
+            concerning longer formats is not available yet in the Unicode CLDR. Because of this, attempting
+            to format a currency amount using the "long" style will produce an UnsupportedOperationException.</para>
+      <para>At this time, negative numbers and parsing are not supported, and will produce an
+            UnsupportedOperationException. Resetting the pattern prefixes or suffixes is not supported; the
+            method calls are ignored.</para>
+      <para>Note that important methods, like setting the number of decimals, will be moved up from
+            DecimalFormat to NumberFormat.</para>
       <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/CompactDecimalFormat" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/CompactDecimalFormat" title="Reference documentation">Java documentation for <code>android.icu.text.CompactDecimalFormat</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>

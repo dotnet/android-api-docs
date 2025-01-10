@@ -16,11 +16,39 @@
       <AttributeName Language="C#">[Android.Runtime.Register("android/util/Log", DoNotGenerateAcw=true)]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/util/Log", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>Mock Log implementation for testing on non android host.</summary>
+    <summary>API for sending log output.</summary>
     <remarks>
-      <para>Mock Log implementation for testing on non android host.</para>
+      <para>API for sending log output.</para>
+      <para>Generally, you should use the <c>#v Log.v()</c>, <c>#d Log.d()</c>,
+            <c>#i Log.i()</c>, <c>#w Log.w()</c>, and <c>#e Log.e()</c> methods to write logs.
+            You can then <see href="https://developer.android.com/studio/debug/am-logcat.html">view the logs in logcat</see>.</para>
+      <para>The order in terms of verbosity, from least to most is
+            ERROR, WARN, INFO, DEBUG, VERBOSE.</para>
+      <para>&lt;b&gt;Tip:&lt;/b&gt; A good convention is to declare a <c>TAG</c> constant
+            in your class:</para>
+      <code lang="text/java">private static final String TAG = "MyActivity";</code>
+      <para>and use that in subsequent calls to the log methods.
+            &lt;/p&gt;</para>
+      <para>&lt;b&gt;Tip:&lt;/b&gt; Don't forget that when you make a call like</para>
+      <code lang="text/java">Log.v(TAG, "index=" + i);</code>
+      <para>that when you're building the string to pass into Log.d, the compiler uses a
+            StringBuilder and at least three allocations occur: the StringBuilder
+            itself, the buffer, and the String object.  Realistically, there is also
+            another buffer allocation and copy, and even more pressure on the gc.
+            That means that if your log message is filtered out, you might be doing
+            significant work and incurring significant overhead.</para>
+      <para>When calling the log methods that take a Throwable parameter,
+            if any of the throwables in the cause chain is an <c>UnknownHostException</c>,
+            then the stack trace is not logged.</para>
+      <para>Note: The return value from the logging functions in this class may vary between Android
+            releases due to changes in the logging implementation. For the methods that return an integer,
+            a positive value may be considered as a successful invocation.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/util/Log" title="Reference documentation">Java documentation for <code>android.util.Log</code>.</a>
@@ -55,7 +83,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="tag" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="msg" Type="System.String" />
       </Parameters>
       <Docs>
@@ -63,7 +98,7 @@
                    the class or activity where the log call occurs.</param>
         <param name="msg">The message you would like logged.</param>
         <summary>Send a <c>#DEBUG</c> log message.</summary>
-        <returns>To be added.</returns>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
           <para>Send a <c>#DEBUG</c> log message.</para>
           <para>
@@ -203,7 +238,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="tag" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="msg" Type="System.String" />
       </Parameters>
       <Docs>
@@ -211,7 +253,7 @@
                    the class or activity where the log call occurs.</param>
         <param name="msg">The message you would like logged.</param>
         <summary>Send an <c>#ERROR</c> log message.</summary>
-        <returns>To be added.</returns>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
           <para>Send an <c>#ERROR</c> log message.</para>
           <para>
@@ -372,14 +414,23 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="tr" Type="Java.Lang.Throwable" />
+        <Parameter Name="tr" Type="Java.Lang.Throwable">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="tr">An exception to log</param>
+        <param name="tr">An exception to log.</param>
         <summary>Handy function to get a loggable stack trace from a Throwable</summary>
         <returns>To be added.</returns>
         <remarks>
           <para>Handy function to get a loggable stack trace from a Throwable</para>
+          <para>If any of the throwables in the cause chain is an <c>UnknownHostException</c>,
+            this returns an empty string.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/util/Log#getStackTraceString(java.lang.Throwable)" title="Reference documentation">Java documentation for <code>android.util.Log.getStackTraceString(java.lang.Throwable)</code>.</a>
@@ -414,7 +465,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="tag" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="msg" Type="System.String" />
       </Parameters>
       <Docs>
@@ -422,7 +480,7 @@
                    the class or activity where the log call occurs.</param>
         <param name="msg">The message you would like logged.</param>
         <summary>Send an <c>#INFO</c> log message.</summary>
-        <returns>To be added.</returns>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
           <para>Send an <c>#INFO</c> log message.</para>
           <para>
@@ -576,9 +634,27 @@
         <param name="tag">The tag to check.</param>
         <param name="level">The level to check.</param>
         <summary>Checks to see whether or not a log for the specified tag is loggable at the specified level.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether or not that this is allowed to be logged.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Checks to see whether or not a log for the specified tag is loggable at the specified level.</para>
+          <para>The default level of any tag is set to INFO. This means that any level above and including
+             INFO will be logged. Before you make any calls to a logging method you should check to see
+             if your tag should be logged. You can change the default level by setting a system property:
+                 'setprop log.tag.&amp;lt;YOUR_LOG_TAG&gt; &amp;lt;LEVEL&gt;'
+             Where level is either VERBOSE, DEBUG, INFO, WARN, ERROR, or ASSERT.
+             You can also create a local.prop file that with the following in it:
+                 'log.tag.&amp;lt;YOUR_LOG_TAG&gt;=&amp;lt;LEVEL&gt;'
+             and place that in /data/local.prop.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/Log#isLoggable(java.lang.String,%20int)" title="Reference documentation">Java documentation for <code>android.util.Log.isLoggable(java.lang.String, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
         <exception cref="T:Java.Lang.IllegalArgumentException">is thrown if the tag.length() &gt; 23.
@@ -698,7 +774,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="tag" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="msg" Type="System.String" />
       </Parameters>
       <Docs>
@@ -706,7 +789,7 @@
                    the class or activity where the log call occurs.</param>
         <param name="msg">The message you would like logged.</param>
         <summary>Send a <c>#VERBOSE</c> log message.</summary>
-        <returns>To be added.</returns>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
           <para>Send a <c>#VERBOSE</c> log message.</para>
           <para>
@@ -852,13 +935,14 @@
       <Docs>
         <param name="tag">Used to identify the source of a log message.  It usually identifies
                    the class or activity where the log call occurs.</param>
-        <param name="tr">To be added.</param>
-        <summary>Send a <c>#WARN</c> log message.</summary>
-        <returns>To be added.</returns>
+        <param name="tr">An exception to log.</param>
+        <summary>Send a <c>#WARN</c> log message and log the exception.</summary>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
+          <para>Send a <c>#WARN</c> log message and log the exception.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/util/Log#w(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.util.Log.w(java.lang.String, java.lang.String)</code>.</a>
+              <a href="https://developer.android.com/reference/android/util/Log#w(java.lang.String,%20java.lang.Throwable)" title="Reference documentation">Java documentation for <code>android.util.Log.w(java.lang.String, java.lang.Throwable)</code>.</a>
             </format>
           </para>
           <para>
@@ -890,7 +974,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="tag" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="msg" Type="System.String" />
       </Parameters>
       <Docs>
@@ -898,7 +989,7 @@
                    the class or activity where the log call occurs.</param>
         <param name="msg">The message you would like logged.</param>
         <summary>Send a <c>#WARN</c> log message.</summary>
-        <returns>To be added.</returns>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
           <para>Send a <c>#WARN</c> log message.</para>
           <para>
@@ -1046,7 +1137,14 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="tag" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="msg" Type="System.String" />
       </Parameters>
       <Docs>
@@ -1055,7 +1153,7 @@
                    the class or activity where the log call occurs.</param>
         <param name="msg">The message you would like logged.</param>
         <summary>Low-level logging call.</summary>
-        <returns>The number of bytes written.</returns>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
           <para>Low-level logging call.</para>
           <para>
@@ -1130,17 +1228,34 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="tag" Type="System.String">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="tr" Type="Java.Lang.Throwable" />
       </Parameters>
       <Docs>
         <param name="tag">Used to identify the source of a log message.</param>
-        <param name="tr">An exception to log.
-</param>
-        <summary tool="true">What a Terrible Failure: Report an exception that should never happen.</summary>
-        <returns>To be added.</returns>
+        <param name="tr">An exception to log.</param>
+        <summary>What a Terrible Failure: Report an exception that should never happen.</summary>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>What a Terrible Failure: Report an exception that should never happen.
+            Similar to <c>#wtf(String, String)</c>, with an exception to log.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/Log#wtf(java.lang.String,%20java.lang.Throwable)" title="Reference documentation">Java documentation for <code>android.util.Log.wtf(java.lang.String, java.lang.Throwable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 8" />
       </Docs>
@@ -1170,12 +1285,25 @@
       </Parameters>
       <Docs>
         <param name="tag">Used to identify the source of a log message.</param>
-        <param name="msg">The message you would like logged.
-</param>
+        <param name="msg">The message you would like logged.</param>
         <summary>What a Terrible Failure: Report a condition that should never happen.</summary>
-        <returns>To be added.</returns>
+        <returns>A positive value if the message was loggable (see <c>#isLoggable</c>).</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>What a Terrible Failure: Report a condition that should never happen.
+            The error will always be logged at level ASSERT with the call stack.
+            Depending on system configuration, a report may be added to the
+            <c>android.os.DropBoxManager</c> and/or the process may be terminated
+            immediately with an error dialog.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/util/Log#wtf(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.util.Log.wtf(java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 8" />
       </Docs>

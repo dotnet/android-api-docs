@@ -1,0 +1,1047 @@
+<Type Name="RandomGeneratorFactory" FullName="Java.Util.RandomGenerators.RandomGeneratorFactory">
+  <TypeSignature Language="C#" Value="public sealed class RandomGeneratorFactory : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit RandomGeneratorFactory extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Java.Util.RandomGenerators.RandomGeneratorFactory" />
+  <TypeSignature Language="F#" Value="type RandomGeneratorFactory = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/util/random/RandomGeneratorFactory", ApiSince=35, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/util/random/RandomGeneratorFactory", ApiSince=35, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T extends java.util.random.RandomGenerator" })]</AttributeName>
+      <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T extends java.util.random.RandomGenerator" })&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>This is a factory class for generating multiple random number generators
+            of a specific algorithm.</summary>
+    <remarks>
+      <para>This is a factory class for generating multiple random number generators
+            of a specific algorithm.
+            <c>RandomGeneratorFactory</c> also provides
+            methods for selecting random number generator algorithms.
+            
+            A specific <c>RandomGeneratorFactory</c> can be located by using the
+            <c>RandomGeneratorFactory#of(String)</c> method, where the argument string
+            is the name of the algorithm
+            required. The method
+            <c>RandomGeneratorFactory#all()</c> produces a non-empty <c>Stream</c> of all available
+            <c>RandomGeneratorFactory RandomGeneratorFactorys</c> that can be searched
+            to locate a <c>RandomGeneratorFactory</c> suitable to the task.
+            
+            There are three methods for constructing a RandomGenerator instance,
+            depending on the type of initial seed required.
+            <c>RandomGeneratorFactory#create(long)</c> is used for long
+            seed construction,
+            <c>RandomGeneratorFactory#create(byte[])</c> is used for byte[]
+            seed construction, and
+            <c>RandomGeneratorFactory#create()</c> is used for random seed
+            construction. Example;</para>
+      <code lang="text/java">{@code
+               RandomGeneratorFactory&lt;RandomGenerator&gt; factory = RandomGeneratorFactory.of("Random");
+            
+                for (int i = 0; i &lt; 10; i++) {
+                    new Thread(() -&gt; {
+                        RandomGenerator random = factory.create(100L);
+                        System.out.println(random.nextDouble());
+                    }).start();
+                }
+            }</code>
+      <para>RandomGeneratorFactory also provides methods describing the attributes (or properties)
+            of a generator and can be used to select random number generator
+            algorithms.
+            These methods are typically used in
+            conjunction with <c>RandomGeneratorFactory#all()</c>. In this example, the code
+            locates the <c>RandomGeneratorFactory</c> that produces
+            <c>RandomGenerator RandomGenerators</c>
+            with the highest number of state bits.</para>
+      <code lang="text/java">{@code
+                RandomGeneratorFactory&lt;RandomGenerator&gt; best = RandomGeneratorFactory.all()
+                    .sorted(Comparator.comparingInt(RandomGenerator::stateBits).reversed())
+                    .findFirst()
+                    .orElse(RandomGeneratorFactory.of("Random"));
+                System.out.println(best.name() + " in " + best.group() + " was selected");
+            
+                RandomGenerator rng = best.create();
+                System.out.println(rng.nextLong());
+            }</code>
+      <para>Added in 17.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Create">
+      <MemberSignature Language="C#" Value="public Java.Lang.Object? Create ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Lang.Object Create() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Create" />
+      <MemberSignature Language="F#" Value="member this.Create : unit -&gt; Java.Lang.Object" Usage="randomGeneratorFactory.Create " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("create", "()Ljava/util/random/RandomGenerator;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("create", "()Ljava/util/random/RandomGenerator;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Create an instance of <c>RandomGenerator</c> based on
+            algorithm chosen.</summary>
+        <returns>new in instance of <c>RandomGenerator</c>.</returns>
+        <remarks>
+          <para>Create an instance of <c>RandomGenerator</c> based on
+            algorithm chosen.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#create()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.create()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Create">
+      <MemberSignature Language="C#" Value="public Java.Lang.Object? Create (byte[]? seed);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Lang.Object Create(unsigned int8[] seed) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Create(System.Byte[])" />
+      <MemberSignature Language="F#" Value="member this.Create : byte[] -&gt; Java.Lang.Object" Usage="randomGeneratorFactory.Create seed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("create", "([B)Ljava/util/random/RandomGenerator;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("create", "([B)Ljava/util/random/RandomGenerator;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="seed" Type="System.Byte[]" />
+      </Parameters>
+      <Docs>
+        <param name="seed">byte array random seed value.</param>
+        <summary>Create an instance of <c>RandomGenerator</c> based on
+            algorithm chosen
+            providing a starting byte[] seed.</summary>
+        <returns>new in instance of <c>RandomGenerator</c>.</returns>
+        <remarks>
+          <para>Create an instance of <c>RandomGenerator</c> based on
+            algorithm chosen
+            providing a starting byte[] seed. If byte[] seed is not supported by an
+            algorithm then the no
+            argument form of create is used.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#create(byte[])" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.create(byte[])</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Create">
+      <MemberSignature Language="C#" Value="public Java.Lang.Object? Create (long seed);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Lang.Object Create(int64 seed) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Create(System.Int64)" />
+      <MemberSignature Language="F#" Value="member this.Create : int64 -&gt; Java.Lang.Object" Usage="randomGeneratorFactory.Create seed" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("create", "(J)Ljava/util/random/RandomGenerator;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("create", "(J)Ljava/util/random/RandomGenerator;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.Object</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="seed" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="seed">long random seed value.</param>
+        <summary>Create an instance of <c>RandomGenerator</c> based on
+            algorithm chosen
+            providing a starting long seed.</summary>
+        <returns>new in instance of <c>RandomGenerator</c>.</returns>
+        <remarks>
+          <para>Create an instance of <c>RandomGenerator</c> based on
+            algorithm chosen
+            providing a starting long seed. If long seed is not supported by an
+            algorithm then the no argument form of create is used.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#create(long)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.create(long)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Default">
+      <MemberSignature Language="C#" Value="public static Java.Util.RandomGenerators.RandomGeneratorFactory? Default { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Java.Util.RandomGenerators.RandomGeneratorFactory Default" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.Default" />
+      <MemberSignature Language="F#" Value="static member Default : Java.Util.RandomGenerators.RandomGeneratorFactory" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.Default" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getDefault", "()Ljava/util/random/RandomGeneratorFactory;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getDefault", "()Ljava/util/random/RandomGeneratorFactory;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.RandomGenerators.RandomGeneratorFactory</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a <c>RandomGeneratorFactory</c> meeting the minimal requirement
+            of having an algorithm whose state bits are greater than or equal 64.</summary>
+        <value>a <c>RandomGeneratorFactory</c></value>
+        <remarks>
+          <para>Returns a <c>RandomGeneratorFactory</c> meeting the minimal requirement
+            of having an algorithm whose state bits are greater than or equal 64.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#getDefault()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.getDefault()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Equidistribution">
+      <MemberSignature Language="C#" Value="public int Equidistribution ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 Equidistribution() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Equidistribution" />
+      <MemberSignature Language="F#" Value="member this.Equidistribution : unit -&gt; int" Usage="randomGeneratorFactory.Equidistribution " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("equidistribution", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("equidistribution", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns the equidistribution of the algorithm.</summary>
+        <returns>the equidistribution of the algorithm.</returns>
+        <remarks>
+          <para>Returns the equidistribution of the algorithm.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#equidistribution()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.equidistribution()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Group">
+      <MemberSignature Language="C#" Value="public string? Group ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string Group() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Group" />
+      <MemberSignature Language="F#" Value="member this.Group : unit -&gt; string" Usage="randomGeneratorFactory.Group " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("group", "()Ljava/lang/String;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("group", "()Ljava/lang/String;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Return the group name of the algorithm
+            used by the random number generator.</summary>
+        <returns>Group name of the algorithm.</returns>
+        <remarks>
+          <para>Return the group name of the algorithm
+            used by the random number generator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#group()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.group()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsArbitrarilyJumpable">
+      <MemberSignature Language="C#" Value="public bool IsArbitrarilyJumpable { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsArbitrarilyJumpable" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsArbitrarilyJumpable" />
+      <MemberSignature Language="F#" Value="member this.IsArbitrarilyJumpable : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsArbitrarilyJumpable" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isArbitrarilyJumpable", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isArbitrarilyJumpable", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator can jump an arbitrarily specified distant
+            point in the state cycle.</summary>
+        <value>true if random generator is arbitrarily jumpable.</value>
+        <remarks>
+          <para>Return true if random generator can jump an arbitrarily specified distant
+            point in the state cycle.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isArbitrarilyJumpable()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isArbitrarilyJumpable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsDeprecated">
+      <MemberSignature Language="C#" Value="public bool IsDeprecated { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsDeprecated" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsDeprecated" />
+      <MemberSignature Language="F#" Value="member this.IsDeprecated : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsDeprecated" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isDeprecated", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isDeprecated", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if the implementation of RandomGenerator (algorithm) has been
+            marked for deprecation.</summary>
+        <value>true if the implementation of RandomGenerator (algorithm) has been
+                    marked for deprecation</value>
+        <remarks>
+          <para>Return true if the implementation of RandomGenerator (algorithm) has been
+            marked for deprecation.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isDeprecated()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isDeprecated()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsHardware">
+      <MemberSignature Language="C#" Value="public bool IsHardware { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsHardware" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsHardware" />
+      <MemberSignature Language="F#" Value="member this.IsHardware : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsHardware" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isHardware", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isHardware", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator uses a hardware device (HRNG) to produce
+            entropic input.</summary>
+        <value>true if random generator is generated by hardware.</value>
+        <remarks>
+          <para>Return true if random generator uses a hardware device (HRNG) to produce
+            entropic input.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isHardware()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isHardware()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsJumpable">
+      <MemberSignature Language="C#" Value="public bool IsJumpable { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsJumpable" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsJumpable" />
+      <MemberSignature Language="F#" Value="member this.IsJumpable : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsJumpable" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isJumpable", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isJumpable", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator can jump a specified distant point in
+            the state cycle.</summary>
+        <value>true if random generator is jumpable.</value>
+        <remarks>
+          <para>Return true if random generator can jump a specified distant point in
+            the state cycle.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isJumpable()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isJumpable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsLeapable">
+      <MemberSignature Language="C#" Value="public bool IsLeapable { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsLeapable" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsLeapable" />
+      <MemberSignature Language="F#" Value="member this.IsLeapable : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsLeapable" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isLeapable", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isLeapable", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator is jumpable and can leap to a very distant
+            point in the state cycle.</summary>
+        <value>true if random generator is leapable.</value>
+        <remarks>
+          <para>Return true if random generator is jumpable and can leap to a very distant
+            point in the state cycle.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isLeapable()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isLeapable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsSplittable">
+      <MemberSignature Language="C#" Value="public bool IsSplittable { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsSplittable" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsSplittable" />
+      <MemberSignature Language="F#" Value="member this.IsSplittable : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsSplittable" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isSplittable", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isSplittable", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator can be cloned into a separate object with
+            the same properties but positioned further in the state cycle.</summary>
+        <value>true if random generator is splittable.</value>
+        <remarks>
+          <para>Return true if random generator can be cloned into a separate object with
+            the same properties but positioned further in the state cycle.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isSplittable()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isSplittable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsStatistical">
+      <MemberSignature Language="C#" Value="public bool IsStatistical { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsStatistical" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsStatistical" />
+      <MemberSignature Language="F#" Value="member this.IsStatistical : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsStatistical" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isStatistical", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isStatistical", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator is computed using an arithmetic
+            algorithm
+            and is statistically deterministic.</summary>
+        <value>true if random generator is statistical.</value>
+        <remarks>
+          <para>Return true if random generator is computed using an arithmetic
+            algorithm
+            and is statistically deterministic.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isStatistical()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isStatistical()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsStochastic">
+      <MemberSignature Language="C#" Value="public bool IsStochastic { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsStochastic" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsStochastic" />
+      <MemberSignature Language="F#" Value="member this.IsStochastic : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsStochastic" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isStochastic", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isStochastic", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator is computed using external or entropic
+            sources as inputs.</summary>
+        <value>true if random generator is stochastic.</value>
+        <remarks>
+          <para>Return true if random generator is computed using external or entropic
+            sources as inputs.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isStochastic()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isStochastic()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsStreamable">
+      <MemberSignature Language="C#" Value="public bool IsStreamable { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsStreamable" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.IsStreamable" />
+      <MemberSignature Language="F#" Value="member this.IsStreamable : bool" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.IsStreamable" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isStreamable", "()Z", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isStreamable", "()Z", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Return true if random generator can be used to create
+            <c>java.util.stream.Stream Streams</c> of random numbers.</summary>
+        <value>true if random generator is streamable.</value>
+        <remarks>
+          <para>Return true if random generator can be used to create
+            <c>java.util.stream.Stream Streams</c> of random numbers.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#isStreamable()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.isStreamable()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="public string? Name ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string Name() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Name" />
+      <MemberSignature Language="F#" Value="member this.Name : unit -&gt; string" Usage="randomGeneratorFactory.Name " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("name", "()Ljava/lang/String;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("name", "()Ljava/lang/String;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Return the name of the algorithm
+            used by the random number generator.</summary>
+        <returns>Name of the algorithm.</returns>
+        <remarks>
+          <para>Return the name of the algorithm
+            used by the random number generator.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#name()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.name()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Of">
+      <MemberSignature Language="C#" Value="public static Java.Util.RandomGenerators.RandomGeneratorFactory? Of (string? name);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.RandomGenerators.RandomGeneratorFactory Of(string name) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Of(System.String)" />
+      <MemberSignature Language="F#" Value="static member Of : string -&gt; Java.Util.RandomGenerators.RandomGeneratorFactory" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.Of name" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("of", "(Ljava/lang/String;)Ljava/util/random/RandomGeneratorFactory;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("of", "(Ljava/lang/String;)Ljava/util/random/RandomGeneratorFactory;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T extends java.util.random.RandomGenerator" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T extends java.util.random.RandomGenerator" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.RandomGenerators.RandomGeneratorFactory</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="name" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="name">Name of random number generator
+            algorithm</param>
+        <param name="&lt;T&gt;&lt;T&gt;">Sub-interface of <c>RandomGenerator</c> to produce</param>
+        <summary>Returns a <c>RandomGeneratorFactory</c> that can produce instances of
+            <c>RandomGenerator</c> that utilize the <c>name</c>algorithm.</summary>
+        <returns>
+          <c>RandomGeneratorFactory</c> of <c>RandomGenerator</c></returns>
+        <remarks>
+          <para>Returns a <c>RandomGeneratorFactory</c> that can produce instances of
+            <c>RandomGenerator</c> that utilize the <c>name</c>algorithm.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#of(java.lang.String)" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.of(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Period">
+      <MemberSignature Language="C#" Value="public Java.Math.BigInteger? Period ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Java.Math.BigInteger Period() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.Period" />
+      <MemberSignature Language="F#" Value="member this.Period : unit -&gt; Java.Math.BigInteger" Usage="randomGeneratorFactory.Period " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("period", "()Ljava/math/BigInteger;", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("period", "()Ljava/math/BigInteger;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Math.BigInteger</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Return the period of the algorithm
+            used by the random number generator.</summary>
+        <returns>BigInteger period.</returns>
+        <remarks>
+          <para>Return the period of the algorithm
+            used by the random number generator.
+            Returns BigInteger.ZERO if period is not determinable.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#period()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.period()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="StateBits">
+      <MemberSignature Language="C#" Value="public int StateBits ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance int32 StateBits() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.RandomGenerators.RandomGeneratorFactory.StateBits" />
+      <MemberSignature Language="F#" Value="member this.StateBits : unit -&gt; int" Usage="randomGeneratorFactory.StateBits " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("stateBits", "()I", "", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("stateBits", "()I", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Returns number of bits used by the algorithm
+            to maintain state of seed.</summary>
+        <returns>number of bits used by the algorithm
+                    to maintain state of seed.</returns>
+        <remarks>
+          <para>Returns number of bits used by the algorithm
+            to maintain state of seed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/random/RandomGeneratorFactory#stateBits()" title="Reference documentation">Java documentation for <code>java.util.random.RandomGeneratorFactory.stateBits()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Util.RandomGenerators.RandomGeneratorFactory.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Util.RandomGenerators.RandomGeneratorFactory.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

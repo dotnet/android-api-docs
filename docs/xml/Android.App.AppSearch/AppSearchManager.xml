@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/appsearch/AppSearchManager", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,73 @@
   <Docs>
     <summary>Provides access to the centralized AppSearch index maintained by the system.</summary>
     <remarks>
+      <para>Provides access to the centralized AppSearch index maintained by the system.</para>
+      <para>AppSearch is an offline, on-device search library for managing structured data featuring:
+            
+            &lt;ul&gt;
+              &lt;li&gt;APIs to index and retrieve data via full-text search.
+              &lt;li&gt;An API for applications to explicitly grant read-access permission of their data to other
+                  applications. &lt;b&gt;See: <c>SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage</c>&lt;/b&gt;
+              &lt;li&gt;An API for applications to opt into or out of having their data displayed on System UI
+                  surfaces by the System-designated global querier. &lt;b&gt;See: <c>SetSchemaRequest.Builder#setSchemaTypeDisplayedBySystem</c>&lt;/b&gt;
+            &lt;/ul&gt;</para>
+      <para>Applications create a database by opening an <c>AppSearchSession</c>.</para>
+      <para>Example:</para>
+      <code lang="text/java">AppSearchManager appSearchManager = context.getSystemService(AppSearchManager.class);
+            
+            AppSearchManager.SearchContext searchContext = new AppSearchManager.SearchContext.Builder().
+               setDatabaseName(dbName).build());
+            appSearchManager.createSearchSession(searchContext, mExecutor, appSearchSessionResult -&amp;gt; {
+                 mAppSearchSession = appSearchSessionResult.getResultValue();
+            });</code>
+      <para>After opening the session, a schema must be set in order to define the organizational
+            structure of data. The schema is set by calling <c>AppSearchSession#setSchema</c>. The schema is
+            composed of a collection of <c>AppSearchSchema</c> objects, each of which defines a unique type
+            of data.</para>
+      <para>Example:</para>
+      <code lang="text/java">AppSearchSchema emailSchemaType = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("subject")
+                   .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                   .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                   .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+               .build()
+            ).build();
+            
+            SetSchemaRequest request = new SetSchemaRequest.Builder().addSchema(emailSchemaType).build();
+            mAppSearchSession.set(request, mExecutor, appSearchResult -&amp;gt; {
+                 if (appSearchResult.isSuccess()) {
+                      //Schema has been successfully set.
+                 }
+            });</code>
+      <para>The basic unit of data in AppSearch is represented as a <c>GenericDocument</c> object,
+            containing an ID, namespace, time-to-live, score, and properties. A namespace organizes a logical
+            group of documents. For example, a namespace can be created to group documents on a per-account
+            basis. An ID identifies a single document within a namespace. The combination of namespace and ID
+            uniquely identifies a <c>GenericDocument</c> in the database.</para>
+      <para>Once the schema has been set, <c>GenericDocument</c> objects can be put into the database and
+            indexed by calling <c>AppSearchSession#put</c>.</para>
+      <para>Example:</para>
+      <code lang="text/java">// Although for this example we use GenericDocument directly, we recommend extending
+            // GenericDocument to create specific types (i.e. Email) with specific setters/getters.
+            GenericDocument email = new GenericDocument.Builder&lt;&gt;(NAMESPACE, ID, EMAIL_SCHEMA_TYPE)
+                .setPropertyString(“subject”, EMAIL_SUBJECT)
+                .setScore(EMAIL_SCORE)
+                .build();
+            
+            PutDocumentsRequest request = new PutDocumentsRequest.Builder().addGenericDocuments(email)
+                .build();
+            mAppSearchSession.put(request, mExecutor, appSearchBatchResult -&amp;gt; {
+                 if (appSearchBatchResult.isSuccess()) {
+                      //All documents have been successfully indexed.
+                 }
+            });</code>
+      <para>Searching within the database is done by calling <c>AppSearchSession#search</c> and providing
+            the query string to search for, as well as a <c>SearchSpec</c>.</para>
+      <para>Alternatively, <c>AppSearchSession#getByDocumentId</c> can be called to retrieve documents by
+            namespace and ID.</para>
+      <para>Document removal is done either by time-to-live expiration, or explicitly calling a remove
+            operation. Remove operations can be done by namespace and ID via <c>AppSearchSession#remove(RemoveByDocumentIdRequest, Executor, BatchResultCallback)</c>, or by query
+            via <c>AppSearchSession#remove(String, SearchSpec, Executor, Consumer)</c>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchManager" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchManager</code>.</a>
@@ -56,6 +127,60 @@
         <param name="transfer">To be added.</param>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="CreateEnterpriseGlobalSearchSession">
+      <MemberSignature Language="C#" Value="public virtual void CreateEnterpriseGlobalSearchSession (Java.Util.Concurrent.IExecutor executor, Java.Util.Functions.IConsumer callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void CreateEnterpriseGlobalSearchSession(class Java.Util.Concurrent.IExecutor executor, class Java.Util.Functions.IConsumer callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.AppSearchManager.CreateEnterpriseGlobalSearchSession(Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />
+      <MemberSignature Language="F#" Value="abstract member CreateEnterpriseGlobalSearchSession : Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit&#xA;override this.CreateEnterpriseGlobalSearchSession : Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit" Usage="appSearchManager.CreateEnterpriseGlobalSearchSession (executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("createEnterpriseGlobalSearchSession", "(Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetCreateEnterpriseGlobalSearchSession_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("createEnterpriseGlobalSearchSession", "(Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetCreateEnterpriseGlobalSearchSession_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="1" FrameworkAlternate="net-android-35.0" />
+      </Parameters>
+      <Docs>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">The <c>AppSearchResult</c>&amp;lt;<c>EnterpriseGlobalSearchSession</c>&amp;gt; of
+                performing this operation. Or a <c>AppSearchResult</c> with failure reason code and
+                error information.</param>
+        <summary>Creates a new <c>EnterpriseGlobalSearchSession</c></summary>
+        <remarks>
+          <para>Creates a new <c>EnterpriseGlobalSearchSession</c></para>
+          <para>EnterpriseGlobalSearchSession queries data from the user’s work profile, allowing apps
+            running on the personal profile to access a limited subset of work profile data. Enterprise
+            access must be explicitly enabled on schemas, and schemas may also specify additional
+            permissions required for enterprise access.</para>
+          <para>This process requires an AppSearch native indexing file system. If it's not created, the
+            initialization process will create one under the user's credential encrypted directory.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchManager#createEnterpriseGlobalSearchSession(java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.EnterpriseGlobalSearchSession%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchManager.createEnterpriseGlobalSearchSession(java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.EnterpriseGlobalSearchSession&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateGlobalSearchSession">
@@ -92,6 +217,9 @@
                 information.</param>
         <summary>Creates a new <c>GlobalSearchSession</c>.</summary>
         <remarks>
+          <para>Creates a new <c>GlobalSearchSession</c>.</para>
+          <para>This process requires an AppSearch native indexing file system. If it's not created, the
+            initialization process will create one under the user's credential encrypted directory.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchManager#createGlobalSearchSession(java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.GlobalSearchSession%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchManager.createGlobalSearchSession(java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.GlobalSearchSession&gt;&gt;)</code>.</a>

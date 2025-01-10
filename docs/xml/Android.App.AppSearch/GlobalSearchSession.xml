@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/appsearch/GlobalSearchSession", ApiSince=31, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
     </Attribute>
@@ -38,6 +42,9 @@
     <summary>Provides a connection to all AppSearch databases the querying application has been granted access
             to.</summary>
     <remarks>
+      <para>Provides a connection to all AppSearch databases the querying application has been granted access
+            to.</para>
+      <para>This class is thread safe.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession</code>.</a>
@@ -102,6 +109,8 @@
       <Docs>
         <summary>Closes the <c>GlobalSearchSession</c>.</summary>
         <remarks>
+          <para>Closes the <c>GlobalSearchSession</c>. Persists all mutations, including usage reports, to
+            disk.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#close()" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.close()</code>.</a>
@@ -146,13 +155,36 @@
         <Parameter Name="callback" Type="Android.App.AppSearch.IBatchResultCallback" />
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
-        <param name="databaseName">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="packageName">the name of the package to get from</param>
+        <param name="databaseName">the name of the database to get from</param>
+        <param name="request">a request containing a namespace and IDs to get documents for.</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the pending result of performing this operation. The keys
+                of the returned <c>AppSearchBatchResult</c> are the input IDs. The values are the
+                returned <c>GenericDocument</c>s on success, or a failed <c>AppSearchResult</c>
+                otherwise. IDs that are not found will return a failed <c>AppSearchResult</c> with a
+                result code of <c>AppSearchResult#RESULT_NOT_FOUND</c>. If an unexpected internal error
+                occurs in the AppSearch service, <c>BatchResultCallback#onSystemError</c> will be
+                invoked with a <c>Throwable</c>.</param>
+        <summary>Retrieves <c>GenericDocument</c> documents, belonging to the specified package name and
+            database name and identified by the namespace and ids in the request, from the <c>GlobalSearchSession</c> database.</summary>
+        <remarks>
+          <para>Retrieves <c>GenericDocument</c> documents, belonging to the specified package name and
+            database name and identified by the namespace and ids in the request, from the <c>GlobalSearchSession</c> database.</para>
+          <para>If the package or database doesn't exist or if the calling package doesn't have access,
+            the gets will be handled as failures in an <c>AppSearchBatchResult</c> object in the
+            callback.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#getByDocumentId(java.lang.String,%20java.lang.String,%20android.app.appsearch.GetByDocumentIdRequest,%20java.util.concurrent.Executor,%20android.app.appsearch.BatchResultCallback%3Cjava.lang.String,%20android.app.appsearch.GenericDocument%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.getByDocumentId(java.lang.String, java.lang.String, android.app.appsearch.GetByDocumentIdRequest, java.util.concurrent.Executor, android.app.appsearch.BatchResultCallback&lt;java.lang.String, android.app.appsearch.GenericDocument&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSchema">
@@ -185,12 +217,31 @@
         <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
-        <param name="databaseName">To be added.</param>
         <param name="executor">To be added.</param>
         <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="packageName">the package that owns the requested <c>AppSearchSchema</c> instances.</param>
+        <param name="databaseName">the database that owns the requested <c>AppSearchSchema</c> instances.</param>
+        <summary>Retrieves the collection of schemas most recently successfully provided to <c>AppSearchSession#setSchema</c> for any types belonging to the requested package and database
+            that the caller has been granted access to.</summary>
+        <returns>The pending <c>GetSchemaResponse</c> containing the schemas that the caller has
+                access to or an empty GetSchemaResponse if the request package and database does not
+                exist, has not set a schema or contains no schemas that are accessible to the caller.</returns>
+        <remarks>
+          <para>Retrieves the collection of schemas most recently successfully provided to <c>AppSearchSession#setSchema</c> for any types belonging to the requested package and database
+            that the caller has been granted access to.</para>
+          <para>If the requested package/database combination does not exist or the caller has not been
+            granted access to it, then an empty GetSchemaResponse will be returned.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#getSchema(java.lang.String,%20java.lang.String,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.GetSchemaResponse%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.getSchema(java.lang.String, java.lang.String, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.GetSchemaResponse&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -255,12 +306,33 @@
         <Parameter Name="observer" Type="Android.App.AppSearch.Observers.IObserverCallback" />
       </Parameters>
       <Docs>
-        <param name="targetPackageName">To be added.</param>
-        <param name="spec">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="observer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="targetPackageName">Package whose changes to monitor</param>
+        <param name="spec">Specification of what types of changes to listen for</param>
+        <param name="executor">Executor on which to call the <c>observer</c> callback methods.</param>
+        <param name="observer">Callback to trigger when a schema or document changes</param>
+        <summary>Adds an <c>ObserverCallback</c> to monitor changes within the databases owned by <c>targetPackageName</c> if they match the given <c>android.app.appsearch.observer.ObserverSpec</c>.</summary>
+        <remarks>
+          <para>Adds an <c>ObserverCallback</c> to monitor changes within the databases owned by <c>targetPackageName</c> if they match the given <c>android.app.appsearch.observer.ObserverSpec</c>.</para>
+          <para>The observer callback is only triggered for data that changes after it is registered. No
+            notification about existing data is sent as a result of registering an observer. To find out
+            about existing data, you must use the <c>GlobalSearchSession#search</c> API.</para>
+          <para>If the data owned by <c>targetPackageName</c> is not visible to you, the registration
+            call will succeed but no notifications will be dispatched. Notifications could start flowing
+            later if <c>targetPackageName</c> changes its schema visibility settings.</para>
+          <para>If no package matching <c>targetPackageName</c> exists on the system, the registration
+            call will succeed but no notifications will be dispatched. Notifications could start flowing
+            later if <c>targetPackageName</c> is installed and starts indexing data.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#registerObserverCallback(java.lang.String,%20android.app.appsearch.observer.ObserverSpec,%20java.util.concurrent.Executor,%20android.app.appsearch.observer.ObserverCallback)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.registerObserverCallback(java.lang.String, android.app.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, android.app.appsearch.observer.ObserverCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReportSystemUsage">
@@ -295,12 +367,15 @@
         <param name="request">The usage reporting request.</param>
         <param name="executor">Executor on which to invoke the callback.</param>
         <param name="callback">Callback to receive errors. If the operation succeeds, the callback will be
-                            invoked with an <c>AppSearchResult</c> whose value is <c>null</c>. The
-                            callback will be invoked with an <c>AppSearchResult</c> of
-                            <c>AppSearchResult#RESULT_SECURITY_ERROR</c> if this API is invoked by an
-                            app which is not part of the system.</param>
+                invoked with an <c>AppSearchResult</c> whose value is <c>null</c>. The callback will be
+                invoked with an <c>AppSearchResult</c> of <c>AppSearchResult#RESULT_SECURITY_ERROR</c>
+                if this API is invoked by an app which is not part of the system.</param>
         <summary>Reports that a particular document has been used from a system surface.</summary>
         <remarks>
+          <para>Reports that a particular document has been used from a system surface.</para>
+          <para>See <c>AppSearchSession#reportUsage</c> for a general description of document usage, as
+            well as an API that can be used by the app itself.</para>
+          <para>Usage reported via this method is accounted separately from usage reported via <c>AppSearchSession#reportUsage</c> and may be accessed using the constants <c>SearchSpec#RANKING_STRATEGY_SYSTEM_USAGE_COUNT</c> and <c>SearchSpec#RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#reportSystemUsage(android.app.appsearch.ReportSystemUsageRequest,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Cjava.lang.Void%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.reportSystemUsage(android.app.appsearch.ReportSystemUsageRequest, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;java.lang.Void&gt;&gt;)</code>.</a>
@@ -348,6 +423,11 @@
         <summary>Retrieves documents from all AppSearch databases that the querying application has access to.</summary>
         <returns>a <c>SearchResults</c> object for retrieved matched documents.</returns>
         <remarks>
+          <para>Retrieves documents from all AppSearch databases that the querying application has access to.</para>
+          <para>Applications can be granted access to documents by specifying <c>SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage</c> when building a schema.</para>
+          <para>Document access can also be granted to system UIs by specifying <c>SetSchemaRequest.Builder#setSchemaTypeDisplayedBySystem</c> when building a schema.</para>
+          <para>See <c>AppSearchSession#search</c> for a detailed explanation on forming a query string.</para>
+          <para>This method is lightweight. The heavy work will be done in <c>SearchResults#getNextPage</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#search(java.lang.String,%20android.app.appsearch.SearchSpec)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.search(java.lang.String, android.app.appsearch.SearchSpec)</code>.</a>
@@ -447,10 +527,26 @@
         <Parameter Name="observer" Type="Android.App.AppSearch.Observers.IObserverCallback" />
       </Parameters>
       <Docs>
-        <param name="targetPackageName">To be added.</param>
-        <param name="observer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="targetPackageName">Package which the observers to be removed are listening to.</param>
+        <param name="observer">Callback to unregister.</param>
+        <summary>Removes previously registered <c>ObserverCallback</c> instances from the system.</summary>
+        <remarks>
+          <para>Removes previously registered <c>ObserverCallback</c> instances from the system.</para>
+          <para>All instances of <c>ObserverCallback</c> which are registered to observe <c>targetPackageName</c> and compare equal to the provided callback using the provided argument's
+            <c>ObserverCallback#equals</c> will be removed.</para>
+          <para>If no matching observers have been registered, this method has no effect. If multiple
+            matching observers have been registered, all will be removed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#unregisterObserverCallback(java.lang.String,%20android.app.appsearch.observer.ObserverCallback)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.unregisterObserverCallback(java.lang.String, android.app.appsearch.observer.ObserverCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

@@ -17,19 +17,139 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/SelectFormat", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>SelectFormat</c> supports the creation of  internationalized
+            messages by selecting phrases based on keywords.</summary>
     <remarks>
       <para>
+        <c>SelectFormat</c> supports the creation of  internationalized
+            messages by selecting phrases based on keywords. The pattern  specifies
+            how to map keywords to phrases and provides a default phrase. The
+            object provided to the format method is a string that's matched
+            against the keywords. If there is a match, the corresponding phrase
+            is selected; otherwise, the default phrase is used.
+            
+            &lt;h3&gt;Using <c>SelectFormat</c> for Gender Agreement&lt;/h3&gt;</para>
+      <para>Note: Typically, select formatting is done via <c>MessageFormat</c>
+            with a <c>select</c> argument type,
+            rather than using a stand-alone <c>SelectFormat</c>.</para>
+      <para>The main use case for the select format is gender based  inflection.
+            When names or nouns are inserted into sentences, their gender can  affect pronouns,
+            verb forms, articles, and adjectives. Special care needs to be
+            taken for the case where the gender cannot be determined.
+            The impact varies between languages:
+            
+            &lt;ul&gt;
+            &lt;li&gt;English has three genders, and unknown gender is handled as a  special
+            case. Names use the gender of the named person (if known), nouns  referring
+            to people use natural gender, and inanimate objects are usually  neutral.
+            The gender only affects pronouns: "he", "she", "it", "they".
+            
+            &lt;li&gt;German differs from English in that the gender of nouns is  rather
+            arbitrary, even for nouns referring to people ("M&amp;#xE4;dchen", girl, is  neutral).
+            The gender affects pronouns ("er", "sie", "es"), articles ("der",  "die",
+            "das"), and adjective forms ("guter Mann", "gute Frau", "gutes  M&amp;#xE4;dchen").
+            
+            &lt;li&gt;French has only two genders; as in German the gender of nouns
+            is rather arbitrary - for sun and moon, the genders
+            are the opposite of those in German. The gender affects
+            pronouns ("il", "elle"), articles ("le", "la"),
+            adjective forms ("bon", "bonne"), and sometimes
+            verb forms ("all&amp;#xE9;", "all&amp;#xE9;e").
+            
+            &lt;li&gt;Polish distinguishes five genders (or noun classes),
+            human masculine, animate non-human masculine, inanimate masculine,
+            feminine, and neuter.
+            &lt;/ul&gt;</para>
+      <para>Some other languages have noun classes that are not related to  gender,
+            but similar in grammatical use.
+            Some African languages have around 20 noun classes.</para>
+      <para>&lt;b&gt;Note:&lt;/b&gt;For the gender of a <i>person</i> in a given sentence,
+            we usually need to distinguish only between female, male and other/unknown.</para>
+      <para>To enable localizers to create sentence patterns that take their
+            language's gender dependencies into consideration, software has to  provide
+            information about the gender associated with a noun or name to
+            <c>MessageFormat</c>.
+            Two main cases can be distinguished:
+            
+            &lt;ul&gt;
+            &lt;li&gt;For people, natural gender information should be maintained  for each person.
+            Keywords like "male", "female", "mixed" (for groups of people)
+            and "unknown" could be used.
+            
+            &lt;li&gt;For nouns, grammatical gender information should be maintained  for
+            each noun and per language, e.g., in resource bundles.
+            The keywords "masculine", "feminine", and "neuter" are commonly  used,
+            but some languages may require other keywords.
+            &lt;/ul&gt;</para>
+      <para>The resulting keyword is provided to <c>MessageFormat</c>  as a
+            parameter separate from the name or noun it's associated with. For  example,
+            to generate a message such as "Jean went to Paris", three separate  arguments
+            would be provided: The name of the person as argument 0, the  gender of
+            the person as argument 1, and the name of the city as argument 2.
+            The sentence pattern for English, where the gender of the person has
+            no impact on this simple sentence, would not refer to argument 1  at all:</para>
+      <code lang="text/java">{0} went to {2}.</code>
+      <para>&lt;b&gt;Note:&lt;/b&gt; The entire sentence should be included (and partially repeated)
+            inside each phrase. Otherwise translators would have to be trained on how to
+            move bits of the sentence in and out of the select argument of a message.
+            (The examples below do not follow this recommendation!)</para>
+      <para>The sentence pattern for French, where the gender of the person affects
+            the form of the participle, uses a select format based on argument 1:</para>
+      <code lang="text/java">{0} est {1, select, female {all&amp;#xE9;e} other {all&amp;#xE9;}} &amp;#xE0; {2}.</code>
+      <para>Patterns can be nested, so that it's possible to handle  interactions of
+            number and gender where necessary. For example, if the above  sentence should
+            allow for the names of several people to be inserted, the  following sentence
+            pattern can be used (with argument 0 the list of people's names,  
+            argument 1 the number of people, argument 2 their combined gender, and  
+            argument 3 the city name):</para>
+      <code lang="text/java">{0} {1, plural, 
+            one {est {2, select, female {all&amp;#xE9;e} other  {all&amp;#xE9;}}}
+            other {sont {2, select, female {all&amp;#xE9;es} other {all&amp;#xE9;s}}}
+            }&amp;#xE0; {3}.</code>
+      <para>&lt;h4&gt;Patterns and Their Interpretation&lt;/h4&gt;</para>
+      <para>The <c>SelectFormat</c> pattern string defines the phrase  output
+            for each user-defined keyword.
+            The pattern is a sequence of (keyword, message) pairs.
+            A keyword is a "pattern identifier": [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+</para>
+      <para>Each message is a MessageFormat pattern string enclosed in {curly braces}.</para>
+      <para>You always have to define a phrase for the default keyword
+            <c>other</c>; this phrase is returned when the keyword  
+            provided to
+            the <c>format</c> method matches no other keyword.
+            If a pattern does not provide a phrase for <c>other</c>, the  method
+            it's provided to returns the error  <c>U_DEFAULT_KEYWORD_MISSING</c>.
+            &lt;br&gt;
+            Pattern_White_Space between keywords and messages is ignored.
+            Pattern_White_Space within a message is preserved and output.</para>
+      <code lang="text/java">Example:
+            MessageFormat msgFmt = new MessageFormat("{0} est " +
+                "{1, select, female {all&amp;#xE9;e} other {all&amp;#xE9;}} &amp;#xE0; Paris.",
+                new ULocale("fr"));
+            Object args[] = {"Kirti","female"};
+            System.out.println(msgFmt.format(args));
+            </code>
+      <para>Produces the output:&lt;br&gt;
+            <c>Kirti est all&amp;#xE9;e &amp;#xE0; Paris.</c></para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/SelectFormat" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/SelectFormat" title="Reference documentation">Java documentation for <code>android.icu.text.SelectFormat</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -57,10 +177,20 @@
         <Parameter Name="pattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">the pattern for this <c>SelectFormat</c>.</param>
+        <summary>Creates a new <c>SelectFormat</c> for a given pattern string.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Creates a new <c>SelectFormat</c> for a given pattern string.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SelectFormat#SelectFormat(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.SelectFormat.SelectFormat(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -114,10 +244,21 @@
         <Parameter Name="pattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pattern">the pattern for this select format.</param>
+        <summary>Sets the pattern used by this select format.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets the pattern used by this select format.
+            Patterns and their interpretation are specified in the class description.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SelectFormat#applyPattern(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.SelectFormat.applyPattern(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -148,11 +289,21 @@
         <Parameter Name="keyword" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="keyword">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="keyword">a phrase selection keyword.</param>
+        <summary>Selects the phrase for the given keyword.</summary>
+        <returns>the string containing the formatted select message.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Selects the phrase for the given keyword.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SelectFormat#format(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.SelectFormat.format(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -185,13 +336,26 @@
         <Parameter Name="pos" Type="Java.Text.FieldPosition" />
       </Parameters>
       <Docs>
-        <param name="keyword">To be added.</param>
-        <param name="toAppendTo">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="keyword">a phrase selection keyword.</param>
+        <param name="toAppendTo">the selected phrase will be appended to this
+                   <c>StringBuffer</c>.</param>
+        <param name="pos">will be ignored by this method.</param>
+        <summary>Selects the phrase for the given keyword.</summary>
+        <returns>the string buffer passed in as toAppendTo, with formatted text
+                    appended.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Selects the phrase for the given keyword.
+            and appends the formatted message to the given <c>StringBuffer</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SelectFormat#format(java.lang.Object,%20java.lang.StringBuffer,%20java.text.FieldPosition)" title="Reference documentation">Java documentation for <code>android.icu.text.SelectFormat.format(java.lang.Object, java.lang.StringBuffer, java.text.FieldPosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -213,6 +377,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -254,12 +422,24 @@
         <Parameter Name="pos" Type="Java.Text.ParsePosition" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="pos">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">the string to be parsed.</param>
+        <param name="pos">defines the position where parsing is to begin,
+            and upon return, the position where parsing left off.  If the position
+            has not changed upon return, then parsing failed.</param>
+        <summary>This method is not supported by <c>SelectFormat</c>.</summary>
+        <returns>nothing because this method is not supported.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method is not supported by <c>SelectFormat</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SelectFormat#parseObject(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.SelectFormat.parseObject(java.lang.String, java.text.ParsePosition)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -313,6 +493,10 @@
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -350,10 +534,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the pattern for this <c>SelectFormat</c></summary>
+        <returns>the pattern string</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the pattern for this <c>SelectFormat</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/SelectFormat#toPattern()" title="Reference documentation">Java documentation for <code>android.icu.text.SelectFormat.toPattern()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

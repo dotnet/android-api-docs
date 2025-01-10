@@ -1,8 +1,10 @@
 <Type Name="INavigableMap" FullName="Java.Util.INavigableMap">
   <TypeSignature Language="C#" Value="public interface INavigableMap : IDisposable, Java.Interop.IJavaPeerable, Java.Util.ISortedMap" />
-  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit INavigableMap implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.IMap, class Java.Util.ISortedMap, class System.IDisposable" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit INavigableMap implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.IMap, class Java.Util.ISortedMap, class System.IDisposable" FrameworkAlternate="net-android-34.0" />
   <TypeSignature Language="DocId" Value="T:Java.Util.INavigableMap" />
-  <TypeSignature Language="F#" Value="type INavigableMap = interface&#xA;    interface ISortedMap&#xA;    interface IMap&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="F#" Value="type INavigableMap = interface&#xA;    interface ISortedMap&#xA;    interface IMap&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" FrameworkAlternate="net-android-34.0" />
+  <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract beforefieldinit INavigableMap implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.IMap, class Java.Util.ISequencedMap, class Java.Util.ISortedMap, class System.IDisposable" FrameworkAlternate="net-android-35.0" />
+  <TypeSignature Language="F#" Value="type INavigableMap = interface&#xA;    interface ISortedMap&#xA;    interface IMap&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface ISequencedMap" FrameworkAlternate="net-android-35.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -22,6 +24,9 @@
     </Interface>
     <Interface>
       <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+    <Interface FrameworkAlternate="net-android-35.0">
+      <InterfaceName>Java.Util.ISequencedMap</InterfaceName>
     </Interface>
   </Interfaces>
   <Attributes>
@@ -67,12 +72,18 @@
             <c>#pollFirstEntry</c>, <c>#lastEntry</c>, and
             <c>#pollLastEntry</c> that return and/or remove the least and
             greatest mappings, if any exist, else returning <c>null</c>.</para>
-      <para>Implementations of entry-returning methods are expected to
-            return <c>Map.Entry</c> pairs representing snapshots of mappings
-            at the time they were produced, and thus generally do &lt;em&gt;not&lt;/em&gt;
-            support the optional <c>Entry.setValue</c> method. Note however
-            that it is possible to change mappings in the associated map using
-            method <c>put</c>.</para>
+      <para>The methods
+            <c>#ceilingEntry</c>,
+            <c>#firstEntry</c>,
+            <c>#floorEntry</c>,
+            <c>#higherEntry</c>,
+            <c>#lastEntry</c>,
+            <c>#lowerEntry</c>,
+            <c>#pollFirstEntry</c>, and
+            <c>#pollLastEntry</c>
+            return <c>Map.Entry</c> instances that represent snapshots of mappings as
+            of the time of the call. They do &lt;em&gt;not&lt;/em&gt; support mutation of the
+            underlying map via the optional <c>Map.Entry#setValue setValue</c> method.</para>
       <para>Methods
             <c>#subMap(Object, Object) subMap(K, K)</c>,
             <c>#headMap(Object) headMap(K)</c>, and
@@ -286,6 +297,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.INavigableMap.FirstEntry" />
       <MemberSignature Language="F#" Value="abstract member FirstEntry : unit -&gt; Java.Util.IMapEntry" Usage="iNavigableMap.FirstEntry " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.ISequencedMap.FirstEntry</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -430,7 +444,14 @@
         <ReturnType>System.Collections.IDictionary</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="toKey" Type="Java.Lang.Object" />
+        <Parameter Name="toKey" Type="Java.Lang.Object">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="toKey">To be added.</param>
@@ -472,7 +493,14 @@
         <ReturnType>Java.Util.INavigableMap</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="toKey" Type="Java.Lang.Object" />
+        <Parameter Name="toKey" Type="Java.Lang.Object">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="inclusive" Type="System.Boolean" />
       </Parameters>
       <Docs>
@@ -592,12 +620,62 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Java.Util.ISequencedMap.Reversed">
+      <MemberSignature Language="C#" Value="override sealed Java.Util.ISequencedMap ISequencedMap.Reversed ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig virtual instance class Java.Util.ISequencedMap Java.Util.ISequencedMap.Reversed() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.INavigableMap.Java#Util#ISequencedMap#Reversed" />
+      <MemberSignature Language="F#" Value="abstract member Java.Util.ISequencedMap.Reversed : unit -&gt; Java.Util.ISequencedMap&#xA;override this.Java.Util.ISequencedMap.Reversed : unit -&gt; Java.Util.ISequencedMap" Usage="iNavigableMap.Java.Util.ISequencedMap.Reversed " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Util.ISortedMap.Java#Util#ISequencedMap#Reversed</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("reversed", "()Ljava/util/NavigableMap;", "GetReversedHandler:Java.Util.INavigableMap, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("reversed", "()Ljava/util/NavigableMap;", "GetReversedHandler:Java.Util.INavigableMap, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.ISequencedMap</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added</summary>
+        <returns>a reverse-ordered view of this map, as a <c>NavigableMap</c></returns>
+        <remarks>
+          <para>To be added</para>
+          <para>This method is equivalent to <c>#descendingMap descendingMap</c>.</para>
+          <para>Added in 21.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/NavigableMap#reversed()" title="Reference documentation">Java documentation for <code>java.util.NavigableMap.reversed()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="LastEntry">
       <MemberSignature Language="C#" Value="public Java.Util.IMapEntry? LastEntry ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.IMapEntry LastEntry() cil managed" />
       <MemberSignature Language="DocId" Value="M:Java.Util.INavigableMap.LastEntry" />
       <MemberSignature Language="F#" Value="abstract member LastEntry : unit -&gt; Java.Util.IMapEntry" Usage="iNavigableMap.LastEntry " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.ISequencedMap.LastEntry</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -772,6 +850,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.INavigableMap.PollFirstEntry" />
       <MemberSignature Language="F#" Value="abstract member PollFirstEntry : unit -&gt; Java.Util.IMapEntry" Usage="iNavigableMap.PollFirstEntry " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.ISequencedMap.PollFirstEntry</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -812,6 +893,9 @@
       <MemberSignature Language="DocId" Value="M:Java.Util.INavigableMap.PollLastEntry" />
       <MemberSignature Language="F#" Value="abstract member PollLastEntry : unit -&gt; Java.Util.IMapEntry" Usage="iNavigableMap.PollLastEntry " />
       <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember FrameworkAlternate="net-android-35.0">M:Java.Util.ISequencedMap.PollLastEntry</InterfaceMember>
+      </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -867,6 +951,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.IDictionary</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fromKey" Type="Java.Lang.Object" />
@@ -911,6 +1001,12 @@
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Util.INavigableMap</ReturnType>
+        <Attributes>
+          <Attribute FrameworkAlternate="net-android-34.0">
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
       </ReturnValue>
       <Parameters>
         <Parameter Name="fromKey" Type="Java.Lang.Object" />
@@ -978,7 +1074,14 @@
         <ReturnType>System.Collections.IDictionary</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="fromKey" Type="Java.Lang.Object" />
+        <Parameter Name="fromKey" Type="Java.Lang.Object">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
         <param name="fromKey">To be added.</param>
@@ -1020,7 +1123,14 @@
         <ReturnType>Java.Util.INavigableMap</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="fromKey" Type="Java.Lang.Object" />
+        <Parameter Name="fromKey" Type="Java.Lang.Object">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
         <Parameter Name="inclusive" Type="System.Boolean" />
       </Parameters>
       <Docs>

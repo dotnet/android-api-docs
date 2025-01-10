@@ -30,13 +30,36 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/sdksandbox/SandboxedSdk", ApiSince=34, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Represents an SDK loaded in the sandbox process.</summary>
+    <remarks>
+      <para>Represents an SDK loaded in the sandbox process.</para>
+      <para>Returned in response to <c>SdkSandboxManager#loadSdk</c>, on success. An application can
+            obtain it by calling <c>SdkSandboxManager#loadSdk</c>. It should use this object to obtain an
+            interface to the SDK through <c>#getInterface()</c>.</para>
+      <para>The SDK should create it when <c>SandboxedSdkProvider#onLoadSdk</c> is called, and drop all
+            references to it when <c>SandboxedSdkProvider#beforeUnloadSdk()</c> is called. Additionally, the
+            SDK should fail calls made to the <c>IBinder</c> returned from <c>#getInterface()</c> after
+            <c>SandboxedSdkProvider#beforeUnloadSdk()</c> has been called.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdk" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdk</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -63,9 +86,24 @@
         <Parameter Name="sdkInterface" Type="Android.OS.IBinder" />
       </Parameters>
       <Docs>
-        <param name="sdkInterface">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="sdkInterface">The SDK's interface. This will be the entrypoint into the sandboxed SDK
+                for the application. The SDK should keep this valid until it's loaded in the sandbox, and
+                start failing calls to this interface once it has been unloaded.
+                &lt;p&gt;This interface can later be retrieved using <c>#getInterface()</c>.</param>
+        <summary>Creates a <c>SandboxedSdk</c> object.</summary>
+        <remarks>
+          <para>Creates a <c>SandboxedSdk</c> object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdk#SandboxedSdk(android.os.IBinder)" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdk.SandboxedSdk(android.os.IBinder)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -125,9 +163,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>To be added</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdk#describeContents()" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdk.describeContents()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Interface">
@@ -142,6 +192,10 @@
       </AssemblyInfo>
       <Attributes>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
         </Attribute>
@@ -154,9 +208,22 @@
         <ReturnType>Android.OS.IBinder</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the interface to the SDK that was loaded in response to <c>SdkSandboxManager#loadSdk</c>.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the interface to the SDK that was loaded in response to <c>SdkSandboxManager#loadSdk</c>. A <c>null</c> interface is returned if the Binder has since
+            become unavailable, in response to the SDK being unloaded.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdk#getInterface()" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdk.getInterface()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -215,9 +282,21 @@
         <ReturnType>Android.Content.PM.SharedLibraryInfo</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the <c>SharedLibraryInfo</c> for the SDK.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the <c>SharedLibraryInfo</c> for the SDK.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdk#getSharedLibraryInfo()" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdk.getSharedLibraryInfo()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -318,8 +397,20 @@
       <Docs>
         <param name="dest">To be added.</param>
         <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>To be added</summary>
+        <remarks>
+          <para>To be added</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/sdksandbox/SandboxedSdk#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Java documentation for <code>android.app.sdksandbox.SandboxedSdk.writeToParcel(android.os.Parcel, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

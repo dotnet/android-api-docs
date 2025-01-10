@@ -17,13 +17,69 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/icu/text/Edits", ApiSince=29, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Records lengths of string edits but not replacement text.</summary>
+    <remarks>
+      <para>Records lengths of string edits but not replacement text. Supports replacements, insertions, deletions
+            in linear progression. Does not support moving/reordering of text.</para>
+      <para>There are two types of edits: &lt;em&gt;change edits&lt;/em&gt; and &lt;em&gt;no-change edits&lt;/em&gt;. Add edits to
+            instances of this class using <c>#addReplace(int, int)</c> (for change edits) and
+            <c>#addUnchanged(int)</c> (for no-change edits). Change edits are retained with full granularity,
+            whereas adjacent no-change edits are always merged together. In no-change edits, there is a one-to-one
+            mapping between code points in the source and destination strings.</para>
+      <para>After all edits have been added, instances of this class should be considered immutable, and an
+            <c>Edits.Iterator</c> can be used for queries.</para>
+      <para>There are four flavors of Edits.Iterator:
+            &lt;ul&gt;
+            &lt;li&gt;<c>#getFineIterator()</c> retains full granularity of change edits.
+            &lt;li&gt;<c>#getFineChangesIterator()</c> retains full granularity of change edits, and when calling
+            next() on the iterator, skips over no-change edits (unchanged regions).
+            &lt;li&gt;<c>#getCoarseIterator()</c> treats adjacent change edits as a single edit. (Adjacent no-change
+            edits are automatically merged during the construction phase.)
+            &lt;li&gt;<c>#getCoarseChangesIterator()</c> treats adjacent change edits as a single edit, and when
+            calling next() on the iterator, skips over no-change edits (unchanged regions).
+            &lt;/ul&gt;</para>
+      <para>For example, consider the string "abcßDeF", which case-folds to "abcssdef". This string has the
+            following fine edits:
+            &lt;ul&gt;
+            &lt;li&gt;abc ⇨ abc (no-change)
+            &lt;li&gt;ß ⇨ ss (change)
+            &lt;li&gt;D ⇨ d (change)
+            &lt;li&gt;e ⇨ e (no-change)
+            &lt;li&gt;F ⇨ f (change)
+            &lt;/ul&gt;
+            and the following coarse edits (note how adjacent change edits get merged together):
+            &lt;ul&gt;
+            &lt;li&gt;abc ⇨ abc (no-change)
+            &lt;li&gt;ßD ⇨ ssd (change)
+            &lt;li&gt;e ⇨ e (no-change)
+            &lt;li&gt;F ⇨ f (change)
+            &lt;/ul&gt;</para>
+      <para>The "fine changes" and "coarse changes" iterators will step through only the change edits when their
+            <c>Edits.Iterator#next()</c> methods are called. They are identical to the non-change iterators when
+            their <c>Edits.Iterator#findSourceIndex(int)</c> or <c>Edits.Iterator#findDestinationIndex(int)</c>
+            methods are used to walk through the string.</para>
+      <para>For examples of how to use this class, see the test <c>TestCaseMapEditsIteratorDocs</c> in
+            UCharacterCaseTest.java.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/icu/text/Edits" title="Reference documentation">Java documentation for <code>android.icu.text.Edits</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -47,8 +103,20 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Constructs an empty object.</summary>
+        <remarks>
+          <para>Constructs an empty object.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#Edits()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.Edits()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddReplace">
@@ -81,8 +149,21 @@
       <Docs>
         <param name="oldLength">To be added.</param>
         <param name="newLength">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Adds a change edit: a record for a text replacement/insertion/deletion.</summary>
+        <remarks>
+          <para>Adds a change edit: a record for a text replacement/insertion/deletion.
+            Normally called from inside ICU string transformation functions, not user code.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#addReplace(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.addReplace(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddUnchanged">
@@ -113,8 +194,21 @@
       </Parameters>
       <Docs>
         <param name="unchangedLength">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Adds a no-change edit: a record for an unchanged segment of text.</summary>
+        <remarks>
+          <para>Adds a no-change edit: a record for an unchanged segment of text.
+            Normally called from inside ICU string transformation functions, not user code.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#addUnchanged(int)" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.addUnchanged(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CoarseChangesIterator">
@@ -258,8 +352,19 @@
       </ReturnValue>
       <Docs>
         <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>true if there are any change edits</value>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#hasChanges()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.hasChanges()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -280,6 +385,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -316,9 +425,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>How much longer is the new text compared with the old text?</summary>
+        <returns>new length minus old length</returns>
+        <remarks>
+          <para>How much longer is the new text compared with the old text?</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#lengthDelta()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.lengthDelta()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MergeAndAppend">
@@ -349,11 +470,37 @@
         <Parameter Name="bc" Type="Android.Icu.Text.Edits" />
       </Parameters>
       <Docs>
-        <param name="ab">To be added.</param>
-        <param name="bc">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="ab">reflects how substrings of input string a
+                map to substrings of intermediate string b.</param>
+        <param name="bc">reflects how substrings of intermediate string b
+                map to substrings of output string c.</param>
+        <summary>Merges the two input Edits and appends the result to this object.</summary>
+        <returns>this, with the merged edits appended</returns>
+        <remarks>
+          <para>Merges the two input Edits and appends the result to this object.</para>
+          <para>Consider two string transformations (for example, normalization and case mapping)
+            where each records Edits in addition to writing an output string.&lt;br&gt;
+            Edits ab reflect how substrings of input string a
+            map to substrings of intermediate string b.&lt;br&gt;
+            Edits bc reflect how substrings of intermediate string b
+            map to substrings of output string c.&lt;br&gt;
+            This function merges ab and bc such that the additional edits
+            recorded in this object reflect how substrings of input string a
+            map to substrings of output string c.</para>
+          <para>If unrelated Edits are passed in where the output string of the first
+            has a different length than the input string of the second,
+            then an IllegalArgumentException is thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#mergeAndAppend(android.icu.text.Edits,%20android.icu.text.Edits)" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.mergeAndAppend(android.icu.text.Edits, android.icu.text.Edits)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="NumberOfChanges">
@@ -382,8 +529,19 @@
       <Parameters />
       <Docs>
         <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>the number of change edits</returns>
+        <remarks>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#numberOfChanges()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.numberOfChanges()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -411,8 +569,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Resets the data but may not release memory.</summary>
+        <remarks>
+          <para>Resets the data but may not release memory.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/Edits#reset()" title="Reference documentation">Java documentation for <code>android.icu.text.Edits.reset()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -462,6 +632,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

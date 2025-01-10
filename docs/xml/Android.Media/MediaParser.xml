@@ -17,6 +17,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/media/MediaParser", ApiSince=30, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android30.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android30.0")&gt;]</AttributeName>
     </Attribute>
@@ -24,6 +28,111 @@
   <Docs>
     <summary>Parses media container formats and extracts contained media samples and metadata.</summary>
     <remarks>
+      <para>Parses media container formats and extracts contained media samples and metadata.</para>
+      <para>This class provides access to a battery of low-level media container parsers. Each instance of
+            this class is associated to a specific media parser implementation which is suitable for
+            extraction from a specific media container format. The media parser implementation assignment
+            depends on the factory method (see <c>#create</c> and <c>#createByName</c>) used to create the
+            instance.</para>
+      <para>Users must implement the following to use this class.
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>InputReader</c>: Provides the media container's bytes to parse.
+              &lt;li&gt;<c>OutputConsumer</c>: Provides a sink for all extracted data and metadata.
+            &lt;/ul&gt;</para>
+      <para>The following code snippet includes a usage example:</para>
+      <code lang="text/java">MyOutputConsumer myOutputConsumer = new MyOutputConsumer();
+            MyInputReader myInputReader = new MyInputReader("www.example.com");
+            MediaParser mediaParser = MediaParser.create(myOutputConsumer);
+            
+            while (mediaParser.advance(myInputReader)) {}
+            
+            mediaParser.release();
+            mediaParser = null;
+            </code>
+      <para>The following code snippet provides a rudimentary <c>OutputConsumer</c> sample implementation
+            which extracts and publishes all video samples:</para>
+      <code lang="text/java">class VideoOutputConsumer implements MediaParser.OutputConsumer {
+            
+                private byte[] sampleDataBuffer = new byte[4096];
+                private byte[] discardedDataBuffer = new byte[4096];
+                private int videoTrackIndex = -1;
+                private int bytesWrittenCount = 0;
+            
+                &amp;#64;Override
+                public void onSeekMapFound(int i, &amp;#64;NonNull MediaFormat mediaFormat) {
+                  // Do nothing.
+                }
+            
+                &amp;#64;Override
+                public void onTrackDataFound(int i, &amp;#64;NonNull TrackData trackData) {
+                  MediaFormat mediaFormat = trackData.mediaFormat;
+                  if (videoTrackIndex == -1 &amp;amp;&amp;amp;
+                      mediaFormat
+                          .getString(MediaFormat.KEY_MIME, &amp;#47;* defaultValue= *&amp;#47; "")
+                          .startsWith("video/")) {
+                    videoTrackIndex = i;
+                  }
+                }
+            
+                &amp;#64;Override
+                public void onSampleDataFound(int trackIndex, &amp;#64;NonNull InputReader inputReader)
+                    throws IOException {
+                  int numberOfBytesToRead = (int) inputReader.getLength();
+                  if (videoTrackIndex != trackIndex) {
+                    // Discard contents.
+                    inputReader.read(
+                        discardedDataBuffer,
+                        &amp;#47;* offset= *&amp;#47; 0,
+                        Math.min(discardDataBuffer.length, numberOfBytesToRead));
+                  } else {
+                    ensureSpaceInBuffer(numberOfBytesToRead);
+                    int bytesRead = inputReader.read(
+                        sampleDataBuffer, bytesWrittenCount, numberOfBytesToRead);
+                    bytesWrittenCount += bytesRead;
+                  }
+                }
+            
+                &amp;#64;Override
+                public void onSampleCompleted(
+                    int trackIndex,
+                    long timeMicros,
+                    int flags,
+                    int size,
+                    int offset,
+                    &amp;#64;Nullable CryptoInfo cryptoData) {
+                  if (videoTrackIndex != trackIndex) {
+                    return; // It's not the video track. Ignore.
+                  }
+                  byte[] sampleData = new byte[size];
+                  int sampleStartOffset = bytesWrittenCount - size - offset;
+                  System.arraycopy(
+                      sampleDataBuffer,
+                      sampleStartOffset,
+                      sampleData,
+                      &amp;#47;* destPos= *&amp;#47; 0,
+                      size);
+                  // Place trailing bytes at the start of the buffer.
+                  System.arraycopy(
+                      sampleDataBuffer,
+                      bytesWrittenCount - offset,
+                      sampleDataBuffer,
+                      &amp;#47;* destPos= *&amp;#47; 0,
+                      &amp;#47;* size= *&amp;#47; offset);
+                  bytesWrittenCount = bytesWrittenCount - offset;
+                  publishSample(sampleData, timeMicros, flags);
+                }
+            
+               private void ensureSpaceInBuffer(int numberOfBytesToRead) {
+                 int requiredLength = bytesWrittenCount + numberOfBytesToRead;
+                 if (requiredLength &amp;gt; sampleDataBuffer.length) {
+                   sampleDataBuffer = Arrays.copyOf(sampleDataBuffer, requiredLength);
+                 }
+               }
+            
+              }
+            
+            </code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/media/MediaParser" title="Reference documentation">Java documentation for <code>android.media.MediaParser</code>.</a>
@@ -233,6 +342,9 @@
         <returns>The parser names that support the given <c>mediaFormat</c>, or the list of all
                 parsers available if no container specific format information is provided.</returns>
         <remarks>
+          <para>Returns an immutable list with the names of the parsers that are suitable for container
+            formats with the given <c>MediaFormat</c>.</para>
+          <para>A parser supports a <c>MediaFormat</c> if the mime type associated with <c>MediaFormat#KEY_MIME</c> corresponds to the supported container format.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#getParserNames(android.media.MediaFormat)" title="Reference documentation">Java documentation for <code>android.media.MediaParser.getParserNames(android.media.MediaFormat)</code>.</a>
@@ -338,6 +450,8 @@
       <Docs>
         <summary>Sets whether constant bitrate seeking should be enabled for ADTS parsing.</summary>
         <remarks>
+          <para>Sets whether constant bitrate seeking should be enabled for ADTS parsing. <c>boolean</c>
+            expected. Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_ADTS_ENABLE_CBR_SEEKING" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_ADTS_ENABLE_CBR_SEEKING</code>.</a>
@@ -377,6 +491,8 @@
       <Docs>
         <summary>Sets whether constant bitrate seeking should be enabled for AMR.</summary>
         <remarks>
+          <para>Sets whether constant bitrate seeking should be enabled for AMR. <c>boolean</c> expected.
+            Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_AMR_ENABLE_CBR_SEEKING" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_AMR_ENABLE_CBR_SEEKING</code>.</a>
@@ -416,6 +532,8 @@
       <Docs>
         <summary>Sets whether the ID3 track should be disabled for FLAC.</summary>
         <remarks>
+          <para>Sets whether the ID3 track should be disabled for FLAC. <c>boolean</c> expected. Default
+            value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_FLAC_DISABLE_ID3" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_FLAC_DISABLE_ID3</code>.</a>
@@ -455,6 +573,10 @@
       <Docs>
         <summary>Sets whether Matroska parsing should avoid seeking to the cues element.</summary>
         <remarks>
+          <para>Sets whether Matroska parsing should avoid seeking to the cues element. <c>boolean</c>
+            expected. Default value is <c>false</c>.</para>
+          <para>If this flag is enabled and the cues element occurs after the first cluster, then the
+            media is treated as unseekable.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_MATROSKA_DISABLE_CUES_SEEKING" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_MATROSKA_DISABLE_CUES_SEEKING</code>.</a>
@@ -494,6 +616,8 @@
       <Docs>
         <summary>Sets whether the ID3 track should be disabled for MP3.</summary>
         <remarks>
+          <para>Sets whether the ID3 track should be disabled for MP3. <c>boolean</c> expected. Default
+            value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_MP3_DISABLE_ID3" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_MP3_DISABLE_ID3</code>.</a>
@@ -533,6 +657,8 @@
       <Docs>
         <summary>Sets whether constant bitrate seeking should be enabled for MP3.</summary>
         <remarks>
+          <para>Sets whether constant bitrate seeking should be enabled for MP3. <c>boolean</c> expected.
+            Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_MP3_ENABLE_CBR_SEEKING" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_MP3_ENABLE_CBR_SEEKING</code>.</a>
@@ -572,6 +698,16 @@
       <Docs>
         <summary>Sets whether MP3 parsing should generate a time-to-byte mapping.</summary>
         <remarks>
+          <para>Sets whether MP3 parsing should generate a time-to-byte mapping. <c>boolean</c> expected.
+            Default value is <c>false</c>.</para>
+          <para>Enabling this flag may require to scan a significant portion of the file to compute a seek
+            point. Therefore, it should only be used if:
+            
+            &lt;ul&gt;
+              &lt;li&gt;the file is small, or
+              &lt;li&gt;the bitrate is variable (or the type of bitrate is unknown) and the seeking metadata
+                  provided in the file is not precise enough (or is not present).
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_MP3_ENABLE_INDEX_SEEKING" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_MP3_ENABLE_INDEX_SEEKING</code>.</a>
@@ -611,6 +747,8 @@
       <Docs>
         <summary>Sets whether MP4 parsing should ignore edit lists.</summary>
         <remarks>
+          <para>Sets whether MP4 parsing should ignore edit lists. <c>boolean</c> expected. Default value is
+            <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_MP4_IGNORE_EDIT_LISTS" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_MP4_IGNORE_EDIT_LISTS</code>.</a>
@@ -650,6 +788,8 @@
       <Docs>
         <summary>Sets whether MP4 parsing should ignore the tfdt box.</summary>
         <remarks>
+          <para>Sets whether MP4 parsing should ignore the tfdt box. <c>boolean</c> expected. Default value
+            is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_MP4_IGNORE_TFDT_BOX" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_MP4_IGNORE_TFDT_BOX</code>.</a>
@@ -689,6 +829,8 @@
       <Docs>
         <summary>Sets whether MP4 parsing should treat all video frames as key frames.</summary>
         <remarks>
+          <para>Sets whether MP4 parsing should treat all video frames as key frames. <c>boolean</c>
+            expected. Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_MP4_TREAT_VIDEO_FRAMES_AS_KEYFRAMES" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_MP4_TREAT_VIDEO_FRAMES_AS_KEYFRAMES</code>.</a>
@@ -729,6 +871,8 @@
         <summary>Sets whether TS should treat samples consisting of non-IDR I slices as synchronization
             samples (key-frames).</summary>
         <remarks>
+          <para>Sets whether TS should treat samples consisting of non-IDR I slices as synchronization
+            samples (key-frames). <c>boolean</c> expected. Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_TS_ALLOW_NON_IDR_AVC_KEYFRAMES" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_TS_ALLOW_NON_IDR_AVC_KEYFRAMES</code>.</a>
@@ -768,6 +912,10 @@
       <Docs>
         <summary>Sets whether TS parsing should split AVC stream into access units based on slice headers.</summary>
         <remarks>
+          <para>Sets whether TS parsing should split AVC stream into access units based on slice headers.
+            <c>boolean</c> expected. Default value is <c>false</c>.</para>
+          <para>This flag should be left disabled if the stream contains access units delimiters in order
+            to avoid unnecessary computational costs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_TS_DETECT_ACCESS_UNITS" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_TS_DETECT_ACCESS_UNITS</code>.</a>
@@ -807,6 +955,9 @@
       <Docs>
         <summary>Sets whether TS parsing should handle HDMV DTS audio streams.</summary>
         <remarks>
+          <para>Sets whether TS parsing should handle HDMV DTS audio streams. <c>boolean</c> expected.
+            Default value is <c>false</c>.</para>
+          <para>Enabling this flag will disable the detection of SCTE subtitles.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_TS_ENABLE_HDMV_DTS_AUDIO_STREAMS" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_TS_ENABLE_HDMV_DTS_AUDIO_STREAMS</code>.</a>
@@ -846,6 +997,8 @@
       <Docs>
         <summary>Sets whether TS parsing should ignore AAC elementary streams.</summary>
         <remarks>
+          <para>Sets whether TS parsing should ignore AAC elementary streams. <c>boolean</c> expected.
+            Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_TS_IGNORE_AAC_STREAM" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_TS_IGNORE_AAC_STREAM</code>.</a>
@@ -885,6 +1038,8 @@
       <Docs>
         <summary>Sets whether TS parsing should ignore AVC elementary streams.</summary>
         <remarks>
+          <para>Sets whether TS parsing should ignore AVC elementary streams. <c>boolean</c> expected.
+            Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_TS_IGNORE_AVC_STREAM" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_TS_IGNORE_AVC_STREAM</code>.</a>
@@ -924,6 +1079,8 @@
       <Docs>
         <summary>Sets whether TS parsing should ignore splice information streams.</summary>
         <remarks>
+          <para>Sets whether TS parsing should ignore splice information streams. <c>boolean</c> expected.
+            Default value is <c>false</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_TS_IGNORE_SPLICE_INFO_STREAM" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_TS_IGNORE_SPLICE_INFO_STREAM</code>.</a>
@@ -963,6 +1120,16 @@
       <Docs>
         <summary>Sets the operation mode for TS parsing.</summary>
         <remarks>
+          <para>Sets the operation mode for TS parsing. <c>String</c> expected. Valid values are <c>"single_pmt"</c>, <c>"multi_pmt"</c>, and <c>"hls"</c>. Default value is <c>"single_pmt"</c>.</para>
+          <para>The operation modes alter the way TS behaves so that it can handle certain kinds of
+            commonly-occurring malformed media.
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>"single_pmt"</c>: Only the first found PMT is parsed. Others are ignored, even if
+                  more PMTs are declared in the PAT.
+              &lt;li&gt;<c>"multi_pmt"</c>: Behave as described in ISO/IEC 13818-1.
+              &lt;li&gt;<c>"hls"</c>: Enable <c>"single_pmt"</c> mode, and ignore continuity counters.
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARAMETER_TS_MODE" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARAMETER_TS_MODE</code>.</a>
@@ -1008,6 +1175,10 @@
         <value>The name of the backing parser implementation, or null if the backing parser
                 implementation has not yet been selected.</value>
         <remarks>
+          <para>Returns the name of the backing parser implementation.</para>
+          <para>If this instance was creating using <c>#createByName</c>, the provided name is returned.
+            If this instance was created using <c>#create</c>, this method will return <c>#PARSER_NAME_UNKNOWN</c> until the first call to <c>#advance</c>, after which the name of the
+            backing parser implementation is returned.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#getParserName()" title="Reference documentation">Java documentation for <code>android.media.MediaParser.getParserName()</code>.</a>
@@ -1048,6 +1219,8 @@
         <summary>Parser for the AC-3 container format, as defined in Digital Audio Compression Standard
             (AC-3).</summary>
         <remarks>
+          <para>Parser for the AC-3 container format, as defined in Digital Audio Compression Standard
+            (AC-3).</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_AC3" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_AC3</code>.</a>
@@ -1088,6 +1261,8 @@
         <summary>Parser for the AC-4 container format, as defined by Dolby AC-4: Audio delivery for
             Next-Generation Entertainment Services.</summary>
         <remarks>
+          <para>Parser for the AC-4 container format, as defined by Dolby AC-4: Audio delivery for
+            Next-Generation Entertainment Services.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_AC4" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_AC4</code>.</a>
@@ -1127,6 +1302,7 @@
       <Docs>
         <summary>Parser for the ADTS container format, as defined in ISO/IEC 13818-7.</summary>
         <remarks>
+          <para>Parser for the ADTS container format, as defined in ISO/IEC 13818-7.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_ADTS" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_ADTS</code>.</a>
@@ -1166,6 +1342,7 @@
       <Docs>
         <summary>Parser for the AMR container format, as defined in RFC 4867.</summary>
         <remarks>
+          <para>Parser for the AMR container format, as defined in RFC 4867.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_AMR" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_AMR</code>.</a>
@@ -1205,6 +1382,7 @@
       <Docs>
         <summary>Parser for the FLAC container format, as defined in the <see href="https://xiph.org/flac/">spec</see>.</summary>
         <remarks>
+          <para>Parser for the FLAC container format, as defined in the <see href="https://xiph.org/flac/">spec</see>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_FLAC" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_FLAC</code>.</a>
@@ -1245,6 +1423,8 @@
         <summary>Parser for the FLV container format, as defined in Adobe Flash Video File Format
             Specification.</summary>
         <remarks>
+          <para>Parser for the FLV container format, as defined in Adobe Flash Video File Format
+            Specification.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_FLV" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_FLV</code>.</a>
@@ -1284,6 +1464,7 @@
       <Docs>
         <summary>Parser for fragmented files using the MP4 container format, as defined in ISO/IEC 14496-12.</summary>
         <remarks>
+          <para>Parser for fragmented files using the MP4 container format, as defined in ISO/IEC 14496-12.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_FMP4" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_FMP4</code>.</a>
@@ -1323,6 +1504,7 @@
       <Docs>
         <summary>Parser for the Matroska container format, as defined in the <see href="https://matroska.org/technical/specs/">spec</see>.</summary>
         <remarks>
+          <para>Parser for the Matroska container format, as defined in the <see href="https://matroska.org/technical/specs/">spec</see>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_MATROSKA" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_MATROSKA</code>.</a>
@@ -1362,6 +1544,7 @@
       <Docs>
         <summary>Parser for the MP3 container format, as defined in ISO/IEC 11172-3.</summary>
         <remarks>
+          <para>Parser for the MP3 container format, as defined in ISO/IEC 11172-3.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_MP3" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_MP3</code>.</a>
@@ -1402,6 +1585,8 @@
         <summary>Parser for non-fragmented files using the MP4 container format, as defined in ISO/IEC
             14496-12.</summary>
         <remarks>
+          <para>Parser for non-fragmented files using the MP4 container format, as defined in ISO/IEC
+            14496-12.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_MP4" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_MP4</code>.</a>
@@ -1441,6 +1626,7 @@
       <Docs>
         <summary>Parser for the OGG container format, as defined in RFC 3533.</summary>
         <remarks>
+          <para>Parser for the OGG container format, as defined in RFC 3533.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_OGG" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_OGG</code>.</a>
@@ -1480,6 +1666,7 @@
       <Docs>
         <summary>Parser for the PS container format, as defined in ISO/IEC 11172-1.</summary>
         <remarks>
+          <para>Parser for the PS container format, as defined in ISO/IEC 11172-1.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_PS" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_PS</code>.</a>
@@ -1519,6 +1706,7 @@
       <Docs>
         <summary>Parser for the TS container format, as defined in ISO/IEC 13818-1.</summary>
         <remarks>
+          <para>Parser for the TS container format, as defined in ISO/IEC 13818-1.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_TS" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_TS</code>.</a>
@@ -1558,6 +1746,7 @@
       <Docs>
         <summary>Parser name returned by <c>#getParserName()</c> when no parser has been selected yet.</summary>
         <remarks>
+          <para>Parser name returned by <c>#getParserName()</c> when no parser has been selected yet.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_UNKNOWN" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_UNKNOWN</code>.</a>
@@ -1598,6 +1787,8 @@
         <summary>Parser for the WAV container format, as defined in Multimedia Programming Interface and Data
             Specifications.</summary>
         <remarks>
+          <para>Parser for the WAV container format, as defined in Multimedia Programming Interface and Data
+            Specifications.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#PARSER_NAME_WAV" title="Reference documentation">Java documentation for <code>android.media.MediaParser.PARSER_NAME_WAV</code>.</a>
@@ -1638,6 +1829,9 @@
       <Docs>
         <summary>Releases any acquired resources.</summary>
         <remarks>
+          <para>Releases any acquired resources.</para>
+          <para>After calling this method, this instance becomes unusable and no other methods should be
+            invoked.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#release()" title="Reference documentation">Java documentation for <code>android.media.MediaParser.release()</code>.</a>
@@ -1682,6 +1876,7 @@
       <Docs>
         <summary>Indicates that the sample should be decoded but not rendered.</summary>
         <remarks>
+          <para>Indicates that the sample should be decoded but not rendered.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#SAMPLE_FLAG_DECODE_ONLY" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SAMPLE_FLAG_DECODE_ONLY</code>.</a>
@@ -1726,6 +1921,7 @@
       <Docs>
         <summary>Indicates that the sample is (at least partially) encrypted.</summary>
         <remarks>
+          <para>Indicates that the sample is (at least partially) encrypted.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#SAMPLE_FLAG_ENCRYPTED" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SAMPLE_FLAG_ENCRYPTED</code>.</a>
@@ -1770,6 +1966,19 @@
       <Docs>
         <summary>Indicates that the sample has supplemental data.</summary>
         <remarks>
+          <para>Indicates that the sample has supplemental data.</para>
+          <para>Samples will not have this flag set unless the <c>"android.media.mediaparser.includeSupplementalData"</c> parameter is set to <c>true</c> via
+            <c>#setParameter</c>.</para>
+          <para>Samples with supplemental data have the following sample data format:
+            
+            &lt;ul&gt;
+              &lt;li&gt;If the <c>"android.media.mediaparser.inBandCryptoInfo"</c> parameter is set, all
+                  encryption information.
+              &lt;li&gt;(4 bytes) <c>sample_data_size</c>: The size of the actual sample data, not including
+                  supplemental data or encryption information.
+              &lt;li&gt;(<c>sample_data_size</c> bytes): The media sample data.
+              &lt;li&gt;(remaining bytes) The supplemental data.
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#SAMPLE_FLAG_HAS_SUPPLEMENTAL_DATA" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SAMPLE_FLAG_HAS_SUPPLEMENTAL_DATA</code>.</a>
@@ -1814,6 +2023,7 @@
       <Docs>
         <summary>Indicates that the sample holds a synchronization sample.</summary>
         <remarks>
+          <para>Indicates that the sample holds a synchronization sample.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#SAMPLE_FLAG_KEY_FRAME" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SAMPLE_FLAG_KEY_FRAME</code>.</a>
@@ -1858,6 +2068,7 @@
       <Docs>
         <summary>Indicates that the sample is known to contain the last media sample of the stream.</summary>
         <remarks>
+          <para>Indicates that the sample is known to contain the last media sample of the stream.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#SAMPLE_FLAG_LAST_SAMPLE" title="Reference documentation">Java documentation for <code>android.media.MediaParser.SAMPLE_FLAG_LAST_SAMPLE</code>.</a>
@@ -1956,6 +2167,8 @@
         <summary>Sets parser-specific parameters which allow customizing behavior.</summary>
         <returns>This instance, for convenience.</returns>
         <remarks>
+          <para>Sets parser-specific parameters which allow customizing behavior.</para>
+          <para>Must be called before the first call to <c>#advance</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#setParameter(java.lang.String,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>android.media.MediaParser.setParameter(java.lang.String, java.lang.Object)</code>.</a>
@@ -2008,6 +2221,7 @@
         <summary>Returns whether the given <c>parameterName</c> is supported by this parser.</summary>
         <returns>Whether the given <c>parameterName</c> is supported.</returns>
         <remarks>
+          <para>Returns whether the given <c>parameterName</c> is supported by this parser.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaParser#supportsParameter(java.lang.String)" title="Reference documentation">Java documentation for <code>android.media.MediaParser.supportsParameter(java.lang.String)</code>.</a>

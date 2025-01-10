@@ -25,14 +25,23 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>
+      <c>UnicodeMatcher</c> defines a protocol for objects that can
+            match a range of characters in a Replaceable string.</summary>
     <remarks>
       <para>
+        <c>UnicodeMatcher</c> defines a protocol for objects that can
+            match a range of characters in a Replaceable string.</para>
+      <para>
         <format type="text/html">
-          <a href="https://developer.android.com/reference/android/icu/text/UnicodeMatcher" title="Reference documentation">Android platform documentation</a>
+          <a href="https://developer.android.com/reference/android/icu/text/UnicodeMatcher" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeMatcher</code>.</a>
         </format>
       </para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -63,10 +72,22 @@
         <Parameter Name="toUnionTo" Type="Android.Icu.Text.UnicodeSet" />
       </Parameters>
       <Docs>
-        <param name="toUnionTo">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="toUnionTo">the set into which to union the source characters</param>
+        <summary>Union the set of all characters that may be matched by this object
+            into the given set.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Union the set of all characters that may be matched by this object
+            into the given set.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeMatcher#addMatchSetTo(android.icu.text.UnicodeSet)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeMatcher.addMatchSetTo(android.icu.text.UnicodeSet)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -94,8 +115,24 @@
         <ReturnType>System.Char</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The character at index i, where i &amp;lt; contextStart || i &amp;gt;= contextLimit,
+            is ETHER.</summary>
+        <remarks>
+          <para>The character at index i, where i &amp;lt; contextStart || i &amp;gt;= contextLimit,
+            is ETHER.  This allows explicit matching by rules and UnicodeSets
+            of text outside the context.  In traditional terms, this allows anchoring
+            at the start and/or end.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeMatcher#ETHER" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeMatcher.ETHER</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Matches">
@@ -128,14 +165,54 @@
         <Parameter Name="incremental" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="limit">To be added.</param>
-        <param name="incremental">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">the text to be matched</param>
+        <param name="offset">on input, the index into text at which to begin
+            matching.  On output, the limit of the matched text.  The
+            number of matched characters is the output value of offset
+            minus the input value.  Offset should always point to the
+            HIGH SURROGATE (leading code unit) of a pair of surrogates,
+            both on entry and upon return.</param>
+        <param name="limit">the limit index of text to be matched.  Greater
+            than offset for a forward direction match, less than offset for
+            a backward direction match.  The last character to be
+            considered for matching will be text.charAt(limit-1) in the
+            forward direction or text.charAt(limit+1) in the backward
+            direction.</param>
+        <param name="incremental">if true, then assume further characters may
+            be inserted at limit and check for partial matching.  Otherwise
+            assume the text as given is complete.</param>
+        <summary>Return a UMatchDegree value indicating the degree of match for
+            the given text at the given offset.</summary>
+        <returns>a match degree value indicating a full match, a partial
+            match, or a mismatch.  If incremental is false then
+            U_PARTIAL_MATCH should never be returned.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a UMatchDegree value indicating the degree of match for
+            the given text at the given offset.  Zero, one, or more
+            characters may be matched.</para>
+          <para>Matching in the forward direction is indicated by limit &amp;gt;
+            offset.  Characters from offset forwards to limit-1 will be
+            considered for matching.</para>
+          <para>Matching in the reverse direction is indicated by limit &amp;lt;
+            offset.  Characters from offset backwards to limit+1 will be
+            considered for matching.</para>
+          <para>If limit == offset then the only match possible is a zero
+            character match (which subclasses may implement if desired).</para>
+          <para>If U_MATCH is returned, then as a side effect, advance the
+            offset parameter to the limit of the matched substring.  In the
+            forward direction, this will be the index of the last matched
+            character plus one.  In the reverse direction, this will be the
+            index of the last matched character minus one.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeMatcher#matches(android.icu.text.Replaceable,%20int[],%20int,%20boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeMatcher.matches(android.icu.text.Replaceable, int[], int, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -167,10 +244,28 @@
       </Parameters>
       <Docs>
         <param name="v">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Returns true if this matcher will match a character c, where c
+            &amp;amp; 0xFF == v, at offset, in the forward direction (with limit &amp;gt;
+            offset).</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns true if this matcher will match a character c, where c
+            &amp;amp; 0xFF == v, at offset, in the forward direction (with limit &amp;gt;
+            offset).  This is used by <c>RuleBasedTransliterator</c> for
+            indexing.</para>
+          <para>Note:  This API uses an int even though the value will be
+            restricted to 8 bits in order to avoid complications with
+            signedness (bytes convert to ints in the range -128..127).</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeMatcher#matchesIndexValue(int)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeMatcher.matchesIndexValue(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -201,11 +296,26 @@
         <Parameter Name="escapeUnprintable" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="escapeUnprintable">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="escapeUnprintable">if true then convert unprintable
+            character to their hex escape representations, \\uxxxx or
+            \\Uxxxxxxxx.  Unprintable characters are those other than
+            U+000A, U+0020..U+007E.</param>
+        <summary>Returns a string representation of this matcher.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a string representation of this matcher.  If the result of
+            calling this function is passed to the appropriate parser, it
+            will produce another matcher that is equal to this one.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeMatcher#toPattern(boolean)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeMatcher.toPattern(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

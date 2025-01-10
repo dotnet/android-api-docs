@@ -30,6 +30,10 @@
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/location/GnssNavigationMessage", ApiSince=24, DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
     </Attribute>
@@ -65,6 +69,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("CREATOR", ApiSince=24)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR", ApiSince=24)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
@@ -149,7 +157,7 @@
           <para>The bytes (or words) specified using big endian format (MSB first).
             
             &lt;ul&gt;
-            &lt;li&gt;For GPS L1 C/A, IRNSS L5 C/A, Beidou D1 &amp;amp; Beidou D2, each subframe contains 10
+            &lt;li&gt;For GPS L1 C/A, NavIC L5, Beidou D1 &amp;amp; Beidou D2, each subframe contains 10
             30-bit words. Each word (30 bits) should be fit into the last 30 bits in a 4-byte word (skip
             B31 and B32), with MSB first, for a total of 40 bytes, covering a time period of 6, 6, and
             0.6 seconds, respectively.&lt;/li&gt;
@@ -169,6 +177,9 @@
             75 bytes. subframe #3 consists of 264 data bits that should be fit into 33 bytes.&lt;/li&gt;
             &lt;li&gt;For Beidou CNAV2, each subframe consists of 288 data bits, that should be fit into 36
             bytes.&lt;/li&gt;
+            &lt;li&gt; For NavIC L1, subframe #1 consists of 9 data bits that should be fit into 2 bytes (skip
+            B10-B16). subframe #2 consists of 600 bits that should be fit into 75 bytes. subframe #3
+            consists of 274 data bits that should be fit into 35 bytes (skip B275-B280).&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
@@ -266,9 +277,12 @@
             navigation message, in the range of 1-25 (Subframe 1, 2, 3 does not contain a 'frame id' and
             this value can be set to -1.)&lt;/li&gt;
             &lt;li&gt; For Beidou CNAV1 this refers to the page type number in the range of 1-63.&lt;/li&gt;
-            &lt;li&gt; For IRNSS L5 C/A subframe 3 and 4, this value corresponds to the Message Id of the
+            &lt;li&gt; For NavIC L5 subframe 3 and 4, this value corresponds to the Message Id of the
             navigation message, in the range of 1-63. (Subframe 1 and 2 does not contain a message type
             id and this value can be set to -1.)&lt;/li&gt;
+            &lt;li&gt; For NavIC L1 subframe 3, this value corresponds to the Message Id of the navigation
+            message, in the range of 1-63. (Subframe 1 and 2 does not contain a message type id and this
+            value can be set to -1.)&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
@@ -513,8 +527,10 @@
             navigation message, in the range of 1-3.&lt;/li&gt;
             &lt;li&gt; For Beidou CNAV2, the submessage id corresponds to the message type, in the range
             1-63.&lt;/li&gt;
-            &lt;li&gt; For IRNSS L5 C/A, the submessage id corresponds to the subframe number of the
-            navigation message, in the range of 1-4.&lt;/li&gt;
+            &lt;li&gt; For NavIC L5, the submessage id corresponds to the subframe number of the navigation
+            message, in the range of 1-4.&lt;/li&gt;
+            &lt;li&gt; For NavIC L1, the submessage id corresponds to the subframe number of the navigation
+            message, in the range of 1-3.&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
@@ -1202,6 +1218,102 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="TypeIrnL1">
+      <MemberSignature Language="C#" Value="public const Android.Locations.GnssNavigationType TypeIrnL1 = 1795;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Locations.GnssNavigationType TypeIrnL1 = (1795)" />
+      <MemberSignature Language="DocId" Value="F:Android.Locations.GnssNavigationMessage.TypeIrnL1" />
+      <MemberSignature Language="F#" Value="val mutable TypeIrnL1 : Android.Locations.GnssNavigationType" Usage="Android.Locations.GnssNavigationMessage.TypeIrnL1" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_IRN_L1", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_IRN_L1", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Locations.GnssNavigationType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Locations.GnssNavigationType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Locations.GnssNavigationType</ReturnType>
+      </ReturnValue>
+      <MemberValue>1795</MemberValue>
+      <Docs>
+        <summary>NavIC L1 message contained in the structure.</summary>
+        <remarks>
+          <para>NavIC L1 message contained in the structure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/location/GnssNavigationMessage#TYPE_IRN_L1" title="Reference documentation">Java documentation for <code>android.location.GnssNavigationMessage.TYPE_IRN_L1</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="TypeIrnL5">
+      <MemberSignature Language="C#" Value="public const Android.Locations.GnssNavigationType TypeIrnL5 = 1794;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Locations.GnssNavigationType TypeIrnL5 = (1794)" />
+      <MemberSignature Language="DocId" Value="F:Android.Locations.GnssNavigationMessage.TypeIrnL5" />
+      <MemberSignature Language="F#" Value="val mutable TypeIrnL5 : Android.Locations.GnssNavigationType" Usage="Android.Locations.GnssNavigationMessage.TypeIrnL5" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("TYPE_IRN_L5", ApiSince=35)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("TYPE_IRN_L5", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Locations.GnssNavigationType enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Locations.GnssNavigationType enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-35.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Locations.GnssNavigationType</ReturnType>
+      </ReturnValue>
+      <MemberValue>1794</MemberValue>
+      <Docs>
+        <summary>NavIC L5 message contained in the structure.</summary>
+        <remarks>
+          <para>NavIC L5 message contained in the structure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/location/GnssNavigationMessage#TYPE_IRN_L5" title="Reference documentation">Java documentation for <code>android.location.GnssNavigationMessage.TYPE_IRN_L5</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="TypeIrnL5ca">
       <MemberSignature Language="C#" Value="public const Android.Locations.GnssNavigationStatus TypeIrnL5ca = 1793;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Locations.GnssNavigationStatus TypeIrnL5ca = (1793)" />
@@ -1234,9 +1346,9 @@
       </ReturnValue>
       <MemberValue>1793</MemberValue>
       <Docs>
-        <summary>IRNSS L5 C/A message contained in the structure.</summary>
+        <summary>NavIC L5 C/A message contained in the structure.</summary>
         <remarks>
-          <para>IRNSS L5 C/A message contained in the structure.</para>
+          <para>NavIC L5 C/A message contained in the structure.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/location/GnssNavigationMessage#TYPE_IRN_L5CA" title="Reference documentation">Java documentation for <code>android.location.GnssNavigationMessage.TYPE_IRN_L5CA</code>.</a>
