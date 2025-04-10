@@ -101,11 +101,23 @@
       </Parameters>
       <Docs>
         <param name="who">The IBinder that has become invalid</param>
-        <summary>Interface for receiving a callback when the process hosting an IBinder
+        <summary>The function called when the process hosting an IBinder
             has gone away.</summary>
         <remarks>
-          <para>Interface for receiving a callback when the process hosting an IBinder
-            has gone away.</para>
+          <para>The function called when the process hosting an IBinder
+            has gone away.
+            
+            This callback will be called from any binder thread like any other binder
+            transaction. If the process receiving this notification is multithreaded
+            then synchronization may be required because other threads may be executing
+            at the same time.
+            
+            No locks are held in libbinder when <c>binderDied</c> is called.
+            
+            There is no need to call <c>unlinkToDeath</c> in the binderDied callback.
+            The binder is already dead so <c>unlinkToDeath</c> is a no-op.
+            It will be unlinked when the last local reference of that binder proxy is
+            dropped.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/IBinder.DeathRecipient#binderDied(android.os.IBinder)" title="Reference documentation">Java documentation for <code>android.os.IBinder.DeathRecipient.binderDied(android.os.IBinder)</code>.</a>

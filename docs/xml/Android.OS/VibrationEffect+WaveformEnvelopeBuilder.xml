@@ -1,0 +1,291 @@
+<Type Name="VibrationEffect+WaveformEnvelopeBuilder" FullName="Android.OS.VibrationEffect+WaveformEnvelopeBuilder">
+  <TypeSignature Language="C#" Value="public sealed class VibrationEffect.WaveformEnvelopeBuilder : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class nested public auto ansi sealed beforefieldinit VibrationEffect/WaveformEnvelopeBuilder extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Android.OS.VibrationEffect.WaveformEnvelopeBuilder" />
+  <TypeSignature Language="F#" Value="type VibrationEffect.WaveformEnvelopeBuilder = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/os/VibrationEffect$WaveformEnvelopeBuilder", ApiSince=36, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/os/VibrationEffect$WaveformEnvelopeBuilder", ApiSince=36, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>A builder for waveform effects described by its envelope.</summary>
+    <remarks>
+      <para>A builder for waveform effects described by its envelope.</para>
+      <para>Waveform effect envelopes are defined by one or more control points describing a target
+            vibration amplitude and frequency, and a duration to reach those targets. The vibrator
+            will perform smooth transitions between control points.</para>
+      <para>For example, the following code ramps a vibrator from off to full amplitude at 120Hz over
+            100ms, holds that state for 200ms, and then ramps back down over 100ms:</para>
+      <code lang="text/java">{@code
+            VibrationEffect effect = new VibrationEffect.WaveformEnvelopeBuilder()
+                .addControlPoint(1.0f, 120f, 100)
+                .addControlPoint(1.0f, 120f, 200)
+                .addControlPoint(0.0f, 120f, 100)
+                .build();
+            }</code>
+      <para>The builder automatically starts all effects at 0 amplitude.</para>
+      <para>It is crucial to ensure that the frequency range used in your effect is compatible with
+            the device's capabilities. The framework will not play any frequencies that fall partially
+            or completely outside the device's supported range. It will also not attempt to correct or
+            modify these frequencies.</para>
+      <para>Therefore, it is strongly recommended that you design your haptic effects with the
+            device's frequency profile in mind. You can obtain the supported frequency range and other
+            relevant frequency-related information by getting the
+            <c>android.os.vibrator.VibratorFrequencyProfile</c> using the
+            <c>Vibrator#getFrequencyProfile()</c> method.</para>
+      <para>In addition to these limitations, when designing vibration patterns, it is important to
+            consider the physical limitations of the vibration actuator. These limitations include
+            factors such as the maximum number of control points allowed in an envelope effect, the
+            minimum and maximum durations permitted for each control point, and the maximum overall
+            duration of the effect. If a pattern exceeds the maximum number of allowed control points,
+            the framework will automatically break down the effect to ensure it plays correctly.</para>
+      <para>You can use the following APIs to obtain these limits:
+            &lt;ul&gt;
+            &lt;li&gt;Maximum envelope control points: <c>VibratorEnvelopeEffectInfo#getMaxSize()</c>&lt;li&gt;Minimum control point duration:
+            <c>VibratorEnvelopeEffectInfo#getMinControlPointDurationMillis()</c>&lt;li&gt;Maximum control point duration:
+            <c>VibratorEnvelopeEffectInfo#getMaxControlPointDurationMillis()</c>&lt;li&gt;Maximum total effect duration: <c>VibratorEnvelopeEffectInfo#getMaxDurationMillis()</c>&lt;/ul&gt;</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/os/VibrationEffect.WaveformEnvelopeBuilder" title="Reference documentation">Java documentation for <code>android.os.VibrationEffect.WaveformEnvelopeBuilder</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public WaveformEnvelopeBuilder ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.VibrationEffect.WaveformEnvelopeBuilder.#ctor" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "()V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "()V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AddControlPoint">
+      <MemberSignature Language="C#" Value="public Android.OS.VibrationEffect.WaveformEnvelopeBuilder AddControlPoint (float amplitude, float frequencyHz, long durationMillis);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.OS.VibrationEffect/WaveformEnvelopeBuilder AddControlPoint(float32 amplitude, float32 frequencyHz, int64 durationMillis) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.VibrationEffect.WaveformEnvelopeBuilder.AddControlPoint(System.Single,System.Single,System.Int64)" />
+      <MemberSignature Language="F#" Value="member this.AddControlPoint : single * single * int64 -&gt; Android.OS.VibrationEffect.WaveformEnvelopeBuilder" Usage="waveformEnvelopeBuilder.AddControlPoint (amplitude, frequencyHz, durationMillis)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("addControlPoint", "(FFJ)Landroid/os/VibrationEffect$WaveformEnvelopeBuilder;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addControlPoint", "(FFJ)Landroid/os/VibrationEffect$WaveformEnvelopeBuilder;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.VibrationEffect+WaveformEnvelopeBuilder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="amplitude" Type="System.Single" />
+        <Parameter Name="frequencyHz" Type="System.Single" />
+        <Parameter Name="durationMillis" Type="System.Int64" />
+      </Parameters>
+      <Docs>
+        <param name="amplitude">To be added.</param>
+        <param name="frequencyHz">To be added.</param>
+        <param name="durationMillis">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Build">
+      <MemberSignature Language="C#" Value="public Android.OS.VibrationEffect Build ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.OS.VibrationEffect Build() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.VibrationEffect.WaveformEnvelopeBuilder.Build" />
+      <MemberSignature Language="F#" Value="member this.Build : unit -&gt; Android.OS.VibrationEffect" Usage="waveformEnvelopeBuilder.Build " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("build", "()Landroid/os/VibrationEffect;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("build", "()Landroid/os/VibrationEffect;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.VibrationEffect</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.OS.VibrationEffect.WaveformEnvelopeBuilder.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.OS.VibrationEffect.WaveformEnvelopeBuilder.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetInitialFrequencyHz">
+      <MemberSignature Language="C#" Value="public Android.OS.VibrationEffect.WaveformEnvelopeBuilder SetInitialFrequencyHz (float initialFrequencyHz);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.OS.VibrationEffect/WaveformEnvelopeBuilder SetInitialFrequencyHz(float32 initialFrequencyHz) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.VibrationEffect.WaveformEnvelopeBuilder.SetInitialFrequencyHz(System.Single)" />
+      <MemberSignature Language="F#" Value="member this.SetInitialFrequencyHz : single -&gt; Android.OS.VibrationEffect.WaveformEnvelopeBuilder" Usage="waveformEnvelopeBuilder.SetInitialFrequencyHz initialFrequencyHz" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setInitialFrequencyHz", "(F)Landroid/os/VibrationEffect$WaveformEnvelopeBuilder;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setInitialFrequencyHz", "(F)Landroid/os/VibrationEffect$WaveformEnvelopeBuilder;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.VibrationEffect+WaveformEnvelopeBuilder</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="initialFrequencyHz" Type="System.Single" />
+      </Parameters>
+      <Docs>
+        <param name="initialFrequencyHz">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.OS.VibrationEffect.WaveformEnvelopeBuilder.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.OS.VibrationEffect.WaveformEnvelopeBuilder.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.OS.VibrationEffect.WaveformEnvelopeBuilder.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.OS.VibrationEffect.WaveformEnvelopeBuilder.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

@@ -1,8 +1,9 @@
 <Type Name="CameraDevice" FullName="Android.Hardware.Camera2.CameraDevice">
-  <TypeSignature Language="C#" Value="public abstract class CameraDevice : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.IAutoCloseable" />
+  <TypeSignature Language="C#" Value="public abstract class CameraDevice : Java.Lang.Object, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.IAutoCloseable" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit CameraDevice extends Java.Lang.Object implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Lang.IAutoCloseable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Hardware.Camera2.CameraDevice" />
   <TypeSignature Language="F#" Value="type CameraDevice = class&#xA;    inherit Object&#xA;    interface IAutoCloseable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public abstract class CameraDevice : Java.Lang.Object, IDisposable, Java.Lang.IAutoCloseable" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -1634,16 +1635,30 @@
             mandatory stream combinations
             <c>android.hardware.camera2.params.MandatoryStreamCombination</c> are better suited for this
             purpose.</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt;
-            For apps targeting <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> and above,
+          <para>If this function returns <c>true</c> for a particular stream combination, the camera
+            device supports concurrent captures on all of the streams in the same CaptureRequest, with
+            two exceptions below where concurrent captures are not supported:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;Supported stream combinations with exclusive dynamic range profiles as specified by
+            <c>android.hardware.camera2.params.DynamicRangeProfiles#getProfileCaptureRequestConstraints</c>.&lt;/li&gt;
+            &lt;li&gt;Supported combinations of 'default' mode and 'max resolution' mode streams for devices
+            with ULTRA_HIGH_RESOLUTION_SENSOR capability.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>For other cases where concurrent captures of a stream combination are not supported,
+            this function returns <c>false</c>.</para>
+          <para>&lt;b&gt;NOTE:&lt;/b&gt;</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;For apps targeting <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> and above,
             this method will automatically delegate to
             <c>CameraDeviceSetup#isSessionConfigurationSupported</c> whenever possible. This
             means that the output of this method will consider parameters set through
-            <c>SessionConfiguration#setSessionParameters</c> as well.</para>
-          <para>Session Parameters will be ignored for apps targeting &lt;=
+            <c>SessionConfiguration#setSessionParameters</c> as well.&lt;/li&gt;
+            
+            &lt;li&gt;Session Parameters will be ignored for apps targeting &lt;=
             <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, or if
             <c>CameraManager#isCameraDeviceSetupSupported</c> returns false for the camera id
-            associated with this <c>CameraDevice</c>.</para>
+            associated with this <c>CameraDevice</c>.&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraDevice.isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration)</code>.</a>
@@ -1655,6 +1670,28 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Hardware.Camera2.CameraDevice.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="cameraDevice.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

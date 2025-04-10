@@ -1,8 +1,9 @@
 <Type Name="UnicodeSet" FullName="Android.Icu.Text.UnicodeSet">
-  <TypeSignature Language="C#" Value="public class UnicodeSet : Android.Icu.Text.UnicodeFilter, Android.Icu.Util.IFreezable, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.IComparable, Java.Lang.IIterable" />
+  <TypeSignature Language="C#" Value="public class UnicodeSet : Android.Icu.Text.UnicodeFilter, Android.Icu.Util.IFreezable, IDisposable, Java.Interop.IJavaPeerable, Java.Lang.IComparable, Java.Lang.IIterable" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit UnicodeSet extends Android.Icu.Text.UnicodeFilter implements class Android.Icu.Util.IFreezable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Lang.ICloneable, class Java.Lang.IComparable, class Java.Lang.IIterable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Icu.Text.UnicodeSet" />
   <TypeSignature Language="F#" Value="type UnicodeSet = class&#xA;    inherit UnicodeFilter&#xA;    interface IFreezable&#xA;    interface ICloneable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface IComparable&#xA;    interface IIterable" />
+  <TypeSignature Language="C#" Value="public class UnicodeSet : Android.Icu.Text.UnicodeFilter, Android.Icu.Util.IFreezable, IDisposable, Java.Lang.IComparable, Java.Lang.IIterable" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -270,14 +271,19 @@
                 &lt;/tr&gt;
               &lt;/table&gt;
             &lt;/blockquote&gt;</para>
-      <para>To iterate over contents of UnicodeSet, the following are available:
-            &lt;ul&gt;&lt;li&gt;<c>#ranges()</c> to iterate through the ranges&lt;/li&gt;
-            &lt;li&gt;<c>#strings()</c> to iterate through the strings&lt;/li&gt;
-            &lt;li&gt;<c>#iterator()</c> to iterate through the entire contents in a single loop.
-            That method is, however, not particularly efficient, since it "boxes" each code point into a String.
-            &lt;/ul&gt;
-            All of the above can be used in &lt;b&gt;for&lt;/b&gt; loops.
-            The <c>android.icu.text.UnicodeSetIterator UnicodeSetIterator</c> can also be used, but not in &lt;b&gt;for&lt;/b&gt; loops.</para>
+      <para>To iterate over contents of <c>UnicodeSet</c>, the following are available:
+            &lt;ul&gt;
+              &lt;li&gt;to iterate over the ranges: <c>#ranges()</c>, <c>#rangeStream()</c>&lt;/li&gt;
+              &lt;li&gt;to iterate over the strings: <c>#strings()</c>, <c>#stringStream()</c>&lt;/li&gt;
+              &lt;li&gt;to iterate over the code points: <c>#codePoints()</c>, <c>#codePointStream()</c>&lt;/li&gt;
+              &lt;li&gt;to iterate over the entire contents in a single loop: this class itself is <c>Iterable</c>,
+                  or use <c>#stream()</c>.&lt;br&gt;
+                  All of these method are, however, not particularly efficient,
+                  since they convert each individual code point to a <c>String</c>.
+            &lt;/ul&gt;</para>
+      <para>The iterators and streams methods work as expected in idiomatic Java usage.&lt;br&gt;
+            The <c>UnicodeSetIterator</c> cannot be used in &lt;b&gt;for&lt;/b&gt; loops, and it is not very Java-idiomatic, because it is old.
+            But it might be faster in certain use cases. We recommend that you measure in performance sensitive code.&lt;br&gt;</para>
       <para>To replace, count elements, or delete spans, see <c>android.icu.text.UnicodeSetSpanner UnicodeSetSpanner</c>.</para>
       <para>
         <format type="text/html">
@@ -1368,8 +1374,8 @@
         <InterfaceMember>F:Java.Lang.IIterable._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_forEach_Ljava_util_function_Consumer_</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_spliterator</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1900,8 +1906,8 @@
         <InterfaceMember>F:Java.Lang.IIterable._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_forEach_Ljava_util_function_Consumer_</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_spliterator</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1920,7 +1926,7 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android24.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android24.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0", "This constant will be removed in the future version. Use Android.Icu.Text.UnicodeSetOptions enum directly instead of this field.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0", "This constant will be removed in the future version. Use Android.Icu.Text.UnicodeSetOptions enum directly instead of this field.")&gt;]</AttributeName>
         </Attribute>
@@ -1957,8 +1963,8 @@
         <InterfaceMember>F:Java.Lang.IIterable._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_forEach_Ljava_util_function_Consumer_</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_spliterator</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -3992,8 +3998,8 @@
         <InterfaceMember>F:Java.Lang.IIterable._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_forEach_Ljava_util_function_Consumer_</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_spliterator</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -4217,6 +4223,28 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Icu.Text.UnicodeSet.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="unicodeSet.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Java.Lang.IComparable.CompareTo">
       <MemberSignature Language="C#" Value="int IComparable.CompareTo (Java.Lang.Object o);" />
       <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance int32 Java.Lang.IComparable.CompareTo(class Java.Lang.Object o) cil managed" />
@@ -4366,8 +4394,8 @@
         <InterfaceMember>F:Java.Lang.IIterable._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_forEach_Ljava_util_function_Consumer_</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_spliterator</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -4414,8 +4442,8 @@
         <InterfaceMember>F:Java.Lang.IIterable._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_forEach_Ljava_util_function_Consumer_</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Java.Lang.IIterable.cb_spliterator</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -5424,6 +5452,65 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/UnicodeSet#set(int,%20int)" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSet.set(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SimpleCaseInsensitive">
+      <MemberSignature Language="C#" Value="public const Android.Icu.Text.UnicodeSetOptions SimpleCaseInsensitive = 6;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Icu.Text.UnicodeSetOptions SimpleCaseInsensitive = (6)" />
+      <MemberSignature Language="DocId" Value="F:Android.Icu.Text.UnicodeSet.SimpleCaseInsensitive" />
+      <MemberSignature Language="F#" Value="val mutable SimpleCaseInsensitive : Android.Icu.Text.UnicodeSetOptions" Usage="Android.Icu.Text.UnicodeSet.SimpleCaseInsensitive" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Java.Lang.IIterable._members</InterfaceMember>
+        <InterfaceMember>F:Java.Lang.IIterable.cb_forEach_ForEach_Ljava_util_function_Consumer__V</InterfaceMember>
+        <InterfaceMember>F:Java.Lang.IIterable.cb_spliterator_Spliterator_Ljava_util_Spliterator_</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("SIMPLE_CASE_INSENSITIVE", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("SIMPLE_CASE_INSENSITIVE", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Icu.Text.UnicodeSetOptions enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Icu.Text.UnicodeSetOptions enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Icu.Text.UnicodeSetOptions</ReturnType>
+      </ReturnValue>
+      <MemberValue>6</MemberValue>
+      <Docs>
+        <summary>Enable case insensitive matching.</summary>
+        <remarks>
+          <para>Enable case insensitive matching.
+            Same as <c>#CASE_INSENSITIVE</c> but using only Simple_Case_Folding (scf) mappings,
+            which map each code point to one code point,
+            not full Case_Folding (cf) mappings, which map some code points to multiple code points.</para>
+          <para>This is designed for case-insensitive matches, for example in certain
+            regular expression implementations where only Simple_Case_Folding mappings are used,
+            such as in ECMAScript (JavaScript) regular expressions.</para>
+          <para>This value is an options bit set value for some
+            constructors, applyPattern(), and closeOver().
+            It can be ORed together with other, unrelated options.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/text/UnicodeSet#SIMPLE_CASE_INSENSITIVE" title="Reference documentation">Java documentation for <code>android.icu.text.UnicodeSet.SIMPLE_CASE_INSENSITIVE</code>.</a>
             </format>
           </para>
           <para>

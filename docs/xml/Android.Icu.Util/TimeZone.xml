@@ -1,8 +1,9 @@
 <Type Name="TimeZone" FullName="Android.Icu.Util.TimeZone">
-  <TypeSignature Language="C#" Value="public abstract class TimeZone : Java.Lang.Object, Android.Icu.Util.IFreezable, IDisposable, Java.Interop.IJavaPeerable, Java.IO.ISerializable" />
+  <TypeSignature Language="C#" Value="public abstract class TimeZone : Java.Lang.Object, Android.Icu.Util.IFreezable, IDisposable, Java.Interop.IJavaPeerable, Java.IO.ISerializable" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit TimeZone extends Java.Lang.Object implements class Android.Icu.Util.IFreezable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ISerializable, class Java.Lang.ICloneable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Icu.Util.TimeZone" />
   <TypeSignature Language="F#" Value="type TimeZone = class&#xA;    inherit Object&#xA;    interface IFreezable&#xA;    interface ICloneable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface ISerializable" />
+  <TypeSignature Language="C#" Value="public abstract class TimeZone : Java.Lang.Object, Android.Icu.Util.IFreezable, IDisposable, Java.IO.ISerializable" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -1296,6 +1297,65 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetIanaID">
+      <MemberSignature Language="C#" Value="public static string? GetIanaID (string? id);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetIanaID(string id) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Icu.Util.TimeZone.GetIanaID(System.String)" />
+      <MemberSignature Language="F#" Value="static member GetIanaID : string -&gt; string" Usage="Android.Icu.Util.TimeZone.GetIanaID id" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("getIanaID", "(Ljava/lang/String;)Ljava/lang/String;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getIanaID", "(Ljava/lang/String;)Ljava/lang/String;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="id" Type="System.String" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="id">The input time zone ID.</param>
+        <summary>Returns the preferred time zone ID in the IANA database for the given time zone ID.</summary>
+        <returns>The preferred time zone ID in the IANA time zone database, or <c>TimeZone#UNKNOWN_ZONE_ID</c>
+            if the input ID is not a system ID.</returns>
+        <remarks>
+          <para>Returns the preferred time zone ID in the IANA database for the given time zone ID.
+            There are two types of preferred IDs. The first type is the one defined in zone.tab file,
+            such as "America/Los_Angeles". The second types is the one defined for zones not associated
+            with a specific region, but not defined with "Link" syntax, such as "Etc/GMT+10".</para>
+          <para>Note: For most of system time zone IDs, this method returns an ID same as <c>TimeZone#getCanonicalID(String)</c>.
+            <c>TimeZone#getCanonicalID(String)</c> is based on canonical time zone IDs defined in Unicode CLDR.
+            These canonical time zone IDs in CLDR were based on very old version of the time zone database.
+            In the IANA time zone database, some IDs were updated since then. This API returns a newer
+            time zone ID. For example, CLDR defines "Asia/Calcutta" as the canonical time zone ID. This
+            method returns "Asia/Kolkata" instead.</para>
+          <para>"Etc/Unknown" is a special time zone ID defined by CLDR. There are no corresponding zones
+            in the IANA time zone database. when the input is "Etc/Unknown", this method returns "Etc/Unknown",
+            but it really means no mappings available. Caller of this method should interpret "Etc/Unknown"
+            as an error.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/icu/util/TimeZone#getIanaID(java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.util.TimeZone.getIanaID(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetIDForWindowsID">
       <MemberSignature Language="C#" Value="public static string? GetIDForWindowsID (string? winid, string? region);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig string GetIDForWindowsID(string winid, string region) cil managed" />
@@ -1974,6 +2034,28 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Icu.Util.TimeZone.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="timeZone.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

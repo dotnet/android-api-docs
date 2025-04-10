@@ -1,8 +1,9 @@
 <Type Name="Activity" FullName="Android.App.Activity">
-  <TypeSignature Language="C#" Value="public class Activity : Android.Views.ContextThemeWrapper, Android.Content.IComponentCallbacks2, Android.Views.KeyEvent.ICallback, Android.Views.LayoutInflater.IFactory2, Android.Views.View.IOnCreateContextMenuListener, Android.Views.Window.ICallback, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public class Activity : Android.Views.ContextThemeWrapper, Android.Content.IComponentCallbacks2, Android.Views.KeyEvent.ICallback, Android.Views.LayoutInflater.IFactory2, Android.Views.View.IOnCreateContextMenuListener, Android.Views.Window.ICallback, IDisposable, Java.Interop.IJavaPeerable" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit Activity extends Android.Views.ContextThemeWrapper implements class Android.Content.IComponentCallbacks, class Android.Content.IComponentCallbacks2, class Android.Runtime.IJavaObject, class Android.Views.KeyEvent/ICallback, class Android.Views.LayoutInflater/IFactory, class Android.Views.LayoutInflater/IFactory2, class Android.Views.View/IOnCreateContextMenuListener, class Android.Views.Window/ICallback, class Java.Interop.IJavaPeerable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.App.Activity" />
   <TypeSignature Language="F#" Value="type Activity = class&#xA;    inherit ContextThemeWrapper&#xA;    interface IComponentCallbacks&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable&#xA;    interface IComponentCallbacks2&#xA;    interface KeyEvent.ICallback&#xA;    interface LayoutInflater.IFactory&#xA;    interface LayoutInflater.IFactory2&#xA;    interface View.IOnCreateContextMenuListener&#xA;    interface Window.ICallback" />
+  <TypeSignature Language="C#" Value="public class Activity : Android.Views.ContextThemeWrapper, Android.Content.IComponentCallbacks2, Android.Views.KeyEvent.ICallback, Android.Views.LayoutInflater.IFactory2, Android.Views.View.IOnCreateContextMenuListener, Android.Views.Window.ICallback, IDisposable" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -134,12 +135,14 @@
                     or simply killing its process, making it &lt;em&gt;destroyed&lt;/em&gt;. When it is displayed again
                     to the user, it must be completely restarted and restored to its previous state.&lt;/li&gt;
             &lt;/ul&gt;</para>
-      <para>The following diagram shows the important state paths of an Activity.
+      <para>The following diagram shows the important state paths of an activity.
             The square rectangles represent callback methods you can implement to
-            perform operations when the Activity moves between states.  The colored
-            ovals are major states the Activity can be in.</para>
-      <para>&lt;img src="../../../images/activity_lifecycle.png"
-                 alt="State diagram for an Android Activity Lifecycle." border="0" /&gt;</para>
+            perform operations when the activity moves between states.  The colored
+            ovals are major states the activity can be in.</para>
+      <para>&lt;img class="invert"
+                    style="display: block; margin: auto;"
+                    src="../../../images/activity_lifecycle.png"
+                    alt="State diagram for the Android activity lifecycle." /&gt;</para>
       <para>There are three key loops you may be interested in monitoring within your
             activity:
             
@@ -331,7 +334,7 @@
             with the user, it includes special support for handling configuration
             changes.</para>
       <para>Unless you specify otherwise, a configuration change (such as a change
-            in screen orientation, language, input devices, etc) will cause your
+            in screen orientation, language, input devices, etc.) will cause your
             current activity to be &lt;em&gt;destroyed&lt;/em&gt;, going through the normal activity
             lifecycle process of <c>#onPause</c>,
             <c>#onStop</c>, and <c>#onDestroy</c> as appropriate.  If the activity
@@ -753,11 +756,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.Register("getCaller", "()Landroid/app/ComponentCaller;", "GetGetCallerHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCaller", "()Landroid/app/ComponentCaller;", "GetGetCallerHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -766,16 +769,18 @@
         <ReturnType>Android.App.ComponentCaller</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the ComponentCaller instance of the app that launched this activity with the intent
-            from <c>#getIntent()</c>.</summary>
+        <summary>Returns the ComponentCaller instance of the app that started this activity.</summary>
         <value>
           <c>ComponentCaller</c> instance corresponding to the intent from
                     <c>#getIntent()</c>, or <c>null</c> if the activity was not launched with that
                     intent</value>
         <remarks>
-          <para>Returns the ComponentCaller instance of the app that launched this activity with the intent
-            from <c>#getIntent()</c>. To keep the value of the ComponentCaller instance for new intents,
-            call <c>#setIntent(Intent, ComponentCaller)</c> instead of <c>#setIntent(Intent)</c>.</para>
+          <para>Returns the ComponentCaller instance of the app that started this activity.</para>
+          <para>To keep the ComponentCaller instance for future use, call
+            <c>#setIntent(Intent, ComponentCaller)</c>, and use this method to retrieve it.</para>
+          <para>Note that in <c>#onNewIntent</c>, this method will return the original ComponentCaller.
+            You can use <c>#setIntent(Intent, ComponentCaller)</c> to update it to the new
+            ComponentCaller.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getCaller()" title="Reference documentation">Java documentation for <code>android.app.Activity.getCaller()</code>.</a>
@@ -1289,15 +1294,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.Register("getCurrentCaller", "()Landroid/app/ComponentCaller;", "GetGetCurrentCallerHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getCurrentCaller", "()Landroid/app/ComponentCaller;", "GetGetCurrentCallerHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -1997,7 +2002,7 @@
             <BaseTypeName>Android.Views.View</BaseTypeName>
           </Constraints>
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
             </Attribute>
@@ -2417,8 +2422,8 @@
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2471,8 +2476,8 @@
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2685,15 +2690,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.Register("getInitialCaller", "()Landroid/app/ComponentCaller;", "GetGetInitialCallerHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInitialCaller", "()Landroid/app/ComponentCaller;", "GetGetInitialCallerHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -2707,8 +2712,8 @@
           <c>ComponentCaller</c> instance</value>
         <remarks>
           <para>Returns the ComponentCaller instance of the app that initially launched this activity.</para>
-          <para>Note that calls to <c>#onNewIntent</c> have no effect on the returned value of this
-            method.</para>
+          <para>Note that calls to <c>#onNewIntent</c> and <c>#setIntent</c> have no effect on the
+            returned value of this method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getInitialCaller()" title="Reference documentation">Java documentation for <code>android.app.Activity.getInitialCaller()</code>.</a>
@@ -2736,6 +2741,10 @@
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getInstanceCount", "()J", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getInstanceCount", "()J", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.UnsupportedOSPlatform("android15.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.UnsupportedOSPlatform("android15.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2775,12 +2784,15 @@
       <Docs>
         <param name="newIntent">The new Intent object to return from <c>#getIntent</c></param>
         <summary>Returns the intent that started this activity. -or- Changes the intent returned by <c>#getIntent</c>.</summary>
-        <value>To be added.</value>
+        <value>
+          <c>Intent</c> instance that started this activity, or that was kept for future use</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the intent that started this activity.</para>
           <para>To keep the Intent instance for future use, call <c>#setIntent(Intent)</c>, and use
             this method to retrieve it.</para>
+          <para>Note that in <c>#onNewIntent</c>, this method will return the original Intent. You can
+            use <c>#setIntent(Intent)</c> to update it to the new Intent.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getIntent()" title="Reference documentation">Java documentation for <code>android.app.Activity.getIntent()</code>.</a>
@@ -2949,7 +2961,7 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("isChild", "()Z", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isChild", "()Z", "")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -3366,6 +3378,28 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="activity.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -4331,11 +4365,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("onActivityResult", "(IILandroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnActivityResult_IILandroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("onActivityResult", "(IILandroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnActivityResult_IILandroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -4344,8 +4378,8 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="requestCode" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="resultCode" Type="Android.App.Result" Index="1" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="requestCode" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="resultCode" Type="Android.App.Result" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -4353,7 +4387,7 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="data" Type="Android.Content.Intent" Index="2" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="data" Type="Android.Content.Intent" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
@@ -4361,7 +4395,7 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="caller" Type="Android.App.ComponentCaller" Index="3" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="caller" Type="Android.App.ComponentCaller" Index="3" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="requestCode">The integer request code originally supplied to
@@ -4902,7 +4936,7 @@
             cursors for data being displayed, etc.</para>
           <para>You can call <c>#finish</c> from within this function, in
             which case onDestroy() will be immediately called after <c>#onCreate</c> without any of the
-            rest of the activity lifecycle (<c>#onStart</c>, <c>#onResume</c>, <c>#onPause</c>, etc)
+            rest of the activity lifecycle (<c>#onStart</c>, <c>#onResume</c>, <c>#onPause</c>, etc.)
             executing.</para>
           <para>&lt;em&gt;Derived classes must call through to the super class's
             implementation of this method.  If they do not, an exception will be
@@ -6718,11 +6752,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("onNewIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnNewIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("onNewIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetOnNewIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -6731,8 +6765,8 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="intent" Type="Android.Content.Intent" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="caller" Type="Android.App.ComponentCaller" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="intent" Type="Android.Content.Intent" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="caller" Type="Android.App.ComponentCaller" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="intent">The new intent that was used to start the activity</param>
@@ -7931,11 +7965,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("onRequestPermissionsResult", "(I[Ljava/lang/String;[II)V", "GetOnRequestPermissionsResult_IarrayLjava_lang_String_arrayIIHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("onRequestPermissionsResult", "(I[Ljava/lang/String;[II)V", "GetOnRequestPermissionsResult_IarrayLjava_lang_String_arrayIIHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -7944,9 +7978,9 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="requestCode" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="permissions" Type="System.String[]" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="grantResults" Type="Android.Content.PM.Permission[]" Index="2" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="requestCode" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="permissions" Type="System.String[]" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="grantResults" Type="Android.Content.PM.Permission[]" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -7954,7 +7988,7 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="deviceId" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="deviceId" Type="System.Int32" Index="3" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="requestCode">The request code passed in <c>#requestPermissions</c>.</param>
@@ -8563,7 +8597,7 @@
             drawing visual elements, running animations, etc.</para>
           <para>You can call <c>#finish</c> from within this function, in
             which case <c>#onStop</c> will be immediately called after <c>#onStart</c> without the
-            lifecycle transitions in-between (<c>#onResume</c>, <c>#onPause</c>, etc) executing.</para>
+            lifecycle transitions in-between (<c>#onResume</c>, <c>#onPause</c>, etc.) executing.</para>
           <para>&lt;em&gt;Derived classes must call through to the super class's
             implementation of this method.  If they do not, an exception will be
             thrown.&lt;/em&gt;</para>
@@ -9696,8 +9730,8 @@
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -9752,8 +9786,8 @@
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
         <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -9813,7 +9847,7 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getParent", "()Landroid/app/Activity;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getParent", "()Landroid/app/Activity;", "")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -10397,21 +10431,49 @@
             <c>ActivityInfo#screenOrientation ActivityInfo.screenOrientation</c>.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>Return the current requested orientation of the activity.  This will
-            either be the orientation requested in its component's manifest, or
-            the last requested orientation given to
-            <c>#setRequestedOrientation(int)</c>.</para>
+          <para>Return the current requested orientation of the activity. This is either the orientation
+            requested in the app manifest, or the last requested orientation given to
+            <c>#setRequestedOrientation(int)</c>.
+            
+            "note"&gt;&lt;b&gt;Note:&lt;/b&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Device manufacturers can configure devices to ignore calls to this method to
+                        improve the layout of orientation-restricted apps.&lt;/li&gt;
+                    &lt;li&gt;On devices with Android 16 (API level 36) or higher installed, virtual device
+                        owners (limited to select trusted and privileged apps) can optimize app layout on
+                        displays they manage by ignoring calls to this method. See also
+                        &lt;see href="https://source.android.com/docs/core/permissions/app-streaming"&gt;
+                          Companion app streaming&lt;/see&gt;.&lt;/li&gt;
+                &lt;/ul&gt;
+                </para>
+          <para>See <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device
+                compatibility mode</see>.</para>
+          <para>&lt;/aside&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getRequestedOrientation()" title="Reference documentation">Java documentation for <code>android.app.Activity.getRequestedOrientation()</code>.</a>
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para>Change the desired orientation of this activity.  If the activity
-            is currently in the foreground or otherwise impacting the screen
-            orientation, the screen will immediately be changed (possibly causing
-            the activity to be restarted). Otherwise, this will be used the next
-            time the activity is visible.</para>
+          <para>Change the desired orientation of this activity. If the activity is currently in the
+            foreground or otherwise impacting the screen orientation, the screen is immediately changed
+            (possibly causing the activity to be restarted). Otherwise, the requested orientation is used
+            the next time the activity is visible.
+            
+            "note"&gt;&lt;b&gt;Note:&lt;/b&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Device manufacturers can configure devices to override (ignore) calls to this
+                        method to improve the layout of orientation-restricted apps.&lt;/li&gt;
+                    &lt;li&gt;On devices with Android 16 (API level 36) or higher installed, virtual device
+                        owners (limited to select trusted and privileged apps) can optimize app layout on
+                        displays they manage by ignoring calls to this method. See also
+                        &lt;see href="https://source.android.com/docs/core/permissions/app-streaming"&gt;
+                          Companion app streaming&lt;/see&gt;.&lt;/li&gt;
+                &lt;/ul&gt;
+                </para>
+          <para>See <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device
+                compatibility mode</see>.</para>
+          <para>&lt;/aside&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#setRequestedOrientation(int)" title="Reference documentation">Java documentation for <code>android.app.Activity.setRequestedOrientation(int)</code>.</a>
@@ -10485,6 +10547,69 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#requestFullscreenMode(int,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Throwable%3E)" title="Reference documentation">Java documentation for <code>android.app.Activity.requestFullscreenMode(int, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Throwable&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RequestOpenInBrowserEducation">
+      <MemberSignature Language="C#" Value="public void RequestOpenInBrowserEducation ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RequestOpenInBrowserEducation() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Activity.RequestOpenInBrowserEducation" />
+      <MemberSignature Language="F#" Value="member this.RequestOpenInBrowserEducation : unit -&gt; unit" Usage="activity.RequestOpenInBrowserEducation " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("requestOpenInBrowserEducation", "()V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("requestOpenInBrowserEducation", "()V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Requests to show the “Open in browser” education.</summary>
+        <remarks>
+          <para>Requests to show the “Open in browser” education. “Open in browser” is a feature
+            within the app header that allows users to switch from an app to the web. The feature
+            is made available when an application is opened by a user clicking a link or when a
+            link is provided by an application. Links can be provided by calling
+            <c>AssistContent#setSessionTransferUri</c> or
+            <c>AssistContent#setWebUri</c>.</para>
+          <para>This method should be utilized when an activity wants to nudge the user to switch
+            to the web application in cases where the web may provide the user with a better
+            experience. Note that this method does not guarantee that the education will be shown.</para>
+          <para>The number of times that the "Open in browser" education can be triggered by this method
+            is limited per application, and, when shown, the education appears above the app's content.
+            For these reasons, developers should use this method sparingly when it is least
+            disruptive to the user to show the education and when it is optimal to switch the user to a
+            browser session. Before requesting to show the education, developers should assert that they
+            have set a link that can be used by the "Open in browser" feature through either
+            <c>AssistContent#setSessionTransferUri</c> or
+            <c>AssistContent#setWebUri</c> so that users are navigated to a relevant page if they choose
+            to switch to the browser. If a URI is not set using either method, "Open in browser" will
+            utilize a generic link if available which will direct users to the homepage of the site
+            associated with the app. The generic link is provided for a limited number of applications by
+            the system and cannot be edited by developers. If none of these options contains a valid URI,
+            the user will not be provided with the option to switch to the browser and the education will
+            not be shown if requested.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#requestOpenInBrowserEducation()" title="Reference documentation">Java documentation for <code>android.app.Activity.requestOpenInBrowserEducation()</code>.</a>
             </format>
           </para>
           <para>
@@ -10582,11 +10707,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("requestPermissions", "([Ljava/lang/String;II)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("requestPermissions", "([Ljava/lang/String;II)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -10595,9 +10720,9 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="permissions" Type="System.String[]" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="requestCode" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="deviceId" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="permissions" Type="System.String[]" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="requestCode" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="deviceId" Type="System.Int32" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="permissions">The requested permissions. Must be non-null and not empty.</param>
@@ -10893,7 +11018,7 @@
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
             </Attribute>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
             </Attribute>
@@ -11084,11 +11209,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("setAllowCrossUidActivitySwitchFromBelow", "(Z)V", "GetSetAllowCrossUidActivitySwitchFromBelow_ZHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setAllowCrossUidActivitySwitchFromBelow", "(Z)V", "GetSetAllowCrossUidActivitySwitchFromBelow_ZHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -11097,7 +11222,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="allowed" Type="System.Boolean" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="allowed" Type="System.Boolean" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="allowed">
@@ -11732,11 +11857,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("setIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetSetIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setIntent", "(Landroid/content/Intent;Landroid/app/ComponentCaller;)V", "GetSetIntent_Landroid_content_Intent_Landroid_app_ComponentCaller_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -11745,8 +11870,8 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="newIntent" Type="Android.Content.Intent" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="newCaller" Type="Android.App.ComponentCaller" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="newIntent" Type="Android.Content.Intent" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="newCaller" Type="Android.App.ComponentCaller" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="newIntent">The new Intent object to return from <c>#getIntent</c></param>
@@ -11849,6 +11974,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("setPersistent", "(Z)V", "GetSetPersistent_ZHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setPersistent", "(Z)V", "GetSetPersistent_ZHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.UnsupportedOSPlatform("android15.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.UnsupportedOSPlatform("android15.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -12866,11 +12995,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("shouldShowRequestPermissionRationale", "(Ljava/lang/String;I)Z", "GetShouldShowRequestPermissionRationale_Ljava_lang_String_IHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("shouldShowRequestPermissionRationale", "(Ljava/lang/String;I)Z", "GetShouldShowRequestPermissionRationale_Ljava_lang_String_IHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -12879,8 +13008,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="permission" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="deviceId" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="permission" Type="System.String" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="deviceId" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="permission">A permission your app wants to request.</param>
@@ -13333,7 +13462,8 @@
       <Docs>
         <param name="intent">The intent to start.</param>
         <param name="requestCode">If &gt;= 0, this code will be returned in
-                               onActivityResult() when the activity exits.</param>
+                               onActivityResult() when the activity exits;
+                               If &lt; 0, no result will return when the activity exits.</param>
         <summary>Same as calling <c>#startActivityForResult(Intent, int, Bundle)</c>
             with no options.</summary>
         <remarks>
@@ -13407,7 +13537,8 @@
       <Docs>
         <param name="intent">The intent to start.</param>
         <param name="requestCode">If &gt;= 0, this code will be returned in
-                               onActivityResult() when the activity exits.</param>
+                               onActivityResult() when the activity exits;
+                               If &lt; 0, no result will return when the activity exits.</param>
         <param name="options">Additional options for how the Activity should be started.
             See <c>android.content.Context#startActivity(Intent, Bundle)</c>
             Context.startActivity(Intent, Bundle)} for more details.</param>
@@ -13736,8 +13867,8 @@
       <Docs>
         <param name="intent">The intent to start.</param>
         <param name="requestCode">If &gt;= 0, this code will be returned in
-                    onActivityResult() when the activity exits, as described in
-                    <c>#startActivityForResult</c>.</param>
+                    onActivityResult() when the activity exits; If &lt; 0, no result will
+                    return when the activity exits, as described in <c>#startActivityForResult</c>.</param>
         <summary>Same as calling <c>#startActivityIfNeeded(Intent, int, Bundle)</c>
             with no options.</summary>
         <returns>If a new activity was launched then true is returned; otherwise
@@ -13794,7 +13925,8 @@
       <Docs>
         <param name="intent">The intent to start.</param>
         <param name="requestCode">If &gt;= 0, this code will be returned in
-                    onActivityResult() when the activity exits, as described in
+                    onActivityResult() when the activity exits; If &lt; 0, no result
+                    will return when the activity exits, as described in
                     <c>#startActivityForResult</c>.</param>
         <param name="options">Additional options for how the Activity should be started.
             See <c>android.content.Context#startActivity(Intent, Bundle)</c>
@@ -13876,7 +14008,8 @@
       <Docs>
         <param name="intent">The IntentSender to launch.</param>
         <param name="requestCode">If &gt;= 0, this code will be returned in
-                               onActivityResult() when the activity exits.</param>
+                               onActivityResult() when the activity exits;
+                               If &lt; 0, no result will return when the activity exits.</param>
         <param name="fillInIntent">If non-null, this will be provided as the
             intent parameter to <c>IntentSender#sendIntent</c>.</param>
         <param name="flagsMask">Intent flags in the original IntentSender that you
@@ -13949,7 +14082,8 @@
       <Docs>
         <param name="intent">The IntentSender to launch.</param>
         <param name="requestCode">If &gt;= 0, this code will be returned in
-                               onActivityResult() when the activity exits.</param>
+                               onActivityResult() when the activity exits;
+                               If &lt; 0, no result will return when the activity exits.</param>
         <param name="fillInIntent">If non-null, this will be provided as the
             intent parameter to <c>IntentSender#sendIntent</c>.</param>
         <param name="flagsMask">Intent flags in the original IntentSender that you

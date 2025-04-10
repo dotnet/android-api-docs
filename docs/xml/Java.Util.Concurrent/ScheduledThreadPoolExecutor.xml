@@ -1,8 +1,9 @@
 <Type Name="ScheduledThreadPoolExecutor" FullName="Java.Util.Concurrent.ScheduledThreadPoolExecutor">
-  <TypeSignature Language="C#" Value="public class ScheduledThreadPoolExecutor : Java.Util.Concurrent.ThreadPoolExecutor, IDisposable, Java.Interop.IJavaPeerable, Java.Util.Concurrent.IScheduledExecutorService" />
+  <TypeSignature Language="C#" Value="public class ScheduledThreadPoolExecutor : Java.Util.Concurrent.ThreadPoolExecutor, IDisposable, Java.Interop.IJavaPeerable, Java.Util.Concurrent.IScheduledExecutorService" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ScheduledThreadPoolExecutor extends Java.Util.Concurrent.ThreadPoolExecutor implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.Util.Concurrent.IExecutor, class Java.Util.Concurrent.IExecutorService, class Java.Util.Concurrent.IScheduledExecutorService, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Java.Util.Concurrent.ScheduledThreadPoolExecutor" />
   <TypeSignature Language="F#" Value="type ScheduledThreadPoolExecutor = class&#xA;    inherit ThreadPoolExecutor&#xA;    interface IScheduledExecutorService&#xA;    interface IExecutorService&#xA;    interface IExecutor&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public class ScheduledThreadPoolExecutor : Java.Util.Concurrent.ThreadPoolExecutor, IDisposable, Java.Util.Concurrent.IScheduledExecutorService" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -569,6 +570,28 @@
         <altmember cref="P:Java.Util.Concurrent.ScheduledThreadPoolExecutor.ExecuteExistingDelayedTasksAfterShutdownPolicy" />
       </Docs>
     </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.ScheduledThreadPoolExecutor.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="scheduledThreadPoolExecutor.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -832,9 +855,14 @@
             Subsequent executions are suppressed.  Subsequent calls to
             <c>Future#isDone isDone()</c> on the returned future will
             return <c>true</c>.</para>
-          <para>If any execution of this task takes longer than its period, then
-            subsequent executions may start late, but will not concurrently
+          <para>Since API level 31: If the app is frozen by the Android cached apps
+            freezer before the fixed rate task is done or canceled, the task may run
+            many times immediately when the app unfreezes, just as if a single
+            execution of the command had taken the duration of the frozen period to
             execute.</para>
+          <para>Since API level 36: If any execution of this task takes longer than
+            its period, then the subsequent execution will be scheduled for the most
+            recent missed period.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/concurrent/ScheduledThreadPoolExecutor#scheduleAtFixedRate(java.lang.Runnable,%20long,%20long,%20java.util.concurrent.TimeUnit)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ScheduledThreadPoolExecutor.scheduleAtFixedRate(java.lang.Runnable, long, long, java.util.concurrent.TimeUnit)</code>.</a>

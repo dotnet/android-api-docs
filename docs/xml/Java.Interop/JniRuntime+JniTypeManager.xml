@@ -8,6 +8,7 @@
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <AssemblyVersion>7.0.0.0</AssemblyVersion>
     <AssemblyVersion>9.0.0.0</AssemblyVersion>
+    <AssemblyVersion>10.0.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -18,16 +19,16 @@
     </Interface>
   </Interfaces>
   <Attributes>
-    <Attribute FrameworkAlternate="net-android-35.0">
+    <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-    </remarks>
+    <summary>
+      Manages bound Java types.
+    </summary>
+    <remarks />
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -39,6 +40,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -61,6 +63,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -83,6 +86,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -98,6 +102,99 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetInvokerType">
+      <MemberSignature Language="C#" Value="public Type? GetInvokerType (Type type);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class System.Type GetInvokerType(class System.Type type) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Interop.JniRuntime.JniTypeManager.GetInvokerType(System.Type)" />
+      <MemberSignature Language="F#" Value="member this.GetInvokerType : Type -&gt; Type" Usage="jniTypeManager.GetInvokerType type" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Java.Interop</AssemblyName>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+          </Attribute>
+          <Attribute>
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="type" Type="System.Type" Index="0" FrameworkAlternate="net-android-36.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="type">To be added.</param>
+        <summary>Gets the <i>Invoker</i> type for <paramref name="type" /></summary>
+        <returns>
+      If <paramref name="type" /> is an interface or abstract class, returns the
+      type which should be constructed around instances of <paramref name="type" />.
+      If no such type exists, or if <paramref name="type" /> is a concrete type,
+      then <see langword="null" /> is returned.
+    </returns>
+        <remarks>
+          <para>
+        An <i>Invoker type</i> is a concrete type which can be constructed,
+        which is used to invoke instances of abstract type that cannot be constructed.
+        For example, the interface type <c>Java.Lang.IRunnable</c> cannot be constructed,
+        but if a <c>java.lang.Runnable</c> instance enters managed code,
+        a Invoker must be constructed around the instance so that it may be used.
+      </para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetInvokerTypeCore">
+      <MemberSignature Language="C#" Value="protected virtual Type? GetInvokerTypeCore (Type type);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance class System.Type GetInvokerTypeCore(class System.Type type) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Interop.JniRuntime.JniTypeManager.GetInvokerTypeCore(System.Type)" />
+      <MemberSignature Language="F#" Value="abstract member GetInvokerTypeCore : Type -&gt; Type&#xA;override this.GetInvokerTypeCore : Type -&gt; Type" Usage="jniTypeManager.GetInvokerTypeCore type" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Java.Interop</AssemblyName>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+          </Attribute>
+          <Attribute>
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="type" Type="System.Type" Index="0" FrameworkAlternate="net-android-36.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="type">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetReplacementMethodInfo">
       <MemberSignature Language="C#" Value="public Java.Interop.JniRuntime.ReplacementMethodInfo? GetReplacementMethodInfo (string jniSimpleReference, string jniMethodName, string jniMethodSignature);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance valuetype System.Nullable`1&lt;valuetype Java.Interop.JniRuntime/ReplacementMethodInfo&gt; GetReplacementMethodInfo(string jniSimpleReference, string jniMethodName, string jniMethodSignature) cil managed" />
@@ -108,6 +205,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;Java.Interop.JniRuntime+ReplacementMethodInfo&gt;</ReturnType>
@@ -136,6 +234,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Nullable&lt;Java.Interop.JniRuntime+ReplacementMethodInfo&gt;</ReturnType>
@@ -164,6 +263,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -188,6 +288,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -212,6 +313,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -236,7 +338,14 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Interop.JniRuntime+JniTypeManager+&lt;GetSimpleReferences&gt;d__20))]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Interop.JniRuntime+JniTypeManager+&lt;GetSimpleReferences&gt;d__20))&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;System.String&gt;</ReturnType>
       </ReturnValue>
@@ -262,6 +371,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IReadOnlyList&lt;System.String&gt;</ReturnType>
@@ -286,6 +396,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IReadOnlyList&lt;System.String&gt;</ReturnType>
@@ -310,9 +421,10 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2073", Justification="Types returned here should be preserved via other means.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2073", Justification="Types returned here should be preserved via other means.")&gt;]</AttributeName>
         </Attribute>
@@ -342,6 +454,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;System.Type&gt;</ReturnType>
@@ -368,6 +481,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IEnumerable&lt;System.Type&gt;</ReturnType>
@@ -394,6 +508,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Java.Interop.JniTypeSignature</ReturnType>
@@ -420,6 +535,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
         <Attribute FrameworkAlternate="net-android-34.0">
@@ -429,6 +545,10 @@
         <Attribute FrameworkAlternate="net-android-35.0">
           <AttributeName Language="C#">[System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Interop.JniRuntime+JniTypeManager+&lt;GetTypeSignatures&gt;d__16))]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Interop.JniRuntime+JniTypeManager+&lt;GetTypeSignatures&gt;d__16))&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Interop.JniRuntime+JniTypeManager+&lt;GetTypeSignatures&gt;d__17))]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.IteratorStateMachine(typeof(Java.Interop.JniRuntime+JniTypeManager+&lt;GetTypeSignatures&gt;d__17))&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -456,6 +576,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -481,6 +602,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -489,7 +611,7 @@
         <Parameter Name="nativeClass" Type="Java.Interop.JniType" />
         <Parameter Name="type" Type="System.Type">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)&gt;]</AttributeName>
             </Attribute>
@@ -497,7 +619,7 @@
         </Parameter>
         <Parameter Name="methods" Type="System.ReadOnlySpan&lt;System.Char&gt;">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
             </Attribute>
@@ -522,6 +644,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
         <Attribute>
@@ -536,7 +659,7 @@
         <Parameter Name="nativeClass" Type="Java.Interop.JniType" />
         <Parameter Name="type" Type="System.Type">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)&gt;]</AttributeName>
             </Attribute>
@@ -544,7 +667,7 @@
         </Parameter>
         <Parameter Name="methods" Type="System.String">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
             </Attribute>
@@ -571,6 +694,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Java.Interop.JniRuntime</ReturnType>
@@ -593,6 +717,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -601,7 +726,7 @@
         <Parameter Name="nativeClass" Type="Java.Interop.JniType" />
         <Parameter Name="type" Type="System.Type">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)&gt;]</AttributeName>
             </Attribute>
@@ -609,7 +734,7 @@
         </Parameter>
         <Parameter Name="methods" Type="System.ReadOnlySpan&lt;System.Char&gt;">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
             </Attribute>
@@ -635,6 +760,7 @@
         <AssemblyName>Java.Interop</AssemblyName>
         <AssemblyVersion>7.0.0.0</AssemblyVersion>
         <AssemblyVersion>9.0.0.0</AssemblyVersion>
+        <AssemblyVersion>10.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
         <Attribute>
@@ -649,7 +775,7 @@
         <Parameter Name="nativeClass" Type="Java.Interop.JniType" />
         <Parameter Name="type" Type="System.Type">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicNestedTypes | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods)&gt;]</AttributeName>
             </Attribute>
@@ -657,7 +783,7 @@
         </Parameter>
         <Parameter Name="methods" Type="System.String">
           <Attributes>
-            <Attribute FrameworkAlternate="net-android-35.0">
+            <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
             </Attribute>

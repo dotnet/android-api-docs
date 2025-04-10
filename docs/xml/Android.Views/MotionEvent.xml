@@ -1,8 +1,9 @@
 <Type Name="MotionEvent" FullName="Android.Views.MotionEvent">
-  <TypeSignature Language="C#" Value="public sealed class MotionEvent : Android.Views.InputEvent, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public sealed class MotionEvent : Android.Views.InputEvent, IDisposable, Java.Interop.IJavaPeerable" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MotionEvent extends Android.Views.InputEvent implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Views.MotionEvent" />
   <TypeSignature Language="F#" Value="type MotionEvent = class&#xA;    inherit InputEvent&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public sealed class MotionEvent : Android.Views.InputEvent, IDisposable" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -109,9 +110,16 @@
                 }
             }
             &lt;/code&gt;</code>
-      <para>&lt;/p&gt;
-            
-            &lt;h3&gt;Device Types&lt;/h3&gt;</para>
+      <para>&lt;/p&gt;</para>
+      <para>Developers should keep in mind that it is especially important to consume all samples
+            in a batched event when processing relative values that report changes since the last
+            event or sample. Examples of such relative axes include <c>#AXIS_RELATIVE_X</c>,
+            <c>#AXIS_RELATIVE_Y</c>, and many of the axes prefixed with <c>AXIS_GESTURE_</c>.
+            In these cases, developers should first consume all historical values using
+            <c>#getHistoricalAxisValue(int, int)</c> and then consume the current values using
+            <c>#getAxisValue(int)</c> like in the example above, as these relative values are
+            not accumulated in a batched event.</para>
+      <para>&lt;h3&gt;Device Types&lt;/h3&gt;</para>
       <para>The interpretation of the contents of a MotionEvent varies significantly depending
             on the source class of the device.</para>
       <para>On pointing devices with source class <c>InputDevice#SOURCE_CLASS_POINTER</c>
@@ -618,8 +626,8 @@
             making a pinch gesture, as a proportion of the previous distance. For example, if the fingers
             were 50 units apart and are now 52 units apart, the scale factor would be 1.04.
             &lt;/ul&gt;
-            These values are relative to the state from the last event, not accumulated, so developers
-            should make sure to process this axis value for all batched historical events.</para>
+            These values are relative to the state from the last sample, not accumulated, so developers
+            should make sure to process this axis value for all batched historical samples.</para>
           <para>This axis is only set on the first pointer in a motion event.</para>
           <para>
             <format type="text/html">
@@ -673,8 +681,8 @@
             &lt;li&gt;For a touch pad, reports the distance that should be scrolled in the X axis as a result
             of the user's two-finger scroll gesture, in display pixels.
             &lt;/ul&gt;
-            These values are relative to the state from the last event, not accumulated, so developers
-            should make sure to process this axis value for all batched historical events.</para>
+            These values are relative to the state from the last sample, not accumulated, so developers
+            should make sure to process this axis value for all batched historical samples.</para>
           <para>This axis is only set on the first pointer in a motion event.</para>
           <para>
             <format type="text/html">
@@ -780,8 +788,8 @@
             swipe gesture starts at X = 500 then moves to X = 400, this axis would have a value of
             -0.1.
             &lt;/ul&gt;
-            These values are relative to the state from the last event, not accumulated, so developers
-            should make sure to process this axis value for all batched historical events.</para>
+            These values are relative to the state from the last sample, not accumulated, so developers
+            should make sure to process this axis value for all batched historical samples.</para>
           <para>This axis is only set on the first pointer in a motion event.</para>
           <para>
             <format type="text/html">
@@ -3368,20 +3376,10 @@
       <Docs>
         <param name="pointerIndex">Raw index of pointer to retrieve.  Value may be from 0
             (the first pointer that is down) to <c>#getPointerCount()</c>-1.</param>
-        <summary>Returns the orientation of the touch area and tool area in radians clockwise from vertical
-            for the given pointer &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</summary>
+        <summary>Returns the value of <c>#AXIS_ORIENTATION</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns the orientation of the touch area and tool area in radians clockwise from vertical
-            for the given pointer &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).
-            An angle of 0 radians indicates that the major axis of contact is oriented
-            upwards, is perfectly circular or is of unknown orientation.  A positive angle
-            indicates that the major axis of contact is oriented to the right.  A negative angle
-            indicates that the major axis of contact is oriented to the left.
-            The full range is from -PI/2 radians (finger pointing fully left) to PI/2 radians
-            (finger pointing fully right).</para>
+          <para>Returns the value of <c>#AXIS_ORIENTATION</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/MotionEvent#getOrientation(int)" title="Reference documentation">Java documentation for <code>android.view.MotionEvent.getOrientation(int)</code>.</a>
@@ -3556,18 +3554,10 @@
       <Docs>
         <param name="pointerIndex">Raw index of pointer to retrieve.  Value may be from 0
             (the first pointer that is down) to <c>#getPointerCount()</c>-1.</param>
-        <summary>Returns the current pressure of this event for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</summary>
+        <summary>Returns the value of <c>#AXIS_PRESSURE</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns the current pressure of this event for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).
-            The pressure generally
-            ranges from 0 (no pressure at all) to 1 (normal pressure), however
-            values higher than 1 may be generated depending on the calibration of
-            the input device.</para>
+          <para>Returns the value of <c>#AXIS_PRESSURE</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/MotionEvent#getPressure(int)" title="Reference documentation">Java documentation for <code>android.view.MotionEvent.getPressure(int)</code>.</a>
@@ -3749,19 +3739,10 @@
       <Docs>
         <param name="pointerIndex">Raw index of pointer to retrieve.  Value may be from 0
             (the first pointer that is down) to <c>#getPointerCount()</c>-1.</param>
-        <summary>Returns a scaled value of the approximate size for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</summary>
+        <summary>Returns the value of <c>#AXIS_SIZE</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns a scaled value of the approximate size for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).
-            This represents some approximation of the area of the screen being
-            pressed; the actual value in pixels corresponding to the
-            touch is normalized with the device specific range of values
-            and scaled to a value between 0 and 1. The value of size can be used to
-            determine fat touch events.</para>
+          <para>Returns the value of <c>#AXIS_SIZE</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/MotionEvent#getSize(int)" title="Reference documentation">Java documentation for <code>android.view.MotionEvent.getSize(int)</code>.</a>
@@ -3801,18 +3782,10 @@
       <Docs>
         <param name="pointerIndex">Raw index of pointer to retrieve.  Value may be from 0
             (the first pointer that is down) to <c>#getPointerCount()</c>-1.</param>
-        <summary>Returns the length of the major axis of an ellipse that describes the size of
-            the approaching tool for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</summary>
+        <summary>Returns the value of <c>#AXIS_TOOL_MAJOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns the length of the major axis of an ellipse that describes the size of
-            the approaching tool for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).
-            The tool area represents the estimated size of the finger or pen that is
-            touching the device independent of its actual touch area at the point of contact.</para>
+          <para>Returns the value of <c>#AXIS_TOOL_MAJOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/MotionEvent#getToolMajor(int)" title="Reference documentation">Java documentation for <code>android.view.MotionEvent.getToolMajor(int)</code>.</a>
@@ -3852,18 +3825,10 @@
       <Docs>
         <param name="pointerIndex">Raw index of pointer to retrieve.  Value may be from 0
             (the first pointer that is down) to <c>#getPointerCount()</c>-1.</param>
-        <summary>Returns the length of the minor axis of an ellipse that describes the size of
-            the approaching tool for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</summary>
+        <summary>Returns the value of <c>#AXIS_TOOL_MINOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns the length of the minor axis of an ellipse that describes the size of
-            the approaching tool for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).
-            The tool area represents the estimated size of the finger or pen that is
-            touching the device independent of its actual touch area at the point of contact.</para>
+          <para>Returns the value of <c>#AXIS_TOOL_MINOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/MotionEvent#getToolMinor(int)" title="Reference documentation">Java documentation for <code>android.view.MotionEvent.getToolMinor(int)</code>.</a>
@@ -3958,16 +3923,10 @@
       <Docs>
         <param name="pointerIndex">Raw index of pointer to retrieve.  Value may be from 0
             (the first pointer that is down) to <c>#getPointerCount()</c>-1.</param>
-        <summary>Returns the length of the major axis of an ellipse that describes the touch
-            area at the point of contact for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</summary>
+        <summary>Returns the value of <c>#AXIS_TOUCH_MAJOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns the length of the major axis of an ellipse that describes the touch
-            area at the point of contact for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</para>
+          <para>Returns the value of <c>#AXIS_TOUCH_MAJOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/MotionEvent#getTouchMajor(int)" title="Reference documentation">Java documentation for <code>android.view.MotionEvent.getTouchMajor(int)</code>.</a>
@@ -4007,16 +3966,10 @@
       <Docs>
         <param name="pointerIndex">Raw index of pointer to retrieve.  Value may be from 0
             (the first pointer that is down) to <c>#getPointerCount()</c>-1.</param>
-        <summary>Returns the length of the minor axis of an ellipse that describes the touch
-            area at the point of contact for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</summary>
+        <summary>Returns the value of <c>#AXIS_TOUCH_MINOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>Returns the length of the minor axis of an ellipse that describes the touch
-            area at the point of contact for the given pointer
-            &lt;em&gt;index&lt;/em&gt; (use <c>#getPointerId(int)</c> to find the pointer
-            identifier for this index).</para>
+          <para>Returns the value of <c>#AXIS_TOUCH_MINOR</c> for the given pointer &lt;em&gt;index&lt;/em&gt;.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/MotionEvent#getTouchMinor(int)" title="Reference documentation">Java documentation for <code>android.view.MotionEvent.getTouchMinor(int)</code>.</a>
@@ -4358,6 +4311,28 @@
         <altmember cref="F:Android.Views.MotionEvent.ButtonBack" />
         <altmember cref="F:Android.Views.MotionEvent.ButtonStylusPrimary" />
         <altmember cref="F:Android.Views.MotionEvent.ButtonStylusSecondary" />
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.MotionEvent.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="motionEvent.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

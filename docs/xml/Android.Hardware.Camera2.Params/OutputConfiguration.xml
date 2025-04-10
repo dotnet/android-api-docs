@@ -1,8 +1,9 @@
 <Type Name="OutputConfiguration" FullName="Android.Hardware.Camera2.Params.OutputConfiguration">
-  <TypeSignature Language="C#" Value="public sealed class OutputConfiguration : Java.Lang.Object, Android.OS.IParcelable, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public sealed class OutputConfiguration : Java.Lang.Object, Android.OS.IParcelable, IDisposable, Java.Interop.IJavaPeerable" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit OutputConfiguration extends Java.Lang.Object implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Hardware.Camera2.Params.OutputConfiguration" />
   <TypeSignature Language="F#" Value="type OutputConfiguration = class&#xA;    inherit Object&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public sealed class OutputConfiguration : Java.Lang.Object, Android.OS.IParcelable, IDisposable" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -160,17 +161,17 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(ILandroid/util/Size;)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(ILandroid/util/Size;)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
-        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="0" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -178,7 +179,7 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="format">The format of the ImageReader output. This must be one of the
@@ -193,7 +194,9 @@
           <para>This constructor creates an OutputConfiguration for an ImageReader without providing
             the actual output Surface. The actual output Surface must be set via <c>#addSurface</c>
             before creating the capture session.</para>
-          <para>An OutputConfiguration object created by this constructor can be used for <c>CameraDeviceSetup.isSessionConfigurationSupported</c> and <c>CameraDeviceSetup.getSessionCharacteristics</c> without having called <c>#addSurface</c>.</para>
+          <para>An OutputConfiguration object created by this constructor can be used for <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported</c>
+            and <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#getSessionCharacteristics</c> without
+            having called <c>#addSurface</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#OutputConfiguration(int,%20android.util.Size)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.OutputConfiguration(int, android.util.Size)</code>.</a>
@@ -252,20 +255,26 @@
             the deferred Surface can be obtained: (1) from <c>android.view.SurfaceView</c>
             by calling <c>android.view.SurfaceHolder#getSurface</c>, (2) from
             <c>android.graphics.SurfaceTexture</c> via
-            <c>android.view.Surface#Surface(android.graphics.SurfaceTexture)</c>, (3) from <c>android.media.MediaRecorder</c> via <c>android.media.MediaRecorder.getSurface</c> or <c>android.media.MediaCodec#createPersistentInputSurface</c>, or (4) from <c>android.media.MediaCodce</c> via <c>android.media.MediaCodec#createInputSurface</c> or <c>android.media.MediaCodec#createPersistentInputSource</c>.</para>
+            <c>android.view.Surface#Surface(android.graphics.SurfaceTexture)</c>, (3) from
+            <c>android.media.MediaRecorder</c> via <c>android.media.MediaRecorder#getSurface</c> or
+            <c>android.media.MediaCodec#createPersistentInputSurface</c>, or (4) from
+            <c>android.media.MediaCodec</c> via <c>android.media.MediaCodec#createInputSurface</c> or
+            <c>android.media.MediaCodec#createPersistentInputSurface</c>.</para>
           <para>&lt;ul&gt;
             &lt;li&gt;Surfaces for <c>android.view.SurfaceView</c> and <c>android.graphics.SurfaceTexture</c>
             can be deferred until after <c>CameraDevice#createCaptureSession</c>. In that case, the
             output Surface must be set via <c>#addSurface</c>, and the Surface configuration must be
-            finalized via <c>CameraCaptureSession#finalizeOutputConfiguration</c> before submitting
+            finalized via <c>CameraCaptureSession#finalizeOutputConfigurations</c> before submitting
             a request with the Surface target.&lt;/li&gt;
             &lt;li&gt;For all other target types, the output Surface must be set by <c>#addSurface</c>,
-            and <c>CameraCaptureSession#finalizeOutputConfiguration</c> is not needed because the
+            and <c>CameraCaptureSession#finalizeOutputConfigurations</c> is not needed because the
             OutputConfiguration used to create the session will contain the actual Surface.&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>Before <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM Android V</c>, only <c>android.view.SurfaceView</c> and <c>android.graphics.SurfaceTexture</c> are supported. Both
-            kind of outputs can be deferred until after <c>CameraDevice#createCaptureSessionByOutputConfiguration</c>.</para>
-          <para>An OutputConfiguration object created by this constructor can be used for <c>CameraDeviceSetup.isSessionConfigurationSupported</c> and <c>CameraDeviceSetup.getSessionCharacteristics</c> without having called <c>#addSurface</c>.</para>
+            kind of outputs can be deferred until after <c>CameraDevice#createCaptureSessionByOutputConfigurations</c>.</para>
+          <para>An OutputConfiguration object created by this constructor can be used for <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported</c>
+            and <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#getSessionCharacteristics</c> without
+            having called <c>#addSurface</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#OutputConfiguration(android.util.Size,%20java.lang.Class%3CT%3E)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.OutputConfiguration(android.util.Size, java.lang.Class&lt;T&gt;)</code>.</a>
@@ -352,17 +361,17 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(ILandroid/util/Size;J)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(ILandroid/util/Size;J)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
-        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="0" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -370,8 +379,8 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="usage" Type="System.Int64" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="usage" Type="System.Int64" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="format">The format of the ImageReader output. This must be one of the
@@ -387,7 +396,9 @@
           <para>This constructor creates an OutputConfiguration for an ImageReader without providing
             the actual output Surface. The actual output Surface must be set via <c>#addSurface</c>
             before creating the capture session.</para>
-          <para>An OutputConfiguration object created by this constructor can be used for <c>CameraDeviceSetup.isSessionConfigurationSupported</c> and <c>CameraDeviceSetup.getSessionCharacteristics</c> without having called <c>#addSurface</c>.</para>
+          <para>An OutputConfiguration object created by this constructor can be used for <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported</c>
+            and <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#getSessionCharacteristics</c> without
+            having called <c>#addSurface</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#OutputConfiguration(int,%20android.util.Size,%20long)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.OutputConfiguration(int, android.util.Size, long)</code>.</a>
@@ -412,18 +423,18 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(IILandroid/util/Size;)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(IILandroid/util/Size;)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
-        <Parameter Name="surfaceGroupId" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="1" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="surfaceGroupId" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -431,7 +442,7 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="surfaceGroupId">A group ID for this output, used for sharing memory between multiple
@@ -448,7 +459,9 @@
           <para>This constructor creates an OutputConfiguration for an ImageReader without providing
             the actual output Surface. The actual output Surface must be set via <c>#addSurface</c>
             before creating the capture session.</para>
-          <para>An OutputConfiguration object created by this constructor can be used for <c>CameraDeviceSetup.isSessionConfigurationSupported</c> and <c>CameraDeviceSetup.getSessionCharacteristics</c> without having called <c>#addSurface</c>.</para>
+          <para>An OutputConfiguration object created by this constructor can be used for <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported</c>
+            and <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#getSessionCharacteristics</c> without
+            having called <c>#addSurface</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#OutputConfiguration(int,%20int,%20android.util.Size)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.OutputConfiguration(int, int, android.util.Size)</code>.</a>
@@ -473,18 +486,18 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(IILandroid/util/Size;J)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(IILandroid/util/Size;J)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
-        <Parameter Name="surfaceGroupId" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="1" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="surfaceGroupId" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -492,8 +505,8 @@
             </Attribute>
           </Attributes>
         </Parameter>
-        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="2" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="usage" Type="System.Int64" Index="3" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="surfaceSize" Type="Android.Util.Size" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="usage" Type="System.Int64" Index="3" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="surfaceGroupId">A group ID for this output, used for sharing memory between multiple
@@ -511,7 +524,9 @@
           <para>This constructor creates an OutputConfiguration for an ImageReader without providing
             the actual output Surface. The actual output Surface must be set via <c>#addSurface</c>
             before creating the capture session.</para>
-          <para>An OutputConfiguration object created by this constructor can be used for <c>CameraDeviceSetup.isSessionConfigurationSupported</c> and <c>CameraDeviceSetup.getSessionCharacteristics</c> without having called <c>#addSurface</c>.</para>
+          <para>An OutputConfiguration object created by this constructor can be used for <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported</c>
+            and <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#getSessionCharacteristics</c> without
+            having called <c>#addSurface</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#OutputConfiguration(int,%20int,%20android.util.Size,%20long)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.OutputConfiguration(int, int, android.util.Size, long)</code>.</a>
@@ -657,8 +672,9 @@
             <c>android.view.Surface#Surface(android.graphics.SurfaceTexture)</c>&lt;/li&gt;
             &lt;li&gt;from <c>android.media.MediaRecorder</c> by calling
             <c>android.media.MediaRecorder#getSurface</c> or <c>android.media.MediaCodec#createPersistentInputSurface</c>&lt;/li&gt;
-            &lt;li&gt;from <c>android.media.MediaCodce</c> by calling
-            <c>android.media.MediaCodec#createInputSurface</c> or <c>android.media.MediaCodec#createPersistentInputSource</c>&lt;/li&gt;
+            &lt;li&gt;from <c>android.media.MediaCodec</c> by calling
+            <c>android.media.MediaCodec#createInputSurface</c> or
+            <c>android.media.MediaCodec#createPersistentInputSurface()</c>&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>If the OutputConfiguration was constructed by <c>#OutputConfiguration(int, Size)</c>
             or its variants, the added surface must be obtained from <c>android.media.ImageReader</c>
@@ -741,11 +757,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("createInstancesForMultiResolutionOutput", "(Ljava/util/Collection;I)Ljava/util/List;", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("createInstancesForMultiResolutionOutput", "(Ljava/util/Collection;I)Ljava/util/List;", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -754,8 +770,8 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.Hardware.Camera2.Params.OutputConfiguration&gt;</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="streams" Type="System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.Params.MultiResolutionStreamInfo&gt;" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="1" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="streams" Type="System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.Params.MultiResolutionStreamInfo&gt;" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="format" Type="Android.Graphics.ImageFormatType" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -769,19 +785,19 @@
                            multi-resolution image reader containing a number of ImageReaders.</param>
         <param name="format">The format of the MultiResolutionImageReader. This must be one of the <c>android.graphics.ImageFormat</c> or <c>android.graphics.PixelFormat</c> constants
                           supported by the camera device. Note that not all formats are supported, like
-                          <c>ImageFormat.NV21</c>. The supported multi-resolution reader format can be
+                          <c>ImageFormat#NV21</c>. The supported multi-resolution reader format can be
                           queried by <c>MultiResolutionStreamConfigurationMap#getOutputFormats</c>.</param>
         <summary>Create a list of <c>OutputConfiguration</c> instances for a
-            <c>android.hardware.camera2.params.MultiResolutionImageReader</c>.</summary>
+            <c>MultiResolutionImageReader</c>.</summary>
         <returns>The list of <c>OutputConfiguration</c> objects for a MultiResolutionImageReader.</returns>
         <remarks>
           <para>Create a list of <c>OutputConfiguration</c> instances for a
-            <c>android.hardware.camera2.params.MultiResolutionImageReader</c>.</para>
+            <c>MultiResolutionImageReader</c>.</para>
           <para>This method can be used to create query OutputConfigurations for a
             MultiResolutionImageReader that can be included in a SessionConfiguration passed into
-            <c>CameraDeviceSetup#isSessionConfigurationSupported</c> before opening and setting up
-            a camera device in full, at which point <c>#setSurfacesForMultiResolutionOutput</c>
-            can be used to link to the actual MultiResolutionImageReader.</para>
+            <c>android.hardware.camera2.CameraDevice.CameraDeviceSetup#isSessionConfigurationSupported</c>
+            before opening and setting up a camera device in full, at which point <c>#setSurfacesForMultiResolutionOutput</c> can be used to link to the actual
+            MultiResolutionImageReader.</para>
           <para>This constructor takes same arguments used to create a <c>MultiResolutionImageReader</c>: a collection of <c>MultiResolutionStreamInfo</c>
             objects and the format.</para>
           <para>
@@ -1005,6 +1021,28 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Hardware.Camera2.Params.OutputConfiguration.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="outputConfiguration.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -1136,6 +1174,10 @@
             ImageReader, MediaRecorder, or MediaCodec, the mirror mode has no effect. If mirroring is
             needed for such outputs, the application needs to mirror the image buffers itself before
             passing them onward.</para>
+          <para>Starting from Android 16, this function sets the mirror modes for all of the output
+            surfaces contained within this OutputConfiguration. To set the mirror mode for a particular
+            output surface, the application can call <c>#setMirrorMode(Surface, int)</c>. Prior to
+            Android 16, this function is only applicable if surface sharing is not enabled.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#setMirrorMode(int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.setMirrorMode(int)</code>.</a>
@@ -1521,6 +1563,72 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="SetMirrorMode">
+      <MemberSignature Language="C#" Value="public void SetMirrorMode (Android.Views.Surface surface, Android.Hardware.Camera2.Params.MirrorMode mirrorMode);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetMirrorMode(class Android.Views.Surface surface, valuetype Android.Hardware.Camera2.Params.MirrorMode mirrorMode) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Hardware.Camera2.Params.OutputConfiguration.SetMirrorMode(Android.Views.Surface,Android.Hardware.Camera2.Params.MirrorMode)" />
+      <MemberSignature Language="F#" Value="member this.SetMirrorMode : Android.Views.Surface * Android.Hardware.Camera2.Params.MirrorMode -&gt; unit" Usage="outputConfiguration.SetMirrorMode (surface, mirrorMode)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setMirrorMode", "(Landroid/view/Surface;I)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setMirrorMode", "(Landroid/view/Surface;I)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="surface" Type="Android.Views.Surface" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="mirrorMode" Type="Android.Hardware.Camera2.Params.MirrorMode" Index="1" FrameworkAlternate="net-android-36.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="surface">To be added.</param>
+        <param name="mirrorMode">To be added.</param>
+        <summary>Set the mirroring mode for a surface belonging to this OutputConfiguration</summary>
+        <remarks>
+          <para>Set the mirroring mode for a surface belonging to this OutputConfiguration</para>
+          <para>This function is identical to <c>#setMirrorMode(int)</c> if <c>surface</c> is
+            the only surface belonging to this OutputConfiguration.</para>
+          <para>If this OutputConfiguration contains a deferred surface, the application can either
+            call <c>#setMirrorMode(int)</c>, or call this function after calling <c>#addSurface</c>.</para>
+          <para>If this OutputConfiguration contains shared surfaces, the application can set
+            different mirroring modes for different surfaces.</para>
+          <para>For efficiency, the mirror effect is applied as a transform flag, so it is only effective
+            in some outputs. It works automatically for SurfaceView and TextureView outputs. For manual
+            use of SurfaceTexture, it is reflected in the value of
+            <c>android.graphics.SurfaceTexture#getTransformMatrix</c>. For other end points, such as
+            ImageReader, MediaRecorder, or MediaCodec, the mirror mode has no effect. If mirroring is
+            needed for such outputs, the application needs to mirror the image buffers itself before
+            passing them onward.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#setMirrorMode(android.view.Surface,%20int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.params.OutputConfiguration.setMirrorMode(android.view.Surface, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="SetPhysicalCameraId">
       <MemberSignature Language="C#" Value="public void SetPhysicalCameraId (string? physicalCameraId);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetPhysicalCameraId(string physicalCameraId) cil managed" />
@@ -1593,11 +1701,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("setSurfacesForMultiResolutionOutput", "(Ljava/util/Collection;Landroid/hardware/camera2/MultiResolutionImageReader;)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setSurfacesForMultiResolutionOutput", "(Ljava/util/Collection;Landroid/hardware/camera2/MultiResolutionImageReader;)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1606,11 +1714,11 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="outputConfigurations" Type="System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.Params.OutputConfiguration&gt;" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="multiResolutionImageReader" Type="Android.Hardware.Camera2.MultiResolutionImageReader" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="outputConfigurations" Type="System.Collections.Generic.ICollection&lt;Android.Hardware.Camera2.Params.OutputConfiguration&gt;" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="multiResolutionImageReader" Type="Android.Hardware.Camera2.MultiResolutionImageReader" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
-        <param name="outputConfigurations">The OutputConfiguration objects created by <c>#createInstancesFromMultiResolutionOutput</c></param>
+        <param name="outputConfigurations">The OutputConfiguration objects created by <c>#createInstancesForMultiResolutionOutput</c></param>
         <param name="multiResolutionImageReader">The MultiResolutionImageReader object created from the same
                                               MultiResolutionStreamInfo parameters as
                                               <c>outputConfigurations</c>.</param>

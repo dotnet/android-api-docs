@@ -397,7 +397,8 @@
         <value>the paint's blend mode (or null)</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>Get the paint's blend mode object.</para>
+          <para>Get the paint's blend mode object. Will return null if there is a Xfermode applied that
+            cannot be represented by a blend mode (i.e. a custom <c>RuntimeXfermode</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Paint#getBlendMode()" title="Reference documentation">Java documentation for <code>android.graphics.Paint.getBlendMode()</code>.</a>
@@ -1177,6 +1178,10 @@
           <AttributeName Language="C#">[set: Android.Runtime.Register("setElegantTextHeight", "(Z)V", "GetSetElegantTextHeight_ZHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setElegantTextHeight", "(Z)V", "GetSetElegantTextHeight_ZHandler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -1188,6 +1193,13 @@
         <remarks>
           <para>Property getter documentation:</para>
           <para>Get the elegant metrics flag.</para>
+          <para>Note:
+            For applications target API 35 or later, this function returns true by default.
+            For applications target API 36 or later, the function call will be ignored and the elegant
+            text height is always enabled.</para>
+          <para>This member is deprecated. The underlying UI fonts are deprecated and will be removed from the system image.
+            Applications supporting scripts with large vertical metrics should adapt their UI by using
+            fonts designed with corresponding vertical metrics.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Paint#isElegantTextHeight()" title="Reference documentation">Java documentation for <code>android.graphics.Paint.isElegantTextHeight()</code>.</a>
@@ -1197,6 +1209,14 @@
           <para>Set the paint's elegant height metrics flag. This setting selects font
             variants that have not been compacted to fit Latin-based vertical
             metrics, and also increases top and bottom bounds to provide more space.</para>
+          <para>Note:
+            For applications target API 35 or later, the default value will be true by default.
+            For applications target API 36 or later, the function call will be ignored and the elegant
+            text height is always enabled.</para>
+          <para>This member is deprecated. This API will be no-op at some point in the future. The underlying UI fonts is
+            deprecated and will be removed from the system image. Applications supporting scripts with
+            large vertical metrics should adapt their UI by using fonts designed with corresponding
+            vertical metrics.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Paint#setElegantTextHeight(boolean)" title="Reference documentation">Java documentation for <code>android.graphics.Paint.setElegantTextHeight(boolean)</code>.</a>
@@ -2064,11 +2084,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("getFontMetricsForLocale", "(Landroid/graphics/Paint$FontMetrics;)V", "GetGetFontMetricsForLocale_Landroid_graphics_Paint_FontMetrics_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("getFontMetricsForLocale", "(Landroid/graphics/Paint$FontMetrics;)V", "GetGetFontMetricsForLocale_Landroid_graphics_Paint_FontMetrics_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2077,7 +2097,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="metrics" Type="Android.Graphics.Paint+FontMetrics" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="metrics" Type="Android.Graphics.Paint+FontMetrics" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="metrics">To be added.</param>
@@ -2305,11 +2325,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("getFontMetricsIntForLocale", "(Landroid/graphics/Paint$FontMetricsInt;)V", "GetGetFontMetricsIntForLocale_Landroid_graphics_Paint_FontMetricsInt_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("getFontMetricsIntForLocale", "(Landroid/graphics/Paint$FontMetricsInt;)V", "GetGetFontMetricsIntForLocale_Landroid_graphics_Paint_FontMetricsInt_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2318,7 +2338,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="metrics" Type="Android.Graphics.Paint+FontMetricsInt" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="metrics" Type="Android.Graphics.Paint+FontMetricsInt" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="metrics">To be added.</param>
@@ -4279,6 +4299,10 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getRasterizer", "()Landroid/graphics/Rasterizer;", "GetGetRasterizerHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRasterizer", "()Landroid/graphics/Rasterizer;", "GetGetRasterizerHandler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.UnsupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.UnsupportedOSPlatform("android26.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Graphics.Rasterizer</ReturnType>
@@ -4702,6 +4726,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Obsolete("deprecated")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("deprecated")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.UnsupportedOSPlatform("android26.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.UnsupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -6067,11 +6095,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("TEXT_RUN_FLAG_LEFT_EDGE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("TEXT_RUN_FLAG_LEFT_EDGE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -6127,11 +6155,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("TEXT_RUN_FLAG_RIGHT_EDGE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("TEXT_RUN_FLAG_RIGHT_EDGE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -6569,6 +6597,60 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/graphics/Paint#getUnderlineThickness()" title="Reference documentation">Java documentation for <code>android.graphics.Paint.getUnderlineThickness()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="VerticalTextFlag">
+      <MemberSignature Language="C#" Value="public const Android.Graphics.PaintFlags VerticalTextFlag = 4096;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Graphics.PaintFlags VerticalTextFlag = (4096)" />
+      <MemberSignature Language="DocId" Value="F:Android.Graphics.Paint.VerticalTextFlag" />
+      <MemberSignature Language="F#" Value="val mutable VerticalTextFlag : Android.Graphics.PaintFlags" Usage="Android.Graphics.Paint.VerticalTextFlag" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("VERTICAL_TEXT_FLAG", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("VERTICAL_TEXT_FLAG", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.PaintFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Graphics.PaintFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Graphics.PaintFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>4096</MemberValue>
+      <Docs>
+        <summary>A flat that controls text to be written in vertical orientation</summary>
+        <remarks>
+          <para>A flat that controls text to be written in vertical orientation</para>
+          <para>This flag is used for telling the underlying text layout engine that the text is for vertical
+            direction. By enabling this flag, text measurement, drawing and shaping APIs works for
+            vertical text layout. For example, <c>Canvas#drawText(String, float, float, Paint)</c> draws
+            text from top to bottom. <c>Paint#measureText(String)</c> returns vertical advances instead
+            of horizontal advances. <c>TextRunShaper</c> shapes text vertically and report glyph IDs for
+            vertical layout.</para>
+          <para>Do not set this flag for making <c>android.text.Layout</c>. The <c>android.text.Layout</c>
+            class and its subclasses are designed for horizontal text only and does not work for vertical
+            text.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/graphics/Paint#VERTICAL_TEXT_FLAG" title="Reference documentation">Java documentation for <code>android.graphics.Paint.VERTICAL_TEXT_FLAG</code>.</a>
             </format>
           </para>
           <para>

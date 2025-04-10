@@ -1,8 +1,9 @@
 <Type Name="FileOutputStream" FullName="Java.IO.FileOutputStream">
-  <TypeSignature Language="C#" Value="public class FileOutputStream : Java.IO.OutputStream, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public class FileOutputStream : Java.IO.OutputStream, IDisposable, Java.Interop.IJavaPeerable" FrameworkAlternate="net-android-34.0;net-android-35.0" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit FileOutputStream extends Java.IO.OutputStream implements class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class Java.IO.ICloseable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Java.IO.FileOutputStream" />
   <TypeSignature Language="F#" Value="type FileOutputStream = class&#xA;    inherit OutputStream&#xA;    interface ICloseable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public class FileOutputStream : Java.IO.OutputStream, IDisposable" FrameworkAlternate="net-android-36.0" />
   <AssemblyInfo>
     <AssemblyName>Mono.Android</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -151,6 +152,9 @@
             is <c>java.io.FileDescriptor#valid() invalid</c>.
             However, if the methods are invoked on the resulting stream to attempt
             I/O on the stream, an <c>IOException</c> is thrown.</para>
+          <para>Android-specific warning: <c>#close()</c> method doesn't close the <c>fdObj</c> provided,
+            because this object doesn't own the file descriptor, but the caller does. The caller can
+            call <c>android.system.Os#close(FileDescriptor)</c> to close the fd.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/io/FileOutputStream#FileOutputStream(java.io.FileDescriptor)" title="Reference documentation">Java documentation for <code>java.io.FileOutputStream.FileOutputStream(java.io.FileDescriptor)</code>.</a>
@@ -434,6 +438,28 @@
         </remarks>
         <since version="Added in API level 1" />
         <exception cref="T:Java.IO.IOException" />
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.IO.FileOutputStream.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="fileOutputStream.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

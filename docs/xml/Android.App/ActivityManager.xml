@@ -143,11 +143,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("addApplicationStartInfoCompletionListener", "(Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetAddApplicationStartInfoCompletionListener_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("addApplicationStartInfoCompletionListener", "(Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetAddApplicationStartInfoCompletionListener_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -156,24 +156,29 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="executor">The executor on which the listener should be called.</param>
         <param name="listener">Callback to be called when collection of <c>ApplicationStartInfo</c> is
                                complete. Will replace existing listener if one is already attached.</param>
-        <summary>Adds a callback to be notified when the <c>ApplicationStartInfo</c> records of this startup
-            are complete.</summary>
+        <summary>Adds a callback that is notified when the <c>ApplicationStartInfo</c> record of this startup
+            is complete.</summary>
         <remarks>
-          <para>Adds a callback to be notified when the <c>ApplicationStartInfo</c> records of this startup
-            are complete.</para>
-          <para>Note: callback will be removed automatically after being triggered.</para>
-          <para>Note: callback will not wait for <c>Activity#reportFullyDrawn</c> to occur.
-            Timestamp for fully drawn may be added after callback occurs. Set callback after invoking
-            <c>Activity#reportFullyDrawn</c> if timestamp for fully drawn is required.</para>
-          <para>Note: if start records have already been retrieved, the callback will be
-            invoked immediately on the specified executor with the previously resolved AppStartInfo.</para>
+          <para>Adds a callback that is notified when the <c>ApplicationStartInfo</c> record of this startup
+            is complete. The startup is considered complete when the first frame is drawn.
+            
+            The callback doesn't wait for <c>Activity#reportFullyDrawn</c> to occur. Retrieve a copy
+            of <c>ApplicationStartInfo</c> after <c>Activity#reportFullyDrawn</c> is called (using this
+            callback or <c>getHistoricalProcessStartReasons</c>) if you need the
+            <c>ApplicationStartInfo.START_TIMESTAMP_FULLY_DRAWN</c> timestamp.
+            
+            If the current start record has already been completed (that is, the process is not currently
+            starting), the callback will be invoked immediately on the specified executor with the
+            previously completed <c>ApplicationStartInfo</c> record.
+            
+            Callback will be called at most once and removed automatically after being triggered.</para>
           <para>Note: callback is asynchronous and should be made from a background thread.</para>
           <para>
             <format type="text/html">
@@ -263,11 +268,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("addStartInfoTimestamp", "(IJ)V", "GetAddStartInfoTimestamp_IJHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("addStartInfoTimestamp", "(IJ)V", "GetAddStartInfoTimestamp_IJHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -276,8 +281,8 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="key" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="timestampNs" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="key" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="timestampNs" Type="System.Int64" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="key">Unique key for timestamp. Must be greater than
@@ -291,8 +296,8 @@
         <remarks>
           <para>Adds an optional developer supplied timestamp to the calling apps most recent
             <c>ApplicationStartInfo</c>. This is in addition to system recorded timestamps.</para>
-          <para>Note: timestamps added after <c>Activity#reportFullyDrawn</c> is called
-            will be discarded.</para>
+          <para>Note: any timestamps added after <c>Activity#reportFullyDrawn</c> is called
+            are discarded.</para>
           <para>Note: will overwrite existing timestamp if called with same key.</para>
           <para>
             <format type="text/html">
@@ -751,11 +756,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("getHistoricalProcessStartReasons", "(I)Ljava/util/List;", "GetGetHistoricalProcessStartReasons_IHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("getHistoricalProcessStartReasons", "(I)Ljava/util/List;", "GetGetHistoricalProcessStartReasons_IHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -764,7 +769,7 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.App.ApplicationStartInfo&gt;</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="maxNum" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="maxNum" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="maxNum">The maximum number of results to be returned; a value of 0
@@ -776,7 +781,11 @@
                     the order from most recent to least recent.</returns>
         <remarks>
           <para>Return a list of <c>ApplicationStartInfo</c> records containing the information about the
-            most recent app startups.</para>
+            most recent app startups.
+            
+            Records accessed using this path might include "incomplete" records such as in-progress app
+            starts. Accessing in-progress starts using this method lets you access start information
+            early to better optimize your startup path.</para>
           <para>Note: System stores this historical information in a ring buffer and only
             the most recent records will be returned.</para>
           <para>
@@ -2101,11 +2110,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("removeApplicationStartInfoCompletionListener", "(Ljava/util/function/Consumer;)V", "GetRemoveApplicationStartInfoCompletionListener_Ljava_util_function_Consumer_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeApplicationStartInfoCompletionListener", "(Ljava/util/function/Consumer;)V", "GetRemoveApplicationStartInfoCompletionListener_Ljava_util_function_Consumer_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2114,7 +2123,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="listener">To be added.</param>

@@ -233,15 +233,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("addScreenRecordingCallback", "(Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)I", "GetAddScreenRecordingCallback_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("addScreenRecordingCallback", "(Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)I", "GetAddScreenRecordingCallback_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.DETECT_SCREEN_RECORDING")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.DETECT_SCREEN_RECORDING")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -250,8 +250,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="executor">The executor on which callback method will be invoked.</param>
@@ -312,7 +312,7 @@
           <para>Returns the <c>WindowMetrics</c> according to the current system state.</para>
           <para>The metrics describe the size of the area the window would occupy with
             <c>LayoutParams#MATCH_PARENT MATCH_PARENT</c> width and height, and the <c>WindowInsets</c>
-            such a window would have.</para>
+            such a window would have. The <c>WindowInsets</c> are not deducted from the bounds.</para>
           <para>The value of this is based on the &lt;b&gt;current&lt;/b&gt; windowing state of the system.
             
             For example, for activities in multi-window mode, the metrics returned are based on the
@@ -451,7 +451,7 @@
             task to cover the entire screen.</para>
           <para>The metrics describe the size of the largest potential area the window might occupy with
             <c>LayoutParams#MATCH_PARENT MATCH_PARENT</c> width and height, and the <c>WindowInsets</c>
-            such a window would have.</para>
+            such a window would have. The <c>WindowInsets</c> are not deducted from the bounds.</para>
           <para>Note that this might still be smaller than the size of the physical display if certain areas
             of the display are not available to windows created in this <c>Context</c>.
             
@@ -628,20 +628,20 @@
           <para>Application level <c>android.content.pm.PackageManager.Property PackageManager.Property</c>
             for an app to inform the system that the app should be excluded from the camera compatibility
             force rotation treatment.</para>
-          <para>The camera compatibility treatment aligns orientations of portrait app window and natural
-            orientation of the device and set opposite to natural orientation for a landscape app
-            window. Mismatch between them can lead to camera issues like sideways or stretched
+          <para>The camera compatibility treatment aligns portrait app windows with the natural
+            orientation of the device and landscape app windows opposite the device natural orientation.
+            Mismatch between the orientations can lead to camera issues like a sideways or stretched
             viewfinder since this is one of the strongest assumptions that apps make when they implement
-            camera previews. Since app and natural display orientations aren't guaranteed to match, the
-            rotation can cause letterboxing. The forced rotation is triggered as soon as app opens to
+            camera previews. Since app and device natural orientations aren't guaranteed to match, the
+            rotation can cause letterboxing. The forced rotation is triggered as soon as an app opens the
             camera and is removed once camera is closed.</para>
-          <para>The camera compatibility can be enabled by device manufacturers on displays that have the
-            ignore requested orientation display setting enabled (enables compatibility mode for fixed
-            orientation on Android 12 (API level 31) or higher; see
-            <see href="https://developer.android.com/guide/practices/enhanced-letterboxing">Enhanced
-            letterboxing</see> for more details).</para>
+          <para>Camera compatibility can be enabled by device manufacturers on displays that have the
+            ignore requested orientation display setting enabled, which enables compatibility mode for
+            fixed-orientation apps on Android 12 (API level 31) or higher. See
+            <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device compatibility mode</see>
+            for more details.</para>
           <para>With this property set to <c>true</c> or unset, the system may apply the force rotation
-            treatment to fixed orientation activities. Device manufacturers can exclude packages from the
+            treatment to fixed-orientation activities. Device manufacturers can exclude packages from the
             treatment using their discretion to improve display compatibility.</para>
           <para>With this property set to <c>false</c>, the system will not apply the force rotation
             treatment.</para>
@@ -696,12 +696,12 @@
           <para>Application level <c>android.content.pm.PackageManager.Property PackageManager.Property</c>
             for an app to inform the system that the app should be excluded from the activity "refresh"
             after the camera compatibility force rotation treatment.</para>
-          <para>The camera compatibility treatment aligns orientations of portrait app window and natural
-            orientation of the device and set opposite to natural orientation for a landscape app
-            window. Mismatch between them can lead to camera issues like sideways or stretched
+          <para>The camera compatibility treatment aligns portrait app windows with the natural
+            orientation of the device and landscape app windows opposite the device natural orientation.
+            Mismatch between the orientations can lead to camera issues like a sideways or stretched
             viewfinder since this is one of the strongest assumptions that apps make when they implement
-            camera previews. Since app and natural display orientations aren't guaranteed to match, the
-            rotation can cause letterboxing. The forced rotation is triggered as soon as app opens to
+            camera previews. Since app and device natural orientations aren't guaranteed to match, the
+            rotation can cause letterboxing. The forced rotation is triggered as soon as an app opens the
             camera and is removed once camera is closed.</para>
           <para>Force rotation is followed by the "Refresh" of the activity by going through "resumed -&gt;
             ... -&gt; stopped -&gt; ... -&gt; resumed" cycle (by default) or "resumed -&gt; paused -&gt; resumed" cycle
@@ -710,10 +710,10 @@
             camera preview and can lead to sideways or stretching issues persisting even after force
             rotation.</para>
           <para>The camera compatibility can be enabled by device manufacturers on displays that have the
-            ignore requested orientation display setting enabled (enables compatibility mode for fixed
-            orientation on Android 12 (API level 31) or higher; see
-            <see href="https://developer.android.com/guide/practices/enhanced-letterboxing">Enhanced
-            letterboxing</see> for more details).</para>
+            ignore requested orientation display setting enabled, which enables compatibility mode for
+            fixed-orientation apps on Android 12 (API level 31) or higher. See
+            <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device compatibility mode</see>
+            for more details.</para>
           <para>With this property set to <c>true</c> or unset, the system may "refresh" activity after
             the force rotation treatment. Device manufacturers can exclude packages from the "refresh"
             using their discretion to improve display compatibility.</para>
@@ -773,22 +773,21 @@
             the camera compatibility force rotation treatment using "paused -&gt; resumed" cycle rather than
             "stopped -&gt; resumed".</para>
           <para>The camera compatibility treatment aligns orientations of portrait app window and natural
-            orientation of the device and set opposite to natural orientation for a landscape app
-            window. Mismatch between them can lead to camera issues like sideways or stretched
-            viewfinder since this is one of the strongest assumptions that apps make when they implement
-            camera previews. Since app and natural display orientations aren't guaranteed to match, the
-            rotation can cause letterboxing. The forced rotation is triggered as soon as app opens to
-            camera and is removed once camera is closed.</para>
+            orientation of the device. Mismatch between the orientations can lead to camera issues like a
+            sideways or stretched viewfinder since this is one of the strongest assumptions that apps
+            make when they implement camera previews. Since app and natural display orientations aren't
+            guaranteed to match, the rotation can cause letterboxing. The forced rotation is triggered as
+            soon as app opens the camera and is removed once camera is closed.</para>
           <para>Force rotation is followed by the "Refresh" of the activity by going through "resumed -&gt;
             ... -&gt; stopped -&gt; ... -&gt; resumed" cycle (by default) or "resumed -&gt; paused -&gt; resumed" cycle
             (if overridden by device manufacturers or using this property). This allows to clear cached
             values in apps (e.g., display or camera rotation) that influence camera preview and can lead
             to sideways or stretching issues persisting even after force rotation.</para>
           <para>The camera compatibility can be enabled by device manufacturers on displays that have the
-            ignore requested orientation display setting enabled (enables compatibility mode for fixed
-            orientation on Android 12 (API level 31) or higher; see
-            <see href="https://developer.android.com/guide/practices/enhanced-letterboxing">Enhanced
-            letterboxing</see> for more details).</para>
+            ignore requested orientation display setting enabled, which enables compatibility mode for
+            fixed-orientation apps on Android 12 (API level 31) or higher. See
+            <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device compatibility mode</see>
+            for more details.</para>
           <para>Device manufacturers can override packages to "refresh" via "resumed -&gt; paused -&gt; resumed"
             cycle using their discretion to improve display compatibility.</para>
           <para>With this property set to <c>true</c>, the system will "refresh" activity after the
@@ -852,14 +851,14 @@
           <para>When this compat override is enabled and while display is fixed to the landscape natural
             orientation, the orientation requested by the activity will be still respected by bounds
             resolution logic. For instance, if an activity requests portrait orientation, then activity
-            will appear in the letterbox mode for fixed orientation with the display rotated to the
-            lanscape natural orientation.</para>
+            appears in letterbox mode for fixed-orientation apps with the display rotated to the lanscape
+            natural orientation.</para>
           <para>The treatment is disabled by default but device manufacturers can enable the treatment
             using their discretion to improve display compatibility on displays that have the ignore
-            orientation request display setting enabled by OEMs on the device (enables compatibility mode
-            for fixed orientation on Android 12 (API level 31) or higher; see
-            <see href="https://developer.android.com/guide/practices/enhanced-letterboxing">Enhanced
-            letterboxing</see> for more details).</para>
+            orientation request display setting enabled by OEMs on the device, which enables
+            compatibility mode for fixed-orientation apps on Android 12 (API level 31) or higher. See
+            <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device compatibility mode</see>
+            for more details.</para>
           <para>With this property set to <c>true</c> or unset, the system wiil use landscape display
             orientation when the following conditions are met:
             &lt;ul&gt;
@@ -868,7 +867,7 @@
                 &lt;li&gt;Activity is fullscreen.
                 &lt;li&gt;Device manufacturer enabled the treatment.
             &lt;/ul&gt;</para>
-          <para>With this property set to <c>false</c>, device manufactured per-app override for
+          <para>With this property set to <c>false</c>, device manufacturer per-app override for
             display orientation won't be applied.</para>
           <para>&lt;b&gt;Syntax:&lt;/b&gt;</para>
           <code lang="text/java">&amp;lt;application&amp;gt;
@@ -901,11 +900,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -930,7 +929,7 @@
             true:
             &lt;ul&gt;
                 &lt;li&gt;Activity has requested orientation more than two times within one-second timer
-                &lt;li&gt;Activity is not letterboxed for fixed orientation
+                &lt;li&gt;Activity is not letterboxed for fixed-orientation apps
             &lt;/ul&gt;</para>
           <para>Setting this property to <c>false</c> informs the system that the app must be
             opted-out from the compatibility treatment even if the device manufacturer has opted the app
@@ -968,11 +967,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1062,7 +1061,7 @@
             one.</para>
           <para>With this property set to <c>true</c> or unset, device manufacturers can override
             orientation for the app using their discretion to improve display compatibility.</para>
-          <para>With this property set to <c>false</c>, device manufactured per-app override for
+          <para>With this property set to <c>false</c>, device manufacturer per-app override for
             orientation won't be applied.</para>
           <para>&lt;b&gt;Syntax:&lt;/b&gt;</para>
           <code lang="text/java">&amp;lt;application&amp;gt;
@@ -1095,11 +1094,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1217,11 +1216,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_SMALL_COVER_SCREEN", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_SMALL_COVER_SCREEN", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1271,11 +1270,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1297,13 +1296,11 @@
             <c>#PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE</c>.)</para>
           <para>When users apply the full-screen compatibility override, the orientation
             of the activity is forced to <c>android.content.pm.ActivityInfo#SCREEN_ORIENTATION_USER</c>.</para>
-          <para>The user override is intended to improve the app experience on devices
-            that have the ignore orientation request display setting enabled by OEMs
-            (enables compatibility mode for fixed orientation on Android 12 (API
-            level 31) or higher; see
-            <see href="https://developer.android.com/guide/topics/large-screens/large-screen-compatibility-mode">
-            Large screen compatibility mode</see>
-            for more details).</para>
+          <para>The user override is intended to improve the app experience on devices that have the
+            ignore orientation request display setting enabled by OEMs, which enables compatibility mode
+            for fixed-orientation apps on Android 12 (API level 31) or higher. See
+            <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device compatibility mode</see>
+            for more details.</para>
           <para>To opt out of the full-screen option of the user aspect ratio compatibility
             override, add this property to your app manifest and set the value to <c>false</c>.
             Your app will have full-screen option removed from the list of user aspect ratio
@@ -1343,11 +1340,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1379,13 +1376,11 @@
             <c>android.content.pm.ActivityInfo#SCREEN_ORIENTATION_USER</c>;
             see <c>#PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE</c> to
             disable the full-screen option only.</para>
-          <para>The user override is intended to improve the app experience on devices
-            that have the ignore orientation request display setting enabled by OEMs
-            (enables compatibility mode for fixed orientation on Android 12 (API
-            level 31) or higher; see
-            <see href="https://developer.android.com/guide/topics/large-screens/large-screen-compatibility-mode">
-            Large screen compatibility mode</see>
-            for more details).</para>
+          <para>The user override is intended to improve the app experience on devices that have the
+            ignore orientation request display setting enabled by OEMs, which enables compatibility mode
+            for fixed-orientation apps on Android 12 (API level 31) or higher. See
+            <see href="https://developer.android.com/guide/practices/device-compatibility-mode">Device compatibility mode</see>
+            for more details.</para>
           <para>To opt out of the user aspect ratio compatibility override, add this property
             to your app manifest and set the value to <c>false</c>. Your app will be excluded
             from the list of apps in device settings, and users will not be able to override
@@ -1556,11 +1551,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_SUPPORTS_MULTI_INSTANCE_SYSTEM_UI", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_SUPPORTS_MULTI_INSTANCE_SYSTEM_UI", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1613,11 +1608,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("registerBatchedSurfaceControlInputReceiver", "(Landroid/window/InputTransferToken;Landroid/view/SurfaceControl;Landroid/view/Choreographer;Landroid/view/SurfaceControlInputReceiver;)Landroid/window/InputTransferToken;", "GetRegisterBatchedSurfaceControlInputReceiver_Landroid_window_InputTransferToken_Landroid_view_SurfaceControl_Landroid_view_Choreographer_Landroid_view_SurfaceControlInputReceiver_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("registerBatchedSurfaceControlInputReceiver", "(Landroid/window/InputTransferToken;Landroid/view/SurfaceControl;Landroid/view/Choreographer;Landroid/view/SurfaceControlInputReceiver;)Landroid/window/InputTransferToken;", "GetRegisterBatchedSurfaceControlInputReceiver_Landroid_window_InputTransferToken_Landroid_view_SurfaceControl_Landroid_view_Choreographer_Landroid_view_SurfaceControlInputReceiver_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1626,10 +1621,10 @@
         <ReturnType>Android.Window.InputTransferToken</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="hostInputTransferToken" Type="Android.Window.InputTransferToken" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="surfaceControl" Type="Android.Views.SurfaceControl" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="choreographer" Type="Android.Views.Choreographer" Index="2" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="receiver" Type="Android.Views.ISurfaceControlInputReceiver" Index="3" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="hostInputTransferToken" Type="Android.Window.InputTransferToken" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="surfaceControl" Type="Android.Views.SurfaceControl" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="choreographer" Type="Android.Views.Choreographer" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="receiver" Type="Android.Views.ISurfaceControlInputReceiver" Index="3" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="surfaceControl">The SurfaceControl to register the InputChannel for</param>
@@ -1678,11 +1673,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("registerTrustedPresentationListener", "(Landroid/os/IBinder;Landroid/window/TrustedPresentationThresholds;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetRegisterTrustedPresentationListener_Landroid_os_IBinder_Landroid_window_TrustedPresentationThresholds_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("registerTrustedPresentationListener", "(Landroid/os/IBinder;Landroid/window/TrustedPresentationThresholds;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetRegisterTrustedPresentationListener_Landroid_os_IBinder_Landroid_window_TrustedPresentationThresholds_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1691,10 +1686,10 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="window" Type="Android.OS.IBinder" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="thresholds" Type="Android.Window.TrustedPresentationThresholds" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="2" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="3" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="window" Type="Android.OS.IBinder" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="thresholds" Type="Android.Window.TrustedPresentationThresholds" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="3" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="window">The Window to add the trusted presentation listener for. This can be
@@ -1773,11 +1768,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("registerUnbatchedSurfaceControlInputReceiver", "(Landroid/window/InputTransferToken;Landroid/view/SurfaceControl;Landroid/os/Looper;Landroid/view/SurfaceControlInputReceiver;)Landroid/window/InputTransferToken;", "GetRegisterUnbatchedSurfaceControlInputReceiver_Landroid_window_InputTransferToken_Landroid_view_SurfaceControl_Landroid_os_Looper_Landroid_view_SurfaceControlInputReceiver_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("registerUnbatchedSurfaceControlInputReceiver", "(Landroid/window/InputTransferToken;Landroid/view/SurfaceControl;Landroid/os/Looper;Landroid/view/SurfaceControlInputReceiver;)Landroid/window/InputTransferToken;", "GetRegisterUnbatchedSurfaceControlInputReceiver_Landroid_window_InputTransferToken_Landroid_view_SurfaceControl_Landroid_os_Looper_Landroid_view_SurfaceControlInputReceiver_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1786,10 +1781,10 @@
         <ReturnType>Android.Window.InputTransferToken</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="hostInputTransferToken" Type="Android.Window.InputTransferToken" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="surfaceControl" Type="Android.Views.SurfaceControl" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="looper" Type="Android.OS.Looper" Index="2" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="receiver" Type="Android.Views.ISurfaceControlInputReceiver" Index="3" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="hostInputTransferToken" Type="Android.Window.InputTransferToken" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="surfaceControl" Type="Android.Views.SurfaceControl" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="looper" Type="Android.OS.Looper" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="receiver" Type="Android.Views.ISurfaceControlInputReceiver" Index="3" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="surfaceControl">The SurfaceControl to register the InputChannel for</param>
@@ -1926,15 +1921,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("removeScreenRecordingCallback", "(Ljava/util/function/Consumer;)V", "GetRemoveScreenRecordingCallback_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeScreenRecordingCallback", "(Ljava/util/function/Consumer;)V", "GetRemoveScreenRecordingCallback_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.DETECT_SCREEN_RECORDING")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.DETECT_SCREEN_RECORDING")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1943,7 +1938,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="callback">The callback to remove.</param>
@@ -2020,11 +2015,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("transferTouchGesture", "(Landroid/window/InputTransferToken;Landroid/window/InputTransferToken;)Z", "GetTransferTouchGesture_Landroid_window_InputTransferToken_Landroid_window_InputTransferToken_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("transferTouchGesture", "(Landroid/window/InputTransferToken;Landroid/window/InputTransferToken;)Z", "GetTransferTouchGesture_Landroid_window_InputTransferToken_Landroid_window_InputTransferToken_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2033,8 +2028,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="transferFromToken" Type="Android.Window.InputTransferToken" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="transferToToken" Type="Android.Window.InputTransferToken" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="transferFromToken" Type="Android.Window.InputTransferToken" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="transferToToken" Type="Android.Window.InputTransferToken" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="transferFromToken">the InputTransferToken for the currently active gesture</param>
@@ -2065,10 +2060,6 @@
           <para>The host is likely to be an <c>AttachedSurfaceControl</c> so the host token can be
             retrieved via <c>AttachedSurfaceControl#getInputTransferToken()</c>.</para>
           <para>&lt;br&gt;
-            Only the window currently receiving touch is allowed to transfer the gesture so if the caller
-            attempts to transfer touch gesture from a token that doesn't have touch, it will fail the
-            transfer.</para>
-          <para>&lt;br&gt;
             When the host wants to transfer touch gesture to the embedded, it can retrieve the embedded
             token via <c>SurfaceControlViewHost.SurfacePackage#getInputTransferToken()</c> or use the
             value returned from either
@@ -2089,6 +2080,23 @@
             arrives, input dispatcher will do a new round of hit testing. So, if the host window is
             still the first thing that's being touched, then it will receive the new gesture again. It
             will again be up to the host to transfer this new gesture to the embedded.</para>
+          <para>&lt;br&gt;
+            The call can fail for the following reasons:
+            &lt;ul&gt;
+            &lt;li&gt;
+            Caller attempts to transfer touch gesture from a token that doesn't have an active gesture.
+            &lt;/li&gt;
+            &lt;li&gt;
+            The gesture is transferred to a token that is not associated with the transferFromToken. For
+            example, if the caller transfers to a <c>SurfaceControlViewHost</c> not attached to the
+            host window via <c>SurfaceView#setChildSurfacePackage(SurfacePackage)</c>.
+            &lt;/li&gt;
+            &lt;li&gt;
+            The active gesture completes before the transfer is complete, such as in the case of a
+            fling.
+            &lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/WindowManager#transferTouchGesture(android.window.InputTransferToken,%20android.window.InputTransferToken)" title="Reference documentation">Java documentation for <code>android.view.WindowManager.transferTouchGesture(android.window.InputTransferToken, android.window.InputTransferToken)</code>.</a>
@@ -2113,11 +2121,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("unregisterSurfaceControlInputReceiver", "(Landroid/view/SurfaceControl;)V", "GetUnregisterSurfaceControlInputReceiver_Landroid_view_SurfaceControl_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("unregisterSurfaceControlInputReceiver", "(Landroid/view/SurfaceControl;)V", "GetUnregisterSurfaceControlInputReceiver_Landroid_view_SurfaceControl_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2126,7 +2134,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="surfaceControl" Type="Android.Views.SurfaceControl" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="surfaceControl" Type="Android.Views.SurfaceControl" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="surfaceControl">The SurfaceControl to remove and unregister the input channel for.</param>
@@ -2164,11 +2172,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("unregisterTrustedPresentationListener", "(Ljava/util/function/Consumer;)V", "GetUnregisterTrustedPresentationListener_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("unregisterTrustedPresentationListener", "(Ljava/util/function/Consumer;)V", "GetUnregisterTrustedPresentationListener_Ljava_util_function_Consumer_Handler:Android.Views.IWindowManager, Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2177,7 +2185,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="listener">To be added.</param>
