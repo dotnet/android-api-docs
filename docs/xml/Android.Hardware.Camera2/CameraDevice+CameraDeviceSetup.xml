@@ -246,14 +246,24 @@
           <para>Instead, applications should use this method to query whether combinations of
             certain features are supported. <c>CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION</c> provides the list of
             feature combinations the camera device will reliably report.</para>
+          <para>If this function returns <c>true</c> for a particular stream combination, the camera
+            device supports concurrent captures on all of the streams in the same CaptureRequest,
+            with two exceptions below where concurrent captures are not supported:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;Supported stream combinations with exclusive dynamic range profiles as specified by
+            <c>android.hardware.camera2.params.DynamicRangeProfiles#getProfileCaptureRequestConstraints</c>.&lt;/li&gt;
+            &lt;li&gt;Supported combinations of 'default' mode and 'max resolution' mode streams for
+            devices with ULTRA_HIGH_RESOLUTION_SENSOR capability.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>For other cases where concurrent captures of a stream combination are not supported,
+            this function returns <c>false</c>.</para>
           <para>&lt;b&gt;IMPORTANT:&lt;/b&gt;</para>
           <para>&lt;ul&gt;
-            &lt;li&gt;If feature support can be queried via
-            <c>CameraCharacteristics#SCALER_MANDATORY_STREAM_COMBINATIONS</c> or
-            <c>CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP</c>, applications should
-            directly use that route rather than calling this function as: (1) using
-            <c>CameraCharacteristics</c> is more efficient, and (2) calling this function with
-            certain non-supported features will throw a <c>IllegalArgumentException</c>.&lt;/li&gt;
+            &lt;li&gt;If feature support can be queried via <c>CameraCharacteristics</c>, applications
+            should directly use that route rather than calling this function as: (1) using
+            <c>CameraCharacteristics</c> is more efficient, and (2) querying a feature explicitly
+            deemed unsupported by CameraCharacteristics may throw a
+            <c>IllegalArgumentException</c>.&lt;/li&gt;
             
             &lt;li&gt;To minimize <c>SessionConfiguration</c> creation latency due to its dependency on
             output surfaces, the application can call this method before acquiring valid

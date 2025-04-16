@@ -188,7 +188,10 @@
             
             If the incoming call is a video call, the call will be answered with the same video state as
             the incoming call requests.  This means, for example, that an incoming call requesting
-            <c>VideoProfile#STATE_BIDIRECTIONAL</c> will be answered, accepting that state.</para>
+            <c>VideoProfile#STATE_BIDIRECTIONAL</c> will be answered, accepting that state.
+            
+            If the ringing incoming call is self-managed, this method will only accept the call if the
+            caller of this method is privileged (i.e. system, shell, or root) or system UI.</para>
           <para>This member is deprecated. Companion apps for wearable devices should use the <c>InCallService</c> API
             instead.</para>
           <para>
@@ -1597,10 +1600,13 @@
             otherwise.</returns>
         <remarks>
           <para>Ends the foreground call on the device.</para>
-          <para>If there is a ringing call, calling this method rejects the ringing call.  Otherwise the
+          <para>If there is a ringing call, calling this method rejects the ringing call. Otherwise, the
             foreground call is ended.</para>
           <para>Note: this method CANNOT be used to end ongoing emergency calls and will return <c>false</c>
             if an attempt is made to end an emergency call.</para>
+          <para>Note: If the foreground call on this device is self-managed, this method will only end
+            the call if the caller of this method is privileged (i.e. system, shell, or root) or system
+            UI.</para>
           <para>This member is deprecated. Companion apps for wearable devices should use the <c>InCallService</c> API
             instead.  Apps performing call screening should use the <c>CallScreeningService</c> API
             instead.</para>
@@ -1797,11 +1803,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_CALL_LOG_URI", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_CALL_LOG_URI", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -4263,11 +4269,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.Register("getRegisteredPhoneAccounts", "()Ljava/util/List;", "GetGetRegisteredPhoneAccountsHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRegisteredPhoneAccounts", "()Ljava/util/List;", "GetGetRegisteredPhoneAccountsHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>

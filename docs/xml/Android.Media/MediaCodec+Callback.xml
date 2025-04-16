@@ -224,6 +224,71 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="OnMetricsFlushed">
+      <MemberSignature Language="C#" Value="public virtual void OnMetricsFlushed (Android.Media.MediaCodec codec, Android.OS.PersistableBundle metrics);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnMetricsFlushed(class Android.Media.MediaCodec codec, class Android.OS.PersistableBundle metrics) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Media.MediaCodec.Callback.OnMetricsFlushed(Android.Media.MediaCodec,Android.OS.PersistableBundle)" />
+      <MemberSignature Language="F#" Value="abstract member OnMetricsFlushed : Android.Media.MediaCodec * Android.OS.PersistableBundle -&gt; unit&#xA;override this.OnMetricsFlushed : Android.Media.MediaCodec * Android.OS.PersistableBundle -&gt; unit" Usage="callback.OnMetricsFlushed (codec, metrics)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("onMetricsFlushed", "(Landroid/media/MediaCodec;Landroid/os/PersistableBundle;)V", "GetOnMetricsFlushed_Landroid_media_MediaCodec_Landroid_os_PersistableBundle_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onMetricsFlushed", "(Landroid/media/MediaCodec;Landroid/os/PersistableBundle;)V", "GetOnMetricsFlushed_Landroid_media_MediaCodec_Landroid_os_PersistableBundle_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="codec" Type="Android.Media.MediaCodec" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="metrics" Type="Android.OS.PersistableBundle" Index="1" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="codec">The MediaCodec object.</param>
+        <param name="metrics">The flushed metrics for this codec. This is a
+                           <c>PersistableBundle</c> containing the set of
+                           attributes and values available for the media being
+                           handled by this instance of MediaCodec. The attributes
+                           are described in <c>MetricsConstants</c>. Additional
+                           vendor-specific fields may also be present.</param>
+        <summary>Called when the metrics for this codec have been flushed "mid-stream"
+            due to the start of a new subsession during execution.</summary>
+        <remarks>
+          <para>Called when the metrics for this codec have been flushed "mid-stream"
+            due to the start of a new subsession during execution.</para>
+          <para>A new codec subsession normally starts when the codec is reconfigured
+            after stop(), but it can also happen mid-stream e.g. if the video size
+            changes. When this happens, the metrics for the previous subsession
+            are flushed, and <c>MediaCodec#getMetrics</c> will return the metrics
+            for the new subsession.</para>
+          <para>For subsessions that begin due to a reconfiguration, the metrics for
+            the prior subsession can be retrieved via <c>MediaCodec#getMetrics</c>
+            prior to calling <c>#configure</c>.</para>
+          <para>When a new subsession begins "mid-stream", the metrics for the prior
+            subsession are flushed just before the <c>Callback#onOutputFormatChanged</c>
+            event, so this &lt;b&gt;optional&lt;/b&gt; callback is provided to be able to
+            capture the final metrics for the previous subsession.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/MediaCodec.Callback#onMetricsFlushed(android.media.MediaCodec,%20android.os.PersistableBundle)" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.Callback.onMetricsFlushed(android.media.MediaCodec, android.os.PersistableBundle)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="OnOutputBufferAvailable">
       <MemberSignature Language="C#" Value="public abstract void OnOutputBufferAvailable (Android.Media.MediaCodec codec, int index, Android.Media.MediaCodec.BufferInfo info);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnOutputBufferAvailable(class Android.Media.MediaCodec codec, int32 index, class Android.Media.MediaCodec/BufferInfo info) cil managed" />
@@ -269,11 +334,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("onOutputBuffersAvailable", "(Landroid/media/MediaCodec;ILjava/util/ArrayDeque;)V", "GetOnOutputBuffersAvailable_Landroid_media_MediaCodec_ILjava_util_ArrayDeque_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("onOutputBuffersAvailable", "(Landroid/media/MediaCodec;ILjava/util/ArrayDeque;)V", "GetOnOutputBuffersAvailable_Landroid_media_MediaCodec_ILjava_util_ArrayDeque_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -282,9 +347,9 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="codec" Type="Android.Media.MediaCodec" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="index" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="infos" Type="Java.Util.ArrayDeque" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="codec" Type="Android.Media.MediaCodec" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="index" Type="System.Int32" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="infos" Type="Java.Util.ArrayDeque" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="codec">The MediaCodec object.</param>

@@ -382,6 +382,59 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="FrameRateCompatibilityAtLeast">
+      <MemberSignature Language="C#" Value="public const Android.Views.SurfaceFrameRateCompatibility FrameRateCompatibilityAtLeast = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.SurfaceFrameRateCompatibility FrameRateCompatibilityAtLeast = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.Surface.FrameRateCompatibilityAtLeast" />
+      <MemberSignature Language="F#" Value="val mutable FrameRateCompatibilityAtLeast : Android.Views.SurfaceFrameRateCompatibility" Usage="Android.Views.Surface.FrameRateCompatibilityAtLeast" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("FRAME_RATE_COMPATIBILITY_AT_LEAST", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("FRAME_RATE_COMPATIBILITY_AT_LEAST", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.SurfaceFrameRateCompatibility enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.SurfaceFrameRateCompatibility enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Views.SurfaceFrameRateCompatibility</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>The surface requests a frame rate that is at least the specified frame rate.</summary>
+        <remarks>
+          <para>The surface requests a frame rate that is at least the specified frame rate.
+            This value should be used for UIs, animations, scrolling and fling, and anything that is not
+            a game or video.
+            
+            For video, use <c>FRAME_RATE_COMPATIBILITY_FIXED_SOURCE</c> instead. For game content, use
+            <c>FRAME_RATE_COMPATIBILITY_DEFAULT</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/Surface#FRAME_RATE_COMPATIBILITY_AT_LEAST" title="Reference documentation">Java documentation for <code>android.view.Surface.FRAME_RATE_COMPATIBILITY_AT_LEAST</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="FrameRateCompatibilityDefault">
       <MemberSignature Language="C#" Value="public const Android.Views.SurfaceFrameRateCompatibility FrameRateCompatibilityDefault = 0;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Views.SurfaceFrameRateCompatibility FrameRateCompatibilityDefault = (0)" />
@@ -419,7 +472,12 @@
           <para>There are no inherent restrictions on the frame rate of this surface. When the
             system selects a frame rate other than what the app requested, the app will be able
             to run at the system frame rate without requiring pull down. This value should be
-            used when displaying game content, UIs, and anything that isn't video.</para>
+            used when displaying game content, UIs, and anything that isn't video.
+            
+            In Android version <c>Build.VERSION_CODES#BAKLAVA</c> and above, use
+            <c>FRAME_RATE_COMPATIBILITY_DEFAULT</c> for game content.
+            For other cases, see <c>FRAME_RATE_COMPATIBILITY_FIXED_SOURCE</c> and
+            <c>FRAME_RATE_COMPATIBILITY_AT_LEAST</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/Surface#FRAME_RATE_COMPATIBILITY_DEFAULT" title="Reference documentation">Java documentation for <code>android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT</code>.</a>
@@ -1064,9 +1122,13 @@
         <Parameter Name="frameRate" Type="System.Single" />
         <Parameter Name="compatibility" Type="System.Int32">
           <Attributes>
-            <Attribute>
+            <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
               <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource" }, Type="Android.Views.Surface")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource" }, Type="Android.Views.Surface")&gt;]</AttributeName>
+            </Attribute>
+            <Attribute FrameworkAlternate="net-android-36.0">
+              <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource", "FrameRateCompatibilityAtLeast" }, Type="Android.Views.Surface")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource", "FrameRateCompatibilityAtLeast" }, Type="Android.Views.Surface")&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -1118,9 +1180,13 @@
         <Parameter Name="frameRate" Type="System.Single" />
         <Parameter Name="compatibility" Type="System.Int32">
           <Attributes>
-            <Attribute>
+            <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
               <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource" }, Type="Android.Views.Surface")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource" }, Type="Android.Views.Surface")&gt;]</AttributeName>
+            </Attribute>
+            <Attribute FrameworkAlternate="net-android-36.0">
+              <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource", "FrameRateCompatibilityAtLeast" }, Type="Android.Views.Surface")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "FrameRateCompatibilityDefault", "FrameRateCompatibilityFixedSource", "FrameRateCompatibilityAtLeast" }, Type="Android.Views.Surface")&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>

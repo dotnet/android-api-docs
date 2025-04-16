@@ -1,0 +1,557 @@
+<Type Name="AppFunctionManager" FullName="Android.App.AppFunctions.AppFunctionManager">
+  <TypeSignature Language="C#" Value="public sealed class AppFunctionManager : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit AppFunctionManager extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Android.App.AppFunctions.AppFunctionManager" />
+  <TypeSignature Language="F#" Value="type AppFunctionManager = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/app/appfunctions/AppFunctionManager", ApiSince=36, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/appfunctions/AppFunctionManager", ApiSince=36, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>Provides access to App Functions.</summary>
+    <remarks>
+      <para>Provides access to App Functions. App Functions is currently a
+            beta/experimental preview feature.</para>
+      <para>An app function is a piece of functionality that apps expose to the system for cross-app
+            orchestration.
+            
+            &lt;h3&gt;Building App Functions&lt;/h3&gt;</para>
+      <para>Most developers should build app functions through the AppFunctions SDK. This SDK library
+            offers a more convenient and type-safe way to build app functions. The SDK provides predefined
+            function schemas for common use cases and associated data classes for function parameters and
+            return values. Apps only have to implement the provided interfaces. Internally, the SDK converts
+            these data classes into <c>ExecuteAppFunctionRequest#getParameters()</c> and <c>ExecuteAppFunctionResponse#getResultDocument()</c>.
+            
+            &lt;h3&gt;Discovering App Functions&lt;/h3&gt;</para>
+      <para>When there is a package change or the device starts up, the metadata of available functions is
+            indexed on-device by <c>AppSearchManager</c>. AppSearch stores the indexed information as an
+            <c>AppFunctionStaticMetadata</c> document. This document contains the <c>functionIdentifier</c>
+            and the schema information that the app function implements. This allows other apps and the app
+            itself to discover these functions using the AppSearch search APIs. Visibility to this metadata
+            document is based on the packages that have visibility to the app providing the app functions.
+            AppFunction SDK provides a convenient way to achieve this and is the preferred method.
+            
+            &lt;h3&gt;Executing App Functions&lt;/h3&gt;</para>
+      <para>To execute an app function, the caller app can retrieve the <c>functionIdentifier</c> from
+            the <c>AppFunctionStaticMetadata</c> document and use it to build an <c>ExecuteAppFunctionRequest</c>. Then, invoke <c>#executeAppFunction</c> with the request to execute
+            the app function. Callers need the <c>android.permission.EXECUTE_APP_FUNCTIONS</c> permission to
+            execute app functions from other apps. An app can always execute its own app functions and
+            doesn't need these permissions. AppFunction SDK provides a convenient way to achieve this and
+            is the preferred method.
+            
+            &lt;h3&gt;Example&lt;/h3&gt;</para>
+      <para>An assistant app is trying to fulfill the user request "Save XYZ into my note". The assistant
+            app should first list all available app functions as <c>AppFunctionStaticMetadata</c> documents
+            from AppSearch. Then, it should identify an app function that implements the <c>CreateNote</c>
+            schema. Finally, the assistant app can invoke <c>#executeAppFunction</c> with the <c>functionIdentifier</c> of the chosen function.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="AppFunctionStateDefault">
+      <MemberSignature Language="C#" Value="public const Android.App.AppFunctions.AppFunctionState AppFunctionStateDefault = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AppFunctions.AppFunctionState AppFunctionStateDefault = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AppFunctions.AppFunctionManager.AppFunctionStateDefault" />
+      <MemberSignature Language="F#" Value="val mutable AppFunctionStateDefault : Android.App.AppFunctions.AppFunctionState" Usage="Android.App.AppFunctions.AppFunctionManager.AppFunctionStateDefault" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("APP_FUNCTION_STATE_DEFAULT", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("APP_FUNCTION_STATE_DEFAULT", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AppFunctions.AppFunctionState enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AppFunctions.AppFunctionState enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppFunctions.AppFunctionState</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>The default state of the app function.</summary>
+        <remarks>
+          <para>The default state of the app function. Call <c>#setAppFunctionEnabled</c> with this to reset
+            enabled state to the default value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#APP_FUNCTION_STATE_DEFAULT" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.APP_FUNCTION_STATE_DEFAULT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AppFunctionStateDisabled">
+      <MemberSignature Language="C#" Value="public const Android.App.AppFunctions.AppFunctionState AppFunctionStateDisabled = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AppFunctions.AppFunctionState AppFunctionStateDisabled = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AppFunctions.AppFunctionManager.AppFunctionStateDisabled" />
+      <MemberSignature Language="F#" Value="val mutable AppFunctionStateDisabled : Android.App.AppFunctions.AppFunctionState" Usage="Android.App.AppFunctions.AppFunctionManager.AppFunctionStateDisabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("APP_FUNCTION_STATE_DISABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("APP_FUNCTION_STATE_DISABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AppFunctions.AppFunctionState enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AppFunctions.AppFunctionState enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppFunctions.AppFunctionState</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>The app function is disabled.</summary>
+        <remarks>
+          <para>The app function is disabled. To disable an app function, call <c>#setAppFunctionEnabled</c>
+            with this value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#APP_FUNCTION_STATE_DISABLED" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.APP_FUNCTION_STATE_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AppFunctionStateEnabled">
+      <MemberSignature Language="C#" Value="public const Android.App.AppFunctions.AppFunctionState AppFunctionStateEnabled = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.AppFunctions.AppFunctionState AppFunctionStateEnabled = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.AppFunctions.AppFunctionManager.AppFunctionStateEnabled" />
+      <MemberSignature Language="F#" Value="val mutable AppFunctionStateEnabled : Android.App.AppFunctions.AppFunctionState" Usage="Android.App.AppFunctions.AppFunctionManager.AppFunctionStateEnabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("APP_FUNCTION_STATE_ENABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("APP_FUNCTION_STATE_ENABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.AppFunctions.AppFunctionState enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.AppFunctions.AppFunctionState enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppFunctions.AppFunctionState</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>The app function is enabled.</summary>
+        <remarks>
+          <para>The app function is enabled. To enable an app function, call <c>#setAppFunctionEnabled</c>
+            with this value.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#APP_FUNCTION_STATE_ENABLED" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.APP_FUNCTION_STATE_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExecuteAppFunction">
+      <MemberSignature Language="C#" Value="public void ExecuteAppFunction (Android.App.AppFunctions.ExecuteAppFunctionRequest request, Java.Util.Concurrent.IExecutor executor, Android.OS.CancellationSignal cancellationSignal, Android.OS.IOutcomeReceiver callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void ExecuteAppFunction(class Android.App.AppFunctions.ExecuteAppFunctionRequest request, class Java.Util.Concurrent.IExecutor executor, class Android.OS.CancellationSignal cancellationSignal, class Android.OS.IOutcomeReceiver callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppFunctions.AppFunctionManager.ExecuteAppFunction(Android.App.AppFunctions.ExecuteAppFunctionRequest,Java.Util.Concurrent.IExecutor,Android.OS.CancellationSignal,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="member this.ExecuteAppFunction : Android.App.AppFunctions.ExecuteAppFunctionRequest * Java.Util.Concurrent.IExecutor * Android.OS.CancellationSignal * Android.OS.IOutcomeReceiver -&gt; unit" Usage="appFunctionManager.ExecuteAppFunction (request, executor, cancellationSignal, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("executeAppFunction", "(Landroid/app/appfunctions/ExecuteAppFunctionRequest;Ljava/util/concurrent/Executor;Landroid/os/CancellationSignal;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("executeAppFunction", "(Landroid/app/appfunctions/ExecuteAppFunctionRequest;Ljava/util/concurrent/Executor;Landroid/os/CancellationSignal;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.EXECUTE_APP_FUNCTIONS")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.EXECUTE_APP_FUNCTIONS")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="request" Type="Android.App.AppFunctions.ExecuteAppFunctionRequest" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
+        <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
+        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+      </Parameters>
+      <Docs>
+        <param name="request">the request to execute the app function</param>
+        <param name="executor">the executor to run the callback</param>
+        <param name="cancellationSignal">the cancellation signal to cancel the execution.</param>
+        <param name="callback">the callback to receive the function execution result or error.
+                &lt;p&gt;If the calling app does not own the app function or does not have <c>android.permission.EXECUTE_APP_FUNCTIONS</c>, the execution result will contain <c>AppFunctionException.ERROR_DENIED</c>.
+                &lt;p&gt;If the caller only has <c>android.permission.EXECUTE_APP_FUNCTIONS</c>, the execution
+                result will contain <c>AppFunctionException.ERROR_DENIED</c>&lt;p&gt;If the function requested for execution is disabled, then the execution result will
+                contain <c>AppFunctionException.ERROR_DISABLED</c>&lt;p&gt;If the cancellation signal is issued, the operation is cancelled and no response is
+                returned to the caller.</param>
+        <summary>Executes the app function.</summary>
+        <remarks>
+          <para>Executes the app function.</para>
+          <para>Note: Applications can execute functions they define. To execute functions defined in
+            another component, apps would need to have the permission
+            <c>android.permission.EXECUTE_APP_FUNCTIONS</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#executeAppFunction(android.app.appfunctions.ExecuteAppFunctionRequest,%20java.util.concurrent.Executor,%20android.os.CancellationSignal,%20android.os.OutcomeReceiver%3Candroid.app.appfunctions.ExecuteAppFunctionResponse,%20android.app.appfunctions.AppFunctionException%3E)" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.executeAppFunction(android.app.appfunctions.ExecuteAppFunctionRequest, java.util.concurrent.Executor, android.os.CancellationSignal, android.os.OutcomeReceiver&lt;android.app.appfunctions.ExecuteAppFunctionResponse, android.app.appfunctions.AppFunctionException&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsAppFunctionEnabled">
+      <MemberSignature Language="C#" Value="public void IsAppFunctionEnabled (string functionIdentifier, Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void IsAppFunctionEnabled(string functionIdentifier, class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppFunctions.AppFunctionManager.IsAppFunctionEnabled(System.String,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="member this.IsAppFunctionEnabled : string * Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit" Usage="appFunctionManager.IsAppFunctionEnabled (functionIdentifier, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isAppFunctionEnabled", "(Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isAppFunctionEnabled", "(Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="functionIdentifier" Type="System.String" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
+        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+      </Parameters>
+      <Docs>
+        <param name="functionIdentifier">the identifier of the app function to check (unique within the
+                target package) and in most cases, these are automatically generated by the AppFunctions
+                SDK</param>
+        <param name="executor">the executor to run the request</param>
+        <param name="callback">the callback to receive the function enabled check result</param>
+        <summary>Returns a boolean through a callback, indicating whether the app function is enabled.</summary>
+        <remarks>
+          <para>Returns a boolean through a callback, indicating whether the app function is enabled.</para>
+          <para>This method can only check app functions owned by the caller, unlike <c>#isAppFunctionEnabled(String, String, Executor, OutcomeReceiver)</c>, which allows specifying a
+            different target package.</para>
+          <para>If the operation fails, the callback's <c>OutcomeReceiver#onError</c> is called with
+            errors:
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>IllegalArgumentException</c>, if the function is not found or the caller does not
+                  have access to it.
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#isAppFunctionEnabled(java.lang.String,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Boolean,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.isAppFunctionEnabled(java.lang.String, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Boolean, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsAppFunctionEnabled">
+      <MemberSignature Language="C#" Value="public void IsAppFunctionEnabled (string functionIdentifier, string targetPackage, Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void IsAppFunctionEnabled(string functionIdentifier, string targetPackage, class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppFunctions.AppFunctionManager.IsAppFunctionEnabled(System.String,System.String,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="member this.IsAppFunctionEnabled : string * string * Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit" Usage="appFunctionManager.IsAppFunctionEnabled (functionIdentifier, targetPackage, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isAppFunctionEnabled", "(Ljava/lang/String;Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isAppFunctionEnabled", "(Ljava/lang/String;Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.EXECUTE_APP_FUNCTIONS")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.EXECUTE_APP_FUNCTIONS")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="functionIdentifier" Type="System.String" />
+        <Parameter Name="targetPackage" Type="System.String" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
+        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+      </Parameters>
+      <Docs>
+        <param name="functionIdentifier">the identifier of the app function to check (unique within the
+                target package) and in most cases, these are automatically generated by the AppFunctions
+                SDK</param>
+        <param name="targetPackage">the package name of the app function's owner</param>
+        <param name="executor">the executor to run the request</param>
+        <param name="callback">the callback to receive the function enabled check result</param>
+        <summary>Returns a boolean through a callback, indicating whether the app function is enabled.</summary>
+        <remarks>
+          <para>Returns a boolean through a callback, indicating whether the app function is enabled.</para>
+          <para>This method can only check app functions owned by the caller, or those where the caller
+            has visibility to the owner package and holds the
+            <c>Manifest.permission#EXECUTE_APP_FUNCTIONS</c> permission.</para>
+          <para>If the operation fails, the callback's <c>OutcomeReceiver#onError</c> is called with
+            errors:
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>IllegalArgumentException</c>, if the function is not found or the caller does not
+                  have access to it.
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#isAppFunctionEnabled(java.lang.String,%20java.lang.String,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Boolean,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.isAppFunctionEnabled(java.lang.String, java.lang.String, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Boolean, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppFunctions.AppFunctionManager.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.App.AppFunctions.AppFunctionManager.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetAppFunctionEnabled">
+      <MemberSignature Language="C#" Value="public void SetAppFunctionEnabled (string functionIdentifier, Android.App.AppFunctions.AppFunctionState newEnabledState, Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetAppFunctionEnabled(string functionIdentifier, valuetype Android.App.AppFunctions.AppFunctionState newEnabledState, class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppFunctions.AppFunctionManager.SetAppFunctionEnabled(System.String,Android.App.AppFunctions.AppFunctionState,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="member this.SetAppFunctionEnabled : string * Android.App.AppFunctions.AppFunctionState * Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit" Usage="appFunctionManager.SetAppFunctionEnabled (functionIdentifier, newEnabledState, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setAppFunctionEnabled", "(Ljava/lang/String;ILjava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setAppFunctionEnabled", "(Ljava/lang/String;ILjava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="functionIdentifier" Type="System.String" />
+        <Parameter Name="newEnabledState" Type="Android.App.AppFunctions.AppFunctionState">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
+        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+      </Parameters>
+      <Docs>
+        <param name="functionIdentifier">the identifier of the app function to enable (unique within the
+                calling package). In most cases, identifiers are automatically generated by the
+                AppFunctions SDK</param>
+        <param name="newEnabledState">the new state of the app function</param>
+        <param name="executor">the executor to run the callback</param>
+        <param name="callback">the callback to receive the result of the function enablement. The call was
+                successful if no exception was thrown.</param>
+        <summary>Sets the enabled state of the app function owned by the calling package.</summary>
+        <remarks>
+          <para>Sets the enabled state of the app function owned by the calling package.</para>
+          <para>If operation fails, the callback's <c>OutcomeReceiver#onError</c> is called with errors:
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>IllegalArgumentException</c>, if the function is not found or the caller does not
+                  have access to it.
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#setAppFunctionEnabled(java.lang.String,%20int,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.setAppFunctionEnabled(java.lang.String, int, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppFunctions.AppFunctionManager.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.App.AppFunctions.AppFunctionManager.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppFunctions.AppFunctionManager.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.App.AppFunctions.AppFunctionManager.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

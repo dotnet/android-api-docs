@@ -535,6 +535,61 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="OnReserved">
+      <MemberSignature Language="C#" Value="public virtual void OnReserved (Android.Net.NetworkCapabilities networkCapabilities);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnReserved(class Android.Net.NetworkCapabilities networkCapabilities) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.ConnectivityManager.NetworkCallback.OnReserved(Android.Net.NetworkCapabilities)" />
+      <MemberSignature Language="F#" Value="abstract member OnReserved : Android.Net.NetworkCapabilities -&gt; unit&#xA;override this.OnReserved : Android.Net.NetworkCapabilities -&gt; unit" Usage="networkCallback.OnReserved networkCapabilities" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("onReserved", "(Landroid/net/NetworkCapabilities;)V", "GetOnReserved_Landroid_net_NetworkCapabilities_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onReserved", "(Landroid/net/NetworkCapabilities;)V", "GetOnReserved_Landroid_net_NetworkCapabilities_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="networkCapabilities" Type="Android.Net.NetworkCapabilities" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="networkCapabilities">The <c>NetworkCapabilities</c> of the reservation.</param>
+        <summary>Called when a network is reserved.</summary>
+        <remarks>
+          <para>Called when a network is reserved.
+            
+            The reservation includes the <c>NetworkCapabilities</c> that uniquely describe the
+            network that was reserved. the caller communicates this information to hardware or
+            software components on or off-device to instruct them to create a network matching this
+            reservation.
+            
+            <c>#onReserved(NetworkCapabilities)</c> is called at most once and is guaranteed to be
+            called before any other callback unless the reservation is unavailable.
+            
+            Once a reservation is made, the reserved <c>NetworkCapabilities</c> will not be updated,
+            and the reservation remains in place until the reserved network connects or <c>#onUnavailable</c> is called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onReserved(android.net.NetworkCapabilities)" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onReserved(android.net.NetworkCapabilities)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="OnUnavailable">
       <MemberSignature Language="C#" Value="public virtual void OnUnavailable ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnUnavailable() cil managed" />
@@ -560,17 +615,21 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Called if no network is found within the timeout time specified in
-            <c>#requestNetwork(NetworkRequest, NetworkCallback, int)</c> call or if the
-            requested network request cannot be fulfilled (whether or not a timeout was
-            specified).</summary>
+        <summary>If the callback was registered with one of the <c>requestNetwork</c> methods, this will
+            be called if no network is found within the timeout specified in <c>#requestNetwork(NetworkRequest, NetworkCallback, int)</c> call or if the requested network
+            request cannot be fulfilled (whether or not a timeout was specified).</summary>
         <remarks>
-          <para>Called if no network is found within the timeout time specified in
-            <c>#requestNetwork(NetworkRequest, NetworkCallback, int)</c> call or if the
-            requested network request cannot be fulfilled (whether or not a timeout was
-            specified). When this callback is invoked the associated
-            <c>NetworkRequest</c> will have already been removed and released, as if
-            <c>#unregisterNetworkCallback(NetworkCallback)</c> had been called.</para>
+          <para>If the callback was registered with one of the <c>requestNetwork</c> methods, this will
+            be called if no network is found within the timeout specified in <c>#requestNetwork(NetworkRequest, NetworkCallback, int)</c> call or if the requested network
+            request cannot be fulfilled (whether or not a timeout was specified).
+            
+            If the callback was registered when reserving a network, this method indicates that the
+            reservation is removed. It can be called when the reservation is requested, because the
+            system could not satisfy the reservation, or after the reserved network connects.
+            
+            When this callback is invoked the associated <c>NetworkRequest</c> will have already
+            been removed and released, as if <c>#unregisterNetworkCallback(NetworkCallback)</c> had
+            been called.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/ConnectivityManager.NetworkCallback#onUnavailable()" title="Reference documentation">Java documentation for <code>android.net.ConnectivityManager.NetworkCallback.onUnavailable()</code>.</a>

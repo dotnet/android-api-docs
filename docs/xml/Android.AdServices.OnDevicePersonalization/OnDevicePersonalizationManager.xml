@@ -102,40 +102,216 @@
       </Parameters>
       <Docs>
         <param name="service">The <c>ComponentName</c> of the <c>IsolatedService</c>.</param>
-        <param name="params">a <c>PersistableBundle</c> that is passed from the calling app to the
-                <c>IsolatedService</c>. The expected contents of this parameter are defined
-                by the<c>IsolatedService</c>. The platform does not interpret this parameter.</param>
+        <param name="params">a <c>PersistableBundle</c> that is passed from the calling app to the <c>IsolatedService</c>. The expected contents of this parameter are defined by the<c>IsolatedService</c>. The platform does not interpret this parameter.</param>
         <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
-        <param name="receiver">This returns a <c>ExecuteResult</c> object on success or an
-                <c>Exception</c> on failure. If the
-                <c>IsolatedService</c> returned a <c>RenderingConfig</c> to be displayed,
-                <c>ExecuteResult#getSurfacePackageToken()</c> will return a non-null
-                <c>SurfacePackageToken</c>.
-                The <c>SurfacePackageToken</c> object can be used in a subsequent
-                <c>#requestSurfacePackage(SurfacePackageToken, IBinder, int, int, int, Executor,
-                OutcomeReceiver)</c> call to display the result in a view. The returned
-                <c>SurfacePackageToken</c> may be null to indicate that no output is expected to be
-                displayed for this request. If the <c>IsolatedService</c> has returned any output data
-                and the calling app is allowlisted to receive data from this service, the
-                <c>ExecuteResult#getOutputData()</c> will return a non-null byte array.
-            
-                In case of an error, the receiver returns one of the following exceptions:
-                Returns a <c>android.content.pm.PackageManager.NameNotFoundException</c> if the handler
-                package is not installed or does not have a valid ODP manifest.
-                Returns <c>ClassNotFoundException</c> if the handler class is not found.
-                Returns an <c>OnDevicePersonalizationException</c> if execution of the handler fails.</param>
+        <param name="receiver">This returns a <c>ExecuteResult</c> object on success or an <c>Exception</c> on failure. If the <c>IsolatedService</c> returned a <c>RenderingConfig</c>
+                to be displayed, <c>ExecuteResult#getSurfacePackageToken()</c> will return a non-null
+                <c>SurfacePackageToken</c>. The <c>SurfacePackageToken</c> object can be used in a
+                subsequent <c>#requestSurfacePackage(SurfacePackageToken, IBinder, int, int, int,
+                Executor, OutcomeReceiver)</c> call to display the result in a view. The returned <c>SurfacePackageToken</c> may be null to indicate that no output is expected to be displayed
+                for this request. If the <c>IsolatedService</c> has returned any output data and the
+                calling app is allowlisted to receive data from this service, the <c>ExecuteResult#getOutputData()</c> will return a non-null byte array.
+                &lt;p&gt;In case of an error, the receiver returns one of the following exceptions: Returns a
+                <c>android.content.pm.PackageManager.NameNotFoundException</c> if the handler package is
+                not installed or does not have a valid ODP manifest. Returns <c>ClassNotFoundException</c> if the handler class is not found. Returns an <c>OnDevicePersonalizationException</c> if execution of the handler fails.</param>
         <summary>Executes an <c>IsolatedService</c> in the OnDevicePersonalization sandbox.</summary>
         <remarks>
-          <para>Executes an <c>IsolatedService</c> in the OnDevicePersonalization sandbox. The
-            platform binds to the specified <c>IsolatedService</c> in an isolated process
-            and calls <c>IsolatedWorker#onExecute(ExecuteInput, android.os.OutcomeReceiver)</c>
-            with the caller-provided parameters. When the <c>IsolatedService</c> finishes execution,
-            the platform returns tokens that refer to the results from the service to the caller.
-            These tokens can be subsequently used to display results in a
-            <c>android.view.SurfaceView</c> within the calling app.</para>
+          <para>Executes an <c>IsolatedService</c> in the OnDevicePersonalization sandbox. The platform
+            binds to the specified <c>IsolatedService</c> in an isolated process and calls <c>IsolatedWorker#onExecute(ExecuteInput, android.os.OutcomeReceiver)</c> with the caller-provided
+            parameters. When the <c>IsolatedService</c> finishes execution, the platform returns tokens
+            that refer to the results from the service to the caller. These tokens can be subsequently
+            used to display results in a <c>android.view.SurfaceView</c> within the calling app.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/OnDevicePersonalizationManager#execute(android.content.ComponentName,%20android.os.PersistableBundle,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Candroid.adservices.ondevicepersonalization.OnDevicePersonalizationManager.ExecuteResult,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.adservices.ondevicepersonalization.OnDevicePersonalizationManager.execute(android.content.ComponentName, android.os.PersistableBundle, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;android.adservices.ondevicepersonalization.OnDevicePersonalizationManager.ExecuteResult, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExecuteInIsolatedService">
+      <MemberSignature Language="C#" Value="public virtual void ExecuteInIsolatedService (Android.AdServices.OnDevicePersonalization.ExecuteInIsolatedServiceRequest request, Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver receiver);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ExecuteInIsolatedService(class Android.AdServices.OnDevicePersonalization.ExecuteInIsolatedServiceRequest request, class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver receiver) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.ExecuteInIsolatedService(Android.AdServices.OnDevicePersonalization.ExecuteInIsolatedServiceRequest,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="abstract member ExecuteInIsolatedService : Android.AdServices.OnDevicePersonalization.ExecuteInIsolatedServiceRequest * Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit&#xA;override this.ExecuteInIsolatedService : Android.AdServices.OnDevicePersonalization.ExecuteInIsolatedServiceRequest * Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit" Usage="onDevicePersonalizationManager.ExecuteInIsolatedService (request, executor, receiver)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("executeInIsolatedService", "(Landroid/adservices/ondevicepersonalization/ExecuteInIsolatedServiceRequest;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "GetExecuteInIsolatedService_Landroid_adservices_ondevicepersonalization_ExecuteInIsolatedServiceRequest_Ljava_util_concurrent_Executor_Landroid_os_OutcomeReceiver_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("executeInIsolatedService", "(Landroid/adservices/ondevicepersonalization/ExecuteInIsolatedServiceRequest;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "GetExecuteInIsolatedService_Landroid_adservices_ondevicepersonalization_ExecuteInIsolatedServiceRequest_Ljava_util_concurrent_Executor_Landroid_os_OutcomeReceiver_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="request" Type="Android.AdServices.OnDevicePersonalization.ExecuteInIsolatedServiceRequest" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="receiver" Type="Android.OS.IOutcomeReceiver" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="request">the <c>ExecuteInIsolatedServiceRequest</c> request</param>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="receiver">This returns a <c>ExecuteInIsolatedServiceResponse</c> object on success or
+                an <c>Exception</c> on failure. For success case, refer to <c>ExecuteInIsolatedServiceResponse</c>. For error case, the receiver returns an <c>OnDevicePersonalizationException</c> if execution of the handler fails.</param>
+        <summary>Executes an <c>IsolatedService</c> in the OnDevicePersonalization sandbox.</summary>
+        <remarks>
+          <para>Executes an <c>IsolatedService</c> in the OnDevicePersonalization sandbox. The platform
+            binds to the specified <c>IsolatedService</c> in an isolated process and calls <c>IsolatedWorker#onExecute(ExecuteInput, android.os.OutcomeReceiver)</c> with the caller-provided
+            parameters. When the <c>IsolatedService</c> finishes execution, the platform returns tokens
+            that refer to the results from the service to the caller. These tokens can be subsequently
+            used to display results in a <c>android.view.SurfaceView</c> within the calling app.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/OnDevicePersonalizationManager#executeInIsolatedService(android.adservices.ondevicepersonalization.ExecuteInIsolatedServiceRequest,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Candroid.adservices.ondevicepersonalization.ExecuteInIsolatedServiceResponse,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.adservices.ondevicepersonalization.OnDevicePersonalizationManager.executeInIsolatedService(android.adservices.ondevicepersonalization.ExecuteInIsolatedServiceRequest, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;android.adservices.ondevicepersonalization.ExecuteInIsolatedServiceResponse, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FeatureDisabled">
+      <MemberSignature Language="C#" Value="public const Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature FeatureDisabled = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature FeatureDisabled = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.FeatureDisabled" />
+      <MemberSignature Language="F#" Value="val mutable FeatureDisabled : Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature" Usage="Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.FeatureDisabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("FEATURE_DISABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("FEATURE_DISABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Indicates that a feature is present but disabled on the device.</summary>
+        <remarks>
+          <para>Indicates that a feature is present but disabled on the device.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/OnDevicePersonalizationManager#FEATURE_DISABLED" title="Reference documentation">Java documentation for <code>android.adservices.ondevicepersonalization.OnDevicePersonalizationManager.FEATURE_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FeatureEnabled">
+      <MemberSignature Language="C#" Value="public const Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature FeatureEnabled = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature FeatureEnabled = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.FeatureEnabled" />
+      <MemberSignature Language="F#" Value="val mutable FeatureEnabled : Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature" Usage="Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.FeatureEnabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("FEATURE_ENABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("FEATURE_ENABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Indicates that a feature is present and enabled on the device.</summary>
+        <remarks>
+          <para>Indicates that a feature is present and enabled on the device.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/OnDevicePersonalizationManager#FEATURE_ENABLED" title="Reference documentation">Java documentation for <code>android.adservices.ondevicepersonalization.OnDevicePersonalizationManager.FEATURE_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FeatureUnsupported">
+      <MemberSignature Language="C#" Value="public const Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature FeatureUnsupported = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature FeatureUnsupported = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.FeatureUnsupported" />
+      <MemberSignature Language="F#" Value="val mutable FeatureUnsupported : Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature" Usage="Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.FeatureUnsupported" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("FEATURE_UNSUPPORTED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("FEATURE_UNSUPPORTED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationFeature</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Indicates that a feature is not supported on the device.</summary>
+        <remarks>
+          <para>Indicates that a feature is not supported on the device.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/OnDevicePersonalizationManager#FEATURE_UNSUPPORTED" title="Reference documentation">Java documentation for <code>android.adservices.ondevicepersonalization.OnDevicePersonalizationManager.FEATURE_UNSUPPORTED</code>.</a>
             </format>
           </para>
           <para>
@@ -173,6 +349,56 @@
         <summary>To be added.</summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="QueryFeatureAvailability">
+      <MemberSignature Language="C#" Value="public virtual void QueryFeatureAvailability (string featureName, Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver receiver);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void QueryFeatureAvailability(string featureName, class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver receiver) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.AdServices.OnDevicePersonalization.OnDevicePersonalizationManager.QueryFeatureAvailability(System.String,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="abstract member QueryFeatureAvailability : string * Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit&#xA;override this.QueryFeatureAvailability : string * Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit" Usage="onDevicePersonalizationManager.QueryFeatureAvailability (featureName, executor, receiver)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("queryFeatureAvailability", "(Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "GetQueryFeatureAvailability_Ljava_lang_String_Ljava_util_concurrent_Executor_Landroid_os_OutcomeReceiver_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("queryFeatureAvailability", "(Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "GetQueryFeatureAvailability_Ljava_lang_String_Ljava_util_concurrent_Executor_Landroid_os_OutcomeReceiver_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="featureName" Type="System.String" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="receiver" Type="Android.OS.IOutcomeReceiver" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="featureName">the name of the specific feature to check the availability of.</param>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback</param>
+        <param name="receiver">this either returns a value of <c>FeatureStatus</c>
+                            on success or <c>Exception</c> on failure.  The exception type is
+                            <c>IllegalStateException</c> if the service is not available.</param>
+        <summary>Get the status of a specific OnDevicePersonalization feature.</summary>
+        <remarks>
+          <para>Get the status of a specific OnDevicePersonalization feature.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/OnDevicePersonalizationManager#queryFeatureAvailability(java.lang.String,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Integer,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.adservices.ondevicepersonalization.OnDevicePersonalizationManager.queryFeatureAvailability(java.lang.String, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Integer, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestSurfacePackage">

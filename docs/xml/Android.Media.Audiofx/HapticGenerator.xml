@@ -54,6 +54,19 @@
       <para>See <c>android.media.MediaPlayer#getAudioSessionId()</c> for details on audio sessions.</para>
       <para>See <c>android.media.audiofx.AudioEffect</c> class for more details on controlling audio
             effects.</para>
+      <code lang="text/java">{@code
+            AudioManager audioManager = context.getSystemService(AudioManager.class);
+            player = MediaPlayer.create(
+                    context,
+                    audioUri,
+                    new AudioAttributes.Builder().setHapticChannelsMuted(false).build(),
+                    audioManager.generateAudioSessionId()
+            );
+            if (HapticGenerator.isAvailable()) {
+                HapticGenerator.create(player.getAudioSessionId()).setEnabled(true);
+            }
+            player.start();
+            }</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/media/audiofx/HapticGenerator" title="Reference documentation">Java documentation for <code>android.media.audiofx.HapticGenerator</code>.</a>

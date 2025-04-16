@@ -830,11 +830,16 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the reason <c>JobService#onStopJob(JobParameters)</c> was called on this job.</summary>
         <value>The reason <c>JobService#onStopJob(JobParameters)</c> was called on this job. Will
             be <c>#STOP_REASON_UNDEFINED</c> if <c>JobService#onStopJob(JobParameters)</c> has not
             yet been called.</value>
         <remarks>
+          <para>Returns the reason <c>JobService#onStopJob(JobParameters)</c> was called on this job.</para>
+          <para>Apps should not rely on the stop reason for critical decision-making, as additional stop
+            reasons may be added in subsequent Android releases. The primary intended use of this method
+            is for logging and diagnostic purposes to gain insights into the causes of job termination.</para>
+          <para />
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/job/JobParameters#getStopReason()" title="Reference documentation">Java documentation for <code>android.app.job.JobParameters.getStopReason()</code>.</a>
@@ -1522,6 +1527,66 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/job/JobParameters#STOP_REASON_TIMEOUT" title="Reference documentation">Java documentation for <code>android.app.job.JobParameters.STOP_REASON_TIMEOUT</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="StopReasonTimeoutAbandoned">
+      <MemberSignature Language="C#" Value="public const Android.App.Job.StopReason StopReasonTimeoutAbandoned = 16;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Job.StopReason StopReasonTimeoutAbandoned = (16)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Job.JobParameters.StopReasonTimeoutAbandoned" />
+      <MemberSignature Language="F#" Value="val mutable StopReasonTimeoutAbandoned : Android.App.Job.StopReason" Usage="Android.App.Job.JobParameters.StopReasonTimeoutAbandoned" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("STOP_REASON_TIMEOUT_ABANDONED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("STOP_REASON_TIMEOUT_ABANDONED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Job.StopReason enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Job.StopReason enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Job.StopReason</ReturnType>
+      </ReturnValue>
+      <MemberValue>16</MemberValue>
+      <Docs>
+        <summary>The job used up its maximum execution time and timed out.</summary>
+        <remarks>
+          <para>The job used up its maximum execution time and timed out. The system also detected that the
+            app can no longer call <c>JobService#jobFinished(JobParameters, boolean)</c> for this job,
+            likely because the strong reference to the job handle (<c>JobParameters</c>) passed to it
+            via <c>JobService#onStartJob(JobParameters)</c> was lost. This can occur even if the app
+            called <c>JobScheduler#cancel(int)</c>, <c>JobScheduler#cancelAll()</c>, or
+            <c>JobScheduler#cancelInAllNamespaces()</c> to stop an active job while losing strong
+            references to the job handle. In this case, the job is not necessarily abandoned. However,
+            the system cannot distinguish such cases from truly abandoned jobs.</para>
+          <para>It is recommended that you use <c>JobService#jobFinished(JobParameters, boolean)</c> or
+            return false from <c>JobService#onStartJob(JobParameters)</c> to stop an active job. This
+            will prevent the occurrence of this stop reason and the need to handle it. The primary use
+            case for this stop reason is to report a probable case of a job being abandoned.</para>
+          <para />
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/job/JobParameters#STOP_REASON_TIMEOUT_ABANDONED" title="Reference documentation">Java documentation for <code>android.app.job.JobParameters.STOP_REASON_TIMEOUT_ABANDONED</code>.</a>
             </format>
           </para>
           <para>

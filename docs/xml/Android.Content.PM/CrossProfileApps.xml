@@ -205,8 +205,8 @@
           <para>If <c>true</c>, the navigation intent can be obtained via <c>#createRequestInteractAcrossProfilesIntent()</c>. The package can then listen to <c>#ACTION_CAN_INTERACT_ACROSS_PROFILES_CHANGED</c> broadcasts.</para>
           <para>Specifically, returns whether the following are all true:
             &lt;ul&gt;
-            &lt;li&gt;<c>UserManager#getEnabledProfileIds(int)</c> returns at least one other profile for the
-            calling user.&lt;/li&gt;
+            &lt;li&gt;<c>UserManager#getProfileIdsExcludingHidden(int)</c> returns at least one other
+            profile for the calling user.&lt;/li&gt;
             &lt;li&gt;The calling app has requested
             <c>android.Manifest.permission.INTERACT_ACROSS_PROFILES</c> in its manifest.&lt;/li&gt;
             &lt;li&gt;The calling app is not a profile owner within the profile group of the calling user.&lt;/li&gt;
@@ -437,11 +437,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("isManagedProfile", "(Landroid/os/UserHandle;)Z", "GetIsManagedProfile_Landroid_os_UserHandle_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("isManagedProfile", "(Landroid/os/UserHandle;)Z", "GetIsManagedProfile_Landroid_os_UserHandle_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -450,7 +450,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="userHandle" Type="Android.OS.UserHandle" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="userHandle" Type="Android.OS.UserHandle" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="userHandle">The UserHandle of the target profile, must be one of the users returned by
@@ -484,11 +484,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("isProfile", "(Landroid/os/UserHandle;)Z", "GetIsProfile_Landroid_os_UserHandle_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("isProfile", "(Landroid/os/UserHandle;)Z", "GetIsProfile_Landroid_os_UserHandle_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -497,7 +497,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="userHandle" Type="Android.OS.UserHandle" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="userHandle" Type="Android.OS.UserHandle" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="userHandle">The UserHandle of the target profile, must be one of the users returned by
@@ -846,6 +846,7 @@
             &lt;li&gt;It is not equal to the calling user&lt;/li&gt;
             &lt;li&gt;It is in the same profile group of calling user profile&lt;/li&gt;
             &lt;li&gt;It is enabled&lt;/li&gt;
+            &lt;li&gt;It is not hidden (ex. profile type <c>UserManager#USER_TYPE_PROFILE_PRIVATE</c>)&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>
             <format type="text/html">

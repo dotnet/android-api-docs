@@ -116,20 +116,14 @@
             Thread#getContextClassLoader() thread context class loader.
             In addition, if a <c>SecurityManager</c> is present, then
             the common pool uses a factory supplying threads that have no
-            <c>Permissions</c> enabled.
+            <c>Permissions</c> enabled, and are not guaranteed to preserve
+            the values of <c>java.lang.ThreadLocal</c> variables across tasks.
             
             Upon any error in establishing these settings, default parameters
             are used. It is possible to disable or limit the use of threads in
             the common pool by setting the parallelism property to zero, and/or
             using a factory that may return <c>null</c>. However doing so may
             cause unjoined tasks to never be executed.</para>
-      <para>&lt;b&gt;Implementation notes:&lt;/b&gt; This implementation restricts the
-            maximum number of running threads to 32767. Attempts to create
-            pools with greater than the maximum number result in
-            <c>IllegalArgumentException</c>.</para>
-      <para>This implementation rejects submitted tasks (that is, by throwing
-            <c>RejectedExecutionException</c>) only when the pool is shut down
-            or internal resources have been exhausted.</para>
       <para>Added in 1.7.</para>
       <para>
         <format type="text/html">
@@ -527,6 +521,60 @@
 </exception>
       </Docs>
     </Member>
+    <Member MemberName="Close">
+      <MemberSignature Language="C#" Value="public virtual void Close ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Close() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.ForkJoinPool.Close" />
+      <MemberSignature Language="F#" Value="abstract member Close : unit -&gt; unit&#xA;override this.Close : unit -&gt; unit" Usage="forkJoinPool.Close " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("close", "()V", "GetCloseHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("close", "()V", "GetCloseHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Unless this is the <c>#commonPool()</c>, initiates an orderly
+            shutdown in which previously submitted tasks are executed, but
+            no new tasks will be accepted, and waits until all tasks have
+            completed execution and the executor has terminated.</summary>
+        <remarks>
+          <para>Unless this is the <c>#commonPool()</c>, initiates an orderly
+            shutdown in which previously submitted tasks are executed, but
+            no new tasks will be accepted, and waits until all tasks have
+            completed execution and the executor has terminated.</para>
+          <para>If already terminated, or this is the <c>#commonPool()</c>, this method has no effect on execution, and
+            does not wait. Otherwise, if interrupted while waiting, this
+            method stops all executing tasks as if by invoking <c>#shutdownNow()</c>. It then continues to wait until all actively
+            executing tasks have completed. Tasks that were awaiting
+            execution are not executed. The interrupt status will be
+            re-asserted before this method returns.</para>
+          <para>Added in 19.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#close()" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.close()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="CommonPool">
       <MemberSignature Language="C#" Value="public static Java.Util.Concurrent.ForkJoinPool? CommonPool ();" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.Concurrent.ForkJoinPool CommonPool() cil managed" />
@@ -789,6 +837,60 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#execute(java.util.concurrent.ForkJoinTask%3C?%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.execute(java.util.concurrent.ForkJoinTask&lt;?&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExternalSubmit">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.Concurrent.ForkJoinTask? ExternalSubmit (Java.Util.Concurrent.ForkJoinTask? task);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.Concurrent.ForkJoinTask ExternalSubmit(class Java.Util.Concurrent.ForkJoinTask task) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.ForkJoinPool.ExternalSubmit(Java.Util.Concurrent.ForkJoinTask)" />
+      <MemberSignature Language="F#" Value="abstract member ExternalSubmit : Java.Util.Concurrent.ForkJoinTask -&gt; Java.Util.Concurrent.ForkJoinTask&#xA;override this.ExternalSubmit : Java.Util.Concurrent.ForkJoinTask -&gt; Java.Util.Concurrent.ForkJoinTask" Usage="forkJoinPool.ExternalSubmit task" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("externalSubmit", "(Ljava/util/concurrent/ForkJoinTask;)Ljava/util/concurrent/ForkJoinTask;", "GetExternalSubmit_Ljava_util_concurrent_ForkJoinTask_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("externalSubmit", "(Ljava/util/concurrent/ForkJoinTask;)Ljava/util/concurrent/ForkJoinTask;", "GetExternalSubmit_Ljava_util_concurrent_ForkJoinTask_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Concurrent.ForkJoinTask</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="task" Type="Java.Util.Concurrent.ForkJoinTask" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="task">the task to submit</param>
+        <param name="&lt;T&gt;&lt;T&gt;">the type of the task's result</param>
+        <summary>Submits the given task as if submitted from a non-<c>ForkJoinTask</c>
+            client.</summary>
+        <returns>the task</returns>
+        <remarks>
+          <para>Submits the given task as if submitted from a non-<c>ForkJoinTask</c>
+            client. The task is added to a scheduling queue for submissions to the
+            pool even when called from a thread in the pool.</para>
+          <para>Added in 20.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#externalSubmit(java.util.concurrent.ForkJoinTask%3CT%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.externalSubmit(java.util.concurrent.ForkJoinTask&lt;T&gt;)</code>.</a>
             </format>
           </para>
           <para>
@@ -1130,6 +1232,63 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="LazySubmit">
+      <MemberSignature Language="C#" Value="public virtual Java.Util.Concurrent.ForkJoinTask? LazySubmit (Java.Util.Concurrent.ForkJoinTask? task);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Java.Util.Concurrent.ForkJoinTask LazySubmit(class Java.Util.Concurrent.ForkJoinTask task) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.ForkJoinPool.LazySubmit(Java.Util.Concurrent.ForkJoinTask)" />
+      <MemberSignature Language="F#" Value="abstract member LazySubmit : Java.Util.Concurrent.ForkJoinTask -&gt; Java.Util.Concurrent.ForkJoinTask&#xA;override this.LazySubmit : Java.Util.Concurrent.ForkJoinTask -&gt; Java.Util.Concurrent.ForkJoinTask" Usage="forkJoinPool.LazySubmit task" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("lazySubmit", "(Ljava/util/concurrent/ForkJoinTask;)Ljava/util/concurrent/ForkJoinTask;", "GetLazySubmit_Ljava_util_concurrent_ForkJoinTask_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("lazySubmit", "(Ljava/util/concurrent/ForkJoinTask;)Ljava/util/concurrent/ForkJoinTask;", "GetLazySubmit_Ljava_util_concurrent_ForkJoinTask_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "T" })]</AttributeName>
+          <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T" })&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Concurrent.ForkJoinTask</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="task" Type="Java.Util.Concurrent.ForkJoinTask" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="task">the task</param>
+        <param name="&lt;T&gt;&lt;T&gt;">the type of the task's result</param>
+        <summary>Submits the given task without guaranteeing that it will
+            eventually execute in the absence of available active threads.</summary>
+        <returns>the task</returns>
+        <remarks>
+          <para>Submits the given task without guaranteeing that it will
+            eventually execute in the absence of available active threads.
+            In some contexts, this method may reduce contention and
+            overhead by relying on context-specific knowledge that existing
+            threads (possibly including the calling thread if operating in
+            this pool) will eventually be available to execute the task.</para>
+          <para>Added in 19.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#lazySubmit(java.util.concurrent.ForkJoinTask%3CT%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.lazySubmit(java.util.concurrent.ForkJoinTask&lt;T&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ManagedBlock">
       <MemberSignature Language="C#" Value="public static void ManagedBlock (Java.Util.Concurrent.ForkJoinPool.IManagedBlocker? blocker);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig void ManagedBlock(class Java.Util.Concurrent.ForkJoinPool/IManagedBlocker blocker) cil managed" />
@@ -1406,6 +1565,56 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#getRunningThreadCount()" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.getRunningThreadCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetParallelism">
+      <MemberSignature Language="C#" Value="public virtual int SetParallelism (int size);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 SetParallelism(int32 size) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Concurrent.ForkJoinPool.SetParallelism(System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member SetParallelism : int -&gt; int&#xA;override this.SetParallelism : int -&gt; int" Usage="forkJoinPool.SetParallelism size" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setParallelism", "(I)I", "GetSetParallelism_IHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setParallelism", "(I)I", "GetSetParallelism_IHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="size" Type="System.Int32" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="size">the target parallelism level</param>
+        <summary>Changes the target parallelism of this pool, controlling the
+            future creation, use, and termination of worker threads.</summary>
+        <returns>the previous parallelism level.</returns>
+        <remarks>
+          <para>Changes the target parallelism of this pool, controlling the
+            future creation, use, and termination of worker threads.
+            Applications include contexts in which the number of available
+            processors changes over time.</para>
+          <para>Added in 19.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#setParallelism(int)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.setParallelism(int)</code>.</a>
             </format>
           </para>
           <para>

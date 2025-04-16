@@ -25,9 +25,9 @@
     <summary>X509TrustManager wrapper exposing Android-added features.</summary>
     <remarks>
       <para>X509TrustManager wrapper exposing Android-added features.</para>
-      <para>The checkServerTrusted method allows callers to perform additional
-            verification of certificate chains after they have been successfully verified
-            by the platform.</para>
+      <para>The checkServerTrusted methods allow callers to provide some additional
+            context for the verification. This is particularly useful when an SSLEngine
+            or SSLSocket is not available.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/net/http/X509TrustManagerExtensions" title="Reference documentation">Java documentation for <code>android.net.http.X509TrustManagerExtensions</code>.</a>
@@ -166,6 +166,80 @@
         </remarks>
         <since version="Added in API level 17" />
         <exception cref="T:Java.Security.Cert.CertificateException">if the chain does not verify correctly.</exception>
+      </Docs>
+    </Member>
+    <Member MemberName="CheckServerTrusted">
+      <MemberSignature Language="C#" Value="public virtual System.Collections.Generic.IList&lt;Java.Security.Cert.X509Certificate&gt; CheckServerTrusted (Java.Security.Cert.X509Certificate[] chain, byte[]? ocspData, byte[]? tlsSctData, string authType, string host);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class System.Collections.Generic.IList`1&lt;class Java.Security.Cert.X509Certificate&gt; CheckServerTrusted(class Java.Security.Cert.X509Certificate[] chain, unsigned int8[] ocspData, unsigned int8[] tlsSctData, string authType, string host) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Net.Http.X509TrustManagerExtensions.CheckServerTrusted(Java.Security.Cert.X509Certificate[],System.Byte[],System.Byte[],System.String,System.String)" />
+      <MemberSignature Language="F#" Value="abstract member CheckServerTrusted : Java.Security.Cert.X509Certificate[] * byte[] * byte[] * string * string -&gt; System.Collections.Generic.IList&lt;Java.Security.Cert.X509Certificate&gt;&#xA;override this.CheckServerTrusted : Java.Security.Cert.X509Certificate[] * byte[] * byte[] * string * string -&gt; System.Collections.Generic.IList&lt;Java.Security.Cert.X509Certificate&gt;" Usage="x509TrustManagerExtensions.CheckServerTrusted (chain, ocspData, tlsSctData, authType, host)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("checkServerTrusted", "([Ljava/security/cert/X509Certificate;[B[BLjava/lang/String;Ljava/lang/String;)Ljava/util/List;", "GetCheckServerTrusted_arrayLjava_security_cert_X509Certificate_arrayBarrayBLjava_lang_String_Ljava_lang_String_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("checkServerTrusted", "([Ljava/security/cert/X509Certificate;[B[BLjava/lang/String;Ljava/lang/String;)Ljava/util/List;", "GetCheckServerTrusted_arrayLjava_security_cert_X509Certificate_arrayBarrayBLjava_lang_String_Ljava_lang_String_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IList&lt;Java.Security.Cert.X509Certificate&gt;</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="chain" Type="Java.Security.Cert.X509Certificate[]" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="ocspData" Type="System.Byte[]" Index="1" FrameworkAlternate="net-android-36.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="tlsSctData" Type="System.Byte[]" Index="2" FrameworkAlternate="net-android-36.0">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="authType" Type="System.String" Index="3" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="host" Type="System.String" Index="4" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="chain">To be added.</param>
+        <param name="ocspData">To be added.</param>
+        <param name="tlsSctData">To be added.</param>
+        <param name="authType">To be added.</param>
+        <param name="host">To be added.</param>
+        <summary>Verifies the given certificate chain.</summary>
+        <returns>the properly ordered chain used for verification as a list of X509Certificates.</returns>
+        <remarks>
+          <para>Verifies the given certificate chain.</para>
+          <para>See <c>X509TrustManager#checkServerTrusted(X509Certificate[], String)</c> for a
+            description of the chain and authType parameters. The final parameter, host, should be the
+            hostname of the server.</para>
+          <para>ocspData and tlsSctData may be provided to verify any Signed Certificate Timestamp (SCT)
+            attached to the connection. These are ASN.1 octet strings (SignedCertificateTimestampList)
+            as described in RFC 6962, Section 3.3. Note that SCTs embedded in the certificate chain
+            will automatically be processed.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/net/http/X509TrustManagerExtensions#checkServerTrusted(java.security.cert.X509Certificate[],%20byte[],%20byte[],%20java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.http.X509TrustManagerExtensions.checkServerTrusted(java.security.cert.X509Certificate[], byte[], byte[], java.lang.String, java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsSameTrustConfiguration">

@@ -1634,16 +1634,30 @@
             mandatory stream combinations
             <c>android.hardware.camera2.params.MandatoryStreamCombination</c> are better suited for this
             purpose.</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt;
-            For apps targeting <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> and above,
+          <para>If this function returns <c>true</c> for a particular stream combination, the camera
+            device supports concurrent captures on all of the streams in the same CaptureRequest, with
+            two exceptions below where concurrent captures are not supported:</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;Supported stream combinations with exclusive dynamic range profiles as specified by
+            <c>android.hardware.camera2.params.DynamicRangeProfiles#getProfileCaptureRequestConstraints</c>.&lt;/li&gt;
+            &lt;li&gt;Supported combinations of 'default' mode and 'max resolution' mode streams for devices
+            with ULTRA_HIGH_RESOLUTION_SENSOR capability.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>For other cases where concurrent captures of a stream combination are not supported,
+            this function returns <c>false</c>.</para>
+          <para>&lt;b&gt;NOTE:&lt;/b&gt;</para>
+          <para>&lt;ul&gt;
+            &lt;li&gt;For apps targeting <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> and above,
             this method will automatically delegate to
             <c>CameraDeviceSetup#isSessionConfigurationSupported</c> whenever possible. This
             means that the output of this method will consider parameters set through
-            <c>SessionConfiguration#setSessionParameters</c> as well.</para>
-          <para>Session Parameters will be ignored for apps targeting &lt;=
+            <c>SessionConfiguration#setSessionParameters</c> as well.&lt;/li&gt;
+            
+            &lt;li&gt;Session Parameters will be ignored for apps targeting &lt;=
             <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, or if
             <c>CameraManager#isCameraDeviceSetupSupported</c> returns false for the camera id
-            associated with this <c>CameraDevice</c>.</para>
+            associated with this <c>CameraDevice</c>.&lt;/li&gt;
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraDevice.isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration)</code>.</a>

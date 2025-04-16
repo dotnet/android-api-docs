@@ -104,6 +104,68 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="CommitBlob">
+      <MemberSignature Language="C#" Value="public void CommitBlob (System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; handles, Java.Util.Concurrent.IExecutor executor, Java.Util.Functions.IConsumer callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void CommitBlob(class System.Collections.Generic.ICollection`1&lt;class Android.App.AppSearch.AppSearchBlobHandle&gt; handles, class Java.Util.Concurrent.IExecutor executor, class Java.Util.Functions.IConsumer callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.AppSearchSession.CommitBlob(System.Collections.Generic.ICollection{Android.App.AppSearch.AppSearchBlobHandle},Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />
+      <MemberSignature Language="F#" Value="member this.CommitBlob : System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; * Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit" Usage="appSearchSession.CommitBlob (handles, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("commitBlob", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("commitBlob", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="handles" Type="System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt;" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="handles">The <c>AppSearchBlobHandle</c>s that identifies the blobs.</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the <c>CommitBlobResponse</c>.</param>
+        <summary>Commits the blobs to make it retrievable and immutable.</summary>
+        <remarks>
+          <para>Commits the blobs to make it retrievable and immutable.</para>
+          <para>After this call, the blob is readable via <c>#openBlobForRead</c>. Any change to the
+            content or rewrite via <c>#openBlobForWrite</c> of this blob won't be allowed.</para>
+          <para>If the blob is already stored in AppSearch and committed. A failed <c>AppSearchResult</c>
+            with error code <c>AppSearchResult#RESULT_ALREADY_EXISTS</c> will be associated with the
+            <c>AppSearchBlobHandle</c>.</para>
+          <para>If the blob content doesn't match the digest in <c>AppSearchBlobHandle</c>, a failed
+            <c>AppSearchResult</c> with error code <c>AppSearchResult#RESULT_INVALID_ARGUMENT</c> will
+            be associated with the <c>AppSearchBlobHandle</c>. The pending Blob file will be removed
+            from AppSearch.</para>
+          <para>Pending blobs won't be lost or auto-commit if <c>AppSearchSession</c> closed. Pending
+            blobs will store in disk rather than memory. You can re-open <c>AppSearchSession</c> and
+            re-write the pending blobs.</para>
+          <para>The default time to recycle pending and orphan blobs is 1 week. A blob will be considered
+            as an orphan if no <c>GenericDocument</c> references it.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchSession#commitBlob(java.util.Set%3Candroid.app.appsearch.AppSearchBlobHandle%3E,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.CommitBlobResponse%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchSession.commitBlob(java.util.Set&lt;android.app.appsearch.AppSearchBlobHandle&gt;, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.CommitBlobResponse&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetByDocumentId">
       <MemberSignature Language="C#" Value="public void GetByDocumentId (Android.App.AppSearch.GetByDocumentIdRequest request, Java.Util.Concurrent.IExecutor executor, Android.App.AppSearch.IBatchResultCallback callback);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void GetByDocumentId(class Android.App.AppSearch.GetByDocumentIdRequest request, class Java.Util.Concurrent.IExecutor executor, class Android.App.AppSearch.IBatchResultCallback callback) cil managed" />
@@ -136,12 +198,11 @@
         <param name="request">a request containing a namespace and IDs to get documents for.</param>
         <param name="executor">Executor on which to invoke the callback.</param>
         <param name="callback">Callback to receive the pending result of performing this operation. The keys
-                of the returned <c>AppSearchBatchResult</c> are the input IDs. The values are the
-                returned <c>GenericDocument</c>s on success, or a failed <c>AppSearchResult</c>
-                otherwise. IDs that are not found will return a failed <c>AppSearchResult</c> with a
-                result code of <c>AppSearchResult#RESULT_NOT_FOUND</c>. If an unexpected internal error
-                occurs in the AppSearch service, <c>BatchResultCallback#onSystemError</c> will be
-                invoked with a <c>Throwable</c>.</param>
+                of the <c>AppSearchBatchResult</c> represent the input document IDs from the <c>GetByDocumentIdRequest</c> object. The values are either the corresponding <c>GenericDocument</c> object for the ID on success, or an <c>AppSearchResult</c> object on
+                failure. For example, if an ID is not found, the value for that ID will be set to an
+                <c>AppSearchResult</c> object with result code: <c>AppSearchResult#RESULT_NOT_FOUND</c>. If an unexpected internal error occurs in the
+                AppSearch service, <c>BatchResultCallback#onSystemError</c> will be invoked with a
+                <c>Throwable</c>.</param>
         <summary>Gets <c>GenericDocument</c> objects by document IDs in a namespace from the <c>AppSearchSession</c> database.</summary>
         <remarks>
           <para>Gets <c>GenericDocument</c> objects by document IDs in a namespace from the <c>AppSearchSession</c> database.</para>
@@ -330,6 +391,124 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="OpenBlobForRead">
+      <MemberSignature Language="C#" Value="public void OpenBlobForRead (System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; handles, Java.Util.Concurrent.IExecutor executor, Java.Util.Functions.IConsumer callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void OpenBlobForRead(class System.Collections.Generic.ICollection`1&lt;class Android.App.AppSearch.AppSearchBlobHandle&gt; handles, class Java.Util.Concurrent.IExecutor executor, class Java.Util.Functions.IConsumer callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.AppSearchSession.OpenBlobForRead(System.Collections.Generic.ICollection{Android.App.AppSearch.AppSearchBlobHandle},Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />
+      <MemberSignature Language="F#" Value="member this.OpenBlobForRead : System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; * Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit" Usage="appSearchSession.OpenBlobForRead (handles, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("openBlobForRead", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("openBlobForRead", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="handles" Type="System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt;" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="handles">The <c>AppSearchBlobHandle</c>s that identifies the blobs.</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the <c>OpenBlobForReadResponse</c>.</param>
+        <summary>Opens a batch of AppSearch Blobs for reading.</summary>
+        <remarks>
+          <para>Opens a batch of AppSearch Blobs for reading.</para>
+          <para>Only blobs committed via <c>#commitBlob</c> are available for reading.</para>
+          <para>The returned <c>OpenBlobForReadResponse</c> must be closed after use to
+            avoid resource leaks. Failing to close it will result in system file descriptor exhaustion.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchSession#openBlobForRead(java.util.Set%3Candroid.app.appsearch.AppSearchBlobHandle%3E,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.OpenBlobForReadResponse%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchSession.openBlobForRead(java.util.Set&lt;android.app.appsearch.AppSearchBlobHandle&gt;, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.OpenBlobForReadResponse&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OpenBlobForWrite">
+      <MemberSignature Language="C#" Value="public void OpenBlobForWrite (System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; handles, Java.Util.Concurrent.IExecutor executor, Java.Util.Functions.IConsumer callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void OpenBlobForWrite(class System.Collections.Generic.ICollection`1&lt;class Android.App.AppSearch.AppSearchBlobHandle&gt; handles, class Java.Util.Concurrent.IExecutor executor, class Java.Util.Functions.IConsumer callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.AppSearchSession.OpenBlobForWrite(System.Collections.Generic.ICollection{Android.App.AppSearch.AppSearchBlobHandle},Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />
+      <MemberSignature Language="F#" Value="member this.OpenBlobForWrite : System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; * Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit" Usage="appSearchSession.OpenBlobForWrite (handles, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("openBlobForWrite", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("openBlobForWrite", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="handles" Type="System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt;" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="handles">The <c>AppSearchBlobHandle</c>s that identifies the blobs.</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the <c>OpenBlobForWriteResponse</c>.</param>
+        <summary>Opens a batch of AppSearch Blobs for writing.</summary>
+        <remarks>
+          <para>Opens a batch of AppSearch Blobs for writing.</para>
+          <para>A "blob" is a large binary object. It is used to store a significant amount of data that
+            is not searchable, such as images, videos, audio files, or other binary data. Unlike other
+            fields in AppSearch, blobs are stored as blob files on disk rather than in memory, and use
+            <c>android.os.ParcelFileDescriptor</c> to read and write. This allows for efficient handling
+            of large, non-searchable content.</para>
+          <para>Once done writing, call <c>#commitBlob</c> to commit blob files.</para>
+          <para>This call will create a empty blob file for each given <c>AppSearchBlobHandle</c>, and a
+            <c>android.os.ParcelFileDescriptor</c> of that blob file will be returned in the <c>OpenBlobForWriteResponse</c>.</para>
+          <para>If the blob file is already stored in AppSearch and committed. A failed <c>AppSearchResult</c> with error code <c>AppSearchResult#RESULT_ALREADY_EXISTS</c> will be
+            associated with the <c>AppSearchBlobHandle</c>.</para>
+          <para>If the blob file is already stored in AppSearch but not committed. A <c>android.os.ParcelFileDescriptor</c> of that blob file will be returned for continue writing.</para>
+          <para>For given duplicate <c>AppSearchBlobHandle</c>, the same <c>android.os.ParcelFileDescriptor</c> pointing to the same blob file will be returned.</para>
+          <para>Pending blob files won't be lost or auto-commit if <c>AppSearchSession</c> closed.
+            Pending blob files will be stored in disk rather than memory. You can re-open <c>AppSearchSession</c> and re-write the pending blob files.</para>
+          <para>A committed blob file will be considered as an orphan if no <c>GenericDocument</c>
+            references it. Uncommitted pending blob files and orphan blobs files will be cleaned up if
+            they has been created for an extended period (default is 1 week).</para>
+          <para>The returned <c>OpenBlobForWriteResponse</c> must be closed after use to
+            avoid resource leaks. Failing to close it will result in system file descriptor exhaustion.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchSession#openBlobForWrite(java.util.Set%3Candroid.app.appsearch.AppSearchBlobHandle%3E,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.OpenBlobForWriteResponse%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchSession.openBlobForWrite(java.util.Set&lt;android.app.appsearch.AppSearchBlobHandle&gt;, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.OpenBlobForWriteResponse&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Put">
       <MemberSignature Language="C#" Value="public void Put (Android.App.AppSearch.PutDocumentsRequest request, Java.Util.Concurrent.IExecutor executor, Android.App.AppSearch.IBatchResultCallback callback);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Put(class Android.App.AppSearch.PutDocumentsRequest request, class Java.Util.Concurrent.IExecutor executor, class Android.App.AppSearch.IBatchResultCallback callback) cil managed" />
@@ -363,8 +542,10 @@
         <param name="executor">Executor on which to invoke the callback.</param>
         <param name="callback">Callback to receive pending result of performing this operation. The keys of
                 the returned <c>AppSearchBatchResult</c> are the IDs of the input documents. The values
-                are <c>null</c> if they were successfully indexed, or a failed <c>AppSearchResult</c>
-                otherwise. If an unexpected internal error occurs in the AppSearch service, <c>BatchResultCallback#onSystemError</c> will be invoked with a <c>Throwable</c>.</param>
+                are either <c>null</c> if the corresponding document was successfully indexed, or a
+                failed <c>AppSearchResult</c> otherwise. If an unexpected internal error occurs in the
+                AppSearch service, <c>BatchResultCallback#onSystemError</c> will be invoked with a
+                <c>Throwable</c>.</param>
         <summary>Indexes documents into the <c>AppSearchSession</c> database.</summary>
         <remarks>
           <para>Indexes documents into the <c>AppSearchSession</c> database.</para>
@@ -417,11 +598,10 @@
                 index.</param>
         <param name="executor">Executor on which to invoke the callback.</param>
         <param name="callback">Callback to receive the pending result of performing this operation. The keys
-                of the returned <c>AppSearchBatchResult</c> are the input document IDs. The values are
-                <c>null</c> on success, or a failed <c>AppSearchResult</c> otherwise. IDs that are not
-                found will return a failed <c>AppSearchResult</c> with a result code of <c>AppSearchResult#RESULT_NOT_FOUND</c>. If an unexpected internal error occurs in the
-                AppSearch service, <c>BatchResultCallback#onSystemError</c> will be invoked with a
-                <c>Throwable</c>.</param>
+                of the returned <c>AppSearchBatchResult</c> represent the input IDs from the <c>RemoveByDocumentIdRequest</c> object. The values are either <c>null</c> on success, or a
+                failed <c>AppSearchResult</c> otherwise. IDs that are not found will return a failed
+                <c>AppSearchResult</c> with a result code of <c>AppSearchResult#RESULT_NOT_FOUND</c>.
+                If an unexpected internal error occurs in the AppSearch service, <c>BatchResultCallback#onSystemError</c> will be invoked with a <c>Throwable</c>..</param>
         <summary>Removes <c>GenericDocument</c> objects by document IDs in a namespace from the <c>AppSearchSession</c> database.</summary>
         <remarks>
           <para>Removes <c>GenericDocument</c> objects by document IDs in a namespace from the <c>AppSearchSession</c> database.</para>
@@ -488,6 +668,64 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchSession#remove(java.lang.String,%20android.app.appsearch.SearchSpec,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Cjava.lang.Void%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchSession.remove(java.lang.String, android.app.appsearch.SearchSpec, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;java.lang.Void&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveBlob">
+      <MemberSignature Language="C#" Value="public void RemoveBlob (System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; handles, Java.Util.Concurrent.IExecutor executor, Java.Util.Functions.IConsumer callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveBlob(class System.Collections.Generic.ICollection`1&lt;class Android.App.AppSearch.AppSearchBlobHandle&gt; handles, class Java.Util.Concurrent.IExecutor executor, class Java.Util.Functions.IConsumer callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.AppSearchSession.RemoveBlob(System.Collections.Generic.ICollection{Android.App.AppSearch.AppSearchBlobHandle},Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />
+      <MemberSignature Language="F#" Value="member this.RemoveBlob : System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; * Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit" Usage="appSearchSession.RemoveBlob (handles, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("removeBlob", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeBlob", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="handles" Type="System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt;" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="handles">The <c>AppSearchBlobHandle</c>s that identifies the blobs.</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the <c>CommitBlobResponse</c>.</param>
+        <summary>Removes the blob data from AppSearch.</summary>
+        <remarks>
+          <para>Removes the blob data from AppSearch.</para>
+          <para>After this call, the blob data is removed immediately and cannot be recovered. It will not
+            accessible via <c>#openBlobForRead</c>. <c>#openBlobForWrite</c> could reopen and rewrite
+            it.</para>
+          <para>This API can be used to remove pending blob data and committed blob data.</para>
+          <para>Removing a committed blob data that is still referenced by documents will
+            leave those documents with no readable blob content. It is highly recommended to let
+            AppSearch control the blob data's life cycle. AppSearch automatically recycles orphaned and
+            pending blob data. The default time to recycle pending and orphan blob file is 1 week. A blob
+            file will be considered as an orphan if no <c>GenericDocument</c> references it. If you want
+            to remove a committed blob data, you should remove the reference documents first.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchSession#removeBlob(java.util.Set%3Candroid.app.appsearch.AppSearchBlobHandle%3E,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.RemoveBlobResponse%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchSession.removeBlob(java.util.Set&lt;android.app.appsearch.AppSearchBlobHandle&gt;, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.RemoveBlobResponse&gt;&gt;)</code>.</a>
             </format>
           </para>
           <para>
@@ -629,8 +867,8 @@
           <para>Example: "subject:important" matches documents that contain the term "important" in
                   the "subject" property.
             &lt;/ul&gt;</para>
-          <para>The above description covers the basic query operators. Additional advanced query operator
-            features should be explicitly enabled in the SearchSpec and are described below.</para>
+          <para>The above description covers the query operators that are supported on all versions of
+            AppSearch. Additional operators and their required features are described below.</para>
           <para>LIST_FILTER_QUERY_LANGUAGE: This feature covers the expansion of the query language to
             conform to the definition of the list filters language (https://aip.dev/160). This includes:
             
@@ -643,7 +881,7 @@
             
             &lt;ul&gt;
               &lt;li&gt;createList(String...)
-              &lt;li&gt;search(String, List&amp;lt;String&amp;gt;)
+              &lt;li&gt;search(String, <c>List&lt;String&gt;</c>)
               &lt;li&gt;propertyDefined(String)
             &lt;/ul&gt;</para>
           <para>createList takes a variable number of strings and returns a list of strings. It is for use
@@ -652,12 +890,12 @@
             and an optional list of strings that specify the properties to be restricted to. This exists
             as a convenience for multiple property restricts. So, for example, the query `(subject:foo OR
             body:foo) (subject:bar OR body:bar)` could be rewritten as `search("foo bar",
-            createList("subject", "bar"))`.</para>
+            createList("subject", "body"))`.</para>
           <para>propertyDefined takes a string specifying the property of interest and matches all
             documents of any type that defines the specified property (ex.
             `propertyDefined("sender.name")`). Note that propertyDefined will match so long as the
-            document's type defines the specified property. It does NOT require that the document
-            actually hold any values for this property.</para>
+            document's type defines the specified property. Unlike the "hasProperty" function below, this
+            function does NOT require that the document actually hold any values for this property.</para>
           <para>NUMERIC_SEARCH: This feature covers numeric search expressions. In the query language, the
             values of properties that have <c>AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE</c>
             set can be matched with a numeric search expression (the property, a supported comparator and
@@ -666,6 +904,71 @@
             that is less than 10.</para>
           <para>VERBATIM_SEARCH: This feature covers the verbatim string operator (quotation marks).</para>
           <para>Ex. `"foo/bar" OR baz` will ensure that 'foo/bar' is treated as a single 'verbatim' token.</para>
+          <para>LIST_FILTER_HAS_PROPERTY_FUNCTION: This feature covers the "hasProperty" function in query
+            expressions, which takes a string specifying the property of interest and matches all
+            documents that hold values for this property. Not to be confused with the "propertyDefined"
+            function, which checks whether a document's schema has defined the property, instead of
+            whether a document itself has this property.</para>
+          <para>Ex. `foo hasProperty("sender.name")` will return all documents that have the term "foo"
+            AND have values in the property "sender.name". Consider two documents, documentA and
+            documentB, of the same schema with an optional property "sender.name". If documentA sets
+            "foo" in this property but documentB does not, then `hasProperty("sender.name")` will only
+            match documentA. However, `propertyDefined("sender.name")` will match both documentA and
+            documentB, regardless of whether a value is actually set.</para>
+          <para>LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION: This feature covers the
+            "matchScoreExpression" function in query expressions.</para>
+          <para>Usage: matchScoreExpression({score_expression}, {low}, {high})
+            
+            &lt;ul&gt;
+              &lt;li&gt;matchScoreExpression matches all documents with scores falling within the specified
+                  range. These scores are calculated using the provided score expression, which adheres
+                  to the syntax defined in <c>SearchSpec.Builder#setRankingStrategy(String)</c>.
+              &lt;li&gt;"score_expression" is a string value that specifies the score expression.
+              &lt;li&gt;"low" and "high" are floating point numbers that specify the score range. The "high"
+                  parameter is optional; if not provided, it defaults to positive infinity.
+            &lt;/ul&gt;</para>
+          <para>Ex. `matchScoreExpression("this.documentScore()", 3, 4)` will return all documents that
+            have document scores from 3 to 4.</para>
+          <para>SCHEMA_EMBEDDING_PROPERTY_CONFIG: This feature covers the "semanticSearch" and
+            "getEmbeddingParameter" functions in query expressions, which are used for semantic search.</para>
+          <para>Usage: semanticSearch(getEmbeddingParameter({embedding_index}), {low}, {high}, {metric})
+            
+            &lt;ul&gt;
+              &lt;li&gt;semanticSearch matches all documents that have at least one embedding vector with a
+                  matching model signature (see <c>EmbeddingVector#getModelSignature()</c>) and a
+                  similarity score within the range specified based on the provided metric.
+              &lt;li&gt;getEmbeddingParameter({embedding_index}) retrieves the embedding search passed in
+                  <c>SearchSpec.Builder#addEmbeddingParameters</c> based on the index specified, which
+                  starts from 0.
+              &lt;li&gt;"low" and "high" are floating point numbers that specify the similarity score range. If
+                  omitted, they default to negative and positive infinity, respectively.
+              &lt;li&gt;"metric" is a string value that specifies how embedding similarities should be
+                  calculated. If omitted, it defaults to the metric specified in <c>SearchSpec.Builder#setDefaultEmbeddingSearchMetricType(int)</c>. Possible values:
+                  &lt;ul&gt;
+                    &lt;li&gt;"COSINE"
+                    &lt;li&gt;"DOT_PRODUCT"
+                    &lt;li&gt;"EUCLIDEAN"
+                  &lt;/ul&gt;
+            &lt;/ul&gt;</para>
+          <para>Examples:
+            
+            &lt;ul&gt;
+              &lt;li&gt;Basic: semanticSearch(getEmbeddingParameter(0), 0.5, 1, "COSINE")
+              &lt;li&gt;With a property restriction: property1:semanticSearch(getEmbeddingParameter(0), 0.5, 1)
+              &lt;li&gt;Hybrid: foo OR semanticSearch(getEmbeddingParameter(0), 0.5, 1)
+              &lt;li&gt;Complex: (foo OR semanticSearch(getEmbeddingParameter(0), 0.5, 1)) AND bar
+            &lt;/ul&gt;</para>
+          <para>SEARCH_SPEC_SEARCH_STRING_PARAMETERS: This feature covers the "getSearchStringParameter"
+            function in query expressions, which substitutes the string provided at the same index in
+            <c>SearchSpec.Builder#addSearchStringParameters</c> into the query as plain text. This
+            string is then segmented, normalized and stripped of punctuation-only segments. The remaining
+            tokens are then AND'd together. This function is useful for callers who wish to provide user
+            input, but want to ensure that that user input does not invoke any query operators.</para>
+          <para>Usage: getSearchStringParameter({search_parameter_strings_index})</para>
+          <para>Ex. `foo OR getSearchStringParameter(0)` with <c>SearchSpec#getSearchStringParameters</c>
+            returning {"bar OR baz."}. The string "bar OR baz." will be segmented into "bar", "OR",
+            "baz", ".". Punctuation is removed and the segments are normalized to "bar", "or", "baz".
+            This query will be equivalent to `foo OR (bar AND or AND baz)`.</para>
           <para>Additional search specifications, such as filtering by <c>AppSearchSchema</c> type or
             adding projection, can be set by calling the corresponding <c>SearchSpec.Builder</c> setter.</para>
           <para>This method is lightweight. The heavy work will be done in <c>SearchResults#getNextPage</c>.</para>
@@ -771,6 +1074,58 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="SetBlobVisibility">
+      <MemberSignature Language="C#" Value="public void SetBlobVisibility (Android.App.AppSearch.SetBlobVisibilityRequest request, Java.Util.Concurrent.IExecutor executor, Java.Util.Functions.IConsumer callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetBlobVisibility(class Android.App.AppSearch.SetBlobVisibilityRequest request, class Java.Util.Concurrent.IExecutor executor, class Java.Util.Functions.IConsumer callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.AppSearchSession.SetBlobVisibility(Android.App.AppSearch.SetBlobVisibilityRequest,Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />
+      <MemberSignature Language="F#" Value="member this.SetBlobVisibility : Android.App.AppSearch.SetBlobVisibilityRequest * Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit" Usage="appSearchSession.SetBlobVisibility (request, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("setBlobVisibility", "(Landroid/app/appsearch/SetBlobVisibilityRequest;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setBlobVisibility", "(Landroid/app/appsearch/SetBlobVisibilityRequest;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="request" Type="Android.App.AppSearch.SetBlobVisibilityRequest" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="request">The request holds visibility settings for all blob namespaces</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the pending result of performing this operation which
+                resolves to <c>null</c> on success.</param>
+        <summary>Sets the visibility configuration for all blob namespaces within an appsearch database.</summary>
+        <remarks>
+          <para>Sets the visibility configuration for all blob namespaces within an appsearch database.</para>
+          <para>Blobs under the same namespace will share same visibility settings.</para>
+          <para>The default setting is blobs will be only visible to the owner package and System. To
+            configure other kinds of sharing, set <c>SchemaVisibilityConfig</c> via <c>SetBlobVisibilityRequest</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/AppSearchSession#setBlobVisibility(android.app.appsearch.SetBlobVisibilityRequest,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Cjava.lang.Void%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.AppSearchSession.setBlobVisibility(android.app.appsearch.SetBlobVisibilityRequest, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;java.lang.Void&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="SetSchema">
       <MemberSignature Language="C#" Value="public void SetSchema (Android.App.AppSearch.SetSchemaRequest request, Java.Util.Concurrent.IExecutor workExecutor, Java.Util.Concurrent.IExecutor callbackExecutor, Java.Util.Functions.IConsumer callback);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetSchema(class Android.App.AppSearch.SetSchemaRequest request, class Java.Util.Concurrent.IExecutor workExecutor, class Java.Util.Concurrent.IExecutor callbackExecutor, class Java.Util.Functions.IConsumer callback) cil managed" />
@@ -805,8 +1160,7 @@
         <param name="workExecutor">Executor on which to schedule heavy client-side background work such as
                 transforming documents.</param>
         <param name="callbackExecutor">Executor on which to invoke the callback.</param>
-        <param name="callback">Callback to receive errors resulting from setting the schema. If the
-                operation succeeds, the callback will be invoked with <c>null</c>.</param>
+        <param name="callback">Callback to receive the result of setting the schema.</param>
         <summary>Sets the schema that represents the organizational structure of data within the AppSearch
             database.</summary>
         <remarks>

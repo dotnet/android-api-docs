@@ -709,7 +709,7 @@
              picture size or configuration mid-stream. To do this you must package the entire new
              codec-specific configuration data together with the key frame into a single buffer (including
              any start codes), and submit it as a &lt;strong&gt;regular&lt;/strong&gt; input buffer.</para>
-      <para>You will receive an <c>#INFO_OUTPUT_FORMAT_CHANGED</c> return value from <c>#dequeueOutputBuffer dequeueOutputBuffer</c> or a <c>Callback#onOutputBufferAvailable
+      <para>You will receive an <c>#INFO_OUTPUT_FORMAT_CHANGED</c> return value from <c>#dequeueOutputBuffer dequeueOutputBuffer</c> or a <c>Callback#onOutputFormatChanged
              onOutputFormatChanged</c> callback just after the picture-size change takes place and before any
              frames with the new size have been returned.</para>
       <para>&lt;strong&gt;Note:&lt;/strong&gt; just as the case for codec-specific data, be careful when calling
@@ -2001,15 +2001,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("CONFIGURE_FLAG_DETACHED_SURFACE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONFIGURE_FLAG_DETACHED_SURFACE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaCodecConfigFlags enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.MediaCodecConfigFlags enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2650,11 +2650,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("detachOutputSurface", "()V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("detachOutputSurface", "()V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -3566,9 +3566,16 @@
             The attributes are descibed in <c>MetricsConstants</c>.
             
             Additional vendor-specific fields may also be present in
-            the return value.</value>
+            the return value. Returns null if there is no Metrics data.</value>
         <remarks>
           <para>Return Metrics data about the current codec instance.</para>
+          <para>Call this method after configuration, during execution, or after
+            the codec has been already stopped.</para>
+          <para>Beginning with <c>android.os.Build.VERSION_CODES#B</c>
+            this method can be used to get the Metrics data prior to an error.
+            (e.g. in <c>Callback#onError</c> or after a method throws
+            <c>MediaCodec.CodecException</c>.) Before that, the Metrics data was
+            cleared on error, resulting in a null return value.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaCodec#getMetrics()" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.getMetrics()</code>.</a>
@@ -3850,11 +3857,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_MAP", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_MAP", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -3878,9 +3885,9 @@
             positive offsets will result in encoding blocks at higher QP than frame QP. If the areas
             of negative QP and positive QP are chosen wisely, the overall viewing experience can be
             improved.</para>
-          <para>If byte array size is too small than the expected size, components may ignore the
-            configuration silently. If the byte array exceeds the expected size, components shall use
-            the initial portion and ignore the rest.</para>
+          <para>If byte array size is smaller than the expected size, components will ignore the
+            configuration and print an error message. If the byte array exceeds the expected size,
+            components will use the initial portion and ignore the rest.</para>
           <para>The scope of this key is throughout the encoding session until it is reconfigured during
             running state.</para>
           <para />
@@ -3908,11 +3915,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_RECTS", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PARAMETER_KEY_QP_OFFSET_RECTS", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -3925,7 +3932,8 @@
         <remarks>
           <para>Set the region of interest as QpOffset-Rects on the next queued input frame.</para>
           <para>The associated value is a String in the format "Top1,Left1-Bottom1,Right1=Offset1;Top2,
-            Left2-Bottom2,Right2=Offset2;...". Co-ordinates (Top, Left), (Top, Right), (Bottom, Left)
+            Left2-Bottom2,Right2=Offset2;...". If the configuration doesn't follow this pattern,
+            it will be ignored. Co-ordinates (Top, Left), (Top, Right), (Bottom, Left)
             and (Bottom, Right) form the vertices of bounding box of region of interest in pixels.
             Pixel (0, 0) points to the top-left corner of the frame. Offset is the suggested
             quantization parameter (QP) offset of the blocks in the bounding box. The bounding box
@@ -3936,9 +3944,10 @@
             positive offsets will result in blocks encoded at higher QP than frame QP. If the areas of
             negative QP and positive QP are chosen wisely, the overall viewing experience can be
             improved.</para>
-          <para>If Roi rect is not valid that is bounding box width is &lt; 0 or bounding box height is &lt; 0,
-            components may ignore the configuration silently. If Roi rect extends outside frame
-            boundaries, then rect shall be clamped to the frame boundaries.</para>
+          <para>If roi (region of interest) rect is outside the frame boundaries, that is, left &lt; 0 or
+            top &lt; 0 or right &gt; width or bottom &gt; height, then rect shall be clamped to the frame
+            boundaries. If roi rect is not valid, that is left &gt; right or top &gt; bottom, then the
+            parameter setting is ignored.</para>
           <para>The scope of this key is throughout the encoding session until it is reconfigured during
             running state.</para>
           <para>The maximum number of contours (rectangles) that can be specified for a given input frame
@@ -4298,11 +4307,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("queueInputBuffers", "(ILjava/util/ArrayDeque;)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("queueInputBuffers", "(ILjava/util/ArrayDeque;)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -4311,8 +4320,8 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="bufferInfos" Type="Java.Util.ArrayDeque" Index="1" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="bufferInfos" Type="Java.Util.ArrayDeque" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="index">The index of a client-owned input buffer previously returned
@@ -4434,11 +4443,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("queueSecureInputBuffers", "(ILjava/util/ArrayDeque;Ljava/util/ArrayDeque;)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("queueSecureInputBuffers", "(ILjava/util/ArrayDeque;Ljava/util/ArrayDeque;)V", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -4447,9 +4456,9 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="bufferInfos" Type="Java.Util.ArrayDeque" Index="1" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="cryptoInfos" Type="Java.Util.ArrayDeque" Index="2" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="index" Type="System.Int32" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="bufferInfos" Type="Java.Util.ArrayDeque" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="cryptoInfos" Type="Java.Util.ArrayDeque" Index="2" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="index">The index of a client-owned input buffer previously returned

@@ -37,8 +37,11 @@
     <remarks>
       <para>The root interface in the <i>collection hierarchy</i>.  A collection
             represents a group of objects, known as its <i>elements</i>.  Some
-            collections allow duplicate elements and others do not.  Some are ordered
-            and others unordered.  The JDK does not provide any <i>direct</i>
+            collections allow duplicate elements and others do not.  Some are ordered,
+            and others are unordered. Collections that have a defined
+            encounter order
+            are generally subtypes of the <c>SequencedCollection</c> interface.
+            The JDK does not provide any <i>direct</i>
             implementations of this interface: it provides implementations of more
             specific subinterfaces like <c>Set</c> and <c>List</c>.  This interface
             is typically used to pass collections around and manipulate them where
@@ -118,8 +121,9 @@
             Other examples of view collections include collections that provide a
             different representation of the same elements, for example, as
             provided by <c>List#subList List.subList</c>,
-            <c>NavigableSet#subSet NavigableSet.subSet</c>, or
-            <c>Map#entrySet Map.entrySet</c>.
+            <c>NavigableSet#subSet NavigableSet.subSet</c>,
+            <c>Map#entrySet Map.entrySet</c>, or
+            <c>SequencedCollection#reversed SequencedCollection.reversed</c>.
             Any changes made to the backing collection are visible in the view collection.
             Correspondingly, any changes made to the view collection &amp;mdash; if changes
             are permitted &amp;mdash; are written through to the backing collection.
@@ -192,7 +196,8 @@
             serializability of such collections is described in the specification of the method
             that creates them, or in some other suitable place. In cases where the serializability
             of a collection is not specified, there is no guarantee about the serializability of such
-            collections. In particular, many view collections are not serializable.</para>
+            collections. In particular, many view collections are not serializable,
+            even if the original collection is serializable.</para>
       <para>A collection implementation that implements the <c>Serializable</c> interface cannot
             be guaranteed to be serializable. The reason is that in general, collections
             contain elements of other types, and it is not possible to determine statically
@@ -317,7 +322,9 @@
             the specified collection is modified while the operation is in progress.
             (This implies that the behavior of this call is undefined if the
             specified collection is this collection, and this collection is
-            nonempty.)</para>
+            nonempty.) If the specified collection has a defined
+            encounter order,
+            processing of its elements generally occurs in that order.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/Collection#addAll(java.util.Collection%3C?%20extends%20E%3E)" title="Reference documentation">Java documentation for <code>java.util.Collection.addAll(java.util.Collection&lt;? extends E&gt;)</code>.</a>

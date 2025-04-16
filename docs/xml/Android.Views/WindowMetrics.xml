@@ -180,10 +180,13 @@
         <remarks>
           <para>Returns the bounds of the area associated with this window or <c>UiContext</c>.</para>
           <para>&lt;b&gt;Note that the size of the reported bounds can have different size than
-            <c>Display#getSize(Point)</c>.&lt;/b&gt; This method reports the window size including all system
-            bar areas, while <c>Display#getSize(Point)</c> reports the area excluding navigation bars
-            and display cutout areas. The value reported by <c>Display#getSize(Point)</c> can be
-            obtained by using:</para>
+            <c>Display#getSize(Point)</c> based on your target API level and calling context.&lt;/b&gt;
+            This method reports the window size including all system
+            bar areas, while <c>Display#getSize(Point)</c> can report the area excluding navigation bars
+            and display cutout areas depending on the calling context and target SDK level. Please refer
+            to <c>Display#getSize(Point)</c> for details.</para>
+          <para>The following code snippet shows how to get the bounds excluding navigation bars and display
+            cutout:</para>
           <code lang="text/java">final WindowMetrics metrics = windowManager.getCurrentWindowMetrics();
             // Gets all excluding insets
             final WindowInsets windowInsets = metrics.getWindowInsets();
