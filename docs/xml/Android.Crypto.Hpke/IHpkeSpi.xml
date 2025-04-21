@@ -154,13 +154,16 @@
         <param name="senderKey">public key of sender, for asymmetric auth modes only, else null</param>
         <param name="psk">pre-shared key, for PSK auth modes only, else null</param>
         <param name="psk_id">pre-shared key ID, for PSK auth modes only, else null</param>
-        <summary>Initialises an HPKE SPI in one of the sender modes described in RFC 9180.</summary>
+        <summary>Initialises an HPKE SPI in one of the recipient modes described in RFC 9180.</summary>
         <remarks>
-          <para>Initialises an HPKE SPI in one of the sender modes described in RFC 9180.</para>
+          <para>Initialises an HPKE SPI in one of the recipient modes described in RFC 9180.</para>
+          <para>If <c>senderKey</c> is supplied then Asymmetric Key Authentication will be used,
+            (MODE_AUTH)</para>
           <para>If <c>psk</c> and <c>psk_id</c> are supplied then Pre-Shared Key Authentication
-            will be used.</para>
-          <para>If <c>senderKey</c> is supplied then Asymmetric Key Authentication will be used.</para>
-          <para>If neither is supplied then "base" mode (no sender authentication) will be used.</para>
+            will be used (MODE_PSK).</para>
+          <para>If all of <c>senderKey</c>, <c>psk</c> and <c>psk_id</c> are supplied then both
+            Key and PSK authentication will be used (MODE_AUTH_PSK).</para>
+          <para>If neither is supplied then no sender authentication will be used (MODE_BASE).</para>
           <para>Note that only base mode is currently supported on Android.</para>
           <para>Public and private keys must be supplied in a format that can be used by the
             implementation.  An instance of the <c>"XDH"</c><c>java.security.KeyFactory</c> can
@@ -224,10 +227,13 @@
         <summary>Initialises an HPKE SPI in one of the sender modes described in RFC 9180.</summary>
         <remarks>
           <para>Initialises an HPKE SPI in one of the sender modes described in RFC 9180.</para>
+          <para>If <c>senderKey</c> is supplied then Asymmetric Key Authentication will be used,
+            (MODE_AUTH)</para>
           <para>If <c>psk</c> and <c>psk_id</c> are supplied then Pre-Shared Key Authentication
-            will be used.</para>
-          <para>If <c>senderKey</c> is supplied then Asymmetric Key Authentication will be used.</para>
-          <para>If neither is supplied then "base" mode (no sender authentication) will be used.</para>
+            will be used (MODE_PSK).</para>
+          <para>If all of <c>senderKey</c>, <c>psk</c> and <c>psk_id</c> are supplied then both
+            Key and PSK authentication will be used (MODE_AUTH_PSK).</para>
+          <para>If neither is supplied then no sender authentication will be used (MODE_BASE).</para>
           <para>Note that only base mode is currently supported on Android.</para>
           <para>Public and private keys must be supplied in a format that can be used by the
             implementation.  An instance of the <c>"XDH"</c><c>java.security.KeyFactory</c> can
@@ -296,7 +302,7 @@
         <param name="senderKey">private key of the sender, for symmetric auth modes only, else null</param>
         <param name="psk">pre-shared key, for PSK auth modes only, else null</param>
         <param name="psk_id">pre-shared key ID, for PSK auth modes only, else null</param>
-        <param name="sKe">Predetermined random seed, should only be usesd  for validation against
+        <param name="sKe">Predetermined random seed, should only be used for validation against
                        known test vectors</param>
         <summary>Initialises an HPKE SPI in one of the sender modes described in RFC 9180 with
             a predefined random seed to allow testing against known test vectors.</summary>
@@ -305,10 +311,13 @@
             a predefined random seed to allow testing against known test vectors.</para>
           <para>This mode provides absolutely no security and should only be used for testing
             purposes.</para>
+          <para>If <c>senderKey</c> is supplied then Asymmetric Key Authentication will be used,
+            (MODE_AUTH)</para>
           <para>If <c>psk</c> and <c>psk_id</c> are supplied then Pre-Shared Key Authentication
-            will be used.</para>
-          <para>If <c>senderKey</c> is supplied then Asymmetric Key Authentication will be used.</para>
-          <para>If neither is supplied then "base" mode (no sender authentication) will be used.</para>
+            will be used (MODE_PSK).</para>
+          <para>If all of <c>senderKey</c>, <c>psk</c> and <c>psk_id</c> are supplied then both
+            Key and PSK authentication will be used (MODE_AUTH_PSK).</para>
+          <para>If neither is supplied then no sender authentication will be used (MODE_BASE).</para>
           <para>Note that only base mode is currently supported on Android.</para>
           <para>Public and private keys must be supplied in a format that can be used by the
             implementation.  An instance of the <c>"XDH"</c><c>java.security.KeyFactory</c> can

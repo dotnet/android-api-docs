@@ -47,10 +47,11 @@
             &lt;/service&gt;
             }</code>
       <para>If the companion application has requested observing device presence (see
-            <c>CompanionDeviceManager#startObservingDevicePresence(String)</c>) the system will
-            <see href="https://developer.android.com/guide/components/bound-services"> bind the service</see>
-            when it detects the device nearby (for BLE devices) or when the device is connected
-            (for Bluetooth devices).</para>
+            <c>CompanionDeviceManager#stopObservingDevicePresence(ObservingDevicePresenceRequest)</c>)
+            the system will <see href="https://developer.android.com/guide/components/bound-services">
+            bind the service</see> when one of the <c>DevicePresenceEvent#EVENT_BLE_APPEARED</c>,
+            <c>DevicePresenceEvent#EVENT_BT_CONNECTED</c>,
+            <c>DevicePresenceEvent#EVENT_SELF_MANAGED_APPEARED</c> event is notified.</para>
       <para>The system binding <c>CompanionDeviceService</c> elevates the priority of the process that
             the service is running in, and thus may prevent
             <see href="https://developer.android.com/topic/performance/memory-management#low-memory_killer">
@@ -337,6 +338,10 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -346,9 +351,10 @@
       </Parameters>
       <Docs>
         <param name="associationInfo">A record for the companion device.</param>
-        <summary>Called by system whenever a device associated with this app is connected.</summary>
+        <summary>Called by the system when an associated device is nearby or connected.</summary>
         <remarks>
-          <para>Called by system whenever a device associated with this app is connected.</para>
+          <para>Called by the system when an associated device is nearby or connected.</para>
+          <para>This member is deprecated. use <c>#onDevicePresenceEvent(DevicePresenceEvent)</c>} instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/companion/CompanionDeviceService#onDeviceAppeared(android.companion.AssociationInfo)" title="Reference documentation">Java documentation for <code>android.companion.CompanionDeviceService.onDeviceAppeared(android.companion.AssociationInfo)</code>.</a>
@@ -430,6 +436,10 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android33.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android33.0")&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -439,9 +449,10 @@
       </Parameters>
       <Docs>
         <param name="associationInfo">A record for the companion device.</param>
-        <summary>Called by system whenever a device associated with this app is disconnected.</summary>
+        <summary>Called by the system when an associated device is out of range or disconnected.</summary>
         <remarks>
-          <para>Called by system whenever a device associated with this app is disconnected.</para>
+          <para>Called by the system when an associated device is out of range or disconnected.</para>
+          <para>This member is deprecated. use <c>#onDevicePresenceEvent(DevicePresenceEvent)</c>} instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/companion/CompanionDeviceService#onDeviceDisappeared(android.companion.AssociationInfo)" title="Reference documentation">Java documentation for <code>android.companion.CompanionDeviceService.onDeviceDisappeared(android.companion.AssociationInfo)</code>.</a>
@@ -505,6 +516,50 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="OnDevicePresenceEvent">
+      <MemberSignature Language="C#" Value="public virtual void OnDevicePresenceEvent (Android.Companion.DevicePresenceEvent e);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnDevicePresenceEvent(class Android.Companion.DevicePresenceEvent e) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Companion.CompanionDeviceService.OnDevicePresenceEvent(Android.Companion.DevicePresenceEvent)" />
+      <MemberSignature Language="F#" Value="abstract member OnDevicePresenceEvent : Android.Companion.DevicePresenceEvent -&gt; unit&#xA;override this.OnDevicePresenceEvent : Android.Companion.DevicePresenceEvent -&gt; unit" Usage="companionDeviceService.OnDevicePresenceEvent e" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("onDevicePresenceEvent", "(Landroid/companion/DevicePresenceEvent;)V", "GetOnDevicePresenceEvent_Landroid_companion_DevicePresenceEvent_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onDevicePresenceEvent", "(Landroid/companion/DevicePresenceEvent;)V", "GetOnDevicePresenceEvent_Landroid_companion_DevicePresenceEvent_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="e" Type="Android.Companion.DevicePresenceEvent" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="e">To be added.</param>
+        <summary>Called by the system when an associated device's presence state changes.</summary>
+        <remarks>
+          <para>Called by the system when an associated device's presence state changes.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/companion/CompanionDeviceService#onDevicePresenceEvent(android.companion.DevicePresenceEvent)" title="Reference documentation">Java documentation for <code>android.companion.CompanionDeviceService.onDevicePresenceEvent(android.companion.DevicePresenceEvent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ServiceInterface">
       <MemberSignature Language="C#" Value="public const string ServiceInterface;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string ServiceInterface" />
@@ -530,16 +585,26 @@
       </ReturnValue>
       <Docs>
         <summary>An intent action for a service to be bound whenever this app's companion device(s)
-            are nearby.</summary>
+            are nearby or self-managed device(s) report app appeared.</summary>
         <remarks>
           <para>An intent action for a service to be bound whenever this app's companion device(s)
-            are nearby.</para>
-          <para>The app will be kept alive for as long as the device is nearby or companion app reports
-            appeared.
-            If the app is not running at the time device gets connected, the app will be woken up.</para>
-          <para>Shortly after the device goes out of range or the companion app reports disappeared,
-            the service will be unbound, and the app will be eligible for cleanup, unless any other
-            user-visible components are running.</para>
+            are nearby or self-managed device(s) report app appeared.</para>
+          <para>The app will be kept bound by the system when one of the
+            <c>DevicePresenceEvent#EVENT_BLE_APPEARED</c>,
+            <c>DevicePresenceEvent#EVENT_BT_CONNECTED</c>,
+            <c>DevicePresenceEvent#EVENT_SELF_MANAGED_APPEARED</c> event is notified.
+            
+            If the app is not running when one of the
+            <c>DevicePresenceEvent#EVENT_BLE_APPEARED</c>,
+            <c>DevicePresenceEvent#EVENT_BT_CONNECTED</c>,
+            <c>DevicePresenceEvent#EVENT_SELF_MANAGED_APPEARED</c> event is notified, the app will be
+            kept bound by the system.</para>
+          <para>Shortly, the service will be unbound if both
+            <c>DevicePresenceEvent#EVENT_BLE_DISAPPEARED</c> and
+            <c>DevicePresenceEvent#EVENT_BT_DISCONNECTED</c> are notified, or
+            <c>DevicePresenceEvent#EVENT_SELF_MANAGED_DISAPPEARED</c> event is notified.
+            The app will be eligible for cleanup, unless any other user-visible components are
+            running.</para>
           <para>If running in background is not essential for the devices that this app can manage,
             app should avoid declaring this service.&lt;/p&gt;</para>
           <para>The service must also require permission

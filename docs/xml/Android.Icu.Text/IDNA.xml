@@ -33,27 +33,27 @@
             and http://www.ietf.org/rfc/rfc3490.txt</para>
       <para>The IDNA class is not intended for public subclassing.</para>
       <para>The non-static methods implement UTS #46 and IDNA2008.
-            IDNA2008 is implemented according to UTS #46, see getUTS46Instance().</para>
+            IDNA2008 is implemented according to UTS #46, see <c>#getUTS46Instance(int)</c>.</para>
       <para>IDNA2003 is obsolete. The static methods implement IDNA2003. They are all deprecated.</para>
       <para>IDNA2003 API Overview:</para>
       <para>The static IDNA API methods implement the IDNA protocol as defined in the
             <see href="http://www.ietf.org/rfc/rfc3490.txt">IDNA RFC</see>.
-            The draft defines 2 operations: ToASCII and ToUnicode. Domain labels 
+            The draft defines 2 operations: ToASCII and ToUnicode. Domain labels
             containing non-ASCII code points are required to be processed by
             ToASCII operation before passing it to resolver libraries. Domain names
             that are obtained from resolver libraries are required to be processed by
             ToUnicode operation before displaying the domain name to the user.
-            IDNA requires that implementations process input strings with 
-            <see href="http://www.ietf.org/rfc/rfc3491.txt">Nameprep</see>, 
-            which is a profile of <see href="http://www.ietf.org/rfc/rfc3454.txt">Stringprep</see> , 
-            and then with <see href="http://www.ietf.org/rfc/rfc3492.txt">Punycode</see>. 
-            Implementations of IDNA MUST fully implement Nameprep and Punycode; 
+            IDNA requires that implementations process input strings with
+            <see href="http://www.ietf.org/rfc/rfc3491.txt">Nameprep</see>,
+            which is a profile of <see href="http://www.ietf.org/rfc/rfc3454.txt">Stringprep</see> ,
+            and then with <see href="http://www.ietf.org/rfc/rfc3492.txt">Punycode</see>.
+            Implementations of IDNA MUST fully implement Nameprep and Punycode;
             neither Nameprep nor Punycode are optional.
-            The input and output of ToASCII and ToUnicode operations are Unicode 
+            The input and output of ToASCII and ToUnicode operations are Unicode
             and are designed to be chainable, i.e., applying ToASCII or ToUnicode operations
             multiple times to an input string will yield the same result as applying the operation
             once.
-            ToUnicode(ToUnicode(ToUnicode...(ToUnicode(string)))) == ToUnicode(string) 
+            ToUnicode(ToUnicode(ToUnicode...(ToUnicode(string)))) == ToUnicode(string)
             ToASCII(ToASCII(ToASCII...(ToASCII(string))) == ToASCII(string).</para>
       <para>
         <format type="text/html">
@@ -268,8 +268,7 @@
       <Docs>
         <summary>Default options value: None of the other options are set.</summary>
         <remarks>
-          <para>Default options value: None of the other options are set.
-            For use in static worker and factory methods.</para>
+          <para>Default options value: None of the other options are set.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/IDNA#DEFAULT" title="Reference documentation">Java documentation for <code>android.icu.text.IDNA.DEFAULT</code>.</a>
@@ -317,7 +316,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="options">Bit set to modify the processing and error checking.</param>
+        <param name="options">Bit set to modify the processing and error checking.
+                           These should include <c>IDNA#DEFAULT</c>, or
+                           <c>IDNA#NONTRANSITIONAL_TO_ASCII</c> | <c>IDNA#NONTRANSITIONAL_TO_UNICODE</c>.</param>
         <summary>Returns an IDNA instance which implements UTS #46.</summary>
         <returns>the UTS #46 IDNA instance, if successful</returns>
         <remarks>
@@ -329,8 +330,9 @@
             updated to the latest version of Unicode and compatible with both
             IDNA2003 and IDNA2008.</para>
           <para>The worker functions use transitional processing, including deviation mappings,
-            unless NONTRANSITIONAL_TO_ASCII or NONTRANSITIONAL_TO_UNICODE
-            is used in which case the deviation characters are passed through without change.</para>
+            unless <c>#NONTRANSITIONAL_TO_ASCII</c> or <c>#NONTRANSITIONAL_TO_UNICODE</c>
+            is used in which case the deviation characters are passed through without change.
+            &lt;b&gt;Unicode 15.1 UTS #46 deprecated transitional processing.&lt;/b&gt;</para>
           <para>Disallowed characters are mapped to U+FFFD.</para>
           <para>Operations with the UTS #46 instance do not support the
             ALLOW_UNASSIGNED option.</para>
@@ -714,7 +716,8 @@
         <remarks>
           <para>IDNA option for nontransitional processing in ToASCII().
             For use in static worker and factory methods.</para>
-          <para>By default, ToASCII() uses transitional processing.</para>
+          <para>By default, ToASCII() uses transitional processing.
+            Unicode 15.1 UTS #46 deprecated transitional processing.</para>
           <para>This option is ignored by the IDNA2003 implementation.
             (This is only relevant for compatibility of newer IDNA implementations with IDNA2003.)</para>
           <para>
@@ -763,7 +766,8 @@
         <remarks>
           <para>IDNA option for nontransitional processing in ToUnicode().
             For use in static worker and factory methods.</para>
-          <para>By default, ToUnicode() uses transitional processing.</para>
+          <para>By default, ToUnicode() uses transitional processing.
+            Unicode 15.1 UTS #46 deprecated transitional processing.</para>
           <para>This option is ignored by the IDNA2003 implementation.
             (This is only relevant for compatibility of newer IDNA implementations with IDNA2003.)</para>
           <para>

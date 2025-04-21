@@ -41,27 +41,24 @@
       <para>For more information about Device Administration, read the
             <see href="https://developer.android.com/guide/topics/admin/device-admin.html">Device Administration</see>
             developer guide.</para>
-      <para>Through Managed Provisioning,
-            Device Administrator apps can also be recognised as &lt;b&gt;
-             Device Policy Controllers&lt;/b&gt;. Device Policy Controllers can be one of
+      <para>Device Administrator apps can also be recognised as &lt;b&gt;
+            Device Policy Controllers&lt;/b&gt;. Device Policy Controllers can be one of
             two types:
             &lt;ul&gt;
             &lt;li&gt;A <i>Device Owner</i>, which only ever exists on the
-            <c>UserManager#isSystemUser System User</c> or <c>UserManager#isMainUser Main User</c>, is
+            <c>UserManager#isSystemUser System User</c> or Main User, is
             the most powerful type of Device Policy Controller and can affect policy across the device.
-            &lt;li&gt;A <i>Profile Owner<i>, which can exist on any user, can
+            &lt;li&gt;A <i>Profile Owner</i>, which can exist on any user, can
             affect policy on the user it is on, and when it is running on
             <c>UserManager#isProfile a profile</c> has
-            limited ability to affect policy on its
-            <c>UserManager#getProfileParent parent</c>.
-            &lt;/ul&gt;
-            
-            </i></i></para>
+            limited ability to affect policy on its parent.
+            &lt;/ul&gt;</para>
       <para>Additional capabilities can be provided to Device Policy Controllers in
             the following circumstances:
             &lt;ul&gt;
             &lt;li&gt;A Profile Owner on an organization owned device has access
-            to additional abilities, both affecting policy on the profile's<c>UserManager#getProfileParent parent</c> and also the profile itself.
+            to additional abilities, both affecting policy on the profile's
+            parent and also the profile itself.
             &lt;li&gt;A Profile Owner running on the <c>UserManager#isSystemUser System User</c> has access to
             additional capabilities which affect the <c>UserManager#isSystemUser System User</c> and
             also the whole device.
@@ -70,12 +67,11 @@
       <para>For more information, see <see href="https://developer.android.com/work/dpc/build-dpc">Building a Device Policy
             Controller</see>.</para>
       <para>Permissions are generally only given to apps
-            fulfilling particular key roles on the device (such as managing <c>DeviceLockManager
-            device locks</c>).</para>
+            fulfilling particular key roles on the device (such as managing
+            <c>android.devicelock.DeviceLockManager device locks</c>).</para>
       <para>&lt;b&gt;Device Policy Management Role Holder&lt;/b&gt;</para>
-      <para>One app on the device fulfills the <c>RoleManager#ROLE_DEVICE_POLICY_MANAGEMENT Device
-            Policy Management Role</c> and is trusted with managing the overall state of
-            Device Policy. This has access to much more powerful methods than
+      <para>One app on the device fulfills the Device Policy Management Role and is trusted with managing
+            the overall state of Device Policy. This has access to much more powerful methods than
             managing apps.</para>
       <para>&lt;b&gt;Querying Device Policy&lt;/b&gt;</para>
       <para>In most cases, regular apps do not need to concern themselves with device
@@ -93,7 +89,7 @@
             Device Policy Controller</see>.</para>
       <para>A &lt;b&gt;Managed Profile&lt;/b&gt; enables data separation. For example to use
             a device both for personal and corporate usage. The managed profile and its
-            <c>UserManager#getProfileParent parent</c> share a launcher.</para>
+            parent share a launcher.</para>
       <para>&lt;b&gt;Affiliation&lt;/b&gt;</para>
       <para>Using the <c>#setAffiliationIds</c> method, a
             Device Owner can set a list of affiliation ids for the
@@ -986,14 +982,7 @@
             succeed. Conversely a result code of <c>android.app.Activity#RESULT_CANCELED</c> indicates
             that the user backed-out of provisioning or some precondition for provisioning wasn't met.</para>
           <para>If a device policy management role holder updater is present on
-            the device, an internet connection attempt must be made prior to launching this intent. If
-            an internet connection can not be established, provisioning will fail unless <c>#EXTRA_PROVISIONING_ALLOW_OFFLINE</c> is explicitly set to <c>true</c>, in which case
-            provisioning will continue without using the
-            device policy management role holder. If an internet connection
-            has been established, the device policy management role holder
-            updater will be launched, which may update the
-            device policy management role holder before continuing
-            provisioning.</para>
+            the device, an internet connection attempt must be made prior to launching this intent.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#ACTION_PROVISION_MANAGED_PROFILE" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE</code>.</a>
@@ -1518,10 +1507,11 @@
       </Docs>
     </Member>
     <Member MemberName="AddUserRestriction">
-      <MemberSignature Language="C#" Value="public virtual void AddUserRestriction (Android.Content.ComponentName admin, string? key);" />
+      <MemberSignature Language="C#" Value="public virtual void AddUserRestriction (Android.Content.ComponentName admin, string? key);" FrameworkAlternate="net-android-34.0;net-android-35.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void AddUserRestriction(class Android.Content.ComponentName admin, string key) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.App.Admin.DevicePolicyManager.AddUserRestriction(Android.Content.ComponentName,System.String)" />
       <MemberSignature Language="F#" Value="abstract member AddUserRestriction : Android.Content.ComponentName * string -&gt; unit&#xA;override this.AddUserRestriction : Android.Content.ComponentName * string -&gt; unit" Usage="devicePolicyManager.AddUserRestriction (admin, key)" />
+      <MemberSignature Language="C#" Value="public virtual void AddUserRestriction (Android.Content.ComponentName? admin, string? key);" FrameworkAlternate="net-android-36.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -1544,7 +1534,7 @@
               <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "DisallowModifyAccounts", "DisallowConfigWifi", "DisallowConfigLocale", "DisallowInstallApps", "DisallowUninstallApps", "DisallowShareLocation", "DisallowAirplaneMode", "DisallowConfigBrightness", "DisallowAmbientDisplay", "DisallowConfigScreenTimeout", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowConfigBluetooth", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowUsbFileTransfer", "DisallowConfigCredentials", "DisallowRemoveUser", "DisallowRemoveManagedProfile", "DisallowDebuggingFeatures", "DisallowConfigVpn", "DisallowConfigLocation", "DisallowConfigDateTime", "DisallowConfigTethering", "DisallowNetworkReset", "DisallowFactoryReset", "DisallowAddUser", "DisallowAddManagedProfile", "EnsureVerifyApps", "DisallowConfigCellBroadcasts", "DisallowConfigMobileNetworks", "DisallowAppsControl", "DisallowMountPhysicalMedia", "DisallowUnmuteMicrophone", "DisallowAdjustVolume", "DisallowOutgoingCalls", "DisallowSms", "DisallowFun", "DisallowCreateWindows", "DisallowSystemErrorDialogs", "DisallowCrossProfileCopyPaste", "DisallowOutgoingBeam", "DisallowSetWallpaper", "DisallowSafeBoot", "DisallowDataRoaming", "DisallowSetUserIcon", "DisallowUnifiedPassword", "AllowParentProfileAppLinking", "DisallowAutofill", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowUserSwitch", "DisallowShareIntoManagedProfile", "DisallowPrinting", "DisallowConfigPrivateDns", "DisallowMicrophoneToggle", "DisallowCameraToggle", "KeyRestrictionsPending", "DisallowChangeWifiState", "DisallowWifiTethering", "DisallowSharingAdminConfiguredWifi", "DisallowWifiDirect", "DisallowAddWifiConfig", "DisallowCellular2g", "DisallowUltraWidebandRadio", "DisallowGrantAdmin" }, Type="Android.OS.UserManager")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "DisallowModifyAccounts", "DisallowConfigWifi", "DisallowConfigLocale", "DisallowInstallApps", "DisallowUninstallApps", "DisallowShareLocation", "DisallowAirplaneMode", "DisallowConfigBrightness", "DisallowAmbientDisplay", "DisallowConfigScreenTimeout", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowConfigBluetooth", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowUsbFileTransfer", "DisallowConfigCredentials", "DisallowRemoveUser", "DisallowRemoveManagedProfile", "DisallowDebuggingFeatures", "DisallowConfigVpn", "DisallowConfigLocation", "DisallowConfigDateTime", "DisallowConfigTethering", "DisallowNetworkReset", "DisallowFactoryReset", "DisallowAddUser", "DisallowAddManagedProfile", "EnsureVerifyApps", "DisallowConfigCellBroadcasts", "DisallowConfigMobileNetworks", "DisallowAppsControl", "DisallowMountPhysicalMedia", "DisallowUnmuteMicrophone", "DisallowAdjustVolume", "DisallowOutgoingCalls", "DisallowSms", "DisallowFun", "DisallowCreateWindows", "DisallowSystemErrorDialogs", "DisallowCrossProfileCopyPaste", "DisallowOutgoingBeam", "DisallowSetWallpaper", "DisallowSafeBoot", "DisallowDataRoaming", "DisallowSetUserIcon", "DisallowUnifiedPassword", "AllowParentProfileAppLinking", "DisallowAutofill", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowUserSwitch", "DisallowShareIntoManagedProfile", "DisallowPrinting", "DisallowConfigPrivateDns", "DisallowMicrophoneToggle", "DisallowCameraToggle", "KeyRestrictionsPending", "DisallowChangeWifiState", "DisallowWifiTethering", "DisallowSharingAdminConfiguredWifi", "DisallowWifiDirect", "DisallowAddWifiConfig", "DisallowCellular2g", "DisallowUltraWidebandRadio", "DisallowGrantAdmin" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
             </Attribute>
-            <Attribute>
+            <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
             </Attribute>
@@ -1552,11 +1542,16 @@
               <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
             </Attribute>
+            <Attribute FrameworkAlternate="net-android-36.0">
+              <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
+        <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with or
+            <c>null</c> if the caller is not a device admin.</param>
         <param name="key">The key of the restriction.</param>
         <summary>Called by a profile owner, device owner or a holder of any permission that is associated with
             a user restriction to set a user restriction specified by the key.</summary>
@@ -1572,12 +1567,6 @@
           <para>See the constants in <c>android.os.UserManager</c> for the list of restrictions that can
             be enforced device-wide. These constants will also state in their documentation which
             permission is required to manage the restriction using this API.</para>
-          <para>For callers targeting Android <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c> or
-            above, calling this API will result in applying the restriction locally on the calling user,
-            or locally on the parent profile if called from the
-            <c>DevicePolicyManager</c> instance obtained from
-            <c>#getParentProfileInstance(ComponentName)</c>. To set a restriction globally, call
-            <c>#addUserRestrictionGlobally</c> instead.</para>
           <para>Starting from <c>Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, after the user restriction
             policy has been set, <c>PolicyUpdateReceiver#onPolicySetResult(Context, String,
             Bundle, TargetUser, PolicyUpdateResult)</c> will notify the admin on whether the policy was
@@ -1642,6 +1631,10 @@
               <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
             </Attribute>
+            <Attribute FrameworkAlternate="net-android-36.0">
+              <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
@@ -1656,7 +1649,7 @@
              on all users. To clear the restriction use <c>#clearUserRestriction</c>.</para>
           <para>For a given user, a restriction will be set if it was applied globally or locally by any
             admin.</para>
-          <para>The calling device admin must be a profile owner, device owner or or a holder of any
+          <para>The calling device admin must be a profile owner, device owner or a holder of any
             permission that is associated with a user restriction; if it is not, a security
             exception will be thrown.</para>
           <para>See the constants in <c>android.os.UserManager</c> for the list of restrictions that can
@@ -1682,6 +1675,433 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#addUserRestrictionGlobally(java.lang.String)" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.addUserRestrictionGlobally(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AppFunctionsDisabled">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsDisabled = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsDisabled = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AppFunctionsDisabled" />
+      <MemberSignature Language="F#" Value="val mutable AppFunctionsDisabled : Android.App.Admin.DevicePolicyManagerAppFunctionsStatus" Usage="Android.App.Admin.DevicePolicyManager.AppFunctionsDisabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("APP_FUNCTIONS_DISABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("APP_FUNCTIONS_DISABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAppFunctionsStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAppFunctionsStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAppFunctionsStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Indicates that <c>android.app.appfunctions.AppFunctionManager</c> is controlled and
+            disabled by policy, i.</summary>
+        <remarks>
+          <para>Indicates that <c>android.app.appfunctions.AppFunctionManager</c> is controlled and
+            disabled by policy, i.e. no apps in the current user are allowed to expose app functions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#APP_FUNCTIONS_DISABLED" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.APP_FUNCTIONS_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AppFunctionsDisabledCrossProfile">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsDisabledCrossProfile = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsDisabledCrossProfile = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AppFunctionsDisabledCrossProfile" />
+      <MemberSignature Language="F#" Value="val mutable AppFunctionsDisabledCrossProfile : Android.App.Admin.DevicePolicyManagerAppFunctionsStatus" Usage="Android.App.Admin.DevicePolicyManager.AppFunctionsDisabledCrossProfile" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("APP_FUNCTIONS_DISABLED_CROSS_PROFILE", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("APP_FUNCTIONS_DISABLED_CROSS_PROFILE", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAppFunctionsStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAppFunctionsStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAppFunctionsStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Indicates that <c>android.app.appfunctions.AppFunctionManager</c> is controlled and
+            disabled by a policy for cross profile interactions only, i.</summary>
+        <remarks>
+          <para>Indicates that <c>android.app.appfunctions.AppFunctionManager</c> is controlled and
+            disabled by a policy for cross profile interactions only, i.e. app functions exposed by apps
+            in the current user can only be invoked within the same user.</para>
+          <para>This is different from <c>#APP_FUNCTIONS_DISABLED</c> in that it only disables cross
+            profile interactions (even if the caller has permissions required to interact across users).
+            appfunctions can still be used within the a user profile boundary.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#APP_FUNCTIONS_DISABLED_CROSS_PROFILE" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.APP_FUNCTIONS_DISABLED_CROSS_PROFILE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AppFunctionsNotControlledByPolicy">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsNotControlledByPolicy = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsNotControlledByPolicy = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AppFunctionsNotControlledByPolicy" />
+      <MemberSignature Language="F#" Value="val mutable AppFunctionsNotControlledByPolicy : Android.App.Admin.DevicePolicyManagerAppFunctionsStatus" Usage="Android.App.Admin.DevicePolicyManager.AppFunctionsNotControlledByPolicy" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("APP_FUNCTIONS_NOT_CONTROLLED_BY_POLICY", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("APP_FUNCTIONS_NOT_CONTROLLED_BY_POLICY", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAppFunctionsStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAppFunctionsStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAppFunctionsStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Indicates that <c>android.app.appfunctions.AppFunctionManager</c> is not controlled by
+            policy.</summary>
+        <remarks>
+          <para>Indicates that <c>android.app.appfunctions.AppFunctionManager</c> is not controlled by
+            policy.</para>
+          <para>If no admin set this policy, it means appfunctions are enabled.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#APP_FUNCTIONS_NOT_CONTROLLED_BY_POLICY" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.APP_FUNCTIONS_NOT_CONTROLLED_BY_POLICY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AppFunctionsPolicy">
+      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsPolicy { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.App.Admin.DevicePolicyManagerAppFunctionsStatus AppFunctionsPolicy" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Admin.DevicePolicyManager.AppFunctionsPolicy" />
+      <MemberSignature Language="F#" Value="member this.AppFunctionsPolicy : Android.App.Admin.DevicePolicyManagerAppFunctionsStatus with get, set" Usage="Android.App.Admin.DevicePolicyManager.AppFunctionsPolicy" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAppFunctionsPolicy", "()I", "GetGetAppFunctionsPolicyHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAppFunctionsPolicy", "()I", "GetGetAppFunctionsPolicyHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_APP_FUNCTIONS")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_APP_FUNCTIONS")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setAppFunctionsPolicy", "(I)V", "GetSetAppFunctionsPolicy_IHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setAppFunctionsPolicy", "(I)V", "GetSetAppFunctionsPolicy_IHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_APP_FUNCTIONS")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_APP_FUNCTIONS")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAppFunctionsStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="policy">The app functions policy to set. One of <c>#APP_FUNCTIONS_NOT_CONTROLLED_BY_POLICY</c>,
+                          <c>#APP_FUNCTIONS_DISABLED</c> or
+                          <c>#APP_FUNCTIONS_DISABLED_CROSS_PROFILE</c></param>
+        <summary>Returns the current <c>android.app.appfunctions.AppFunctionManager</c> policy. -or- Sets the <c>android.app.appfunctions.AppFunctionManager</c> policy which controls app
+            functions operations on the device.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns the current <c>android.app.appfunctions.AppFunctionManager</c> policy.</para>
+          <para>The returned policy will be the current resolved policy rather than the policy set by the
+            calling admin.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getAppFunctionsPolicy()" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.getAppFunctionsPolicy()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Sets the <c>android.app.appfunctions.AppFunctionManager</c> policy which controls app
+            functions operations on the device. An app function is a piece of functionality that apps
+            expose to the system for cross-app orchestration.</para>
+          <para>This function can only be called by a device owner, a profile owner or holders of the
+            permission <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_APP_FUNCTIONS</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setAppFunctionsPolicy(int)" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.setAppFunctionsPolicy(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimeDisabled">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimeDisabled = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimeDisabled = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AutoTimeDisabled" />
+      <MemberSignature Language="F#" Value="val mutable AutoTimeDisabled : Android.App.Admin.DevicePolicyManagerAutoTimeStatus" Usage="Android.App.Admin.DevicePolicyManager.AutoTimeDisabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTO_TIME_DISABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTO_TIME_DISABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Specifies the "disabled" auto time state.</summary>
+        <remarks>
+          <para>Specifies the "disabled" auto time state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#AUTO_TIME_DISABLED" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.AUTO_TIME_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimeEnabled">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimeEnabled = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimeEnabled = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AutoTimeEnabled" />
+      <MemberSignature Language="F#" Value="val mutable AutoTimeEnabled : Android.App.Admin.DevicePolicyManagerAutoTimeStatus" Usage="Android.App.Admin.DevicePolicyManager.AutoTimeEnabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTO_TIME_ENABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTO_TIME_ENABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Specifies the "enabled" auto time state.</summary>
+        <remarks>
+          <para>Specifies the "enabled" auto time state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#AUTO_TIME_ENABLED" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.AUTO_TIME_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimeNotControlledByPolicy">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimeNotControlledByPolicy = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimeNotControlledByPolicy = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AutoTimeNotControlledByPolicy" />
+      <MemberSignature Language="F#" Value="val mutable AutoTimeNotControlledByPolicy : Android.App.Admin.DevicePolicyManagerAutoTimeStatus" Usage="Android.App.Admin.DevicePolicyManager.AutoTimeNotControlledByPolicy" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTO_TIME_NOT_CONTROLLED_BY_POLICY", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTO_TIME_NOT_CONTROLLED_BY_POLICY", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Specifies that the auto time state is not controlled by device policy.</summary>
+        <remarks>
+          <para>Specifies that the auto time state is not controlled by device policy.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#AUTO_TIME_NOT_CONTROLLED_BY_POLICY" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.AUTO_TIME_NOT_CONTROLLED_BY_POLICY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimePolicy">
+      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimePolicy { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.App.Admin.DevicePolicyManagerAutoTimeStatus AutoTimePolicy" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Admin.DevicePolicyManager.AutoTimePolicy" />
+      <MemberSignature Language="F#" Value="member this.AutoTimePolicy : Android.App.Admin.DevicePolicyManagerAutoTimeStatus with get, set" Usage="Android.App.Admin.DevicePolicyManager.AutoTimePolicy" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAutoTimePolicy", "()I", "GetGetAutoTimePolicyHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAutoTimePolicy", "()I", "GetGetAutoTimePolicyHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setAutoTimePolicy", "(I)V", "GetSetAutoTimePolicy_IHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setAutoTimePolicy", "(I)V", "GetSetAutoTimePolicy_IHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: Android.Runtime.RequiresPermission("android.permission.SET_TIME")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.RequiresPermission("android.permission.SET_TIME")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="policy">The desired state among <c>#AUTO_TIME_ENABLED</c> to enable,
+                         <c>#AUTO_TIME_DISABLED</c> to disable and
+                         <c>#AUTO_TIME_NOT_CONTROLLED_BY_POLICY</c> to unset the policy.</param>
+        <summary>Returns current auto time policy's state. -or- Called by a device owner, a profile owner for the primary user or a profile owner of an
+            organization-owned managed profile to turn auto time on and off i.</summary>
+        <value>One of <c>#AUTO_TIME_ENABLED</c> if enabled, <c>#AUTO_TIME_DISABLED</c> if disabled
+                         and <c>#AUTO_TIME_NOT_CONTROLLED_BY_POLICY</c> if it's not controlled by
+                         policy.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns current auto time policy's state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getAutoTimePolicy()" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.getAutoTimePolicy()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Called by a device owner, a profile owner for the primary user or a profile owner of an
+            organization-owned managed profile to turn auto time on and off i.e. Whether time should be
+            obtained automatically from the network or not.</para>
+          <para>Callers are recommended to use <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c> to prevent the
+            user from changing this setting, that way no user will be able set the date and time zone.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setAutoTimePolicy(int)" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.setAutoTimePolicy(int)</code>.</a>
             </format>
           </para>
           <para>
@@ -1723,6 +2143,211 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getAutoTimeRequired()" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.getAutoTimeRequired()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimeZoneDisabled">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZoneDisabled = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZoneDisabled = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AutoTimeZoneDisabled" />
+      <MemberSignature Language="F#" Value="val mutable AutoTimeZoneDisabled : Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus" Usage="Android.App.Admin.DevicePolicyManager.AutoTimeZoneDisabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTO_TIME_ZONE_DISABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTO_TIME_ZONE_DISABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Specifies the "disabled" auto time zone state.</summary>
+        <remarks>
+          <para>Specifies the "disabled" auto time zone state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#AUTO_TIME_ZONE_DISABLED" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.AUTO_TIME_ZONE_DISABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimeZoneEnabled">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZoneEnabled = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZoneEnabled = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AutoTimeZoneEnabled" />
+      <MemberSignature Language="F#" Value="val mutable AutoTimeZoneEnabled : Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus" Usage="Android.App.Admin.DevicePolicyManager.AutoTimeZoneEnabled" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTO_TIME_ZONE_ENABLED", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTO_TIME_ZONE_ENABLED", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Specifies the "enabled" auto time zone state.</summary>
+        <remarks>
+          <para>Specifies the "enabled" auto time zone state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#AUTO_TIME_ZONE_ENABLED" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.AUTO_TIME_ZONE_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimeZoneNotControlledByPolicy">
+      <MemberSignature Language="C#" Value="public const Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZoneNotControlledByPolicy = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZoneNotControlledByPolicy = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Admin.DevicePolicyManager.AutoTimeZoneNotControlledByPolicy" />
+      <MemberSignature Language="F#" Value="val mutable AutoTimeZoneNotControlledByPolicy : Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus" Usage="Android.App.Admin.DevicePolicyManager.AutoTimeZoneNotControlledByPolicy" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTO_TIME_ZONE_NOT_CONTROLLED_BY_POLICY", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTO_TIME_ZONE_NOT_CONTROLLED_BY_POLICY", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Specifies that the auto time zone state is not controlled by device policy.</summary>
+        <remarks>
+          <para>Specifies that the auto time zone state is not controlled by device policy.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#AUTO_TIME_ZONE_NOT_CONTROLLED_BY_POLICY" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.AUTO_TIME_ZONE_NOT_CONTROLLED_BY_POLICY</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AutoTimeZonePolicy">
+      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZonePolicy { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus AutoTimeZonePolicy" />
+      <MemberSignature Language="DocId" Value="P:Android.App.Admin.DevicePolicyManager.AutoTimeZonePolicy" />
+      <MemberSignature Language="F#" Value="member this.AutoTimeZonePolicy : Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus with get, set" Usage="Android.App.Admin.DevicePolicyManager.AutoTimeZonePolicy" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getAutoTimeZonePolicy", "()I", "GetGetAutoTimeZonePolicyHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAutoTimeZonePolicy", "()I", "GetGetAutoTimeZonePolicyHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: Android.Runtime.Register("setAutoTimeZonePolicy", "(I)V", "GetSetAutoTimeZonePolicy_IHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.Register("setAutoTimeZonePolicy", "(I)V", "GetSetAutoTimeZonePolicy_IHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: Android.Runtime.RequiresPermission("android.permission.SET_TIME_ZONE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: Android.Runtime.RequiresPermission("android.permission.SET_TIME_ZONE")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[set: System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;set: System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Admin.DevicePolicyManagerAutoTimeZoneStatus</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <param name="policy">The desired state among <c>#AUTO_TIME_ZONE_ENABLED</c> to enable it,
+            <c>#AUTO_TIME_ZONE_DISABLED</c> to disable it or
+            <c>#AUTO_TIME_ZONE_NOT_CONTROLLED_BY_POLICY</c> to unset the policy.</param>
+        <summary>Returns auto time zone policy's current state. -or- Called by a device owner, a profile owner for the primary user or a profile owner of an
+            organization-owned managed profile to turn auto time zone on and off.</summary>
+        <value>One of <c>#AUTO_TIME_ZONE_ENABLED</c> if enabled, <c>#AUTO_TIME_ZONE_DISABLED</c>
+                    if disabled and <c>#AUTO_TIME_ZONE_NOT_CONTROLLED_BY_POLICY</c> if the state is not
+                    controlled by policy.</value>
+        <remarks>
+          <para>Property getter documentation:</para>
+          <para>Returns auto time zone policy's current state.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getAutoTimeZonePolicy()" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.getAutoTimeZonePolicy()</code>.</a>
+            </format>
+          </para>
+          <para>Property setter documentation:</para>
+          <para>Called by a device owner, a profile owner for the primary user or a profile owner of an
+            organization-owned managed profile to turn auto time zone on and off.</para>
+          <para>Callers are recommended to use <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c> to prevent the
+            user from changing this setting, that way no user will be able set the date and time zone.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setAutoTimeZonePolicy(int)" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.setAutoTimeZonePolicy(int)</code>.</a>
             </format>
           </para>
           <para>
@@ -2288,10 +2913,11 @@
       </Docs>
     </Member>
     <Member MemberName="ClearUserRestriction">
-      <MemberSignature Language="C#" Value="public virtual void ClearUserRestriction (Android.Content.ComponentName admin, string? key);" />
+      <MemberSignature Language="C#" Value="public virtual void ClearUserRestriction (Android.Content.ComponentName admin, string? key);" FrameworkAlternate="net-android-34.0;net-android-35.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void ClearUserRestriction(class Android.Content.ComponentName admin, string key) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.App.Admin.DevicePolicyManager.ClearUserRestriction(Android.Content.ComponentName,System.String)" />
       <MemberSignature Language="F#" Value="abstract member ClearUserRestriction : Android.Content.ComponentName * string -&gt; unit&#xA;override this.ClearUserRestriction : Android.Content.ComponentName * string -&gt; unit" Usage="devicePolicyManager.ClearUserRestriction (admin, key)" />
+      <MemberSignature Language="C#" Value="public virtual void ClearUserRestriction (Android.Content.ComponentName? admin, string? key);" FrameworkAlternate="net-android-36.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2314,7 +2940,7 @@
               <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "DisallowModifyAccounts", "DisallowConfigWifi", "DisallowConfigLocale", "DisallowInstallApps", "DisallowUninstallApps", "DisallowShareLocation", "DisallowAirplaneMode", "DisallowConfigBrightness", "DisallowAmbientDisplay", "DisallowConfigScreenTimeout", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowConfigBluetooth", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowUsbFileTransfer", "DisallowConfigCredentials", "DisallowRemoveUser", "DisallowRemoveManagedProfile", "DisallowDebuggingFeatures", "DisallowConfigVpn", "DisallowConfigLocation", "DisallowConfigDateTime", "DisallowConfigTethering", "DisallowNetworkReset", "DisallowFactoryReset", "DisallowAddUser", "DisallowAddManagedProfile", "EnsureVerifyApps", "DisallowConfigCellBroadcasts", "DisallowConfigMobileNetworks", "DisallowAppsControl", "DisallowMountPhysicalMedia", "DisallowUnmuteMicrophone", "DisallowAdjustVolume", "DisallowOutgoingCalls", "DisallowSms", "DisallowFun", "DisallowCreateWindows", "DisallowSystemErrorDialogs", "DisallowCrossProfileCopyPaste", "DisallowOutgoingBeam", "DisallowSetWallpaper", "DisallowSafeBoot", "DisallowDataRoaming", "DisallowSetUserIcon", "DisallowUnifiedPassword", "AllowParentProfileAppLinking", "DisallowAutofill", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowUserSwitch", "DisallowShareIntoManagedProfile", "DisallowPrinting", "DisallowConfigPrivateDns", "DisallowMicrophoneToggle", "DisallowCameraToggle", "KeyRestrictionsPending", "DisallowChangeWifiState", "DisallowWifiTethering", "DisallowSharingAdminConfiguredWifi", "DisallowWifiDirect", "DisallowAddWifiConfig", "DisallowCellular2g", "DisallowUltraWidebandRadio", "DisallowGrantAdmin" }, Type="Android.OS.UserManager")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "DisallowModifyAccounts", "DisallowConfigWifi", "DisallowConfigLocale", "DisallowInstallApps", "DisallowUninstallApps", "DisallowShareLocation", "DisallowAirplaneMode", "DisallowConfigBrightness", "DisallowAmbientDisplay", "DisallowConfigScreenTimeout", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowConfigBluetooth", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowUsbFileTransfer", "DisallowConfigCredentials", "DisallowRemoveUser", "DisallowRemoveManagedProfile", "DisallowDebuggingFeatures", "DisallowConfigVpn", "DisallowConfigLocation", "DisallowConfigDateTime", "DisallowConfigTethering", "DisallowNetworkReset", "DisallowFactoryReset", "DisallowAddUser", "DisallowAddManagedProfile", "EnsureVerifyApps", "DisallowConfigCellBroadcasts", "DisallowConfigMobileNetworks", "DisallowAppsControl", "DisallowMountPhysicalMedia", "DisallowUnmuteMicrophone", "DisallowAdjustVolume", "DisallowOutgoingCalls", "DisallowSms", "DisallowFun", "DisallowCreateWindows", "DisallowSystemErrorDialogs", "DisallowCrossProfileCopyPaste", "DisallowOutgoingBeam", "DisallowSetWallpaper", "DisallowSafeBoot", "DisallowDataRoaming", "DisallowSetUserIcon", "DisallowUnifiedPassword", "AllowParentProfileAppLinking", "DisallowAutofill", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowUserSwitch", "DisallowShareIntoManagedProfile", "DisallowPrinting", "DisallowConfigPrivateDns", "DisallowMicrophoneToggle", "DisallowCameraToggle", "KeyRestrictionsPending", "DisallowChangeWifiState", "DisallowWifiTethering", "DisallowSharingAdminConfiguredWifi", "DisallowWifiDirect", "DisallowAddWifiConfig", "DisallowCellular2g", "DisallowUltraWidebandRadio", "DisallowGrantAdmin" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
             </Attribute>
-            <Attribute>
+            <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
               <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
               <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
             </Attribute>
@@ -2322,11 +2948,16 @@
               <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
               <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
             </Attribute>
+            <Attribute FrameworkAlternate="net-android-36.0">
+              <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
+            </Attribute>
           </Attributes>
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
+        <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with or
+            <c>null</c> if the caller is not a device admin.</param>
         <param name="key">The key of the restriction.</param>
         <summary>Called by a profile owner, device owner or a holder of any permission that is associated with
             a user restriction to clear a user restriction specified by the key.</summary>
@@ -2341,9 +2972,6 @@
           <para>See the constants in <c>android.os.UserManager</c> for the list of restrictions. These
             constants state in their documentation which permission is required to manage the restriction
             using this API.</para>
-          <para>For callers targeting Android <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c> or
-            above, calling this API will result in clearing any local and global restriction with the
-            specified key that was previously set by the caller.</para>
           <para>Starting from <c>Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, after the user restriction
             policy has been cleared, <c>PolicyUpdateReceiver#onPolicySetResult(Context, String,
             Bundle, TargetUser, PolicyUpdateResult)</c> will notify the admin on whether the policy was
@@ -2385,15 +3013,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("CONTENT_PROTECTION_DISABLED", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTENT_PROTECTION_DISABLED", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.ContentProtectionPolicy enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.ContentProtectionPolicy enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2430,15 +3058,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("CONTENT_PROTECTION_ENABLED", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTENT_PROTECTION_ENABLED", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.ContentProtectionPolicy enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.ContentProtectionPolicy enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -2475,15 +3103,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("CONTENT_PROTECTION_NOT_CONTROLLED_BY_POLICY", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("CONTENT_PROTECTION_NOT_CONTROLLED_BY_POLICY", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.ContentProtectionPolicy enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Admin.ContentProtectionPolicy enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -3602,7 +4230,7 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getEnrollmentSpecificId", "()Ljava/lang/String;", "GetGetEnrollmentSpecificIdHandler", ApiSince=31)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getEnrollmentSpecificId", "()Ljava/lang/String;", "GetGetEnrollmentSpecificIdHandler", ApiSince=31)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_CERTIFICATES")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_CERTIFICATES")&gt;]</AttributeName>
         </Attribute>
@@ -4027,19 +4655,6 @@
         <remarks>
           <para>A boolean extra indicating whether offline provisioning should be used.</para>
           <para>The default value is <c>false</c>.</para>
-          <para>Usually during the provisioning flow, there will be
-            an attempt to download and install the latest version of the device
-            policy management role holder. The platform will then
-            delegate provisioning to the device
-                 * policy management role holder.</para>
-          <para>When this extra is set to <c>true</c>, the
-            provisioning flow will always be handled by the platform
-            and the device policy management role holder's part skipped.</para>
-          <para>On Android versions prior to <c>Build.VERSION_CODES#TIRAMISU</c>, when this extra is
-            <c>false</c>, the provisioning flow will enforce that an
-            internet connection is established, or otherwise fail. When this extra is <c>true</c>, a
-            connection will still be attempted but when it cannot be established provisioning will
-            continue offline.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#EXTRA_PROVISIONING_ALLOW_OFFLINE" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.EXTRA_PROVISIONING_ALLOW_OFFLINE</code>.</a>
@@ -7199,15 +7814,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("getContentProtectionPolicy", "(Landroid/content/ComponentName;)I", "GetGetContentProtectionPolicy_Landroid_content_ComponentName_Handler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("getContentProtectionPolicy", "(Landroid/content/ComponentName;)I", "GetGetContentProtectionPolicy_Landroid_content_ComponentName_Handler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -7215,14 +7830,14 @@
       <ReturnValue>
         <ReturnType>Android.App.Admin.ContentProtectionPolicy</ReturnType>
         <Attributes>
-          <Attribute>
+          <Attribute FrameworkAlternate="net-android-35.0">
             <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
             <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
           </Attribute>
         </Attributes>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="admin" Type="Android.Content.ComponentName" Index="0" FrameworkAlternate="net-android-35.0" />
+        <Parameter Name="admin" Type="Android.Content.ComponentName" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with. Null if the
@@ -8749,10 +9364,11 @@
       </Docs>
     </Member>
     <Member MemberName="GetParentProfileInstance">
-      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.DevicePolicyManager GetParentProfileInstance (Android.Content.ComponentName admin);" />
+      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.DevicePolicyManager GetParentProfileInstance (Android.Content.ComponentName admin);" FrameworkAlternate="net-android-34.0;net-android-35.0" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.App.Admin.DevicePolicyManager GetParentProfileInstance(class Android.Content.ComponentName admin) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.App.Admin.DevicePolicyManager.GetParentProfileInstance(Android.Content.ComponentName)" />
       <MemberSignature Language="F#" Value="abstract member GetParentProfileInstance : Android.Content.ComponentName -&gt; Android.App.Admin.DevicePolicyManager&#xA;override this.GetParentProfileInstance : Android.Content.ComponentName -&gt; Android.App.Admin.DevicePolicyManager" Usage="devicePolicyManager.GetParentProfileInstance admin" />
+      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.DevicePolicyManager GetParentProfileInstance (Android.Content.ComponentName? admin);" FrameworkAlternate="net-android-36.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -8772,16 +9388,24 @@
         <ReturnType>Android.App.Admin.DevicePolicyManager</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="admin" Type="Android.Content.ComponentName" />
+        <Parameter Name="admin" Type="Android.Content.ComponentName">
+          <Attributes>
+            <Attribute FrameworkAlternate="net-android-36.0">
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
-        <summary>Called by the profile owner of a managed profile to obtain a <c>DevicePolicyManager</c>
-            whose calls act on the parent profile.</summary>
+        <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with or
+                    <c>null</c> if the caller is not a profile owner.</param>
+        <summary>Called by the profile owner of a managed profile or other apps in a managed profile to
+            obtain a <c>DevicePolicyManager</c> whose calls act on the parent profile.</summary>
         <returns>a new instance of <c>DevicePolicyManager</c> that acts on the parent profile.</returns>
         <remarks>
-          <para>Called by the profile owner of a managed profile to obtain a <c>DevicePolicyManager</c>
-            whose calls act on the parent profile.</para>
+          <para>Called by the profile owner of a managed profile or other apps in a managed profile to
+            obtain a <c>DevicePolicyManager</c> whose calls act on the parent profile.</para>
           <para>The following methods are supported for the parent instance, all other methods will
             throw a SecurityException when called on the parent instance:
             &lt;ul&gt;
@@ -8825,7 +9449,7 @@
             &lt;li&gt;<c>#getRequiredPasswordComplexity()</c>&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>The following methods are supported for the parent instance but can only be called by the
-            profile owner of a managed profile that was created during the device provisioning flow:
+            profile owner on an organization owned managed profile:
             &lt;ul&gt;
             &lt;li&gt;<c>#getPasswordComplexity</c>&lt;/li&gt;
             &lt;li&gt;<c>#setCameraDisabled</c>&lt;/li&gt;
@@ -8833,10 +9457,6 @@
             &lt;li&gt;<c>#setAccountManagementDisabled(ComponentName, String, boolean)</c>&lt;/li&gt;
             &lt;li&gt;<c>#setPermittedInputMethods</c>&lt;/li&gt;
             &lt;li&gt;<c>#getPermittedInputMethods</c>&lt;/li&gt;
-            &lt;/ul&gt;</para>
-          <para>The following methods can be called by the profile owner of a managed profile
-            on an organization-owned device:
-            &lt;ul&gt;
             &lt;li&gt;<c>#wipeData</c>&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>
@@ -9554,7 +10174,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.App.Admin.SystemUpdateInfo GetPendingSystemUpdate(class Android.Content.ComponentName admin) cil managed" />
       <MemberSignature Language="DocId" Value="M:Android.App.Admin.DevicePolicyManager.GetPendingSystemUpdate(Android.Content.ComponentName)" />
       <MemberSignature Language="F#" Value="abstract member GetPendingSystemUpdate : Android.Content.ComponentName -&gt; Android.App.Admin.SystemUpdateInfo&#xA;override this.GetPendingSystemUpdate : Android.Content.ComponentName -&gt; Android.App.Admin.SystemUpdateInfo" Usage="devicePolicyManager.GetPendingSystemUpdate admin" />
-      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.SystemUpdateInfo? GetPendingSystemUpdate (Android.Content.ComponentName? admin);" FrameworkAlternate="net-android-35.0" />
+      <MemberSignature Language="C#" Value="public virtual Android.App.Admin.SystemUpdateInfo? GetPendingSystemUpdate (Android.Content.ComponentName? admin);" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -9569,7 +10189,7 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_QUERY_SYSTEM_UPDATES")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_QUERY_SYSTEM_UPDATES")&gt;]</AttributeName>
         </Attribute>
@@ -12748,11 +13368,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.Register("isMtePolicyEnforced", "()Z", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isMtePolicyEnforced", "()Z", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -14150,7 +14770,7 @@
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_LOCK")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_LOCK")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.LOCK_DEVICE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.LOCK_DEVICE")&gt;]</AttributeName>
         </Attribute>
@@ -14220,7 +14840,7 @@
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.LOCK_DEVICE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.LOCK_DEVICE")&gt;]</AttributeName>
         </Attribute>
@@ -17288,7 +17908,24 @@
             <c>#setPasswordQuality(ComponentName, int)</c> on the parent <c>DevicePolicyManager</c>
             instance, they must be cleared by calling <c>#setPasswordQuality(ComponentName, int)</c>
             with <c>#PASSWORD_QUALITY_UNSPECIFIED</c> on that instance prior to setting complexity
-            requirement for the managed profile.</para>
+            requirement for the managed profile.
+            
+            Starting from <c>Build.VERSION_CODES#VANILLA_ICE_CREAM</c>, after the password
+            requirement has been set, <c>PolicyUpdateReceiver#onPolicySetResult(Context, String,
+            Bundle, TargetUser, PolicyUpdateResult)</c> will notify the admin on whether the policy was
+            successfully set or not. This callback will contain:
+            &lt;ul&gt;
+            &lt;li&gt; The policy identifier <c>DevicePolicyIdentifiers#PASSWORD_COMPLEXITY_POLICY</c>&lt;li&gt; The <c>TargetUser</c> that this policy relates to
+            &lt;li&gt; The <c>PolicyUpdateResult</c>, which will be
+            <c>PolicyUpdateResult#RESULT_POLICY_SET</c> if the policy was successfully set or the
+            reason the policy failed to be set
+            e.g. <c>PolicyUpdateResult#RESULT_FAILURE_CONFLICTING_ADMIN_POLICY</c>)
+            &lt;/ul&gt;
+            If there has been a change to the policy,
+            <c>PolicyUpdateReceiver#onPolicyChanged(Context, String, Bundle, TargetUser,
+            PolicyUpdateResult)</c> will notify the admin of this change. This callback will contain the
+            same parameters as PolicyUpdateReceiver#onPolicySetResult and the <c>PolicyUpdateResult</c>
+            will contain the reason why the policy changed.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setRequiredPasswordComplexity(int)" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.setRequiredPasswordComplexity(int)</code>.</a>
@@ -18504,12 +19141,9 @@
             owner of an organization-owned managed profile to turn auto time on and off.</summary>
         <remarks>
           <para>Called by a device owner, a profile owner for the primary user or a profile
-            owner of an organization-owned managed profile to turn auto time on and off.
-            Callers are recommended to use <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c>
-            to prevent the user from changing this setting.</para>
-          <para>If user restriction <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c> is used,
-            no user will be able set the date and time. Instead, the network date
-            and time will be used.</para>
+            owner of an organization-owned managed profile to turn auto time on and off.</para>
+          <para>Callers are recommended to use <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c> to prevent the
+            user from changing this setting, that way no user will be able set the date and time zone.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setAutoTimeEnabled(android.content.ComponentName,%20boolean)" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.setAutoTimeEnabled(android.content.ComponentName, boolean)</code>.</a>
@@ -18623,12 +19257,9 @@
             owner of an organization-owned managed profile to turn auto time zone on and off.</summary>
         <remarks>
           <para>Called by a device owner, a profile owner for the primary user or a profile
-            owner of an organization-owned managed profile to turn auto time zone on and off.
-            Callers are recommended to use <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c>
-            to prevent the user from changing this setting.</para>
-          <para>If user restriction <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c> is used,
-            no user will be able set the date and time zone. Instead, the network date
-            and time zone will be used.</para>
+            owner of an organization-owned managed profile to turn auto time zone on and off.</para>
+          <para>Callers are recommended to use <c>UserManager#DISALLOW_CONFIG_DATE_TIME</c> to prevent the
+            user from changing this setting, that way no user will be able set the date and time zone.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setAutoTimeZoneEnabled(android.content.ComponentName,%20boolean)" title="Reference documentation">Java documentation for <code>android.app.admin.DevicePolicyManager.setAutoTimeZoneEnabled(android.content.ComponentName, boolean)</code>.</a>
@@ -19038,15 +19669,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("setContentProtectionPolicy", "(Landroid/content/ComponentName;I)V", "GetSetContentProtectionPolicy_Landroid_content_ComponentName_IHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setContentProtectionPolicy", "(Landroid/content/ComponentName;I)V", "GetSetContentProtectionPolicy_Landroid_content_ComponentName_IHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -19055,8 +19686,8 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="admin" Type="Android.Content.ComponentName" Index="0" FrameworkAlternate="net-android-35.0" />
-        <Parameter Name="policy" Type="Android.App.Admin.ContentProtectionPolicy" Index="1" FrameworkAlternate="net-android-35.0">
+        <Parameter Name="admin" Type="Android.Content.ComponentName" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
+        <Parameter Name="policy" Type="Android.App.Admin.ContentProtectionPolicy" Index="1" FrameworkAlternate="net-android-35.0;net-android-36.0">
           <Attributes>
             <Attribute>
               <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
@@ -22237,7 +22868,10 @@
                &lt;li&gt;Manifest.permission.RECORD_BACKGROUND_AUDIO&lt;/li&gt;
                &lt;li&gt;Manifest.permission.ACTIVITY_RECOGNITION&lt;/li&gt;
                &lt;li&gt;Manifest.permission.BODY_SENSORS&lt;/li&gt;
-            &lt;/ul&gt;</para>
+            &lt;/ul&gt;
+            On devices running <c>android.os.Build.VERSION_CODES#BAKLAVA</c>, the
+            <c>android.health.connect.HealthPermissions</c> are also included in the
+            restricted list.</para>
           <para>A profile owner may not grant these permissions (i.e. call this method with any of the
             permissions listed above and <c>grantState</c> of <c>#PERMISSION_GRANT_STATE_GRANTED</c>),
             but may deny them.</para>
@@ -22245,6 +22879,12 @@
             user control, the admin may opt out of controlling grants for these permissions by including
             <c>#EXTRA_PROVISIONING_SENSORS_PERMISSION_GRANT_OPT_OUT</c> in the provisioning parameters.
             In that case the device owner's control will be limited to denying these permissions.</para>
+          <para>When sensor-related permissions aren't grantable due to the above cases, calling this method
+            to grant these permissions will silently fail, if device admins are built with
+            <c>targetSdkVersion</c> &amp;lt; <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>. If
+            they are built with <c>targetSdkVersion</c> &amp;gt;=
+            <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>, this method will throw a
+            <c>SecurityException</c>.</para>
           <para>NOTE: On devices running <c>android.os.Build.VERSION_CODES#S</c> and above, control over
             the following permissions are restricted for managed profile owners:
             &lt;ul&gt;
@@ -24309,15 +24949,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.Register("getSubscriptionIds", "()Ljava/util/Set;", "GetGetSubscriptionIdsHandler", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSubscriptionIds", "()Ljava/util/Set;", "GetGetSubscriptionIdsHandler", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_MANAGED_SUBSCRIPTIONS")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_POLICY_MANAGED_SUBSCRIPTIONS")&gt;]</AttributeName>
         </Attribute>

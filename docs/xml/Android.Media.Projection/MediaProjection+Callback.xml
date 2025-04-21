@@ -274,12 +274,19 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Called when the MediaProjection session is no longer valid.</summary>
+        <summary>Called when the MediaProjection session has been stopped and is no longer valid.</summary>
         <remarks>
-          <para>Called when the MediaProjection session is no longer valid.</para>
+          <para>Called when the MediaProjection session has been stopped and is no longer valid.</para>
           <para>Once a MediaProjection has been stopped, it's up to the application to release any
-            resources it may be holding (e.g. releasing the <c>VirtualDisplay</c> and
-            <c>Surface</c>).</para>
+            resources it may be holding (e.g. releasing the <c>VirtualDisplay</c> and <c>Surface</c>). If the application is displaying any UI indicating the MediaProjection state
+            it should be updated to indicate that MediaProjection is no longer active.</para>
+          <para>MediaProjection stopping can be a result of the system stopping the ongoing
+            MediaProjection due to various reasons, such as another MediaProjection session starting,
+            a user stopping the session via UI affordances in system-level UI, or the screen being
+            locked.</para>
+          <para>After this callback any call to <c>MediaProjection#createVirtualDisplay</c> will
+            fail, even if no such <c>VirtualDisplay</c> was ever created for this MediaProjection
+            session.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/projection/MediaProjection.Callback#onStop()" title="Reference documentation">Java documentation for <code>android.media.projection.MediaProjection.Callback.onStop()</code>.</a>

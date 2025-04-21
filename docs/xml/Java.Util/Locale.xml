@@ -49,8 +49,8 @@
             according to the customs and conventions of the user's native country,
             region, or culture.</para>
       <para>The <c>Locale</c> class implements IETF BCP 47 which is composed of
-            <see href="http://tools.ietf.org/html/rfc4647">RFC 4647 "Matching of Language
-            Tags"</see> and <see href="http://tools.ietf.org/html/rfc5646">RFC 5646 "Tags
+            <see href="https://tools.ietf.org/html/rfc4647">RFC 4647 "Matching of Language
+            Tags"</see> and <see href="https://tools.ietf.org/html/rfc5646">RFC 5646 "Tags
             for Identifying Languages"</see> with support for the LDML (UTS#35, "Unicode
             Locale Data Markup Language") BCP 47-compatible extensions for locale data
             exchange.</para>
@@ -196,39 +196,26 @@
             implementations in a Java Runtime Environment might not support any
             particular Unicode locale attributes or key/type pairs.
             
-            &lt;h3&gt;Creating a Locale&lt;/h3&gt;</para>
-      <para>There are several different ways to create a <c>Locale</c>
+            &lt;h3&gt;"ObtainingLocale"&gt;Obtaining a Locale&lt;/h3&gt;</para>
+      <para>There are several ways to obtain a <c>Locale</c>
             object.
             
             &lt;h4&gt;Builder&lt;/h4&gt;</para>
       <para>Using <c>Builder</c> you can construct a <c>Locale</c> object
             that conforms to BCP 47 syntax.
             
-            &lt;h4&gt;Constructors&lt;/h4&gt;</para>
-      <para>The <c>Locale</c> class provides three constructors:
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">{@link #Locale(String language)}
-                {@link #Locale(String language, String country)}
-                {@link #Locale(String language, String country, String variant)}
-            </code>
-      <para>&lt;/blockquote&gt;
-            These constructors allow you to create a <c>Locale</c> object
-            with language, country and variant, but you cannot specify
-            script or extensions.
-            
             &lt;h4&gt;Factory Methods&lt;/h4&gt;</para>
-      <para>The method <c>#forLanguageTag</c> creates a <c>Locale</c>
-            object for a well-formed BCP 47 language tag.
+      <para>The method <c>#forLanguageTag</c> obtains a <c>Locale</c>
+            object for a well-formed BCP 47 language tag. The method
+            <c>#of(String, String, String)</c> and its overloads obtain a
+            <c>Locale</c> object from given <c>language</c>, <c>country</c>,
+            and/or <c>variant</c> defined above.
             
             &lt;h4&gt;Locale Constants&lt;/h4&gt;</para>
       <para>The <c>Locale</c> class provides a number of convenient constants
-            that you can use to create <c>Locale</c> objects for commonly used
-            locales. For example, the following creates a <c>Locale</c> object
-            for the United States:
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">Locale.US
-            </code>
-      <para>&lt;/blockquote&gt;
+            that you can use to obtain <c>Locale</c> objects for commonly used
+            locales. For example, <c>Locale.US</c> is the <c>Locale</c> object
+            for the United States.
             
             &lt;h3&gt;"LocaleMatching"&gt;Locale Matching&lt;/h3&gt;</para>
       <para>If an application or a system is internationalized and provides localized
@@ -237,7 +224,7 @@
             that a term "language tag" is used interchangeably with "locale" in this
             locale matching documentation.</para>
       <para>In order to do matching a user's preferred locales to a set of language
-            tags, <see href="http://tools.ietf.org/html/rfc4647">RFC 4647 Matching of
+            tags, <see href="https://tools.ietf.org/html/rfc4647">RFC 4647 Matching of
             Language Tags</see> defines two mechanisms: filtering and lookup.
             &lt;em&gt;Filtering&lt;/em&gt; is used to get all matching locales, whereas
             &lt;em&gt;lookup&lt;/em&gt; is to choose the best matching locale.
@@ -293,7 +280,7 @@
             the best matching one.
             
             &lt;h3&gt;Use of Locale&lt;/h3&gt;</para>
-      <para>Once you've created a <c>Locale</c> you can query it for information
+      <para>Once you've obtained a <c>Locale</c> you can query it for information
             about itself. Use <c>getCountry</c> to get the country (or region)
             code and <c>getLanguage</c> to get the language code.
             You can use <c>getDisplayCountry</c> to get the
@@ -311,190 +298,7 @@
             for creating a default object of that type. For example, the
             <c>NumberFormat</c> class provides these three convenience methods
             for creating a default <c>NumberFormat</c> object:
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">NumberFormat.getInstance()
-                NumberFormat.getCurrencyInstance()
-                NumberFormat.getPercentInstance()
-            </code>
-      <para>&lt;/blockquote&gt;
-            Each of these methods has two variants; one with an explicit locale
-            and one without; the latter uses the default
-            <c>Locale.Category#FORMAT FORMAT</c> locale:
-            &lt;blockquote&gt;</para>
-      <code lang="text/java">NumberFormat.getInstance(myLocale)
-                NumberFormat.getCurrencyInstance(myLocale)
-                NumberFormat.getPercentInstance(myLocale)
-            </code>
-      <para>&lt;/blockquote&gt;
-            A <c>Locale</c> is the mechanism for identifying the kind of object
-            (<c>NumberFormat</c>) that you would like to get. The locale is
-            &lt;STRONG&gt;just&lt;/STRONG&gt; a mechanism for identifying objects,
-            &lt;STRONG&gt;not&lt;/STRONG&gt; a container for the objects themselves.
-            
-            &lt;h3&gt;Compatibility&lt;/h3&gt;</para>
-      <para>In order to maintain compatibility with existing usage, Locale's
-            constructors retain their behavior prior to the Java Runtime
-            Environment version 1.7.  The same is largely true for the
-            <c>toString</c> method. Thus Locale objects can continue to
-            be used as they were. In particular, clients who parse the output
-            of toString into language, country, and variant fields can continue
-            to do so (although this is strongly discouraged), although the
-            variant field will have additional information in it if script or
-            extensions are present.</para>
-      <para>In addition, BCP 47 imposes syntax restrictions that are not
-            imposed by Locale's constructors. This means that conversions
-            between some Locales and BCP 47 language tags cannot be made without
-            losing information. Thus <c>toLanguageTag</c> cannot
-            represent the state of locales whose language, country, or variant
-            do not conform to BCP 47.</para>
-      <para>Because of these issues, it is recommended that clients migrate
-            away from constructing non-conforming locales and use the
-            <c>forLanguageTag</c> and <c>Locale.Builder</c> APIs instead.
-            Clients desiring a string representation of the complete locale can
-            then always rely on <c>toLanguageTag</c> for this purpose.
-            
-            &lt;h4&gt;"special_cases_constructor"&gt;Special cases&lt;/h4&gt;</para>
-      <para>For compatibility reasons, two
-            non-conforming locales are treated as special cases.  These are
-            &lt;b&gt;<c>ja_JP_JP</c>&lt;/b&gt; and &lt;b&gt;<c>th_TH_TH</c>&lt;/b&gt;. These are ill-formed
-            in BCP 47 since the variants are too short. To ease migration to BCP 47,
-            these are treated specially during construction.  These two cases (and only
-            these) cause a constructor to generate an extension, all other values behave
-            exactly as they did prior to Java 7.</para>
-      <para>Java has used <c>ja_JP_JP</c> to represent Japanese as used in
-            Japan together with the Japanese Imperial calendar. This is now
-            representable using a Unicode locale extension, by specifying the
-            Unicode locale key <c>ca</c> (for "calendar") and type
-            <c>japanese</c>. When the Locale constructor is called with the
-            arguments "ja", "JP", "JP", the extension "u-ca-japanese" is
-            automatically added.</para>
-      <para>Java has used <c>th_TH_TH</c> to represent Thai as used in
-            Thailand together with Thai digits. This is also now representable using
-            a Unicode locale extension, by specifying the Unicode locale key
-            <c>nu</c> (for "number") and value <c>thai</c>. When the Locale
-            constructor is called with the arguments "th", "TH", "TH", the
-            extension "u-nu-thai" is automatically added.
-            
-            &lt;h4&gt;Serialization&lt;/h4&gt;</para>
-      <para>During serialization, writeObject writes all fields to the output
-            stream, including extensions.</para>
-      <para>During deserialization, readResolve adds extensions as described
-            in Special Cases, only
-            for the two cases th_TH_TH and ja_JP_JP.
-            
-            &lt;h4&gt;"legacy_language_codes"&gt;Legacy language codes&lt;/h4&gt;</para>
-      <para>Locale's constructor has always converted three language codes to
-            their earlier, obsoleted forms: <c>he</c> maps to <c>iw</c>,
-            <c>yi</c> maps to <c>ji</c>, and <c>id</c> maps to
-            <c>in</c>. Since Java SE 17, this is no longer the case. Each
-            language maps to its new form; <c>iw</c> maps to <c>he</c>, <c>ji</c>
-            maps to <c>yi</c>, and <c>in</c> maps to <c>id</c>.</para>
-      <para>The APIs added in 1.7 map between the old and new language codes,
-            maintaining the mapped codes internal to Locale (so that
-            <c>getLanguage</c> and <c>toString</c> reflect the mapped
-            code, which depends on the <c>java.locale.useOldISOCodes</c> system
-            property), but using the new codes in the BCP 47 language tag APIs (so
-            that <c>toLanguageTag</c> reflects the new one). This
-            preserves the equivalence between Locales no matter which code or
-            API is used to construct them. Java's default resource bundle
-            lookup mechanism also implements this mapping, so that resources
-            can be named using either convention, see <c>ResourceBundle.Control</c>.
-            
-            &lt;h4&gt;Three-letter language/country(region) codes&lt;/h4&gt;</para>
-      <para>The Locale constructors have always specified that the language
-            and the country param be two characters in length, although in
-            practice they have accepted any length.  The specification has now
-            been relaxed to allow language codes of two to eight characters and
-            country (region) codes of two to three characters, and in
-            particular, three-letter language codes and three-digit region
-            codes as specified in the IANA Language Subtag Registry.  For
-            compatibility, the implementation still does not impose a length
-            constraint.
-            
-            "locale_data"&gt;&lt;h4&gt;Locale data&lt;/h4&gt;</para>
-      <para>Note that locale data comes solely from ICU. User-supplied locale service providers (using
-            the <c>java.text.spi</c> or <c>java.util.spi</c> mechanisms) are not supported.</para>
-      <para>Here are the versions of ICU (and the corresponding CLDR and Unicode versions) used in
-            various Android releases:
-            &lt;table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY=""&gt;
-            &lt;tr&gt;&lt;td&gt;Android 1.5 (Cupcake)/Android 1.6 (Donut)/Android 2.0 (Eclair)&lt;/td&gt;
-                &lt;td&gt;ICU 3.8&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-1-5">CLDR 1.5</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode5.0.0/">Unicode 5.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 2.2 (Froyo)&lt;/td&gt;
-                &lt;td&gt;ICU 4.2&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-1-7">CLDR 1.7</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode5.1.0/">Unicode 5.1</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 2.3 (Gingerbread)/Android 3.0 (Honeycomb)&lt;/td&gt;
-                &lt;td&gt;ICU 4.4&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-1-8">CLDR 1.8</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode 5.2</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 4.0 (Ice Cream Sandwich)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/46">ICU 4.6</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-1-9">CLDR 1.9</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode6.0.0/">Unicode 6.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 4.1 (Jelly Bean)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/48">ICU 4.8</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-2-0">CLDR 2.0</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode6.0.0/">Unicode 6.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 4.3 (Jelly Bean MR2)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/50">ICU 50</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-22-1">CLDR 22.1</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 4.4 (KitKat)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/51">ICU 51</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-23">CLDR 23</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 5.0 (Lollipop)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/53">ICU 53</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-25">CLDR 25</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode6.3.0/">Unicode 6.3</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 6.0 (Marshmallow)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/55">ICU 55.1</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-27">CLDR 27.0.1</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode7.0.0/">Unicode 7.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 7.0 (Nougat)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/56">ICU 56.1</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-28">CLDR 28</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode8.0.0/">Unicode 8.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 8.0 (Oreo)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/58">ICU 58.2</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-30">CLDR 30.0.3</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode9.0.0/">Unicode 9.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 9.0 (Pie)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/60">ICU 60.2</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-32">CLDR 32.0.1</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode10.0.0/">Unicode 10.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;tr&gt;&lt;td&gt;Android 10.0 (Q)&lt;/td&gt;
-                &lt;td&gt;<see href="http://site.icu-project.org/download/63">ICU 63.2</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://cldr.unicode.org/index/downloads/cldr-34">CLDR 34</see>&lt;/td&gt;
-                &lt;td&gt;<see href="http://www.unicode.org/versions/Unicode11.0.0/">Unicode 11.0</see>&lt;/td&gt;&lt;/tr&gt;
-            &lt;/table&gt;
-            
-            "default_locale"&gt;&lt;h4&gt;Be wary of the default locale&lt;/h3&gt;</para>
-      <para>Note that there are many convenience methods that automatically use the default locale, but
-            using them may lead to subtle bugs.</para>
-      <para>The default locale is appropriate for tasks that involve presenting data to the user. In
-            this case, you want to use the user's date/time formats, number
-            formats, rules for conversion to lowercase, and so on. In this case, it's safe to use the
-            convenience methods.</para>
-      <para>The default locale is <i>not</i> appropriate for machine-readable output. The best choice
-            there is usually <c>Locale.US</c>&amp;nbsp;&amp;ndash; this locale is guaranteed to be available on all
-            devices, and the fact that it has no surprising special cases and is frequently used (especially
-            for computer-computer communication) means that it tends to be the most efficient choice too.</para>
-      <para>A common mistake is to implicitly use the default locale when producing output meant to be
-            machine-readable. This tends to work on the developer's test devices (especially because so many
-            developers use en_US), but fails when run on a device whose user is in a more complex locale.</para>
-      <para>For example, if you're formatting integers some locales will use non-ASCII decimal
-            digits. As another example, if you're formatting floating-point numbers some locales will use
-            <c>','</c> as the decimal point and <c>'.'</c> for digit grouping. That's correct for
-            human-readable output, but likely to cause problems if presented to another
-            computer (<c>Double#parseDouble</c> can't parse such a number, for example).
-            You should also be wary of the <c>String#toLowerCase</c> and
-            <c>String#toUpperCase</c> overloads that don't take a <c>Locale</c>: in Turkey, for example,
-            the characters <c>'i'</c> and <c>'I'</c> won't be converted to <c>'I'</c> and <c>'i'</c>.
-            This is the correct behavior for Turkish text (such as user input), but inappropriate for, say,
-            HTTP headers.</para>
+            {</para>
       <para>Added in 1.1.</para>
       <para>
         <format type="text/html">
@@ -524,6 +328,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
@@ -575,6 +383,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/String;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
@@ -629,6 +441,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
@@ -2443,12 +2259,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns <c>true</c> if this <c>Locale</c> has any 
+        <summary>Returns <c>true</c> if this <c>Locale</c> has any ##def_extensions
             extensions.</summary>
         <value>
           <c>true</c> if this <c>Locale</c> has any extensions</value>
         <remarks>
-          <para>Returns <c>true</c> if this <c>Locale</c> has any 
+          <para>Returns <c>true</c> if this <c>Locale</c> has any ##def_extensions
             extensions.</para>
           <para>Added in 1.8.</para>
           <para>
@@ -3009,6 +2825,111 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Of">
+      <MemberSignature Language="C#" Value="public static Java.Util.Locale Of (string language);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.Locale Of(string language) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Locale.Of(System.String)" />
+      <MemberSignature Language="F#" Value="static member Of : string -&gt; Java.Util.Locale" Usage="Java.Util.Locale.Of language" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("of", "(Ljava/lang/String;)Ljava/util/Locale;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("of", "(Ljava/lang/String;)Ljava/util/Locale;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Locale</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="language" Type="System.String" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="language">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Of">
+      <MemberSignature Language="C#" Value="public static Java.Util.Locale Of (string language, string country);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.Locale Of(string language, string country) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Locale.Of(System.String,System.String)" />
+      <MemberSignature Language="F#" Value="static member Of : string * string -&gt; Java.Util.Locale" Usage="Java.Util.Locale.Of (language, country)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("of", "(Ljava/lang/String;Ljava/lang/String;)Ljava/util/Locale;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("of", "(Ljava/lang/String;Ljava/lang/String;)Ljava/util/Locale;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Locale</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="language" Type="System.String" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="country" Type="System.String" Index="1" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="language">To be added.</param>
+        <param name="country">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Of">
+      <MemberSignature Language="C#" Value="public static Java.Util.Locale Of (string language, string country, string variant);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Util.Locale Of(string language, string country, string variant) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Util.Locale.Of(System.String,System.String,System.String)" />
+      <MemberSignature Language="F#" Value="static member Of : string * string * string -&gt; Java.Util.Locale" Usage="Java.Util.Locale.Of (language, country, variant)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("of", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Locale;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("of", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Locale;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Util.Locale</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="language" Type="System.String" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="country" Type="System.String" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="variant" Type="System.String" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="language">To be added.</param>
+        <param name="country">To be added.</param>
+        <param name="variant">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Prc">
