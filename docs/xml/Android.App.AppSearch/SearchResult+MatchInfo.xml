@@ -44,63 +44,9 @@
   <Docs>
     <summary>This class represents match objects for any snippets that might be present in <c>SearchResults</c> from a query.</summary>
     <remarks>
-      <para>This class represents match objects for any snippets that might be present in <c>SearchResults</c> from a query. Using this class, you can get:
-            
-            &lt;ul&gt;
-              &lt;li&gt;the full text - all of the text in that String property
-              &lt;li&gt;the exact term match - the 'term' (full word) that matched the query
-              &lt;li&gt;the subterm match - the portion of the matched term that appears in the query
-              &lt;li&gt;a suggested text snippet - a portion of the full text surrounding the exact term match,
-                  set to term boundaries. The size of the snippet is specified in <c>SearchSpec.Builder#setMaxSnippetSize</c>&lt;/ul&gt;
-            
-            for each match in the document.</para>
-      <para>Class Example 1:</para>
-      <para>A document contains the following text in property "subject":</para>
-      <para>"A commonly used fake word is foo. Another nonsense word that’s used a lot is bar."</para>
-      <para>If the queryExpression is "foo" and <c>SearchSpec#getMaxSnippetSize</c> is 10,
-            
-            &lt;ul&gt;
-              &lt;li&gt;<c>MatchInfo#getPropertyPath()</c> returns "subject"
-              &lt;li&gt;<c>MatchInfo#getFullText()</c> returns "A commonly used fake word is foo. Another
-                  nonsense word that’s used a lot is bar."
-              &lt;li&gt;<c>MatchInfo#getExactMatchRange()</c> returns [29, 32]
-              &lt;li&gt;<c>MatchInfo#getExactMatch()</c> returns "foo"
-              &lt;li&gt;<c>MatchInfo#getSubmatchRange()</c> returns [29, 32]
-              &lt;li&gt;<c>MatchInfo#getSubmatch()</c> returns "foo"
-              &lt;li&gt;<c>MatchInfo#getSnippetRange()</c> returns [26, 33]
-              &lt;li&gt;<c>MatchInfo#getSnippet()</c> returns "is foo."
-            &lt;/ul&gt;</para>
-      <para />
-      <para>Class Example 2:</para>
-      <para>A document contains one property named "subject" and one property named "sender" which
-            contains a "name" property.</para>
-      <para>In this case, we will have 2 property paths: <c>sender.name</c> and <c>subject</c>.</para>
-      <para>Let <c>sender.name = "Test Name Jr."</c> and <c>subject = "Testing 1 2 3"</c></para>
-      <para>If the queryExpression is "Test" with <c>SearchSpec#TERM_MATCH_PREFIX</c> and <c>SearchSpec#getMaxSnippetSize</c> is 10. We will have 2 matches:</para>
-      <para>Match-1
-            
-            &lt;ul&gt;
-              &lt;li&gt;<c>MatchInfo#getPropertyPath()</c> returns "sender.name"
-              &lt;li&gt;<c>MatchInfo#getFullText()</c> returns "Test Name Jr."
-              &lt;li&gt;<c>MatchInfo#getExactMatchRange()</c> returns [0, 4]
-              &lt;li&gt;<c>MatchInfo#getExactMatch()</c> returns "Test"
-              &lt;li&gt;<c>MatchInfo#getSubmatchRange()</c> returns [0, 4]
-              &lt;li&gt;<c>MatchInfo#getSubmatch()</c> returns "Test"
-              &lt;li&gt;<c>MatchInfo#getSnippetRange()</c> returns [0, 9]
-              &lt;li&gt;<c>MatchInfo#getSnippet()</c> returns "Test Name"
-            &lt;/ul&gt;</para>
-      <para>Match-2
-            
-            &lt;ul&gt;
-              &lt;li&gt;<c>MatchInfo#getPropertyPath()</c> returns "subject"
-              &lt;li&gt;<c>MatchInfo#getFullText()</c> returns "Testing 1 2 3"
-              &lt;li&gt;<c>MatchInfo#getExactMatchRange()</c> returns [0, 7]
-              &lt;li&gt;<c>MatchInfo#getExactMatch()</c> returns "Testing"
-              &lt;li&gt;<c>MatchInfo#getSubmatchRange()</c> returns [0, 4]
-              &lt;li&gt;<c>MatchInfo#getSubmatch()</c> returns "Test"
-              &lt;li&gt;<c>MatchInfo#getSnippetRange()</c> returns [0, 9]
-              &lt;li&gt;<c>MatchInfo#getSnippet()</c> returns "Testing 1"
-            &lt;/ul&gt;</para>
+      <para>This class represents match objects for any snippets that might be present in <c>SearchResults</c> from a query.</para>
+      <para>A <c>MatchInfo</c> contains either a <c>TextMatchInfo</c> representing a text match
+            snippet, or an <c>EmbeddingMatchInfo</c> representing an embedding match snippet.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.MatchInfo" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.MatchInfo</code>.</a>
@@ -232,10 +178,8 @@
         <summary>Gets the exact term of the given entry that matched the query.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Gets the exact term of the given entry that matched the query.</para>
-          <para>Class example 1: this returns "foo".</para>
-          <para>Class example 2: for the first <c>MatchInfo</c>, this returns "Test" and, for the
-            second <c>MatchInfo</c>, this returns "Testing".</para>
+          <para>Gets the exact term of the given entry that matched the query. Returns an empty
+            CharSequence if the match is not text-based.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.MatchInfo#getExactMatch()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.MatchInfo.getExactMatch()</code>.</a>
@@ -305,11 +249,8 @@
         <summary>Gets the full text corresponding to the given entry.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Gets the full text corresponding to the given entry.</para>
-          <para>Class example 1: this returns "A commonly used fake word is foo. Another nonsense word
-            that's used a lot is bar."</para>
-          <para>Class example 2: for the first <c>MatchInfo</c>, this returns "Test Name Jr." and,
-            for the second <c>MatchInfo</c>, this returns "Testing 1 2 3".</para>
+          <para>Gets the full text corresponding to the given entry. Returns an empty string if the match
+            is not text-based.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.MatchInfo#getFullText()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.MatchInfo.getFullText()</code>.</a>
@@ -503,13 +444,11 @@
         <summary>Gets the snippet corresponding to the given entry.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Gets the snippet corresponding to the given entry.</para>
+          <para>Gets the snippet corresponding to the given entry. Returns an empty CharSequence if the
+            match is not text-based.</para>
           <para>Snippet - Provides a subset of the content to display. Only populated when requested
             maxSnippetSize &gt; 0. The size of this content can be changed by <c>SearchSpec.Builder#setMaxSnippetSize</c>. Windowing is centered around the middle of the
             matched token with content on either side clipped to token boundaries.</para>
-          <para>Class example 1: this returns "foo. Another".</para>
-          <para>Class example 2: for the first <c>MatchInfo</c>, this returns "Test Name" and, for
-            the second <c>MatchInfo</c>, this returns "Testing 1 2 3".</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.MatchInfo#getSnippet()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.MatchInfo.getSnippet()</code>.</a>
@@ -608,10 +547,8 @@
         <summary>Gets the exact term subsequence of the given entry that matched the query.</summary>
         <value>To be added.</value>
         <remarks>
-          <para>Gets the exact term subsequence of the given entry that matched the query.</para>
-          <para>Class example 1: this returns "foo".</para>
-          <para>Class example 2: for the first <c>MatchInfo</c>, this returns "Test" and, for the
-            second <c>MatchInfo</c>, this returns "Test".</para>
+          <para>Gets the exact term subsequence of the given entry that matched the query. Returns an
+            empty CharSequence if the match is not text-based.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.MatchInfo#getSubmatch()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.MatchInfo.getSubmatch()</code>.</a>

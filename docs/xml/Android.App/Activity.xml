@@ -10399,22 +10399,27 @@
       <Docs>
         <param name="requestedOrientation">An orientation constant as used in
             <c>ActivityInfo#screenOrientation ActivityInfo.screenOrientation</c>.</param>
-        <summary>Return the current requested orientation of the activity. -or- Change the desired orientation of this activity.</summary>
+        <summary>Returns the current requested orientation of the activity, which is either the orientation
+            requested in the app manifest or the last orientation given to
+            <c>#setRequestedOrientation(int)</c>. -or- Change the desired orientation of this activity.</summary>
         <value>Returns an orientation constant as used in
             <c>ActivityInfo#screenOrientation ActivityInfo.screenOrientation</c>.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>Return the current requested orientation of the activity. This is either the orientation
-            requested in the app manifest, or the last requested orientation given to
+          <para>Returns the current requested orientation of the activity, which is either the orientation
+            requested in the app manifest or the last orientation given to
             <c>#setRequestedOrientation(int)</c>.
             
             "note"&gt;&lt;b&gt;Note:&lt;/b&gt;
                 &lt;ul&gt;
+                    &lt;li&gt;To improve the layout of apps on form factors with smallest width &gt;= 600dp, the
+                        system ignores calls to this method for apps that target Android 16 (API level
+                        36) or higher.&lt;/li&gt;
                     &lt;li&gt;Device manufacturers can configure devices to ignore calls to this method to
                         improve the layout of orientation-restricted apps.&lt;/li&gt;
                     &lt;li&gt;On devices with Android 16 (API level 36) or higher installed, virtual device
-                        owners (limited to select trusted and privileged apps) can optimize app layout on
-                        displays they manage by ignoring calls to this method. See also
+                        owners (select trusted and privileged apps) can optimize app layout on displays
+                        they manage by ignoring calls to this method. See also
                         &lt;see href="https://source.android.com/docs/core/permissions/app-streaming"&gt;
                           Companion app streaming&lt;/see&gt;.&lt;/li&gt;
                 &lt;/ul&gt;
@@ -10430,16 +10435,19 @@
           <para>Property setter documentation:</para>
           <para>Change the desired orientation of this activity. If the activity is currently in the
             foreground or otherwise impacting the screen orientation, the screen is immediately changed
-            (possibly causing the activity to be restarted). Otherwise, the requested orientation is used
-            the next time the activity is visible.
+            (possibly causing the activity to be restarted). Otherwise, the new orientation is used the
+            next time the activity is visible.
             
             "note"&gt;&lt;b&gt;Note:&lt;/b&gt;
                 &lt;ul&gt;
-                    &lt;li&gt;Device manufacturers can configure devices to override (ignore) calls to this
-                        method to improve the layout of orientation-restricted apps.&lt;/li&gt;
+                    &lt;li&gt;To improve the layout of apps on form factors with smallest width &gt;= 600dp, the
+                        system ignores calls to this method for apps that target Android 16 (API level
+                        36) or higher.&lt;/li&gt;
+                    &lt;li&gt;Device manufacturers can configure devices to ignore calls to this method to
+                        improve the layout of orientation-restricted apps.&lt;/li&gt;
                     &lt;li&gt;On devices with Android 16 (API level 36) or higher installed, virtual device
-                        owners (limited to select trusted and privileged apps) can optimize app layout on
-                        displays they manage by ignoring calls to this method. See also
+                        owners (select trusted and privileged apps) can optimize app layout on displays
+                        they manage by ignoring calls to this method. See also
                         &lt;see href="https://source.android.com/docs/core/permissions/app-streaming"&gt;
                           Companion app streaming&lt;/see&gt;.&lt;/li&gt;
                 &lt;/ul&gt;

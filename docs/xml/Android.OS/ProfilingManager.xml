@@ -53,19 +53,20 @@
             local testing of <c>#requestProfiling</c> using the shell command
             <c>device_config put profiling_testing rate_limiter.disabled true</c></para>
       <para>For local testing, profiling results can be accessed more easily by enabling debug mode. This
-            will retain output files in a temporary system directory, which is accessible by adb shell. The
-            locations of the retained files will be available in logcat. The behavior and command varies by
-            version:
+            will retain output files in a temporary system directory. The locations of the retained files
+            will be available in logcat. The behavior and command varies by version:
             &lt;ul&gt;
             &lt;li&gt;For Android versions 16 and above, debug mode will retain both unredacted (where applicable)
             and redacted results in the temporary directory. It can be enabled with the shell command
             <c>device_config put profiling_testing delete_temporary_results.disabled true</c> and disabled
-            be setting that same value back to false.
+            by setting that same value back to false. Retained results are accessible on all build types.
             &lt;/li&gt;
             &lt;li&gt;For Android version 15, debug mode will retain only the unredacted result (where applicable)
             in the temporary directory. It can be enabled with the shell command
             <c>device_config put profiling_testing delete_unredacted_trace.disabled true</c> and disabled
-            be setting that same value back to false.
+            by setting that same value back to false. The retained unredacted file can only be accessed on
+            builds with root access. To access the redacted output file on an unrooted device, apps can copy
+            the file from <c>/pkg/files/profiling/file.type</c> to <c>/pkg/cache/file.type</c>.
             &lt;/li&gt;
             &lt;/ul&gt;</para>
       <para>In order to test profiling triggers, enable testing mode for your app with the shell command
@@ -75,7 +76,8 @@
             &lt;li&gt;Ensure that a background trace is running.&lt;/li&gt;
             &lt;li&gt;Allow all triggers for the provided package name to pass the system level rate limiter.
                 This mode will continue until manually stopped with the shell command
-                <c>device_config delete profiling_testing system_triggered_profiling.testing_package_name</c>.
+                <c>device_config delete profiling_testing
+                system_triggered_profiling.testing_package_name</c>.
                 &lt;/li&gt;
             &lt;/ul&gt;</para>
       <para>Results are redacted and contain specific information about the requesting process only.</para>
@@ -122,20 +124,21 @@
         <param name="triggers">To be added.</param>
         <summary>Register the provided list of triggers for this process.</summary>
         <remarks>
-          <para>Register the provided list of triggers for this process.
-            
-            Profiling triggers are system triggered events that an app can register interest in receiving
-            profiling of. There is no guarantee that these triggers will be filled. Results, if
-            available, will be delivered only to a global listener added using
-            <c>#registerForAllProfilingResults</c>.
-            
-            Only one of each trigger type can be added at a time.
+          <para>Register the provided list of triggers for this process.</para>
+          <para>Profiling triggers are system events that an app can register interest in, and then receive
+            profiling data when any of the registered triggers occur. There is no guarantee that these
+            triggers will be filled. Results, if available, will be delivered only to a global listener
+            added using <c>#registerForAllProfilingResults</c>.</para>
+          <para>Only one of each trigger type can be added at a time.
             &lt;ul&gt;
             &lt;li&gt;If the provided list contains a trigger type that is already registered then the new one
                 will replace the existing one.&lt;/li&gt;
             &lt;li&gt;If the provided list contains more than one trigger object for a trigger type then only
                 one will be kept.&lt;/li&gt;
             &lt;/ul&gt;</para>
+          <para>Apps can define their own per-trigger rate limiting to help ensure they receive results
+            aligned with their needs. More details can be found at
+            <c>ProfilingTrigger.Builder#setRateLimitingPeriodHours</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/ProfilingManager#addProfilingTriggers(java.util.List%3Candroid.os.ProfilingTrigger%3E)" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.addProfilingTriggers(java.util.List&lt;android.os.ProfilingTrigger&gt;)</code>.</a>
@@ -538,7 +541,8 @@
                              <c>android.os.ProfilingResult#ERROR_FAILED_INVALID_REQUEST</c>. If the
                              values for the parameters are out of supported range, the closest possible
                              in range value will be chosen.
-                             Use of androidx wrappers is recommended over generating this directly.</param>
+                             Use of <see href="https://developer.android.com/reference/androidx/core/os/Profiling">
+                             androidx wrappers</see> is recommended over generating this directly.</param>
         <param name="tag">Caller defined data to help identify the output.
                              The first 20 alphanumeric characters, plus dashes, will be lowercased
                              and included in the output filename.</param>
@@ -559,8 +563,10 @@
         <remarks>
           <para>Request system profiling.</para>
           <para>Note: use of this API directly is not recommended for most use cases.
-              Consider using the higher level wrappers provided by AndroidX that will construct the
-              request correctly, supporting available options with simplified request parameters</para>
+              Consider using the
+              <see href="https://developer.android.com/reference/androidx/core/os/Profiling">higher level
+              wrappers provided by AndroidX</see> that will construct the request correctly, supporting
+              available options with simplified request parameters.</para>
           <para>Both a listener and an executor must be set at the time of the request for the request to
               be considered for fulfillment. Listener/executor pairs can be set in this method, with
               <c>#registerForAllProfilingResults</c>, or both. The listener and executor must be set
