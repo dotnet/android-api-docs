@@ -601,28 +601,30 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getFillEventHistory", "()Landroid/service/autofill/FillEventHistory;", "", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getFillEventHistory", "()Landroid/service/autofill/FillEventHistory;", "", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Service.Autofill.FillEventHistory</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the events that happened after the last
-            <c>AutofillService#onFillRequest(FillRequest, android.os.CancellationSignal, FillCallback)</c>
+        <summary>Gets the events that happened after the last <c>AutofillService#onFillRequest(FillRequest, android.os.CancellationSignal, FillCallback)</c>
             call.</summary>
         <value>The history or <c>null</c> if there are no events.</value>
         <remarks>
-          <para>Gets the events that happened after the last
-            <c>AutofillService#onFillRequest(FillRequest, android.os.CancellationSignal, FillCallback)</c>
+          <para>Gets the events that happened after the last <c>AutofillService#onFillRequest(FillRequest, android.os.CancellationSignal, FillCallback)</c>
             call.</para>
           <para>This method is typically used to keep track of previous user actions to optimize further
             requests. For example, the service might return email addresses in alphabetical order by
             default, but change that order based on the address the user picked on previous requests.</para>
-          <para>The history is not persisted over reboots, and it's cleared every time the service
-            replies to a <c>#onFillRequest(FillRequest, CancellationSignal, FillCallback)</c> by calling
-            <c>FillCallback#onSuccess(FillResponse)</c> or <c>FillCallback#onFailure(CharSequence)</c>
-            (if the service doesn't call any of these methods, the history will clear out after some
-            pre-defined time). Hence, the service should call <c>#getFillEventHistory()</c> before
-            finishing the <c>FillCallback</c>.</para>
+          <para>The history is not persisted over reboots, and it's cleared every time the service replies
+            to a <c>#onFillRequest(FillRequest, CancellationSignal, FillCallback)</c> by calling <c>FillCallback#onSuccess(FillResponse)</c> or <c>FillCallback#onFailure(CharSequence)</c> (if the
+            service doesn't call any of these methods, the history will clear out after some pre-defined
+            time). Hence, the service should call <c>#getFillEventHistory()</c> before finishing the
+            <c>FillCallback</c>.</para>
+          <para>This member is deprecated. Use <c>#onSessionDestroyed(FillEventHistory) instead</c></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/service/autofill/AutofillService#getFillEventHistory()" title="Reference documentation">Java documentation for <code>android.service.autofill.AutofillService.getFillEventHistory()</code>.</a>
@@ -938,6 +940,54 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/service/autofill/AutofillService#onSaveRequest(android.service.autofill.SaveRequest,%20android.service.autofill.SaveCallback)" title="Reference documentation">Java documentation for <code>android.service.autofill.AutofillService.onSaveRequest(android.service.autofill.SaveRequest, android.service.autofill.SaveCallback)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnSessionDestroyed">
+      <MemberSignature Language="C#" Value="public virtual void OnSessionDestroyed (Android.Service.Autofill.FillEventHistory? history);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnSessionDestroyed(class Android.Service.Autofill.FillEventHistory history) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Service.Autofill.AutofillService.OnSessionDestroyed(Android.Service.Autofill.FillEventHistory)" />
+      <MemberSignature Language="F#" Value="abstract member OnSessionDestroyed : Android.Service.Autofill.FillEventHistory -&gt; unit&#xA;override this.OnSessionDestroyed : Android.Service.Autofill.FillEventHistory -&gt; unit" Usage="autofillService.OnSessionDestroyed history" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("onSessionDestroyed", "(Landroid/service/autofill/FillEventHistory;)V", "GetOnSessionDestroyed_Landroid_service_autofill_FillEventHistory_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onSessionDestroyed", "(Landroid/service/autofill/FillEventHistory;)V", "GetOnSessionDestroyed_Landroid_service_autofill_FillEventHistory_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="history" Type="Android.Service.Autofill.FillEventHistory" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="history">To be added.</param>
+        <summary>Called when an Autofill context has ended and the Autofill session is finished.</summary>
+        <remarks>
+          <para>Called when an Autofill context has ended and the Autofill session is finished. This will be
+            called as the last step of the Autofill lifecycle described in <c>AutofillManager</c>.</para>
+          <para>This will also contain the finished Session's FillEventHistory, so providers do not need
+            to explicitly call <c>#getFillEventHistory()</c></para>
+          <para>This will usually happens whenever <c>AutofillManager#commit()</c> or <c>AutofillManager#cancel()</c> is called.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/service/autofill/AutofillService#onSessionDestroyed(android.service.autofill.FillEventHistory)" title="Reference documentation">Java documentation for <code>android.service.autofill.AutofillService.onSessionDestroyed(android.service.autofill.FillEventHistory)</code>.</a>
             </format>
           </para>
           <para>

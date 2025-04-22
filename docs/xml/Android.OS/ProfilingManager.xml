@@ -26,9 +26,61 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>API for apps to request and listen for app specific profiling.</summary>
+    <summary>This class allows the caller to:
+            &lt;ul&gt;
+            &lt;li&gt;Request profiling and listen for results.</summary>
     <remarks>
-      <para>API for apps to request and listen for app specific profiling.</para>
+      <para>This class allows the caller to:
+            &lt;ul&gt;
+            &lt;li&gt;Request profiling and listen for results. Profiling types supported are: system traces,
+                java heap dumps, heap profiles, and stack traces.&lt;/li&gt;
+            &lt;li&gt;Register triggers for the system to capture profiling on the apps behalf.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>The <c>#requestProfiling</c> API can be used to begin profiling. Profiling may be ended manually
+            using the CancellationSignal provided in the request, or as a result of a timeout. The timeout
+            may be either the system default or caller defined in the parameter bundle for select types.</para>
+      <para>The profiling results are delivered to the requesting app's data directory and a pointer to the
+            file will be received using the app provided listeners.</para>
+      <para>Apps can provide listeners in one or both of two ways:
+            &lt;ul&gt;
+            &lt;li&gt;A request-specific listener included with the request. This will trigger only with a result
+                from the request it was provided with.&lt;/li&gt;
+            &lt;li&gt;A global listener provided by <c>#registerForAllProfilingResults</c>. This will be triggered
+                for all results belonging to your app. This listener is the only way to receive results from
+                system triggered profiling instances set up with <c>#addProfilingTriggers</c>.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>Requests are rate limited and not guaranteed to be filled. Rate limiting can be disabled for
+            local testing of <c>#requestProfiling</c> using the shell command
+            <c>device_config put profiling_testing rate_limiter.disabled true</c></para>
+      <para>For local testing, profiling results can be accessed more easily by enabling debug mode. This
+            will retain output files in a temporary system directory. The locations of the retained files
+            will be available in logcat. The behavior and command varies by version:
+            &lt;ul&gt;
+            &lt;li&gt;For Android versions 16 and above, debug mode will retain both unredacted (where applicable)
+            and redacted results in the temporary directory. It can be enabled with the shell command
+            <c>device_config put profiling_testing delete_temporary_results.disabled true</c> and disabled
+            by setting that same value back to false. Retained results are accessible on all build types.
+            &lt;/li&gt;
+            &lt;li&gt;For Android version 15, debug mode will retain only the unredacted result (where applicable)
+            in the temporary directory. It can be enabled with the shell command
+            <c>device_config put profiling_testing delete_unredacted_trace.disabled true</c> and disabled
+            by setting that same value back to false. The retained unredacted file can only be accessed on
+            builds with root access. To access the redacted output file on an unrooted device, apps can copy
+            the file from <c>/pkg/files/profiling/file.type</c> to <c>/pkg/cache/file.type</c>.
+            &lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>In order to test profiling triggers, enable testing mode for your app with the shell command
+            <c>device_config put profiling_testing system_triggered_profiling.testing_package_name
+            com.your.app</c> which will:
+            &lt;ul&gt;
+            &lt;li&gt;Ensure that a background trace is running.&lt;/li&gt;
+            &lt;li&gt;Allow all triggers for the provided package name to pass the system level rate limiter.
+                This mode will continue until manually stopped with the shell command
+                <c>device_config delete profiling_testing
+                system_triggered_profiling.testing_package_name</c>.
+                &lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>Results are redacted and contain specific information about the requesting process only.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/os/ProfilingManager" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager</code>.</a>
@@ -42,6 +94,105 @@
     </remarks>
   </Docs>
   <Members>
+    <Member MemberName="AddProfilingTriggers">
+      <MemberSignature Language="C#" Value="public void AddProfilingTriggers (System.Collections.Generic.IList&lt;Android.OS.ProfilingTrigger&gt; triggers);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void AddProfilingTriggers(class System.Collections.Generic.IList`1&lt;class Android.OS.ProfilingTrigger&gt; triggers) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.ProfilingManager.AddProfilingTriggers(System.Collections.Generic.IList{Android.OS.ProfilingTrigger})" />
+      <MemberSignature Language="F#" Value="member this.AddProfilingTriggers : System.Collections.Generic.IList&lt;Android.OS.ProfilingTrigger&gt; -&gt; unit" Usage="profilingManager.AddProfilingTriggers triggers" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("addProfilingTriggers", "(Ljava/util/List;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addProfilingTriggers", "(Ljava/util/List;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="triggers" Type="System.Collections.Generic.IList&lt;Android.OS.ProfilingTrigger&gt;" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="triggers">To be added.</param>
+        <summary>Register the provided list of triggers for this process.</summary>
+        <remarks>
+          <para>Register the provided list of triggers for this process.</para>
+          <para>Profiling triggers are system events that an app can register interest in, and then receive
+            profiling data when any of the registered triggers occur. There is no guarantee that these
+            triggers will be filled. Results, if available, will be delivered only to a global listener
+            added using <c>#registerForAllProfilingResults</c>.</para>
+          <para>Only one of each trigger type can be added at a time.
+            &lt;ul&gt;
+            &lt;li&gt;If the provided list contains a trigger type that is already registered then the new one
+                will replace the existing one.&lt;/li&gt;
+            &lt;li&gt;If the provided list contains more than one trigger object for a trigger type then only
+                one will be kept.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>Apps can define their own per-trigger rate limiting to help ensure they receive results
+            aligned with their needs. More details can be found at
+            <c>ProfilingTrigger.Builder#setRateLimitingPeriodHours</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/ProfilingManager#addProfilingTriggers(java.util.List%3Candroid.os.ProfilingTrigger%3E)" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.addProfilingTriggers(java.util.List&lt;android.os.ProfilingTrigger&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ClearProfilingTriggers">
+      <MemberSignature Language="C#" Value="public void ClearProfilingTriggers ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void ClearProfilingTriggers() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.ProfilingManager.ClearProfilingTriggers" />
+      <MemberSignature Language="F#" Value="member this.ClearProfilingTriggers : unit -&gt; unit" Usage="profilingManager.ClearProfilingTriggers " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("clearProfilingTriggers", "()V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clearProfilingTriggers", "()V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Remove all triggers for this process.</summary>
+        <remarks>
+          <para>Remove all triggers for this process.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/ProfilingManager#clearProfilingTriggers()" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.clearProfilingTriggers()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -285,9 +436,56 @@
         <remarks>
           <para>Register a listener to be called for all profiling results for this uid. Listeners set here
             will be called in addition to any provided with the request.</para>
+          <para>Note: If a callback attempt fails (for example, because your app is killed
+            while a trace is in progress) re-delivery may be attempted using a listener added via this
+            method.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/ProfilingManager#registerForAllProfilingResults(java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.os.ProfilingResult%3E)" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.registerForAllProfilingResults(java.util.concurrent.Executor, java.util.function.Consumer&lt;android.os.ProfilingResult&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RemoveProfilingTriggersByType">
+      <MemberSignature Language="C#" Value="public void RemoveProfilingTriggersByType (int[] triggers);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RemoveProfilingTriggersByType(int32[] triggers) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.ProfilingManager.RemoveProfilingTriggersByType(System.Int32[])" />
+      <MemberSignature Language="F#" Value="member this.RemoveProfilingTriggersByType : int[] -&gt; unit" Usage="profilingManager.RemoveProfilingTriggersByType triggers" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("removeProfilingTriggersByType", "([I)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeProfilingTriggersByType", "([I)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="triggers" Type="System.Int32[]" Index="0" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="triggers">To be added.</param>
+        <summary>Remove triggers for this process with trigger types in the provided list.</summary>
+        <remarks>
+          <para>Remove triggers for this process with trigger types in the provided list.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/ProfilingManager#removeProfilingTriggersByType(int[])" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.removeProfilingTriggersByType(int[])</code>.</a>
             </format>
           </para>
           <para>
@@ -340,10 +538,11 @@
         <param name="profilingType">Type of profiling to collect.</param>
         <param name="parameters">Bundle of request related parameters. If the bundle contains any
                              unrecognized parameters, the request will be fail with
-                             <c>#ProfilingResult#ERROR_FAILED_INVALID_REQUEST</c>. If the values for
-                             the parameters are out of supported range, the closest possible in range
-                             value will be chosen.
-                             Use of androidx wrappers is recommended over generating this directly.</param>
+                             <c>android.os.ProfilingResult#ERROR_FAILED_INVALID_REQUEST</c>. If the
+                             values for the parameters are out of supported range, the closest possible
+                             in range value will be chosen.
+                             Use of <see href="https://developer.android.com/reference/androidx/core/os/Profiling">
+                             androidx wrappers</see> is recommended over generating this directly.</param>
         <param name="tag">Caller defined data to help identify the output.
                              The first 20 alphanumeric characters, plus dashes, will be lowercased
                              and included in the output filename.</param>
@@ -364,13 +563,23 @@
         <remarks>
           <para>Request system profiling.</para>
           <para>Note: use of this API directly is not recommended for most use cases.
-            Please use the higher level wrappers provided by androidx that will construct the request
-            correctly based on available options and simplified user provided request parameters.</para>
-          <para>Note: requests are not guaranteed to be filled.</para>
-          <para>Note: Both a listener and executor must be set for the request to be
-            considered for fulfillment.
-            Listeners can be set in this method, with <c>#registerForAllProfilingResults</c>, or both.
-            If no listener and executor is set the request will be discarded.</para>
+              Consider using the
+              <see href="https://developer.android.com/reference/androidx/core/os/Profiling">higher level
+              wrappers provided by AndroidX</see> that will construct the request correctly, supporting
+              available options with simplified request parameters.</para>
+          <para>Both a listener and an executor must be set at the time of the request for the request to
+              be considered for fulfillment. Listener/executor pairs can be set in this method, with
+              <c>#registerForAllProfilingResults</c>, or both. The listener and executor must be set
+              together, in the same call. If no listener and executor combination is set, the request
+              will be discarded and no callback will be received.</para>
+          <para>Requests will be rate limited and are not guaranteed to be filled.</para>
+          <para>There might be a delay before profiling begins.
+              For continuous profiling types (system tracing, stack sampling, and heap profiling),
+              we recommend starting the collection early and stopping it with <c>cancellationSignal</c>
+              immediately after the area of interest to ensure that the section you want profiled is
+              captured.
+              For heap dumps, we recommend testing locally to ensure that the heap dump is collected at
+              the proper time.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/ProfilingManager#requestProfiling(int,%20android.os.Bundle,%20java.lang.String,%20android.os.CancellationSignal,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.os.ProfilingResult%3E)" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.requestProfiling(int, android.os.Bundle, java.lang.String, android.os.CancellationSignal, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.os.ProfilingResult&gt;)</code>.</a>

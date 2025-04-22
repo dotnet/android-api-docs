@@ -880,11 +880,11 @@
       <Docs>
         <param name="what">Value to assign to the returned Message.what field.</param>
         <param name="obj">Value to assign to the returned Message.obj field.</param>
-        <summary>Same as <c>#obtainMessage()</c>, except that it also sets the what and obj members 
+        <summary>Same as <c>#obtainMessage()</c>, except that it also sets the what and obj members
             of the returned Message.</summary>
         <returns>A Message from the global message pool.</returns>
         <remarks>
-          <para>Same as <c>#obtainMessage()</c>, except that it also sets the what and obj members 
+          <para>Same as <c>#obtainMessage()</c>, except that it also sets the what and obj members
             of the returned Message.</para>
           <para>
             <format type="text/html">
@@ -985,11 +985,11 @@
         <param name="arg1">Value to assign to the returned Message.arg1 field.</param>
         <param name="arg2">Value to assign to the returned Message.arg2 field.</param>
         <param name="obj">Value to assign to the returned Message.obj field.</param>
-        <summary>Same as <c>#obtainMessage()</c>, except that it also sets the what, obj, arg1,and arg2 values on the 
+        <summary>Same as <c>#obtainMessage()</c>, except that it also sets the what, obj, arg1,and arg2 values on the
             returned Message.</summary>
         <returns>A Message from the global message pool.</returns>
         <remarks>
-          <para>Same as <c>#obtainMessage()</c>, except that it also sets the what, obj, arg1,and arg2 values on the 
+          <para>Same as <c>#obtainMessage()</c>, except that it also sets the what, obj, arg1,and arg2 values on the
             returned Message.</para>
           <para>
             <format type="text/html">
@@ -1030,12 +1030,12 @@
       <Docs>
         <param name="r">The Runnable that will be executed.</param>
         <summary>Causes the Runnable r to be added to the message queue.</summary>
-        <returns>Returns true if the Runnable was successfully placed in to the 
+        <returns>Returns true if the Runnable was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.</returns>
         <remarks>
           <para>Causes the Runnable r to be added to the message queue.
-            The runnable will be run on the thread to which this handler is 
+            The runnable will be run on the thread to which this handler is
             attached.</para>
           <para>
             <format type="text/html">
@@ -1101,7 +1101,7 @@
       <Docs>
         <param name="r">The Runnable that will be executed.</param>
         <summary>Posts a message to an object that implements Runnable.</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.</returns>
         <remarks>
@@ -1180,7 +1180,7 @@
                     using the <c>android.os.SystemClock#uptimeMillis</c> time-base.</param>
         <summary>Causes the Runnable r to be added to the message queue, to be run
             at a specific time given by &lt;var&gt;uptimeMillis&lt;/var&gt;.</summary>
-        <returns>Returns true if the Runnable was successfully placed in to the 
+        <returns>Returns true if the Runnable was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.  Note that a
                     result of true does not mean the Runnable will be processed -- if
@@ -1272,7 +1272,7 @@
                     using the <c>android.os.SystemClock#uptimeMillis</c> time-base.</param>
         <summary>Causes the Runnable r to be added to the message queue, to be run
             at a specific time given by &lt;var&gt;uptimeMillis&lt;/var&gt;.</summary>
-        <returns>Returns true if the Runnable was successfully placed in to the 
+        <returns>Returns true if the Runnable was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.  Note that a
                     result of true does not mean the Runnable will be processed -- if
@@ -1357,7 +1357,7 @@
                    will be executed.</param>
         <summary>Causes the Runnable r to be added to the message queue, to be run
             after the specified amount of time elapses.</summary>
-        <returns>Returns true if the Runnable was successfully placed in to the 
+        <returns>Returns true if the Runnable was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.  Note that a
                     result of true does not mean the Runnable will be processed --
@@ -1697,6 +1697,11 @@
         <remarks>
           <para>Remove any pending posts of messages with code 'what' that are in the
             message queue.</para>
+          <para>Note that `Message#what` is 0 unless otherwise set.
+            When calling `postMessage(Runnable)` or `postAtTime(Runnable, long)`,
+            the `Runnable` is internally wrapped with a `Message` whose `what` is 0.
+            Calling `removeMessages(0)` will remove all messages without a `what`,
+            including posted `Runnable`s.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#removeMessages(int)" title="Reference documentation">Java documentation for <code>android.os.Handler.removeMessages(int)</code>.</a>
@@ -1782,7 +1787,7 @@
       <Docs>
         <param name="what">To be added.</param>
         <summary>Sends a Message containing only the what value.</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.</returns>
         <remarks>
@@ -1827,13 +1832,13 @@
       <Docs>
         <param name="what">To be added.</param>
         <param name="uptimeMillis">To be added.</param>
-        <summary>Sends a Message containing only the what value, to be delivered 
+        <summary>Sends a Message containing only the what value, to be delivered
             at a specific time.</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.</returns>
         <remarks>
-          <para>Sends a Message containing only the what value, to be delivered 
+          <para>Sends a Message containing only the what value, to be delivered
             at a specific time.</para>
           <para>
             <format type="text/html">
@@ -1878,7 +1883,7 @@
         <param name="delayMillis">To be added.</param>
         <summary>Sends a Message containing only the what value, to be delivered
             after the specified amount of time elapses.</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.</returns>
         <remarks>
@@ -1925,7 +1930,7 @@
         <param name="msg">To be added.</param>
         <summary>Pushes a message onto the end of the message queue after all pending messages
             before the current time.</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.</returns>
         <remarks>
@@ -1972,7 +1977,7 @@
         <param name="msg">To be added.</param>
         <summary>Enqueue a message at the front of the message queue, to be processed on
             the next iteration of the message loop.</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.</returns>
         <remarks>
@@ -2026,7 +2031,7 @@
                     <c>android.os.SystemClock#uptimeMillis</c> time-base.</param>
         <summary>Enqueue a message into the message queue after all pending messages
             before the absolute time (in milliseconds) &lt;var&gt;uptimeMillis&lt;/var&gt;.</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.  Note that a
                     result of true does not mean the message will be processed -- if
@@ -2081,7 +2086,7 @@
         <param name="delayMillis">To be added.</param>
         <summary>Enqueue a message into the message queue after all pending messages
             before (current time + delayMillis).</summary>
-        <returns>Returns true if the message was successfully placed in to the 
+        <returns>Returns true if the message was successfully placed in to the
                     message queue.  Returns false on failure, usually because the
                     looper processing the message queue is exiting.  Note that a
                     result of true does not mean the message will be processed -- if

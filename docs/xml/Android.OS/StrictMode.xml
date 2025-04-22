@@ -39,20 +39,18 @@
             that such things are not fast.</para>
       <para>Example code to enable from early in your <c>android.app.Application</c>, <c>android.app.Activity</c>, or other application component's <c>android.app.Application#onCreate</c>
             method:</para>
-      <code lang="text/java">public void onCreate() {
-                StrictMode.setThreadPolicy(new {@link ThreadPolicy.Builder StrictMode.ThreadPolicy.Builder}()
-                        .detectDiskReads()
-                        .detectDiskWrites()
-                        .detectNetwork()   // or .detectAll() for all detectable problems
-                        .penaltyLog()
-                        .build());
-                StrictMode.setVmPolicy(new {@link VmPolicy.Builder StrictMode.VmPolicy.Builder}()
-                        .detectLeakedSqlLiteObjects()
-                        .detectLeakedClosableObjects()
-                        .penaltyLog()
-                        .penaltyDeath()
-                        .build());
-                super.onCreate();
+      <code lang="text/java">override fun onCreate(savedInstanceState: Bundle?) {
+                super.onCreate(savedInstanceState)
+                StrictMode.setThreadPolicy(
+                    StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .build()
+                )
+                StrictMode.setVmPolicy(
+                    StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .build()
+                )
             }
             </code>
       <para>You can decide what should happen when a violation is detected. For example, using <c>ThreadPolicy.Builder#penaltyLog</c> you can watch the output of <c>adb logcat</c> while you
@@ -179,9 +177,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Enable the recommended StrictMode defaults, with violations just being logged.</summary>
+        <summary>Enables the recommended StrictMode defaults, with violations just being logged.</summary>
         <remarks>
-          <para>Enable the recommended StrictMode defaults, with violations just being logged.</para>
+          <para>Enables the recommended StrictMode defaults, with violations just being logged.</para>
           <para>This catches disk and network access on the main thread, as well as leaked SQLite cursors
             and unclosed resources. This is simply a wrapper around <c>#setVmPolicy</c> and <c>#setThreadPolicy</c>.</para>
           <para>

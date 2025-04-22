@@ -109,8 +109,7 @@
       <Docs>
         <summary>Closes the <c>GlobalSearchSession</c>.</summary>
         <remarks>
-          <para>Closes the <c>GlobalSearchSession</c>. Persists all mutations, including usage reports, to
-            disk.</para>
+          <para>Closes the <c>GlobalSearchSession</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#close()" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.close()</code>.</a>
@@ -170,10 +169,11 @@
             database name and identified by the namespace and ids in the request, from the <c>GlobalSearchSession</c> database.</summary>
         <remarks>
           <para>Retrieves <c>GenericDocument</c> documents, belonging to the specified package name and
-            database name and identified by the namespace and ids in the request, from the <c>GlobalSearchSession</c> database.</para>
-          <para>If the package or database doesn't exist or if the calling package doesn't have access,
-            the gets will be handled as failures in an <c>AppSearchBatchResult</c> object in the
-            callback.</para>
+            database name and identified by the namespace and ids in the request, from the <c>GlobalSearchSession</c> database. When a call is successful, the result will be returned in the
+            successes section of the <c>AppSearchBatchResult</c> object in the callback. If the package
+            doesn't exist, database doesn't exist, or if the calling package doesn't have access, these
+            failures will be reflected as <c>AppSearchResult</c> objects with a RESULT_NOT_FOUND status
+            code in the failures section of the <c>AppSearchBatchResult</c> object.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#getByDocumentId(java.lang.String,%20java.lang.String,%20android.app.appsearch.GetByDocumentIdRequest,%20java.util.concurrent.Executor,%20android.app.appsearch.BatchResultCallback%3Cjava.lang.String,%20android.app.appsearch.GenericDocument%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.getByDocumentId(java.lang.String, java.lang.String, android.app.appsearch.GetByDocumentIdRequest, java.util.concurrent.Executor, android.app.appsearch.BatchResultCallback&lt;java.lang.String, android.app.appsearch.GenericDocument&gt;)</code>.</a>
@@ -217,10 +217,13 @@
         <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
         <param name="packageName">the package that owns the requested <c>AppSearchSchema</c> instances.</param>
         <param name="databaseName">the database that owns the requested <c>AppSearchSchema</c> instances.</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the pending <c>GetSchemaResponse</c> containing the
+                schemas that the caller has access to or an empty GetSchemaResponse if the request
+                package and database does not exist, has not set a schema or contains no schemas that are
+                accessible to the caller.</param>
         <summary>Retrieves the collection of schemas most recently successfully provided to <c>AppSearchSession#setSchema</c> for any types belonging to the requested package and database
             that the caller has been granted access to.</summary>
         <returns>The pending <c>GetSchemaResponse</c> containing the schemas that the caller has
@@ -274,6 +277,58 @@
         <summary>To be added.</summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OpenBlobForRead">
+      <MemberSignature Language="C#" Value="public virtual void OpenBlobForRead (System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; handles, Java.Util.Concurrent.IExecutor executor, Java.Util.Functions.IConsumer callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OpenBlobForRead(class System.Collections.Generic.ICollection`1&lt;class Android.App.AppSearch.AppSearchBlobHandle&gt; handles, class Java.Util.Concurrent.IExecutor executor, class Java.Util.Functions.IConsumer callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.GlobalSearchSession.OpenBlobForRead(System.Collections.Generic.ICollection{Android.App.AppSearch.AppSearchBlobHandle},Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />
+      <MemberSignature Language="F#" Value="abstract member OpenBlobForRead : System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; * Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit&#xA;override this.OpenBlobForRead : System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt; * Java.Util.Concurrent.IExecutor * Java.Util.Functions.IConsumer -&gt; unit" Usage="globalSearchSession.OpenBlobForRead (handles, executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[Android.Runtime.Register("openBlobForRead", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetOpenBlobForRead_Ljava_util_Set_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("openBlobForRead", "(Ljava/util/Set;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "GetOpenBlobForRead_Ljava_util_Set_Ljava_util_concurrent_Executor_Ljava_util_function_Consumer_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute FrameworkAlternate="net-android-36.0">
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="handles" Type="System.Collections.Generic.ICollection&lt;Android.App.AppSearch.AppSearchBlobHandle&gt;" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" Index="1" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" Index="2" FrameworkAlternate="net-android-36.0" />
+      </Parameters>
+      <Docs>
+        <param name="handles">The <c>AppSearchBlobHandle</c>s that identifies the blobs.</param>
+        <param name="executor">Executor on which to invoke the callback.</param>
+        <param name="callback">Callback to receive the <c>OpenBlobForReadResponse</c>.</param>
+        <summary>Opens a batch of AppSearch Blobs for reading.</summary>
+        <remarks>
+          <para>Opens a batch of AppSearch Blobs for reading.</para>
+          <para>See <c>AppSearchSession#openBlobForRead</c> for a general description when a blob is for
+            read.</para>
+          <para>The returned <c>OpenBlobForReadResponse</c> must be closed after use to
+            avoid resource leaks. Failing to close it will result in system file descriptor exhaustion.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/GlobalSearchSession#openBlobForRead(java.util.Set%3Candroid.app.appsearch.AppSearchBlobHandle%3E,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.app.appsearch.AppSearchResult%3Candroid.app.appsearch.OpenBlobForReadResponse%3E%3E)" title="Reference documentation">Java documentation for <code>android.app.appsearch.GlobalSearchSession.openBlobForRead(java.util.Set&lt;android.app.appsearch.AppSearchBlobHandle&gt;, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.app.appsearch.AppSearchResult&lt;android.app.appsearch.OpenBlobForReadResponse&gt;&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterObserverCallback">
@@ -424,8 +479,8 @@
         <returns>a <c>SearchResults</c> object for retrieved matched documents.</returns>
         <remarks>
           <para>Retrieves documents from all AppSearch databases that the querying application has access to.</para>
-          <para>Applications can be granted access to documents by specifying <c>SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage</c> when building a schema.</para>
-          <para>Document access can also be granted to system UIs by specifying <c>SetSchemaRequest.Builder#setSchemaTypeDisplayedBySystem</c> when building a schema.</para>
+          <para>Applications can be granted access to documents by specifying <c>SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage</c>, or <c>SetSchemaRequest.Builder#setDocumentClassVisibilityForPackage</c> when building a schema.</para>
+          <para>Document access can also be granted to system UIs by specifying <c>SetSchemaRequest.Builder#setSchemaTypeDisplayedBySystem</c>, or <c>SetSchemaRequest.Builder#setDocumentClassDisplayedBySystem</c> when building a schema.</para>
           <para>See <c>AppSearchSession#search</c> for a detailed explanation on forming a query string.</para>
           <para>This method is lightweight. The heavy work will be done in <c>SearchResults#getNextPage</c>.</para>
           <para>
