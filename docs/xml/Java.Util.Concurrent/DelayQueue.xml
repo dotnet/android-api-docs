@@ -49,22 +49,35 @@
   </Attributes>
   <Docs since="1">
     <param name="&lt;E&gt;&lt;E&gt;">the type of elements held in this queue</param>
-    <summary>An unbounded BlockingQueue blocking queue of
-            <c>Delayed</c> elements, in which an element can only be taken
-            when its delay has expired.</summary>
+    <summary>An unbounded BlockingQueue blocking queue of <c>Delayed</c>
+            elements, in which an element generally becomes eligible for removal when its
+            delay has expired.</summary>
     <remarks>
-      <para>An unbounded BlockingQueue blocking queue of
-            <c>Delayed</c> elements, in which an element can only be taken
-            when its delay has expired.  The &lt;em&gt;head&lt;/em&gt; of the queue is that
-            <c>Delayed</c> element whose delay expired furthest in the
-            past.  If no delay has expired there is no head and <c>poll</c>
-            will return <c>null</c>. Expiration occurs when an element's
-            <c>getDelay(TimeUnit.NANOSECONDS)</c> method returns a value less
-            than or equal to zero.  Even though unexpired elements cannot be
-            removed using <c>take</c> or <c>poll</c>, they are otherwise
-            treated as normal elements. For example, the <c>size</c> method
-            returns the count of both expired and unexpired elements.
-            This queue does not permit null elements.</para>
+      <para>An unbounded BlockingQueue blocking queue of <c>Delayed</c>
+            elements, in which an element generally becomes eligible for removal when its
+            delay has expired.</para>
+      <para>"expired"&gt;An element is considered &lt;em&gt;expired&lt;/em&gt; when its
+            &lt;c&gt;getDelay(TimeUnit.NANOSECONDS)&lt;/c&gt; method would return a value less than
+            or equal to zero.</para>
+      <para>"head"&gt;An element is considered the &lt;em&gt;head&lt;/em&gt; of the queue if it
+            is the element with the earliest expiration time, whether in the past or the
+            future, if there is such an element.</para>
+      <para>"expired-head"&gt;An element is considered the &lt;em&gt;expired head&lt;/em&gt; of
+            the queue if it is the &lt;em&gt;expired&lt;/em&gt; element with the earliest expiration
+            time in the past, if there is such an element.
+            The &lt;em&gt;expired head&lt;/em&gt;, when present, is also the &lt;em&gt;head&lt;/em&gt;.</para>
+      <para>While this class implements the <c>BlockingQueue</c> interface, it
+            intentionally violates the general contract of <c>BlockingQueue</c>, in that
+            the following methods disregard the presence of unexpired elements and only
+            ever remove the &lt;em&gt;expired head&lt;/em&gt;:
+            
+            &lt;ul&gt;
+            &lt;li&gt; <c>#poll()</c>&lt;li&gt; <c>#poll(long,TimeUnit)</c>&lt;li&gt; <c>#take()</c>&lt;li&gt; <c>#remove()</c>&lt;/ul&gt;</para>
+      <para>All other methods operate on both expired and unexpired elements.
+            For example, the <c>#size()</c> method returns the count of all elements.
+            Method <c>#peek()</c> may return the (non-null) &lt;em&gt;head&lt;/em&gt; even when
+            <c>take()</c> would block waiting for that element to expire.</para>
+      <para>This queue does not permit null elements.</para>
       <para>This class and its iterator implement all of the &lt;em&gt;optional&lt;/em&gt;
             methods of the <c>Collection</c> and <c>Iterator</c> interfaces.
             The Iterator provided in method <c>#iterator()</c> is &lt;em&gt;not&lt;/em&gt;

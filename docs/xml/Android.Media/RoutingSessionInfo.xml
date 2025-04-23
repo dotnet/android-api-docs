@@ -228,9 +228,16 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the list of IDs of deselectable routes for the session.</summary>
-        <value>To be added.</value>
+        <value>A possibly empty list of deselectable route ids.</value>
         <remarks>
           <para>Gets the list of IDs of deselectable routes for the session.</para>
+          <para>Deselectable routes can be removed from the <c>#getSelectedRoutes() selected routes</c>,
+            so that the routing session stops routing to the newly deselected route, but continues on any
+            remaining selected routes.</para>
+          <para>Deselectable routes should be a subset of the <c>#getSelectedRoutes() selected
+            routes</c>, meaning not all of the selected routes might be deselectable. For example, one of
+            the selected routes may be a leader device coordinating group playback, which must always
+            remain selected while the session is active.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/RoutingSessionInfo#getDeselectableRoutes()" title="Reference documentation">Java documentation for <code>android.media.RoutingSessionInfo.getDeselectableRoutes()</code>.</a>
@@ -419,9 +426,13 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the list of IDs of selectable routes for the session.</summary>
-        <value>To be added.</value>
+        <value>A possibly empty list of selectable route ids.</value>
         <remarks>
           <para>Gets the list of IDs of selectable routes for the session.</para>
+          <para>Selectable routes can be added to a routing session (via <c>MediaRouter2.RoutingController#selectRoute</c>) in order to add them to the <c>#getSelectedRoutes() selected routes</c>, so that media plays on the newly selected route along
+            with the other selected routes.</para>
+          <para>Not to be confused with <c>#getTransferableRoutes() transferable routes</c>. Transferring
+            to a route makes it the sole selected route.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/RoutingSessionInfo#getSelectableRoutes()" title="Reference documentation">Java documentation for <code>android.media.RoutingSessionInfo.getSelectableRoutes()</code>.</a>
@@ -460,9 +471,13 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the list of IDs of selected routes for the session.</summary>
-        <value>To be added.</value>
+        <value>A non-empty list of selected route ids.</value>
         <remarks>
-          <para>Gets the list of IDs of selected routes for the session. It shouldn't be empty.</para>
+          <para>Gets the list of IDs of selected routes for the session.</para>
+          <para>Selected routes are the routes that this session is actively routing media to.</para>
+          <para>The behavior of a routing session with multiple selected routes is ultimately defined by
+            the <c>MediaRoute2ProviderService</c> implementation. However, typically, it's expected that
+            all the selected routes of a routing session are playing the same media in sync.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/RoutingSessionInfo#getSelectedRoutes()" title="Reference documentation">Java documentation for <code>android.media.RoutingSessionInfo.getSelectedRoutes()</code>.</a>
@@ -559,9 +574,22 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the list of IDs of transferable routes for the session.</summary>
-        <value>To be added.</value>
+        <value>A possibly empty list of transferable route ids.</value>
         <remarks>
           <para>Gets the list of IDs of transferable routes for the session.</para>
+          <para>Transferring to a route (for example, using <c>MediaRouter2#transferTo</c>) replaces the
+            list of <c>#getSelectedRoutes() selected routes</c> with the target route, causing playback
+            to move from one route to another.</para>
+          <para>Note that this is different from <c>#getSelectableRoutes() selectable routes</c>, because
+            selecting a route makes it part of the selected routes, while transferring to a route makes
+            it the selected route. A route can be both transferable and selectable.</para>
+          <para>Note that playback may transfer across routes without the target route being in the list
+            of transferable routes. This can happen by creating a new routing session to the target
+            route, and releasing the routing session being transferred from. The difference is that a
+            transfer to a route in the transferable list can happen with no intervention from the app,
+            with the route provider taking care of the entire operation. A transfer to a route that is
+            not in the list of transferable routes (by creating a new session) requires the app to move
+            the playback state from one device to the other.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/RoutingSessionInfo#getTransferableRoutes()" title="Reference documentation">Java documentation for <code>android.media.RoutingSessionInfo.getTransferableRoutes()</code>.</a>
@@ -586,11 +614,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[get: Android.Runtime.Register("getTransferReason", "()I", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getTransferReason", "()I", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -630,15 +658,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("TRANSFER_REASON_APP", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("TRANSFER_REASON_APP", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.RoutingSessionInfoTransferReason enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.RoutingSessionInfoTransferReason enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -678,15 +706,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("TRANSFER_REASON_FALLBACK", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("TRANSFER_REASON_FALLBACK", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.RoutingSessionInfoTransferReason enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.RoutingSessionInfoTransferReason enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -729,15 +757,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[Android.Runtime.Register("TRANSFER_REASON_SYSTEM_REQUEST", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("TRANSFER_REASON_SYSTEM_REQUEST", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Media.RoutingSessionInfoTransferReason enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Media.RoutingSessionInfoTransferReason enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0">
+        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>

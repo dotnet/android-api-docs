@@ -92,7 +92,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("startAdvertising", "(Landroid/bluetooth/le/AdvertiseSettings;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseCallback;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startAdvertising", "(Landroid/bluetooth/le/AdvertiseSettings;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseCallback;)V", "")&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")&gt;]</AttributeName>
         </Attribute>
@@ -113,6 +113,9 @@
         <remarks>
           <para>Start Bluetooth LE Advertising. On success, the <c>advertiseData</c> will be broadcasted.
             Returns immediately, the operation status is delivered through <c>callback</c>.</para>
+          <para>Requires the <c>android.Manifest.permission#BLUETOOTH_PRIVILEGED</c> permission only when
+            <c>settings.getOwnAddressType()</c> is different from <c>AdvertisingSetParameters.ADDRESS_TYPE_DEFAULT</c>.</para>
+          <para>The <c>android.Manifest.permission#BLUETOOTH_ADVERTISE</c> permission is always enforced.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertising(android.bluetooth.le.AdvertiseSettings,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertising(android.bluetooth.le.AdvertiseSettings, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseCallback)</code>.</a>
@@ -141,7 +144,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("startAdvertising", "(Landroid/bluetooth/le/AdvertiseSettings;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseCallback;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startAdvertising", "(Landroid/bluetooth/le/AdvertiseSettings;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseCallback;)V", "")&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")&gt;]</AttributeName>
         </Attribute>
@@ -166,6 +169,9 @@
             operation succeeds. The <c>scanResponse</c> is returned when a scanning device sends an
             active scan request. This method returns immediately, the operation status is delivered
             through <c>callback</c>.</para>
+          <para>Requires the <c>android.Manifest.permission#BLUETOOTH_PRIVILEGED</c> permission only when
+            <c>settings.getOwnAddressType()</c> is different from <c>AdvertisingSetParameters.ADDRESS_TYPE_DEFAULT</c>.</para>
+          <para>The <c>android.Manifest.permission#BLUETOOTH_ADVERTISE</c> permission is always enforced.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertising(android.bluetooth.le.AdvertiseSettings,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertising(android.bluetooth.le.AdvertiseSettings, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseCallback)</code>.</a>
@@ -194,7 +200,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertisingSetCallback;)V", "", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertisingSetCallback;)V", "", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")&gt;]</AttributeName>
         </Attribute>
@@ -220,7 +226,7 @@
                 three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
                 exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
-        <param name="periodicParameters">periodic advertisng parameters. If null, periodic advertising will
+        <param name="periodicParameters">periodic advertising parameters. If null, periodic advertising will
                 not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="callback">Callback for advertising set.</param>
@@ -228,7 +234,9 @@
         <remarks>
           <para>Creates a new advertising set. If operation succeed, device will start advertising. This
             method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
-          <para />
+          <para>Requires the <c>android.Manifest.permission#BLUETOOTH_PRIVILEGED</c> permission when
+            <c>parameters.getOwnAddressType()</c> is different from <c>AdvertisingSetParameters.ADDRESS_TYPE_DEFAULT</c> or <c>parameters.isDirected()</c> is true.</para>
+          <para>The <c>android.Manifest.permission#BLUETOOTH_ADVERTISE</c> permission is always enforced.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertisingSetCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertisingSetCallback)</code>.</a>
@@ -257,7 +265,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertisingSetCallback;Landroid/os/Handler;)V", "", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertisingSetCallback;Landroid/os/Handler;)V", "", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")&gt;]</AttributeName>
         </Attribute>
@@ -284,7 +292,7 @@
                 three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
                 exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
-        <param name="periodicParameters">periodic advertisng parameters. If null, periodic advertising will
+        <param name="periodicParameters">periodic advertising parameters. If null, periodic advertising will
                 not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="callback">Callback for advertising set.</param>
@@ -293,7 +301,9 @@
         <remarks>
           <para>Creates a new advertising set. If operation succeed, device will start advertising. This
             method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
-          <para />
+          <para>Requires the <c>android.Manifest.permission#BLUETOOTH_PRIVILEGED</c> permission when
+            <c>parameters.getOwnAddressType()</c> is different from <c>AdvertisingSetParameters.ADDRESS_TYPE_DEFAULT</c> or <c>parameters.isDirected()</c> is true.</para>
+          <para>The <c>android.Manifest.permission#BLUETOOTH_ADVERTISE</c> permission is always enforced.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertisingSetCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertisingSetCallback, android.os.Handler)</code>.</a>
@@ -322,7 +332,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;IILandroid/bluetooth/le/AdvertisingSetCallback;)V", "", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;IILandroid/bluetooth/le/AdvertisingSetCallback;)V", "", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")&gt;]</AttributeName>
         </Attribute>
@@ -350,7 +360,7 @@
                 three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
                 exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
-        <param name="periodicParameters">periodic advertisng parameters. If null, periodic advertising will
+        <param name="periodicParameters">periodic advertising parameters. If null, periodic advertising will
                 not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c>.</param>
         <param name="duration">advertising duration, in 10ms unit. Valid range is from 1 (10ms) to 65535
@@ -363,7 +373,9 @@
         <remarks>
           <para>Creates a new advertising set. If operation succeed, device will start advertising. This
             method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
-          <para />
+          <para>Requires the <c>android.Manifest.permission#BLUETOOTH_PRIVILEGED</c> permission when
+            <c>parameters.getOwnAddressType()</c> is different from <c>AdvertisingSetParameters.ADDRESS_TYPE_DEFAULT</c> or <c>parameters.isDirected()</c> is true.</para>
+          <para>The <c>android.Manifest.permission#BLUETOOTH_ADVERTISE</c> permission is always enforced.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20int,%20int,%20android.bluetooth.le.AdvertisingSetCallback)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, int, int, android.bluetooth.le.AdvertisingSetCallback)</code>.</a>
@@ -392,7 +404,7 @@
           <AttributeName Language="C#">[Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;IILandroid/bluetooth/le/AdvertisingSetCallback;Landroid/os/Handler;)V", "", ApiSince=26)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startAdvertisingSet", "(Landroid/bluetooth/le/AdvertisingSetParameters;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/AdvertiseData;Landroid/bluetooth/le/PeriodicAdvertisingParameters;Landroid/bluetooth/le/AdvertiseData;IILandroid/bluetooth/le/AdvertisingSetCallback;Landroid/os/Handler;)V", "", ApiSince=26)&gt;]</AttributeName>
         </Attribute>
-        <Attribute>
+        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")&gt;]</AttributeName>
         </Attribute>
@@ -421,7 +433,7 @@
                 three bytes will be added for flags.</param>
         <param name="scanResponse">Scan response associated with the advertisement data. Size must not
                 exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c></param>
-        <param name="periodicParameters">Periodic advertisng parameters. If null, periodic advertising will
+        <param name="periodicParameters">Periodic advertising parameters. If null, periodic advertising will
                 not be started.</param>
         <param name="periodicData">Periodic advertising data. Size must not exceed <c>BluetoothAdapter#getLeMaximumAdvertisingDataLength</c></param>
         <param name="duration">advertising duration, in 10ms unit. Valid range is from 1 (10ms) to 65535
@@ -435,7 +447,9 @@
         <remarks>
           <para>Creates a new advertising set. If operation succeed, device will start advertising. This
             method returns immediately, the operation status is delivered through <c>callback.onAdvertisingSetStarted()</c>.</para>
-          <para />
+          <para>Requires the <c>android.Manifest.permission#BLUETOOTH_PRIVILEGED</c> permission when
+            <c>parameters.getOwnAddressType()</c> is different from <c>AdvertisingSetParameters.ADDRESS_TYPE_DEFAULT</c> or <c>parameters.isDirected()</c> is true.</para>
+          <para>The <c>android.Manifest.permission#BLUETOOTH_ADVERTISE</c> permission is always enforced.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20int,%20int,%20android.bluetooth.le.AdvertisingSetCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.bluetooth.le.BluetoothLeAdvertiser.startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters, android.bluetooth.le.AdvertiseData, android.bluetooth.le.AdvertiseData, android.bluetooth.le.PeriodicAdvertisingParameters, android.bluetooth.le.AdvertiseData, int, int, android.bluetooth.le.AdvertisingSetCallback, android.os.Handler)</code>.</a>

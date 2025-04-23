@@ -1,0 +1,221 @@
+<Type Name="MatchException" FullName="Java.Lang.MatchException">
+  <TypeSignature Language="C#" Value="public sealed class MatchException : Java.Lang.RuntimeException" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MatchException extends Java.Lang.RuntimeException" />
+  <TypeSignature Language="DocId" Value="T:Java.Lang.MatchException" />
+  <TypeSignature Language="F#" Value="type MatchException = class&#xA;    inherit RuntimeException" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.RuntimeException</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("java/lang/MatchException", ApiSince=36, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("java/lang/MatchException", ApiSince=36, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>Thrown to indicate an unexpected failure in pattern matching.</summary>
+    <remarks>
+      <para>Thrown to indicate an unexpected failure in pattern matching.</para>
+      <para>
+        <c>MatchException</c> may be thrown when an exhaustive pattern matching
+            language construct (such as a <c>switch</c> expression) encounters a value
+            that does not match any of the specified patterns at run time, even though
+            the construct has been deemed exhaustive. This is intentional and can arise
+            from a number of cases:
+            
+            &lt;ul&gt;
+                &lt;li&gt;Separate compilation anomalies, where parts of the type hierarchy that
+                    the patterns reference have been changed, but the pattern matching
+                    construct has not been recompiled. For example, if a sealed interface
+                    has a different set of permitted subtypes at run time than it had at
+                    compile time, or if an enum class has a different set of enum constants
+                    at runtime than it had at compile time, or if the type hierarchy has
+                    been changed in some incompatible way between compile time and run time.&lt;/li&gt;
+            
+                &lt;li&gt;<c>null</c> values and nested patterns involving sealed classes. If,
+                    for example, an interface <c>I</c> is <c>sealed</c> with two permitted
+                    subclasses <c>A</c> and <c>B</c>, and a record class <c>R</c> has a
+                    single component of type <c>I</c>, then the two record patterns <c>R(A a)</c> and <c>R(B b)</c> together are considered to be exhaustive for
+                    the type <c>R</c>, but neither of these patterns will match against the
+                    result of <c>new R(null)</c>.&lt;/li&gt;
+            
+                &lt;li&gt;<c>null</c> values and nested record patterns. Given a record class
+                    <c>S</c> with a single component of type <c>T</c>, where <c>T</c> is
+                    another record class with a single component of type <c>String</c>,
+                    then the nested record pattern <c>R(S(var s))</c> is considered
+                    exhaustive for the type <c>R</c> but it does not match against the
+                    result of <c>new R(null)</c> (whereas it does match against the result
+                    of <c>new R(new S(null))</c> does).&lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>
+        <c>MatchException</c> may also be thrown by the process of pattern matching
+            a value against a pattern. For example, pattern matching involving a record
+            pattern may require accessor methods to be implicitly invoked in order to
+            extract the component values. If any of these accessor methods throws an
+            exception, pattern matching completes abruptly and throws <c>MatchException</c>. The original exception will be set as a <c>Throwable#getCause() cause</c> of the <c>MatchException</c>. No <c>Throwable#addSuppressed(java.lang.Throwable) suppressed</c> exceptions will be
+            recorded.</para>
+      <para>Added in 21.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/java/lang/MatchException" title="Reference documentation">Java documentation for <code>java.lang.MatchException</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public MatchException (string? message, Java.Lang.Throwable? cause);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string message, class Java.Lang.Throwable cause) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Lang.MatchException.#ctor(System.String,Java.Lang.Throwable)" />
+      <MemberSignature Language="F#" Value="new Java.Lang.MatchException : string * Java.Lang.Throwable -&gt; Java.Lang.MatchException" Usage="new Java.Lang.MatchException (message, cause)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/Throwable;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;Ljava/lang/Throwable;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="message" Type="System.String" />
+        <Parameter Name="cause" Type="Java.Lang.Throwable" />
+      </Parameters>
+      <Docs>
+        <param name="message">the detail message (which is saved for later retrieval
+                    by the <c>#getMessage()</c> method).</param>
+        <param name="cause">the cause (which is saved for later retrieval by the
+                    <c>#getCause()</c> method). (A <c>null</c> value is
+                    permitted, and indicates that the cause is nonexistent or
+                    unknown.)</param>
+        <summary>Constructs an <c>MatchException</c> with the specified detail message and
+            cause.</summary>
+        <remarks>
+          <para>Constructs an <c>MatchException</c> with the specified detail message and
+            cause.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/MatchException#MatchException(java.lang.String,%20java.lang.Throwable)" title="Reference documentation">Java documentation for <code>java.lang.MatchException.MatchException(java.lang.String, java.lang.Throwable)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.MatchException.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Java.Lang.MatchException.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.MatchException.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Java.Lang.MatchException.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Java.Lang.MatchException.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Java.Lang.MatchException.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
