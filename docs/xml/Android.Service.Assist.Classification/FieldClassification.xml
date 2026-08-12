@@ -81,8 +81,8 @@
       </Parameters>
       <Docs>
         <param name="autofillId">Autofill id of the detected field</param>
-        <param name="hints">Detected fields types represented as autofill hints.
-              A particular field can be detected as multiple types. For eg: A sign-in field may take in
+        <param name="hints">Detected field types represented as autofill hints.
+              A particular field can be detected as multiple types. For example, a sign-in field may accept
               a username, an email address or a phone number. In such cases, it should be detected as
               "username", "emailAddress" and "phoneNumber"</param>
         <summary>Creates a new FieldClassification.</summary>
@@ -166,9 +166,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the parcelable creator for <see cref="T:Android.Service.Assist.Classification.FieldClassification" />.</summary>
+        <summary>Gets the creator used to generate <see cref="T:Android.Service.Assist.Classification.FieldClassification" /> instances from parcels.</summary>
         <value>A parcelable creator that creates <see cref="T:Android.Service.Assist.Classification.FieldClassification" /> instances from parcels.</value>
-        <remarks>The Android runtime uses this creator to reconstruct field classifications from their parcelled representation.</remarks>
+        <remarks>The <c>android.os.Parcelable</c> contract requires parcelable classes to expose a public <c>CREATOR</c> field.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -200,8 +200,8 @@
       <Parameters />
       <Docs>
         <summary>Describes the kinds of special objects contained in this parcelable's marshalled representation.</summary>
-        <returns>Always <c>0</c> because this parcelable contains no file descriptors.</returns>
-        <remarks>A nonzero result would indicate special objects such as file descriptors. A field classification contains none.</remarks>
+        <returns><c>0</c>.</returns>
+        <remarks>If an object includes a file descriptor in the output of <see cref="M:Android.Service.Assist.Classification.FieldClassification.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />, the return value must include <see cref="F:Android.Service.Assist.Classification.FieldClassification.InterfaceConsts.ContentsFileDescriptor" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hints">
@@ -228,11 +228,11 @@
         <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Detected fields types represented as autofill hints.</summary>
-        <value>The set of autofill hints that classify the detected field.</value>
+        <summary>Detected field types represented as autofill hints.</summary>
+        <value>The detected field types, represented as a set of autofill hints.</value>
         <remarks>
-          <para>Detected fields types represented as autofill hints.</para>
-          <para>A particular field can be detected as multiple types. For eg: A sign-in field may take in a
+          <para>Detected field types represented as autofill hints.</para>
+          <para>A particular field can be detected as multiple types. For example, a sign-in field may accept a
             username, an email address or a phone number. In such cases, it should be detected as
             "username", "emailAddress" and "phoneNumber"</para>
           <para>The value of these hints are contained in androidx.autofill.HintConstants</para>
@@ -278,7 +278,7 @@
       <Docs>
         <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
         <value>A <see cref="T:Java.Interop.JniPeerMembers" /> instance that provides access to JNI peer-member information for this type.</value>
-        <remarks>Used internally by the binding runtime to resolve Java constructors, methods, and fields for this type.</remarks>
+        <remarks>This member is provided for use by the Mono for Android infrastructure.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -307,7 +307,7 @@
       <Docs>
         <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
         <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
-        <remarks>Used internally by the binding runtime when activating Java peer instances.</remarks>
+        <remarks>This member is provided for use by the Mono for Android infrastructure.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -336,7 +336,7 @@
       <Docs>
         <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
         <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
-        <remarks>Used internally by the binding runtime when activating Java peer instances.</remarks>
+        <remarks>This member is provided for use by the Mono for Android infrastructure.</remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
@@ -377,10 +377,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">The parcel in which the field classification should be written.</param>
-        <param name="flags">Additional flags that control how the object is written. May be <c>0</c> or <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" />.</param>
-        <summary>Flattens this field classification into a parcel.</summary>
-        <remarks>Writes the detected field's autofill identifier and classification hints to <paramref name="dest" /> so the object can be reconstructed by <see cref="P:Android.Service.Assist.Classification.FieldClassification.Creator" />.</remarks>
+        <param name="dest">The parcel in which the object should be written.</param>
+        <param name="flags">Additional flags about how the object should be written. May be <see cref="F:Android.OS.ParcelableWriteFlags.None" /> or <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" />.</param>
+        <summary>Flattens this object into a parcel.</summary>
+        <remarks>This method implements the <c>android.os.Parcelable</c> contract.</remarks>
       </Docs>
     </Member>
   </Members>
