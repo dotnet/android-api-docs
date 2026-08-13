@@ -865,7 +865,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">The full URI to query, including a row ID (if a specific
+        <param name="uri">The full URI to delete, including a row ID (if a specific
                        record is requested).</param>
         <param name="extras">A Bundle containing additional information necessary for
                        the operation. Arguments may include SQL style arguments, such
@@ -873,7 +873,7 @@
                        the documentation for each individual provider will indicate
                        which arguments they support.</param>
         <summary>Implement this to handle requests to delete one or more rows.</summary>
-        <returns>Implement this to handle requests to delete one or more rows. The implementation should apply the selection clause when performing deletion, allowing the operation to affect multiple rows in a directory. As a courtesy, call notifyChange() after deleting. This method can be called from multiple threads, as described in Processes and Threads . The implementation is responsible for parsing out a row ID at the end of the URI, if a specific row is being deleted. That is, the client would pass in content://contacts/people/22 and the implementation is responsible for parsing the record number (22) when creating a SQL statement.</returns>
+        <returns>The number of rows deleted.</returns>
         <remarks>
           <para>Implement this to handle requests to delete one or more rows. The
             implementation should apply the selection clause when performing
@@ -1065,7 +1065,7 @@
         <param name="writer">The PrintWriter to which you should dump your state. This will be closed for you after you return.</param>
         <param name="args">additional arguments to the dump request.</param>
         <summary>Print the Provider's state into the given stream. This gets invoked if you run "adb shell dumpsys activity provider &lt;provider_component_name&gt;".</summary>
-        <returns>Print the Provider's state into the given stream. This gets invoked if you run "adb shell dumpsys activity provider &lt;provider_component_name&gt;".</returns>
+        <returns>A task that completes after the provider's state has been written to the supplied stream.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
 
@@ -3144,8 +3144,8 @@
         <Parameter Name="permission" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="permission">Name of the permission required for read/write access. This value may be null .</param>
-        <summary>Change the permission required to read and write data in the content provider. This is normally set for you from its manifest information when the provider is first created.</summary>
+        <param name="permission">Name of the permission required for write access. This value may be null .</param>
+        <summary>Change the permission required to write data in the content provider. This is normally set for you from its manifest information when the provider is first created.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
 

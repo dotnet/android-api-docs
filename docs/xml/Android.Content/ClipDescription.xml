@@ -783,16 +783,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="entity">The entity whose confidence score is requested.</param>
+        <param name="entity">The non-null entity whose confidence score is requested.</param>
         <summary>Returns a score indicating confidence that an instance of the given entity is present in the
             first item of the clip data, if that item is plain text and text classification has been
-            performed.</summary>
+            completed.</summary>
         <returns>Value is between 0.0f and 1.0f inclusive</returns>
+        <exception cref="T:Java.Lang.IllegalStateException">Thrown if <c>ClassificationStatus</c> is not <c>ClassificationComplete</c>.</exception>
         <remarks>
           <para>Returns a score indicating confidence that an instance of the given entity is present in the
             first item of the clip data, if that item is plain text and text classification has been
-            performed. The value ranges from 0 (low confidence) to 1 (high confidence). 0 indicates that
-            the entity was not found in the classified text.</para>
+            completed. This method throws <c>IllegalStateException</c> unless <c>ClassificationStatus</c>
+            is <c>ClassificationComplete</c>. The value ranges from 0 (low confidence) to 1 (high
+            confidence). 0 indicates that the entity was not found in the classified text.</para>
           <para>Entities should be as defined in the <c>TextClassifier</c> class, such as
             <c>TextClassifier#TYPE_ADDRESS</c>, <c>TextClassifier#TYPE_URL</c>, or
             <c>TextClassifier#TYPE_EMAIL</c>.</para>
