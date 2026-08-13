@@ -28,8 +28,18 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Marks an eligible native method to use the fastest available Java Native Interface (JNI) transitions.</summary>
+    <remarks>
+      <para>A critical native method must be static, may have only primitive parameter types, and must return a primitive type or <c>void</c>. The annotation changes the JNI transition ABI, so the native implementation must omit the <c>JNIEnv</c> and <c>jclass</c> parameters.</para>
+      <para>While a critical native method executes, garbage collection cannot suspend its thread and may be blocked. Do not use this annotation on long-running methods or methods that perform significant I/O or acquire native locks that can be held for a long time. This annotation has no effect on non-native methods.</para>
+      <para>This optimization is a CTS-tested public API starting in Android 14. For maximum compatibility, avoid calling critical native methods on Android 13 and earlier. Dynamic JNI linking works only on Android 12 and later; methods used on Android 8 through Android 11 must be explicitly registered with JNI <c>RegisterNatives</c>. On Android 7 and earlier, the annotation is ignored, so the resulting ABI mismatch can cause incorrect argument marshalling and crashes.</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/dalvik/annotation/optimization/CriticalNative" title="Reference documentation">Java documentation for <code>dalvik.annotation.optimization.CriticalNative</code>.</a>
+        </format>
+      </para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members />
 </Type>
