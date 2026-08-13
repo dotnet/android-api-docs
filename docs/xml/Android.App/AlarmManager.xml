@@ -394,11 +394,16 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">A value forwarded by the managed Android binding.</param>
+        <summary>Provides the managed binding projection of the corresponding Android API.</summary>
+        <returns>The result exposed by the managed Android binding.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+                  <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager" title="Reference documentation">Android platform reference for <code>android.app.AlarmManager</code>.</a>
+            </format>
+          </para>
         </remarks>
       </Docs>
     </Member>
@@ -636,8 +641,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Provides JNI binding infrastructure for the associated Java peer.</summary>
+        <value>JNI peer metadata used by the managed binding runtime.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -831,14 +836,19 @@
         <Parameter Name="targetHandler" Type="Android.OS.Handler" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="triggerAtMillis">To be added.</param>
-        <param name="tag">To be added.</param>
-        <param name="listener">To be added.</param>
-        <param name="targetHandler">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">type of alarm.</param>
+        <param name="triggerAtMillis">time in milliseconds that the alarm should go off, using the appropriate clock (depending on the alarm type).</param>
+        <param name="tag">string describing the alarm, used for logging and battery-use attribution</param>
+        <param name="listener">instance whose onAlarm() method will be called when the alarm time is reached. A given OnAlarmListener instance can only be the target of a single pending alarm, just as a given PendingIntent can only be used with one alarm at a time.</param>
+        <param name="targetHandler">on which to execute the listener&#x27;s onAlarm() callback, or null to run that callback on the main looper.</param>
+        <summary>Direct callback version of long, PendingIntent).</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+                  <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#set(int,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.set(int,long,java.lang.String,android.app.AlarmManager.OnAlarmListener,android.os.Handler)</code>.</a>
+            </format>
+          </para>
         </remarks>
       </Docs>
     </Member>
@@ -870,7 +880,7 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="info">To be added.</param>
+        <param name="info">AlarmManager.AlarmClockInfo : This value cannot be null .</param>
         <param name="operation">Action to perform when the alarm goes off;
         typically comes from <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='M:Android App PendingIntent GetBroadcast(Android Content Context,System Int32,System Int32,System Int32)';scope=Xamarin" title="M:Android.App.PendingIntent.GetBroadcast(Android.Content.Context,System.Int32,System.Int32,System.Int32)">M:Android.App.PendingIntent.GetBroadcast(Android.Content.Context,System.Int32,System.Int32,System.Int32)</a></format>.</param>
         <summary>Schedule an alarm that represents an alarm clock, which will be used to notify the user
@@ -878,7 +888,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/AlarmManager#setAlarmClock(android.app.AlarmClockInfo,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.setAlarmClock(android.app.AlarmClockInfo, android.app.PendingIntent)</code>.</a>
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setAlarmClock(android.app.AlarmManager.AlarmClockInfo,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.setAlarmClock(android.app.AlarmClockInfo, android.app.PendingIntent)</code>.</a>
             </format>
           </para>
           <para>
@@ -1108,14 +1118,14 @@
         <param name="type">type of alarm.</param>
         <param name="triggerAtMillis">time in milliseconds that the alarm should go
                    off, using the appropriate clock (depending on the alarm type).</param>
-        <param name="tag">To be added.</param>
-        <param name="listener">To be added.</param>
-        <param name="targetHandler">To be added.</param>
+        <param name="tag">Direct callback version of long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener&#x27;s onAlarm() method will be invoked via the specified target Handler, or on the application&#x27;s main looper if null is passed as the targetHandler parameter. This API should only be used to set alarms that are relevant in the context of the app&#x27;s current lifecycle, as the instance supplied is only valid as long as the process is alive, and the system can clean up the app process as soon as it is out of lifecycle. To schedule alarms that fire reliably even after the current lifecycle completes, and wakes up the app if required, use any of the other scheduling APIs that accept a instance. On previous android versions and , apps targeting SDK level 31 or higher needed to hold the SCHEDULE_EXACT_ALARM permission to use this API, unless the app was exempt from battery restrictions. Note: Starting with android version , the system will explicitly drop any alarms set via this API when the calling app goes out of lifecycle.</param>
+        <param name="listener">Direct callback version of long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener&#x27;s onAlarm() method will be invoked via the specified target Handler, or on the application&#x27;s main looper if null is passed as the targetHandler parameter. This API should only be used to set alarms that are relevant in the context of the app&#x27;s current lifecycle, as the instance supplied is only valid as long as the process is alive, and the system can clean up the app process as soon as it is out of lifecycle. To schedule alarms that fire reliably even after the current lifecycle completes, and wakes up the app if required, use any of the other scheduling APIs that accept a instance. On previous android versions and , apps targeting SDK level 31 or higher needed to hold the SCHEDULE_EXACT_ALARM permission to use this API, unless the app was exempt from battery restrictions. Note: Starting with android version , the system will explicitly drop any alarms set via this API when the calling app goes out of lifecycle.</param>
+        <param name="targetHandler">Direct callback version of long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener&#x27;s onAlarm() method will be invoked via the specified target Handler, or on the application&#x27;s main looper if null is passed as the targetHandler parameter. This API should only be used to set alarms that are relevant in the context of the app&#x27;s current lifecycle, as the instance supplied is only valid as long as the process is alive, and the system can clean up the app process as soon as it is out of lifecycle. To schedule alarms that fire reliably even after the current lifecycle completes, and wakes up the app if required, use any of the other scheduling APIs that accept a instance. On previous android versions and , apps targeting SDK level 31 or higher needed to hold the SCHEDULE_EXACT_ALARM permission to use this API, unless the app was exempt from battery restrictions. Note: Starting with android version , the system will explicitly drop any alarms set via this API when the calling app goes out of lifecycle.</param>
         <summary>Schedule an alarm to be delivered precisely at the stated time.</summary>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/AlarmManager#setExact(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.setExact(int, long, android.app.PendingIntent)</code>.</a>
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setExact(int,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.setExact(int, long, android.app.PendingIntent)</code>.</a>
             </format>
           </para>
           <para>
@@ -1657,14 +1667,14 @@
                    in milliseconds.  The alarm will be delivered no later than this many
                    milliseconds after <c>windowStartMillis</c>.  Note that this parameter
                    is a <i>duration,</i> not the timestamp of the end of the window.</param>
-        <param name="tag">To be added.</param>
-        <param name="listener">To be added.</param>
-        <param name="targetHandler">To be added.</param>
+        <param name="tag">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Handler, or on the application&#x27;s main looper if null is passed as the targetHandler parameter. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <param name="listener">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Handler, or on the application&#x27;s main looper if null is passed as the targetHandler parameter. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <param name="targetHandler">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Handler, or on the application&#x27;s main looper if null is passed as the targetHandler parameter. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
         <summary>Schedule an alarm to be delivered within a given window of time.</summary>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.setWindow(int, long, long, android.app.PendingIntent)</code>.</a>
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.setWindow(int, long, long, android.app.PendingIntent)</code>.</a>
             </format>
           </para>
           <para>
@@ -1721,14 +1731,19 @@
         <Parameter Name="listener" Type="Android.App.AlarmManager+IOnAlarmListener" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="windowStartMillis">To be added.</param>
-        <param name="windowLengthMillis">To be added.</param>
-        <param name="tag">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="type">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <param name="windowStartMillis">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <param name="windowLengthMillis">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <param name="tag">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <param name="executor">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <param name="listener">Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</param>
+        <summary>Direct callback version of long, long, PendingIntent).</summary>
+        <remarks>Direct callback version of long, long, PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an instance that will be invoked at that time. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API , apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20java.util.concurrent.Executor,%20android.app.AlarmManager.OnAlarmListener)" title="Reference documentation">Java documentation for <code>android.app.AlarmManager.setWindow(int,long,long,java.lang.String,java.util.concurrent.Executor,android.app.AlarmManager.OnAlarmListener)</code>.</a>
+            </format>
+          </para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
