@@ -57,10 +57,10 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="javaReference">A JNI reference to the Java object to wrap.</param>
+        <param name="transfer">Specifies how ownership of <paramref name="javaReference" /> is transferred to the new managed peer.</param>
+        <summary>Creates a managed wrapper for an existing Java <c>ProtectedSignalsManager</c> instance.</summary>
+        <remarks>This constructor is used by the Android runtime when creating managed peers for Java objects.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Get">
@@ -132,9 +132,9 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>ProtectedSignalsManager</c>.</value>
+        <remarks>This member supports the Java interop infrastructure and is not intended to be called directly by applications.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -161,9 +161,9 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the JNI class reference used when dispatching inherited members.</summary>
+        <value>A JNI reference to the peer class used for virtual method dispatch.</value>
+        <remarks>This member supports the Java interop infrastructure and is not intended to be called directly by applications.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -190,9 +190,9 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the managed type used to determine the virtual method dispatch threshold.</summary>
+        <value>The managed peer type used for dispatch threshold checks.</value>
+        <remarks>This member supports the Java interop infrastructure and is not intended to be called directly by applications.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UpdateSignals">
@@ -228,13 +228,13 @@
         <Parameter Name="receiver" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="updateSignalsRequest">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="receiver">To be added.</param>
-        <summary>The updateSignals API will retrieve a JSON from the URI that describes which signals to add
+        <param name="updateSignalsRequest">The request that identifies the URI from which to retrieve signal updates. This value cannot be <see langword="null" />.</param>
+        <param name="executor">The executor through which callback events are dispatched. This value cannot be <see langword="null" />.</param>
+        <param name="receiver">The receiver called with an empty object on success or an exception on failure. This value cannot be <see langword="null" />.</param>
+        <summary>The <c>UpdateSignals</c> API will retrieve a JSON from the URI that describes which signals to add
             or remove.</summary>
         <remarks>
-          <para>The updateSignals API will retrieve a JSON from the URI that describes which signals to add
+          <para>The <c>UpdateSignals</c> API will retrieve a JSON from the URI that describes which signals to add
             or remove. This API also allows registering the encoder endpoint. The endpoint is used to
             download an encoding logic, which enables encoding the signals.</para>
           <para>The top level keys for the JSON must correspond to one of 5 commands:</para>
