@@ -99,7 +99,6 @@
         <param name="request">The <c>request</c> argument.</param>
         <summary>Creates a new Builder of NetworkRequest from an existing instance.</summary>
         <remarks>
-          <para>Creates a new Builder of NetworkRequest from an existing instance.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/NetworkRequest.Builder#NetworkRequest$Builder(android.net.NetworkRequest)" title="Reference documentation">Java documentation for <code>android.net.NetworkRequest.Builder.NetworkRequest$Builder(android.net.NetworkRequest)</code>.</a>
@@ -166,9 +165,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="capability">The <c>capability</c> argument.</param>
-        <summary>Adds the specified capability.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="capability">The required capability. All requested capabilities must be satisfied for a network to match.</param>
+        <summary>Adds a required network capability.</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
@@ -210,9 +209,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="transportType">The <c>transportType</c> argument.</param>
-        <summary>Adds the specified transport type.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="transportType">The allowed transport. With no transports specified, matching is unrestricted by transport.</param>
+        <summary>Adds an allowed transport type.</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
@@ -245,8 +244,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Build <c>NetworkRequest</c> give the current set of capabilities.</summary>
-        <returns>The result of the operation.</returns>
+        <summary>Builds a network request from the configured capabilities.</summary>
+        <returns>The configured network request.</returns>
         <remarks>
           <para>Build <c>NetworkRequest</c> give the current set of capabilities.</para>
           <para>
@@ -287,8 +286,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Performs the <c>ClearCapabilities</c> operation.</summary>
-        <returns>The result of the operation.</returns>
+        <summary>Removes all required and forbidden capabilities from this request.</summary>
+        <returns>This builder.</returns>
         <remarks>
   <para>Performs the <c>ClearCapabilities</c> operation.</para>
   <para>
@@ -322,13 +321,9 @@
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the jni peer members.</summary>
-        <value>The <c>JniPeerMembers</c> value.</value>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>The <see cref="T:Java.Interop.JniPeerMembers" /> instance that provides access to JNI peer-member information for this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="RemoveCapability">
       <MemberSignature Language="C#" Value="public virtual Android.Net.NetworkRequest.Builder? RemoveCapability (Android.Net.NetCapability capability);" />
@@ -360,9 +355,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="capability">The <c>capability</c> argument.</param>
-        <summary>Removes the specified capability.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="capability">The capability to remove.</param>
+        <summary>Removes a network capability if it is present.</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
@@ -404,9 +399,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="transportType">The <c>transportType</c> argument.</param>
-        <summary>Removes the specified transport type.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="transportType">The transport to remove.</param>
+        <summary>Removes a transport type if it is present.</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
@@ -445,11 +440,11 @@
         <Parameter Name="include" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="include">The <c>include</c> argument.</param>
-        <summary>Sets the include other uid networks.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="include"><c>true</c> to include those networks; otherwise, <c>false</c>.</param>
+        <summary>Controls whether to match networks not applicable to the calling UID.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the include other uid networks.</para>
+          <para>When other-UID networks are included, privacy-sensitive fields such as network specifiers are redacted or removed.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/NetworkRequest.Builder#setIncludeOtherUidNetworks(boolean)" title="Reference documentation">Java documentation for <code>android.net.NetworkRequest.Builder.SetIncludeOtherUidNetworks</code>.</a>
@@ -485,10 +480,12 @@
         <Parameter Name="networkSpecifier" Type="Android.Net.NetworkSpecifier" />
       </Parameters>
       <Docs>
-        <param name="networkSpecifier">The <c>networkSpecifier</c> argument.</param>
-        <summary>Sets the network specifier.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="networkSpecifier">The specifier, or <see langword="null" /> to clear it.</param>
+        <summary>Sets the optional bearer-specific network specifier.</summary>
+        <returns>This builder.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when the request does not have exactly one transport.</exception>
         <remarks>
+          <para>A network specifier requires exactly one transport. Setting a specifier without one transport, or changing transports after setting it, is invalid.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
   <format type="text/html">
@@ -526,10 +523,12 @@
         <Parameter Name="networkSpecifier" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="networkSpecifier">The <c>networkSpecifier</c> argument.</param>
-        <summary>Sets the network specifier.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="networkSpecifier">The specifier, or <see langword="null" /> to clear it.</param>
+        <summary>Sets the obsolete string network specifier.</summary>
+        <returns>This builder.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when the request does not have exactly one transport.</exception>
         <remarks>
+          <para>This overload is obsolete. It requires exactly one transport; use the <see cref="M:Android.Net.NetworkRequest.Builder.SetNetworkSpecifier(Android.Net.NetworkSpecifier)" /> overload instead.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
   <format type="text/html">
@@ -567,11 +566,11 @@
         <Parameter Name="subIds" Type="System.Collections.Generic.ICollection&lt;Java.Lang.Integer&gt;" Index="0" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
-        <param name="subIds">The <c>subIds</c> argument.</param>
-        <summary>Sets the subscription ids.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="subIds">A non-null set of required subscription IDs. An empty set matches all networks, including those without a subscription ID.</param>
+        <summary>Sets the required subscription identifiers.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the subscription ids.</para>
+          <para>Registering a request with a non-empty subscription-ID set requires the <c>NETWORK_FACTORY</c> permission.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/NetworkRequest.Builder#setSubscriptionIds(java.util.Set)" title="Reference documentation">Java documentation for <code>android.net.NetworkRequest.Builder.SetSubscriptionIds</code>.</a>
@@ -603,13 +602,9 @@
       <ReturnValue>
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the threshold class.</summary>
-        <value>The <c>ThresholdClass</c> value.</value>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="ThresholdType">
       <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
@@ -634,13 +629,9 @@
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the threshold type.</summary>
-        <value>The <c>ThresholdType</c> value.</value>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
   </Members>
 </Type>

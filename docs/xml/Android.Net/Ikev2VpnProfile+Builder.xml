@@ -113,7 +113,6 @@
         <param name="identity">the identity string to be used for IKEv2 authentication</param>
         <summary>Creates a new builder with the basic parameters of an IKEv2/IPsec VPN.</summary>
         <remarks>
-          <para>Creates a new builder with the basic parameters of an IKEv2/IPsec VPN.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#Ikev2VpnProfile$Builder(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.Ikev2VpnProfile$Builder(java.lang.String, java.lang.String)</code>.</a>
@@ -152,9 +151,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Validates, builds and provisions the VpnProfile.</summary>
-        <returns>The result of the operation.</returns>
+        <summary>Validates and builds the IKEv2 VPN profile.</summary>
+        <returns>The configured VPN profile.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when required values are invalid, authentication is missing, or incompatible options were combined.</exception>
         <remarks>
+          <para>A direct server-address profile must have exactly one authentication method. Profiles built from <c>IkeTunnelConnectionParams</c> configure authentication in those parameters.</para>
           <para>Validates, builds and provisions the VpnProfile.</para>
           <para>
             <format type="text/html">
@@ -192,13 +193,9 @@
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the jni peer members.</summary>
-        <value>The <c>JniPeerMembers</c> value.</value>
-        <remarks>
-  <para>Gets the jni peer members.</para>
-</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>The <see cref="T:Java.Interop.JniPeerMembers" /> instance that provides access to JNI peer-member information for this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="SetAllowedAlgorithms">
       <MemberSignature Language="C#" Value="public Android.Net.Ikev2VpnProfile.Builder SetAllowedAlgorithms (System.Collections.Generic.IList&lt;string&gt; algorithmNames);" />
@@ -227,11 +224,11 @@
         <Parameter Name="algorithmNames" Type="System.Collections.Generic.IList&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="algorithmNames">The <c>algorithmNames</c> argument.</param>
-        <summary>Sets the allowed algorithms.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="algorithmNames">A non-null list containing authentication plus encryption algorithms, or an authenticated-encryption algorithm that provides both.</param>
+        <summary>Sets the IPsec algorithms allowed for the VPN.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the allowed algorithms.</para>
+          <para>Insecure <c>AUTH_HMAC_MD5</c> and <c>AUTH_HMAC_SHA1</c> algorithms are rejected. Without this call, secure <c>IpSecAlgorithm</c> algorithms are allowed.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAllowedAlgorithms(java.util.List)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAllowedAlgorithms</code>.</a>
@@ -276,13 +273,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="userCert">The <c>userCert</c> argument.</param>
-        <param name="key">The <c>key</c> argument.</param>
-        <param name="serverRootCa">The <c>serverRootCa</c> argument.</param>
-        <summary>Sets the auth digital signature.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="userCert">The required user certificate.</param>
+        <param name="key">The private key associated with <paramref name="userCert" />.</param>
+        <param name="serverRootCa">The server-verification root certificate, or <see langword="null" /> to use the system trust store.</param>
+        <summary>Configures digital-signature authentication.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the auth digital signature.</para>
+          <para>Only one authentication method may be configured; this replaces a previously configured authentication method.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthDigitalSignature(java.security.cert.X509Certificate,%20java.security.PrivateKey,%20java.security.cert.X509Certificate)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAuthDigitalSignature</code>.</a>
@@ -318,11 +315,11 @@
         <Parameter Name="psk" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="psk">The <c>psk</c> argument.</param>
-        <summary>Sets the auth psk.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="psk">The required pre-shared key.</param>
+        <summary>Configures pre-shared-key authentication.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the auth psk.</para>
+          <para>Only one authentication method may be configured; this replaces a previously configured authentication method.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthPsk(byte[])" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAuthPsk</code>.</a>
@@ -367,13 +364,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="user">The <c>user</c> argument.</param>
-        <param name="pass">The <c>pass</c> argument.</param>
-        <param name="serverRootCa">The <c>serverRootCa</c> argument.</param>
-        <summary>Sets the auth username password.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="user">The required user name.</param>
+        <param name="pass">The required password.</param>
+        <param name="serverRootCa">The server-verification root certificate, or <see langword="null" /> to use the system trust store.</param>
+        <summary>Configures EAP-MSCHAPv2 authentication.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the auth username password.</para>
+          <para>Only one authentication method may be configured; this replaces a previously configured authentication method.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthUsernamePassword(java.lang.String,%20java.lang.String,%20java.security.cert.X509Certificate)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAuthUsernamePassword</code>.</a>
@@ -409,11 +406,10 @@
         <Parameter Name="isEnabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isEnabled">The <c>isEnabled</c> argument.</param>
-        <summary>Sets the automatic ip version selection enabled.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="isEnabled"><c>true</c> to enable automatic selection; otherwise, <c>false</c>. The default is <c>false</c>.</param>
+        <summary>Sets whether the platform automatically selects the IP version.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the automatic ip version selection enabled.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAutomaticIpVersionSelectionEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAutomaticIpVersionSelectionEnabled</code>.</a>
@@ -449,11 +445,10 @@
         <Parameter Name="isEnabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isEnabled">The <c>isEnabled</c> argument.</param>
-        <summary>Sets the automatic natt keepalive timer enabled.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="isEnabled"><c>true</c> to enable automatic selection; otherwise, <c>false</c>. The default is <c>false</c>.</param>
+        <summary>Sets whether the platform automatically selects NAT-T keepalive timers.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the automatic natt keepalive timer enabled.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAutomaticNattKeepaliveTimerEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAutomaticNattKeepaliveTimerEnabled</code>.</a>
@@ -489,11 +484,10 @@
         <Parameter Name="isBypassable" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isBypassable">The <c>isBypassable</c> argument.</param>
-        <summary>Sets the bypassable.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="isBypassable"><c>true</c> to allow applications to explicitly use a permitted underlying or other network; otherwise, <c>false</c>. The default is <c>false</c>.</param>
+        <summary>Sets whether applications can bypass the VPN.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the bypassable.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setBypassable(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetBypassable</code>.</a>
@@ -529,11 +523,12 @@
         <Parameter Name="excludeLocalRoutes" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="excludeLocalRoutes">The <c>excludeLocalRoutes</c> argument.</param>
-        <summary>Sets the local routes excluded.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="excludeLocalRoutes"><c>true</c> to exempt local routes; otherwise, <c>false</c>.</param>
+        <summary>Sets whether local-network traffic bypasses the VPN.</summary>
+        <returns>This builder.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when local routes are excluded for a non-bypassable VPN.</exception>
         <remarks>
-  <para>Sets the local routes excluded.</para>
+          <para>Excluding local routes can allow destinations, including DNS servers, to bypass the VPN and cannot be used with a non-bypassable VPN.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setLocalRoutesExcluded(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetLocalRoutesExcluded</code>.</a>
@@ -569,11 +564,11 @@
         <Parameter Name="mtu" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mtu">The <c>mtu</c> argument.</param>
-        <summary>Sets the max mtu.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="mtu">An MTU of at least 1280 bytes. When unset, Android chooses a safe value and dynamically calculates the link MTU.</param>
+        <summary>Sets the VPN interface MTU upper bound.</summary>
+        <returns>This builder.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when <paramref name="mtu" /> is less than 1280.</exception>
         <remarks>
-  <para>Sets the max mtu.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setMaxMtu(int)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetMaxMtu</code>.</a>
@@ -609,11 +604,10 @@
         <Parameter Name="isMetered" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isMetered">The <c>isMetered</c> argument.</param>
-        <summary>Sets the metered.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="isMetered"><c>true</c> to mark the VPN metered regardless of the underlying network; <c>false</c> to inherit underlying-network meteredness. The default is <c>true</c>.</param>
+        <summary>Sets whether the VPN is metered.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the metered.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setMetered(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetMetered</code>.</a>
@@ -656,11 +650,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="proxy">The <c>proxy</c> argument.</param>
-        <summary>Sets the proxy.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="proxy">The proxy recommendation, which applications may ignore.</param>
+        <summary>Sets a proxy recommendation for the VPN network.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the proxy.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setProxy(android.net.ProxyInfo)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetProxy</code>.</a>
@@ -696,11 +689,11 @@
         <Parameter Name="requiresInternetValidation" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="requiresInternetValidation">The <c>requiresInternetValidation</c> argument.</param>
-        <summary>Sets the requires internet validation.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="requiresInternetValidation"><c>true</c> to request validation; otherwise, <c>false</c>. The default is <c>false</c>.</param>
+        <summary>Sets whether the VPN requires Internet validation.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the requires internet validation.</para>
+          <para>A validated connection receives <c>NET_CAPABILITY_VALIDATED</c>; without validation, the capability is added after connection regardless of Internet reachability.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setRequiresInternetValidation(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetRequiresInternetValidation</code>.</a>
@@ -732,13 +725,9 @@
       <ReturnValue>
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the threshold class.</summary>
-        <value>The <c>ThresholdClass</c> value.</value>
-        <remarks>
-  <para>Gets the threshold class.</para>
-</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="ThresholdType">
       <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
@@ -763,13 +752,9 @@
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the threshold type.</summary>
-        <value>The <c>ThresholdType</c> value.</value>
-        <remarks>
-  <para>Gets the threshold type.</para>
-</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
   </Members>
 </Type>

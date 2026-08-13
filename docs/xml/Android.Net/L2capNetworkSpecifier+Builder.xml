@@ -68,7 +68,7 @@
   <para>Initializes a new instance of <c>L2capNetworkSpecifier.Builder</c>.</para>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/L2capNetworkSpecifier.Builder#Builder()" title="Reference documentation">Java documentation for <code>android.net.L2capNetworkSpecifier.Builder..ctor</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/L2capNetworkSpecifier.Builder#L2capNetworkSpecifier$Builder()" title="Reference documentation">Java documentation for <code>android.net.L2capNetworkSpecifier.Builder..ctor</code>.</a>
   </format>
 </para>
 </remarks>
@@ -99,8 +99,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Create the L2capNetworkSpecifier object.</summary>
-        <returns>The result of the operation.</returns>
+        <summary>Creates the L2CAP network specifier.</summary>
+        <returns>The configured L2CAP network specifier.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when a remote address is specified with <c>ROLE_SERVER</c>.</exception>
         <remarks>
           <para>Create the L2capNetworkSpecifier object.</para>
           <para>
@@ -139,13 +140,9 @@
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the jni peer members.</summary>
-        <value>The <c>JniPeerMembers</c> value.</value>
-        <remarks>
-  <para>Gets the jni peer members.</para>
-</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>The <see cref="T:Java.Interop.JniPeerMembers" /> instance that provides access to JNI peer-member information for this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="SetHeaderCompression">
       <MemberSignature Language="C#" Value="public Android.Net.L2capNetworkSpecifier.Builder SetHeaderCompression (int headerCompression);" />
@@ -174,11 +171,11 @@
         <Parameter Name="headerCompression" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="headerCompression">The <c>headerCompression</c> argument.</param>
-        <summary>Sets the header compression.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="headerCompression">One of <c>HEADER_COMPRESSION_ANY</c> (0), <c>HEADER_COMPRESSION_NONE</c> (1), or <c>HEADER_COMPRESSION_6LOWPAN</c> (2). The default is <c>HEADER_COMPRESSION_ANY</c>.</param>
+        <summary>Sets the header-compression mechanism for this L2CAP network.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the header compression.</para>
+          <para>A concrete compression mechanism, rather than <c>HEADER_COMPRESSION_ANY</c>, is required when requesting or reserving a new network.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/L2capNetworkSpecifier.Builder#setHeaderCompression(int)" title="Reference documentation">Java documentation for <code>android.net.L2capNetworkSpecifier.Builder.SetHeaderCompression</code>.</a>
@@ -214,11 +211,11 @@
         <Parameter Name="psm" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="psm">The <c>psm</c> argument.</param>
-        <summary>Sets the psm.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="psm">A value from 0 through 255 inclusive. Zero is <c>PSM_ANY</c>; the default is <c>PSM_ANY</c>.</param>
+        <summary>Sets the Protocol/Service Multiplexer (PSM) for a client network.</summary>
+        <returns>This builder.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when <paramref name="psm" /> is less than 0 or greater than 255.</exception>
         <remarks>
-  <para>Sets the psm.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/L2capNetworkSpecifier.Builder#setPsm(int)" title="Reference documentation">Java documentation for <code>android.net.L2capNetworkSpecifier.Builder.SetPsm</code>.</a>
@@ -261,11 +258,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="remoteAddress">The <c>remoteAddress</c> argument.</param>
-        <summary>Sets the remote address.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="remoteAddress">The address to connect to, or <see langword="null" /> to match any MAC address.</param>
+        <summary>Sets the remote MAC address for a client network.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the remote address.</para>
+          <para>This setting is valid only for client networks. When it is unset, the specifier matches any MAC address.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/L2capNetworkSpecifier.Builder#setRemoteAddress(android.net.MacAddress)" title="Reference documentation">Java documentation for <code>android.net.L2capNetworkSpecifier.Builder.SetRemoteAddress</code>.</a>
@@ -301,11 +298,10 @@
         <Parameter Name="role" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="role">The <c>role</c> argument.</param>
-        <summary>Sets the role.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="role">One of <c>ROLE_ANY</c> (0), <c>ROLE_CLIENT</c> (1), or <c>ROLE_SERVER</c> (2). The default is <c>ROLE_ANY</c>.</param>
+        <summary>Sets the role for this L2CAP network.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the role.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/L2capNetworkSpecifier.Builder#setRole(int)" title="Reference documentation">Java documentation for <code>android.net.L2capNetworkSpecifier.Builder.SetRole</code>.</a>
@@ -337,13 +333,9 @@
       <ReturnValue>
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the threshold class.</summary>
-        <value>The <c>ThresholdClass</c> value.</value>
-        <remarks>
-  <para>Gets the threshold class.</para>
-</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="ThresholdType">
       <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
@@ -368,13 +360,9 @@
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the threshold type.</summary>
-        <value>The <c>ThresholdType</c> value.</value>
-        <remarks>
-  <para>Gets the threshold type.</para>
-</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
   </Members>
 </Type>

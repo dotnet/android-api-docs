@@ -66,7 +66,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/VpnService.Builder#Builder(android.net.VpnService)" title="Reference documentation">Java documentation for <code>android.net.VpnService.Builder..ctor</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/VpnService.Builder#VpnService$Builder(android.net.VpnService)" title="Reference documentation">Java documentation for <code>android.net.VpnService.Builder..ctor</code>.</a>
   </format>
 </para>
 
@@ -204,10 +204,13 @@
         <Parameter Name="packageName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="packageName">The <c>packageName</c> argument.</param>
-        <summary>Adds the specified allowed application.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="packageName">The full canonical package name of a currently installed application.</param>
+        <summary>Adds an application allowed to use the VPN.</summary>
+        <returns>This builder.</returns>
+                  <exception cref="T:Java.Lang.UnsupportedOperationException">Thrown when a disallowed-application list was already configured.</exception>
+                  <exception cref="T:Android.Content.PM.PackageManager.NameNotFoundException">Thrown when the package is not currently installed.</exception>
         <remarks>
+          <para>Once an allowed-application list is used, only listed applications use the VPN; all applications are allowed by default. A builder cannot contain both allowed and disallowed application lists.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
   <format type="text/html">
@@ -241,10 +244,13 @@
         <Parameter Name="packageName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="packageName">The <c>packageName</c> argument.</param>
-        <summary>Adds the specified disallowed application.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="packageName">The full canonical package name of a currently installed application.</param>
+        <summary>Adds an application denied access to the VPN.</summary>
+        <returns>This builder.</returns>
+                  <exception cref="T:Java.Lang.UnsupportedOperationException">Thrown when an allowed-application list was already configured.</exception>
+                  <exception cref="T:Android.Content.PM.PackageManager.NameNotFoundException">Thrown when the package is not currently installed.</exception>
         <remarks>
+          <para>Denied applications use the network as if the VPN were not running. A builder cannot contain both allowed and disallowed application lists.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
   <format type="text/html">
@@ -367,7 +373,6 @@
         <summary>Adds the specified route.</summary>
         <returns>The result of the operation.</returns>
         <remarks>
-  <para>Adds the specified route.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/VpnService.Builder#addRoute(android.net.IpPrefix)" title="Reference documentation">Java documentation for <code>android.net.VpnService.Builder.AddRoute</code>.</a>
@@ -591,12 +596,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Create a VPN interface using the parameters supplied to this
-            builder.</summary>
-        <returns>
-          <c>ParcelFileDescriptor</c> of the VPN interface, or
-                    <c>null</c> if the application is not prepared.</returns>
+        <summary>Creates the VPN interface from the configured builder parameters.</summary>
+        <returns>The interface file descriptor, or <see langword="null" /> if the app is not prepared or has been revoked.</returns>
         <remarks>
+          <para>The descriptor is non-blocking by default and must be closed when the VPN connection ends. A successful handover deactivates the previous VPN interface.</para>
           <para>Create a VPN interface using the parameters supplied to this
             builder. The interface works on IP packets, and a file descriptor
             is returned for the application to access them. Each read
@@ -710,13 +713,9 @@
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>Gets the jni peer members.</summary>
-        <value>The <c>JniPeerMembers</c> value.</value>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>The <see cref="T:Java.Interop.JniPeerMembers" /> instance that provides access to JNI peer-member information for this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="SetBlocking">
       <MemberSignature Language="C#" Value="public virtual Android.Net.VpnService.Builder SetBlocking (bool blocking);" />
@@ -741,9 +740,9 @@
         <Parameter Name="blocking" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="blocking">The <c>blocking</c> argument.</param>
-        <summary>Sets the blocking.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="blocking"><c>true</c> for blocking I/O; <c>false</c> for non-blocking I/O, which is the default.</param>
+        <summary>Sets whether the VPN interface file descriptor uses blocking I/O.</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
@@ -825,7 +824,6 @@
         <summary>Sets the http proxy.</summary>
         <returns>The result of the operation.</returns>
         <remarks>
-  <para>Sets the http proxy.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/VpnService.Builder#setHttpProxy(android.net.ProxyInfo)" title="Reference documentation">Java documentation for <code>android.net.VpnService.Builder.SetHttpProxy</code>.</a>
@@ -861,11 +859,10 @@
         <Parameter Name="isMetered" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isMetered">The <c>isMetered</c> argument.</param>
-        <summary>Sets the metered.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="isMetered"><c>true</c> to treat the VPN as metered regardless of underlying networks; <c>false</c> to inherit underlying-network meteredness.</param>
+        <summary>Sets whether the VPN is treated as metered.</summary>
+        <returns>This builder.</returns>
         <remarks>
-  <para>Sets the metered.</para>
   <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/net/VpnService.Builder#setMetered(boolean)" title="Reference documentation">Java documentation for <code>android.net.VpnService.Builder.SetMetered</code>.</a>
@@ -986,9 +983,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="networks">The <c>networks</c> argument.</param>
-        <summary>Sets the underlying networks.</summary>
-        <returns>The result of the operation.</returns>
+        <param name="networks"><see langword="null" /> to allow any underlying network, an empty array for none, or the actual underlying networks.</param>
+        <summary>Sets the networks underlying the VPN.</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         <para>
@@ -1023,13 +1020,9 @@
       <ReturnValue>
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
         <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
-      </Docs>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="ThresholdType">
       <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
@@ -1054,13 +1047,9 @@
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
         <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
-      </Docs>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
   </Members>
 </Type>
