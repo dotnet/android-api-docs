@@ -464,8 +464,8 @@
         <Parameter Name="qName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="qName">The qualified (prefixed) name.</param>
-        <summary tool="true">Look up the index of an attribute by XML qualified (prefixed) name.</summary>
+        <param name="qName">The attribute name as reported by the pull parser. When namespace processing is enabled, this is the local name without a prefix.</param>
+        <summary tool="true">Looks up the index of an attribute by its parser-reported name.</summary>
         <returns>The index of the attribute, or <c>-1</c> if it does not appear in the list.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -500,10 +500,9 @@
         <Parameter Name="localName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="uri">The Namespace URI, or the empty string if
-        the name has no Namespace URI.</param>
-        <param name="localName">The attribute's local name.</param>
-        <summary>Look up the index of an attribute by Namespace name.</summary>
+        <param name="uri">The namespace URI to match exactly, or the empty string if the attribute has no namespace URI.</param>
+        <param name="localName">The attribute name as reported by the pull parser.</param>
+        <summary>Looks up the index of an attribute by namespace URI and parser-reported name.</summary>
         <returns>The index of the attribute, or <c>-1</c> if it does not appear in the list.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -646,14 +645,13 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">The zero-based attribute index.</param>
+        <param name="index">The zero-based attribute index. The default Android parser does not validate this value.</param>
         <summary tool="true">Look up an attribute's type by index.</summary>
-        <returns>The attribute type. Non-validating parsers return <c>CDATA</c>.</returns>
+        <returns>The attribute type. The default Android parser returns <c>CDATA</c>.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.Lang.IndexOutOfBoundsException">The index is out of range or the current event is not a start tag.</exception>
       </Docs>
     </Member>
     <Member MemberName="GetType">
@@ -682,9 +680,9 @@
         <Parameter Name="qName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="qName">The XML qualified name.</param>
-        <summary>Look up an attribute's type by XML qualified (prefixed) name.</summary>
-        <returns>The attribute type, or <see langword="null" /> if the attribute is not in the list or qualified names are not available.</returns>
+        <param name="qName">The attribute name as reported by the pull parser. When namespace processing is enabled, this is the local name without a prefix.</param>
+        <summary>Looks up an attribute's type by its parser-reported name.</summary>
+        <returns>The attribute type, or <see langword="null" /> if no matching attribute exists. The default Android parser reports <c>CDATA</c>.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -718,11 +716,10 @@
         <Parameter Name="localName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="uri">The Namespace URI, or the empty String if the
-        name has no Namespace URI.</param>
-        <param name="localName">The local name of the attribute.</param>
-        <summary>Look up an attribute's type by Namespace name.</summary>
-        <returns>The attribute type, or <see langword="null" /> if the attribute is not in the list or namespace processing is not being performed.</returns>
+        <param name="uri">The namespace URI to match exactly, or the empty string if the attribute has no namespace URI.</param>
+        <param name="localName">The attribute name as reported by the pull parser.</param>
+        <summary>Looks up an attribute's type by namespace URI and parser-reported name.</summary>
+        <returns>The attribute type, or <see langword="null" /> if no matching attribute exists. The default Android parser reports <c>CDATA</c>.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -827,9 +824,9 @@
         <Parameter Name="qName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="qName">The XML qualified name.</param>
-        <summary>Look up an attribute's value by XML qualified (prefixed) name.</summary>
-        <returns>The attribute value, or <see langword="null" /> if the attribute is not in the list or qualified names are not available.</returns>
+        <param name="qName">The attribute name as reported by the pull parser. Namespace is not considered.</param>
+        <summary>Looks up an attribute's value by its parser-reported name in any namespace.</summary>
+        <returns>The attribute value, or <see langword="null" /> if no matching attribute exists.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -863,11 +860,10 @@
         <Parameter Name="localName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="uri">The Namespace URI, or the empty String if the
-        name has no Namespace URI.</param>
-        <param name="localName">The local name of the attribute.</param>
-        <summary>Look up an attribute's value by Namespace name.</summary>
-        <returns>The attribute value, or <see langword="null" /> if the attribute is not in the list.</returns>
+        <param name="uri">The namespace URI to match, or <see langword="null" /> to match any namespace.</param>
+        <param name="localName">The attribute name as reported by the pull parser.</param>
+        <summary>Looks up an attribute's value by parser-reported name and optional namespace URI.</summary>
+        <returns>The attribute value, or <see langword="null" /> if no matching attribute exists.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -936,7 +932,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the number of attributes in the list.</summary>
-        <value>The number of attributes in the list.</value>
+        <value>The number of attributes on the current start tag, or <c>-1</c> when the parser is not positioned on a start tag.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1430,8 +1426,8 @@
       </Parameters>
       <Docs>
         <param name="namespace">The namespace URI, or the empty string if the element has no namespace URI or namespace processing is not being performed.</param>
-        <param name="localName">The local name without a prefix, or the empty string if namespace processing is not being performed.</param>
-        <param name="qName">The qualified name with a prefix, or the empty string if qualified names are not available.</param>
+        <param name="localName">The local element name when namespace processing is enabled; otherwise, the element name as reported by the pull parser.</param>
+        <param name="qName">The prefix-qualified element name when a prefix is present; otherwise, the same value as <paramref name="localName" />.</param>
         <summary>Calls <c>ContentHandler#startElement(String, String, String, Attributes) startElement</c>
             on the <c>ContentHandler</c> with <c>this</c> driver object as the
             <c>Attributes</c> implementation.</summary>
