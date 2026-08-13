@@ -372,10 +372,16 @@
       <Docs>
         <summary>Return the context of the single, global Application object of the
  current process.</summary>
-        <value>To be added.</value>
+        <value>Return the context of the single, global Application object of the current process. This generally should only be used if you need a Context whose lifecycle is separate from the current context, that is tied to the lifetime of the process rather than the current component. Consider for example how this interacts with registerReceiver(BroadcastReceiver,IntentFilter) : If used from an Activity context, the receiver is being registered within that activity. This means that you are expected to unregister before the activity is done being destroyed; in fact if you do not do so, the framework will clean up your leaked registration as it removes the activity and log an error. Thus, if you use the Activity context to register a receiver that is static (global to the process, not associated with an Activity instance) then that registration will be removed on you at whatever point the activity you used is destroyed. If used from the Context returned here, the receiver is being registered with the global state associated with your application. Thus it will never be unregistered for you. This is necessary if the receiver is associated with static data, not a particular component. However using the ApplicationContext elsewhere can easily lead to serious leaks if you forget to unregister, unbind, etc.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getApplicationContext()" title="Reference documentation">Java documentation for <code>android.content.Context.getApplicationContext()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -404,10 +410,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return the full application info for this context's package.</summary>
-        <value>To be added.</value>
+        <value>Return the full application info for this context's package.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getApplicationInfo()" title="Reference documentation">Java documentation for <code>android.content.Context.getApplicationInfo()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 4" />
       </Docs>
     </Member>
@@ -559,10 +571,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return an AssetManager instance for your application's package.</summary>
-        <value>To be added.</value>
+        <value>an AssetManager instance for the application's package</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getAssets()" title="Reference documentation">Java documentation for <code>android.content.Context.getAssets()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -590,7 +608,7 @@
         <ReturnType>Android.Content.AttributionSource</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Gets the attribution source associated with this context.</summary>
         <value>The identity of this context for permission purposes.</value>
         <remarks>
           <para>
@@ -857,14 +875,26 @@
         <Parameter Name="conn" Type="Android.Content.IServiceConnection" Index="4" FrameworkAlternate="net-android-35.0;net-android-36.0" />
       </Parameters>
       <Docs>
-        <param name="service">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="instanceName">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="conn">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="service">This value cannot be null .</param>
+        <param name="flags">This value cannot be null .</param>
+        <param name="instanceName">This value cannot be null .</param>
+        <param name="executor">This value cannot be null . Callback and listener events are dispatched through this Executor , providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor() . Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="conn">This value cannot be null .</param>
+        <summary>See bindIsolatedService(Intent,int,String,Executor,ServiceConnection) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</summary>
+        <returns>See bindIsolatedService(Intent,int,String,Executor,ServiceConnection) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</returns>
+        <remarks>See bindIsolatedService(Intent,int,String,Executor,ServiceConnection) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#bindIsolatedService(android.content.Intent,%20android.content.Context.BindServiceFlags,%20java.lang.String,%20java.util.concurrent.Executor,%20android.content.ServiceConnection)" title="Reference documentation">Java documentation for <code>android.content.Context.bindIsolatedService(android.content.Intent, android.content.Context.BindServiceFlags, java.lang.String, java.util.concurrent.Executor, android.content.ServiceConnection)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="BindIsolatedService">
@@ -1163,12 +1193,24 @@
         <Parameter Name="flags" Type="Android.Content.Context+BindServiceFlags" />
       </Parameters>
       <Docs>
-        <param name="service">To be added.</param>
-        <param name="conn">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="service">This value cannot be null .</param>
+        <param name="conn">This value cannot be null .</param>
+        <param name="flags">This value cannot be null .</param>
+        <summary>See bindService(Intent,ServiceConnection,int) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</summary>
+        <returns>See bindService(Intent,ServiceConnection,int) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</returns>
+        <remarks>See bindService(Intent,ServiceConnection,int) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#bindService(android.content.Intent,%20android.content.ServiceConnection,%20android.content.Context.BindServiceFlags)" title="Reference documentation">Java documentation for <code>android.content.Context.bindService(android.content.Intent, android.content.ServiceConnection, android.content.Context.BindServiceFlags)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="BindService">
@@ -1208,9 +1250,9 @@
         <Parameter Name="conn" Type="Android.Content.IServiceConnection" />
       </Parameters>
       <Docs>
-        <param name="service">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="conn">To be added.</param>
+        <param name="service">This value cannot be null .</param>
+        <param name="flags">Value is either 0 or a combination of the following: BIND_AUTO_CREATE BIND_DEBUG_UNBIND BIND_NOT_FOREGROUND BIND_ABOVE_CLIENT BIND_ALLOW_OOM_MANAGEMENT BIND_WAIVE_PRIORITY BIND_IMPORTANT BIND_ADJUST_WITH_ACTIVITY BIND_NOT_PERCEPTIBLE BIND_ALLOW_ACTIVITY_STARTS BIND_INCLUDE_CAPABILITIES BIND_SHARED_ISOLATED_PROCESS BIND_PACKAGE_ISOLATED_PROCESS BIND_EXTERNAL_SERVICE</param>
+        <param name="conn">This value cannot be null .</param>
         <param name="executor">Callbacks on ServiceConnection will be called on executor. Must use same
                  instance for the same instance of ServiceConnection.</param>
         <summary>Same as <c>#bindService(Intent, ServiceConnection, int)
@@ -1268,13 +1310,25 @@
         <Parameter Name="conn" Type="Android.Content.IServiceConnection" />
       </Parameters>
       <Docs>
-        <param name="service">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="conn">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="service">This value cannot be null .</param>
+        <param name="flags">This value cannot be null .</param>
+        <param name="executor">This value cannot be null . Callback and listener events are dispatched through this Executor , providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor() . Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="conn">This value cannot be null .</param>
+        <summary>See bindService(Intent,int,Executor,ServiceConnection) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</summary>
+        <returns>See bindService(Intent,int,Executor,ServiceConnection) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</returns>
+        <remarks>See bindService(Intent,int,Executor,ServiceConnection) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#bindService(android.content.Intent,%20android.content.Context.BindServiceFlags,%20java.util.concurrent.Executor,%20android.content.ServiceConnection)" title="Reference documentation">Java documentation for <code>android.content.Context.bindService(android.content.Intent, android.content.Context.BindServiceFlags, java.util.concurrent.Executor, android.content.ServiceConnection)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="BindServiceAsUser">
@@ -1307,13 +1361,25 @@
         <Parameter Name="user" Type="Android.OS.UserHandle" />
       </Parameters>
       <Docs>
-        <param name="service">To be added.</param>
-        <param name="conn">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="user">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="service">This value cannot be null .</param>
+        <param name="conn">This value cannot be null .</param>
+        <param name="flags">This value cannot be null .</param>
+        <param name="user">This value cannot be null .</param>
+        <summary>See bindServiceAsUser(Intent,ServiceConnection,int,UserHandle) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</summary>
+        <returns>See bindServiceAsUser(Intent,ServiceConnection,int,UserHandle) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.</returns>
+        <remarks>See bindServiceAsUser(Intent,ServiceConnection,int,UserHandle) Call BindServiceFlags.of(long) to obtain a BindServiceFlags object.
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#bindServiceAsUser(android.content.Intent,%20android.content.ServiceConnection,%20android.content.Context.BindServiceFlags,%20android.os.UserHandle)" title="Reference documentation">Java documentation for <code>android.content.Context.bindServiceAsUser(android.content.Intent, android.content.ServiceConnection, android.content.Context.BindServiceFlags, android.os.UserHandle)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="BindServiceAsUser">
@@ -1346,7 +1412,7 @@
         <Parameter Name="user" Type="Android.OS.UserHandle" />
       </Parameters>
       <Docs>
-        <param name="user">To be added.</param>
+        <param name="user">This value cannot be null .</param>
         <param name="service">Identifies the service to connect to.  The Intent must
                  specify an explicit component name.</param>
         <param name="conn">Receives information as the service is started and stopped.
@@ -1640,10 +1706,16 @@
       <Docs>
         <summary>Returns the absolute path to the application specific cache directory
  on the filesystem.</summary>
-        <value>To be added.</value>
+        <value>Returns the absolute path to the application specific cache directory on the filesystem. The system will automatically delete files in this directory as disk space is needed elsewhere on the device. The system will always delete older files first, as reported by File.lastModified() . If desired, you can exert more control over how files are deleted using StorageManager.setCacheBehaviorGroup(File,boolean) and StorageManager.setCacheBehaviorTombstone(File,boolean) . Apps are strongly encouraged to keep their usage of cache space below the quota returned by StorageManager.getCacheQuotaBytes(java.util.UUID) . If your app goes above this quota, your cached files will be some of the first to be deleted when additional disk space is needed. Conversely, if your app stays under this quota, your cached files will be some of the last to be deleted when additional disk space is needed. Note that your cache quota will change over time depending on how frequently the user interacts with your app, and depending on how much system-wide disk space is used. The returned path may change over time if the calling app is moved to an adopted storage device, so only relative paths should be persisted. Apps require no extra permissions to read or write to the returned path, since this path lives in their private storage. Returns File The path of the directory holding application cache files. See also: openFileOutput(String, int) getFileStreamPath(String) getDir(String, int) getExternalCacheDir()</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getCacheDir()" title="Reference documentation">Java documentation for <code>android.content.Context.getCacheDir()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
         <altmember cref="M:Android.Content.Context.OpenFileOutput(System.String, Android.Content.FileCreationMode)" />
         <altmember cref="M:Android.Content.Context.GetFileStreamPath(System.String)" />
@@ -2532,10 +2604,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return a class loader you can use to retrieve classes in this package.</summary>
-        <value>To be added.</value>
+        <value>Return a class loader you can use to retrieve classes in this package.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getClassLoader()" title="Reference documentation">Java documentation for <code>android.content.Context.getClassLoader()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -2653,10 +2731,16 @@
       <Docs>
         <summary>Returns the absolute path to the application specific cache directory on
  the filesystem designed for storing cached code.</summary>
-        <value>To be added.</value>
+        <value>Returns the absolute path to the application specific cache directory on the filesystem designed for storing cached code. The system will delete any files stored in this location both when your specific application is upgraded, and when the entire platform is upgraded. This location is optimal for storing compiled or optimized code generated by your application at runtime. The returned path may change over time if the calling app is moved to an adopted storage device, so only relative paths should be persisted. Apps require no extra permissions to read or write to the returned path, since this path lives in their private storage. Returns File The path of the directory holding application code cache files.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getCodeCacheDir()" title="Reference documentation">Java documentation for <code>android.content.Context.getCodeCacheDir()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="CompanionDeviceService">
@@ -2891,10 +2975,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return a ContentResolver instance for your application's package.</summary>
-        <value>To be added.</value>
+        <value>Return a ContentResolver instance for your application's package.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getContentResolver()" title="Reference documentation">Java documentation for <code>android.content.Context.getContentResolver()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -3187,7 +3277,7 @@
       <Docs>
         <summary>Return a new Context object for the current Context but whose storage
             APIs are backed by device-protected storage.</summary>
-        <returns>To be added.</returns>
+        <returns>Return a new Context object for the current Context but whose storage APIs are backed by device-protected storage. On devices with direct boot, data stored in this location is encrypted with a key tied to the physical device, and it can be accessed immediately after the device has booted successfully, both before and after the user has authenticated with their credentials (such as a lock pattern or PIN). Because device-protected data is available without user authentication, you should carefully limit the data you store using this Context. For example, storing sensitive authentication tokens or passwords in the device-protected area is strongly discouraged. If the underlying device does not have the ability to store device-protected and credential-protected data using different keys, then both storage areas will become available at the same time. They remain as two distinct storage locations on disk, and only the window of availability changes. Each call to this method returns a new instance of a Context object; Context objects are not shared, however common state (ClassLoader, other Resources for the same configuration) may be so the Context itself can be fairly lightweight. Returns Context</returns>
         <remarks>
           <para>Return a new Context object for the current Context but whose storage
             APIs are backed by device-protected storage.</para>
@@ -3714,11 +3804,17 @@
         <ReturnType>Java.IO.File</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the absolute path to the directory on the filesystem where all private files belonging to this app are stored. Apps should not use this path directly; they should instead use getFilesDir() , getCacheDir() , getDir(String,int) , or other storage APIs on this class. The returned path may change over time if the calling app is moved to an adopted storage device, so only relative paths should be persisted. No additional permissions are required for the calling app to read or write files under the returned path. Returns File</summary>
+        <value>Returns the absolute path to the directory on the filesystem where all private files belonging to this app are stored. Apps should not use this path directly; they should instead use getFilesDir() , getCacheDir() , getDir(String,int) , or other storage APIs on this class. The returned path may change over time if the calling app is moved to an adopted storage device, so only relative paths should be persisted. No additional permissions are required for the calling app to read or write files under the returned path. Returns File</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getDataDir()" title="Reference documentation">Java documentation for <code>android.content.Context.getDataDir()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="DeleteDatabase">
@@ -4836,10 +4932,16 @@
         <summary>Returns the absolute path to the directory on the primary external filesystem
  (that is somewhere on <see cref="P:Android.OS.Environment.ExternalStorageDirectory" /> where the application can
  place cache files it owns.</summary>
-        <value>To be added.</value>
+        <value>Returns absolute path to application-specific directory on the primary shared/external storage device where the application can place cache files it owns. These files are internal to the application, and not typically visible to the user as media. This is like getCacheDir() in that these files will be deleted when the application is uninstalled, however there are some important differences: The platform does not always monitor the space available in shared storage, and thus may not automatically delete these files. Apps should always manage the maximum space used in this location. Currently the only time files here will be deleted by the platform is when running on Build.VERSION_CODES.JELLY_BEAN_MR1 or later and Environment.isExternalStorageEmulated(File) returns true. Shared storage may not always be available, since removable media can be ejected by the user. Media state can be checked using Environment.getExternalStorageState(File) . There is no security enforced with these files. For example, any application holding Manifest.permission.WRITE_EXTERNAL_STORAGE can write to these files. If a shared storage device is emulated (as determined by Environment.isExternalStorageEmulated(File) ), its contents are backed by a private user data partition, which means there is little benefit to storing data here instead of the private directory returned by getCacheDir() . Starting in Build.VERSION_CODES.KITKAT , no permissions are required to read or write to the returned path; it's always accessible to the calling app. This only applies to paths generated for package name of the calling application. To access paths belonging to other packages, Manifest.permission.WRITE_EXTERNAL_STORAGE and/or Manifest.permission.READ_EXTERNAL_STORAGE are required. On devices with multiple users (as described by UserManager ), each user has their own isolated shared storage. Applications only have access to the shared storage for the user they're running as. The returned path may change over time if different shared storage media is inserted, so only relative paths should be persisted. Returns File the absolute path to application-specific directory. May return null if shared storage is not currently available. See also: getCacheDir() getExternalCacheDirs() Environment.getExternalStorageState(File) Environment.isExternalStorageEmulated(File) Environment.isExternalStorageRemovable(File)</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getExternalCacheDir()" title="Reference documentation">Java documentation for <code>android.content.Context.getExternalCacheDir()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 8" />
         <altmember cref="P:Android.Content.Context.CacheDir" />
       </Docs>
@@ -4962,10 +5064,16 @@
       <Docs>
         <summary>Returns the absolute path to the directory on the filesystem where
  files created with <see cref="M:Android.Content.Context.OpenFileOutput(System.String,Android.Content.FileCreationMode)" /> are stored.</summary>
-        <value>To be added.</value>
+        <value>Returns the absolute path to the directory on the filesystem where files created with openFileOutput(String, int) are stored. The returned path may change over time if the calling app is moved to an adopted storage device, so only relative paths should be persisted. No additional permissions are required for the calling app to read or write files under the returned path. Returns File The path of the directory holding application files.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getFilesDir()" title="Reference documentation">Java documentation for <code>android.content.Context.getFilesDir()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
         <altmember cref="M:Android.Content.Context.OpenFileOutput(System.String, Android.Content.FileCreationMode)" />
         <altmember cref="M:Android.Content.Context.GetFileStreamPath(System.String)" />
@@ -5946,7 +6054,7 @@
       </Parameters>
       <Docs>
         <param name="resId">Resource id for the string</param>
-        <param name="formatArgs">To be added.</param>
+        <param name="formatArgs">The format arguments that will be used for substitution.</param>
         <summary>Returns a localized string from the application's package's
             default string table.</summary>
         <returns>The string data associated with the resource, stripped of styled
@@ -6333,7 +6441,7 @@
         <param name="resId">Resource id for the CharSequence text</param>
         <summary>Return a localized, styled CharSequence from the application's package's
             default string table.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null .</returns>
         <remarks>
           <para>Return a localized, styled CharSequence from the application's package's
             default string table.</para>
@@ -6376,7 +6484,7 @@
         <param name="resId">Resource id for the CharSequence text</param>
         <summary>Return a localized, styled CharSequence from the application's package's
             default string table.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null .</returns>
         <remarks>
           <para>Return a localized, styled CharSequence from the application's package's
             default string table.</para>
@@ -6742,11 +6850,17 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Indicates if the storage APIs of this Context are backed by device-protected storage.</summary>
+        <value>Indicates if the storage APIs of this Context are backed by device-protected storage.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#isDeviceProtectedStorage()" title="Reference documentation">Java documentation for <code>android.content.Context.isDeviceProtectedStorage()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsRestricted">
@@ -6815,7 +6929,7 @@
         <summary>Returns <c>true</c> if the context is a UI context which can access UI components such as
             <c>WindowManager</c>, <c>android.view.LayoutInflater LayoutInflater</c> or
             <c>android.app.WallpaperManager WallpaperManager</c>.</summary>
-        <value>To be added.</value>
+        <value>Returns true if the context is a UI context which can access UI components such as WindowManager , LayoutInflater or WallpaperManager . Accessing UI components from non-UI contexts throws Violation if StrictMode.VmPolicy.Builder.detectIncorrectContextUse() is enabled. Examples of UI contexts are an Activity , a context created from createWindowContext(int,Bundle) or InputMethodService Note that even if it is allowed programmatically, it is not suggested to override this method to bypass IncorrectContextUseViolation verification.</value>
         <remarks>
           <para>Returns <c>true</c> if the context is a UI context which can access UI components such as
             <c>WindowManager</c>, <c>android.view.LayoutInflater LayoutInflater</c> or
@@ -6865,8 +6979,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>Context</c>.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7190,7 +7304,7 @@
       <Docs>
         <summary>Return an <c>Executor</c> that will run enqueued tasks on the main
             thread associated with this context.</summary>
-        <value>To be added.</value>
+        <value>Return an Executor that will run enqueued tasks on the main thread associated with this context. This is the thread used to dispatch calls to application components (activities, services, etc).</value>
         <remarks>
           <para>Return an <c>Executor</c> that will run enqueued tasks on the main
             thread associated with this context. This is the thread used to dispatch
@@ -7233,10 +7347,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return the Looper for the main thread of the current process.</summary>
-        <value>To be added.</value>
+        <value>The main looper.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getMainLooper()" title="Reference documentation">Java documentation for <code>android.content.Context.getMainLooper()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -7749,10 +7869,16 @@
       <Docs>
         <summary>Returns the absolute path to the directory on the filesystem similar to
  <see cref="P:Android.Content.Context.FilesDir" />.</summary>
-        <value>To be added.</value>
+        <value>Returns the absolute path to the directory on the filesystem similar to getFilesDir() . The difference is that files placed under this directory will be excluded from automatic backup to remote storage. See BackupAgent for a full discussion of the automatic backup mechanism in Android. The returned path may change over time if the calling app is moved to an adopted storage device, so only relative paths should be persisted. No additional permissions are required for the calling app to read or write files under the returned path. Returns File The path of the directory holding application files that will not be automatically backed up to remote storage.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getNoBackupFilesDir()" title="Reference documentation">Java documentation for <code>android.content.Context.getNoBackupFilesDir()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <altmember cref="M:Android.Content.Context.OpenFileOutput(System.String, Android.Content.FileCreationMode)" />
         <altmember cref="M:Android.Content.Context.GetFileStreamPath(System.String)" />
         <altmember cref="M:Android.Content.Context.GetDir(System.String, Android.Content.FileCreationMode)" />
@@ -7867,10 +7993,16 @@
       <Docs>
         <summary>Return the primary external storage directory where this application's OBB
  files (if there are any) can be found.</summary>
-        <value>To be added.</value>
+        <value>the absolute path to application-specific directory. May return null if shared storage is not currently available.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getObbDir()" title="Reference documentation">Java documentation for <code>android.content.Context.getObbDir()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 11" />
       </Docs>
     </Member>
@@ -7897,9 +8029,9 @@
         <Parameter Name="attrs" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="attrs">To be added.</param>
+        <param name="attrs">This value cannot be null .</param>
         <summary>Retrieve styled attribute information in this Context's theme.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null .</returns>
         <remarks>
           <para>Retrieve styled attribute information in this Context's theme.  See
             <c>android.content.res.Resources.Theme#obtainStyledAttributes(int[])</c>
@@ -7949,10 +8081,10 @@
         <Parameter Name="attrs" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="set">To be added.</param>
-        <param name="attrs">To be added.</param>
+        <param name="set">This value may be null .</param>
+        <param name="attrs">This value cannot be null .</param>
         <summary>Retrieve styled attribute information in this Context's theme.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null .</returns>
         <remarks>
           <para>Retrieve styled attribute information in this Context's theme.  See
             <c>android.content.res.Resources.Theme#obtainStyledAttributes(AttributeSet, int[], int, int)</c>
@@ -7995,10 +8127,10 @@
         <Parameter Name="attrs" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="resid">To be added.</param>
-        <param name="attrs">To be added.</param>
+        <param name="resid">The resource identifier that supplies the style.</param>
+        <param name="attrs">This value cannot be null .</param>
         <summary>Retrieve styled attribute information in this Context's theme.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null .</returns>
         <remarks>
           <para>Retrieve styled attribute information in this Context's theme.  See
             <c>android.content.res.Resources.Theme#obtainStyledAttributes(int, int[])</c>
@@ -8051,12 +8183,12 @@
         <Parameter Name="defStyleRes" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="set">To be added.</param>
-        <param name="attrs">To be added.</param>
-        <param name="defStyleAttr">To be added.</param>
-        <param name="defStyleRes">To be added.</param>
+        <param name="set">This value may be null .</param>
+        <param name="attrs">This value cannot be null .</param>
+        <param name="defStyleAttr">The theme attribute that supplies the default style.</param>
+        <param name="defStyleRes">The default style resource.</param>
         <summary>Retrieve styled attribute information in this Context's theme.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null .</returns>
         <remarks>
           <para>Retrieve styled attribute information in this Context's theme.  See
             <c>android.content.res.Resources.Theme#obtainStyledAttributes(AttributeSet, int[], int, int)</c>
@@ -8327,7 +8459,7 @@
       <Docs>
         <summary>Return the package name that should be used for <c>android.app.AppOpsManager</c> calls from
             this context, so that app ops manager's uid verification will work with the name.</summary>
-        <value>To be added.</value>
+        <value>This value cannot be null .</value>
         <remarks>
           <para>Return the package name that should be used for <c>android.app.AppOpsManager</c> calls from
             this context, so that app ops manager's uid verification will work with the name.</para>
@@ -8410,10 +8542,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return the full path to this context's primary Android package.</summary>
-        <value>To be added.</value>
+        <value>String Path to the code and assets.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getPackageCodePath()" title="Reference documentation">Java documentation for <code>android.content.Context.getPackageCodePath()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 8" />
       </Docs>
     </Member>
@@ -8442,10 +8580,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return PackageManager instance to find global package information.</summary>
-        <value>To be added.</value>
+        <value>Return PackageManager instance to find global package information.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getPackageManager()" title="Reference documentation">Java documentation for <code>android.content.Context.getPackageManager()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -8474,10 +8618,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return the name of this application's package.</summary>
-        <value>To be added.</value>
+        <value>Return the name of this application's package.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getPackageName()" title="Reference documentation">Java documentation for <code>android.content.Context.getPackageName()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -8506,10 +8656,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return the full path to this context's primary Android package.</summary>
-        <value>To be added.</value>
+        <value>String Path to the resources.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getPackageResourcePath()" title="Reference documentation">Java documentation for <code>android.content.Context.getPackageResourcePath()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 8" />
       </Docs>
     </Member>
@@ -8543,7 +8699,7 @@
       <Docs>
         <summary>Return the set of parameters which this Context was created with, if it
             was created via <c>#createContext(ContextParams)</c>.</summary>
-        <value>To be added.</value>
+        <value>This value may be null .</value>
         <remarks>
           <para>Return the set of parameters which this Context was created with, if it
             was created via <c>#createContext(ContextParams)</c>.</para>
@@ -8586,7 +8742,7 @@
       <Parameters />
       <Docs>
         <summary>This member is deprecated.</summary>
-        <returns>To be added.</returns>
+        <returns>This method was deprecated in API level 15. Use WallpaperManager.peek() instead.</returns>
         <remarks>
           <para>This member is deprecated. Use <c>android.app.WallpaperManager#peekDrawable
             WallpaperManager.peek()</c> instead.</para>
@@ -9300,12 +9456,24 @@
         <Parameter Name="flags" Type="Android.Content.ReceiverFlags" />
       </Parameters>
       <Docs>
-        <param name="receiver">To be added.</param>
-        <param name="filter">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="receiver">The broadcast receiver to register.</param>
+        <param name="filter">The intent filter that selects broadcasts to receive.</param>
+        <param name="flags">The flags that control this operation.</param>
+        <summary>Register to receive intent broadcasts, with the receiver optionally being exposed to Instant Apps. See registerReceiver(BroadcastReceiver,IntentFilter) for more information. By default Instant Apps cannot interact with receivers in other applications, this allows you to expose a receiver that Instant Apps can interact with. See BroadcastReceiver for more information on Intent broadcasts. As of Build.VERSION_CODES.UPSIDE_DOWN_CAKE , the system can place context-registered broadcasts in a queue while the app is in the cached state . When the app leaves the cached state, such as returning to the foreground, the system delivers any queued broadcasts. Multiple instances of certain broadcasts might be merged into one broadcast. As of Build.VERSION_CODES.ICE_CREAM_SANDWICH , receivers registered with this method will correctly respect the Intent.setPackage(String) specified for an Intent being broadcast. Prior to that, it would be ignored and delivered to all matching registered receivers. Be careful if using this for security. Parameters receiver BroadcastReceiver : The BroadcastReceiver to handle the broadcast. This value may be null .</summary>
+        <returns>The first sticky intent found that matches filter , or null if there are none.</returns>
+        <remarks>Register to receive intent broadcasts, with the receiver optionally being exposed to Instant Apps. See registerReceiver(BroadcastReceiver,IntentFilter) for more information. By default Instant Apps cannot interact with receivers in other applications, this allows you to expose a receiver that Instant Apps can interact with. See BroadcastReceiver for more information on Intent broadcasts. As of Build.VERSION_CODES.UPSIDE_DOWN_CAKE , the system can place context-registered broadcasts in a queue while the app is in the cached state . When the app leaves the cached state, such as returning to the foreground, the system delivers any queued broadcasts. Multiple instances of certain broadcasts might be merged into one broadcast. As of Build.VERSION_CODES.ICE_CREAM_SANDWICH , receivers registered with this method will correctly respect the Intent.setPackage(String) specified for an Intent being broadcast. Prior to that, it would be ignored and delivered to all matching registered receivers. Be careful if using this for security. Parameters receiver BroadcastReceiver : The BroadcastReceiver to handle the broadcast. This value may be null .
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#registerReceiver(android.content.BroadcastReceiver,%20android.content.IntentFilter,%20int)" title="Reference documentation">Java documentation for <code>android.content.Context.registerReceiver(android.content.BroadcastReceiver, android.content.IntentFilter, int)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterReceiver">
@@ -9504,14 +9672,26 @@
         <Parameter Name="flags" Type="Android.Content.ReceiverFlags" />
       </Parameters>
       <Docs>
-        <param name="receiver">To be added.</param>
-        <param name="filter">To be added.</param>
-        <param name="broadcastPermission">To be added.</param>
-        <param name="scheduler">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="receiver">The broadcast receiver to register.</param>
+        <param name="filter">The intent filter that selects broadcasts to receive.</param>
+        <param name="broadcastPermission">The permission required for a receiver to receive the broadcast.</param>
+        <param name="scheduler">The handler on which receiver callbacks run.</param>
+        <param name="flags">The flags that control this operation.</param>
+        <summary>Register to receive intent broadcasts, to run in the context of scheduler . See registerReceiver(BroadcastReceiver,IntentFilter,int) and registerReceiver(BroadcastReceiver,IntentFilter,String,Handler) for more information. See BroadcastReceiver for more information on Intent broadcasts. As of Build.VERSION_CODES.UPSIDE_DOWN_CAKE , the system can place context-registered broadcasts in a queue while the app is in the cached state . When the app leaves the cached state, such as returning to the foreground, the system delivers any queued broadcasts. Multiple instances of certain broadcasts might be merged into one broadcast. As of Build.VERSION_CODES.ICE_CREAM_SANDWICH , receivers registered with this method will correctly respect the Intent.setPackage(String) specified for an Intent being broadcast. Prior to that, it would be ignored and delivered to all matching registered receivers. Be careful if using this for security. Parameters receiver BroadcastReceiver : The BroadcastReceiver to handle the broadcast.</summary>
+        <returns>The first sticky intent found that matches filter , or null if there are none.</returns>
+        <remarks>Register to receive intent broadcasts, to run in the context of scheduler . See registerReceiver(BroadcastReceiver,IntentFilter,int) and registerReceiver(BroadcastReceiver,IntentFilter,String,Handler) for more information. See BroadcastReceiver for more information on Intent broadcasts. As of Build.VERSION_CODES.UPSIDE_DOWN_CAKE , the system can place context-registered broadcasts in a queue while the app is in the cached state . When the app leaves the cached state, such as returning to the foreground, the system delivers any queued broadcasts. Multiple instances of certain broadcasts might be merged into one broadcast. As of Build.VERSION_CODES.ICE_CREAM_SANDWICH , receivers registered with this method will correctly respect the Intent.setPackage(String) specified for an Intent being broadcast. Prior to that, it would be ignored and delivered to all matching registered receivers. Be careful if using this for security. Parameters receiver BroadcastReceiver : The BroadcastReceiver to handle the broadcast.
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#registerReceiver(android.content.BroadcastReceiver,%20android.content.IntentFilter,%20java.lang.String,%20android.os.Handler,%20int)" title="Reference documentation">Java documentation for <code>android.content.Context.registerReceiver(android.content.BroadcastReceiver, android.content.IntentFilter, java.lang.String, android.os.Handler, int)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveStickyBroadcast">
@@ -9655,10 +9835,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return a Resources instance for your application's package.</summary>
-        <value>To be added.</value>
+        <value>a Resources instance for the application's package</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getResources()" title="Reference documentation">Java documentation for <code>android.content.Context.getResources()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -11441,7 +11627,7 @@
         <Parameter Name="bitmap" Type="Android.Graphics.Bitmap" />
       </Parameters>
       <Docs>
-        <param name="bitmap">To be added.</param>
+        <param name="bitmap">The bitmap to use as the wallpaper.</param>
         <summary>This member is deprecated.</summary>
         <remarks>
           <para>This member is deprecated. Use <c>android.app.WallpaperManager#setBitmap(Bitmap)
@@ -11490,7 +11676,7 @@
         <Parameter Name="data" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
+        <param name="data">The raw wallpaper image data.</param>
         <summary>This member is deprecated.</summary>
         <remarks>
           <para>This member is deprecated. Use <c>android.app.WallpaperManager#setStream(InputStream)
@@ -11736,11 +11922,17 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">The description of the activity to start.</param>
+        <summary>Same as startActivity(Intent,Bundle) with no options specified.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#startActivity(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.content.Context.startActivity(android.content.Intent)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="StartActivity">
@@ -12741,10 +12933,16 @@
       </ReturnValue>
       <Docs>
         <summary>Return the Theme object associated with this Context.</summary>
-        <value>To be added.</value>
+        <value>Return the Theme object associated with this Context.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getTheme()" title="Reference documentation">Java documentation for <code>android.content.Context.getTheme()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -13046,7 +13244,7 @@
         <Parameter Name="callback" Type="Android.Content.IComponentCallbacks" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The component callback to unregister.</param>
         <summary>Remove a <c>ComponentCallbacks</c> object that was previously registered
             with <c>#registerComponentCallbacks(ComponentCallbacks)</c>.</summary>
         <remarks>
@@ -13549,10 +13747,16 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>This method was deprecated in API level 15. Use WallpaperManager.get() instead.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getWallpaper()" title="Reference documentation">Java documentation for <code>android.content.Context.getWallpaper()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -13578,10 +13782,16 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>This method was deprecated in API level 15. Use WallpaperManager.getDesiredMinimumHeight() instead.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getWallpaperDesiredMinimumHeight()" title="Reference documentation">Java documentation for <code>android.content.Context.getWallpaperDesiredMinimumHeight()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -13607,10 +13817,16 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>This method was deprecated in API level 15. Use WallpaperManager.getDesiredMinimumWidth() instead.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Context#getWallpaperDesiredMinimumWidth()" title="Reference documentation">Java documentation for <code>android.content.Context.getWallpaperDesiredMinimumWidth()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>

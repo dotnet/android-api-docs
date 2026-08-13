@@ -358,10 +358,10 @@
         <Parameter Name="data" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
+        <param name="data">The data value to format for diagnostics.</param>
         <summary>For debugging, converts an instance of the Loader's data class to
             a string that can be printed.</summary>
-        <returns>To be added.</returns>
+        <returns>For debugging, converts an instance of the Loader's data class to a string that can be printed. Must handle a null data.</returns>
         <remarks>
           <para>For debugging, converts an instance of the Loader's data class to
             a string that can be printed.  Must handle a null data.</para>
@@ -559,15 +559,21 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="prefix">To be added.</param>
-        <param name="fd">To be added.</param>
-        <param name="writer">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="prefix">Text to print at the front of each line.</param>
+        <param name="fd">The raw file descriptor that the dump is being sent to.</param>
+        <param name="writer">A PrintWriter to which the dump is to be set.</param>
+        <param name="args">Additional arguments to the dump request.</param>
+        <summary>Print the Loader's state into the given stream.</summary>
+        <returns>Print the Loader's state into the given stream.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/Loader#dump(java.lang.String,%20java.io.FileDescriptor,%20java.io.PrintWriter,%20java.lang.String[])" title="Reference documentation">Java documentation for <code>android.content.Loader.dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[])</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="ForceLoad">
@@ -683,7 +689,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return whether this loader has been abandoned.</summary>
-        <value>To be added.</value>
+        <value>Return whether this loader has been abandoned. In this state, the loader must not report any new data, and must keep its last reported data valid until it is finally reset.</value>
         <remarks>
           <para>Return whether this loader has been abandoned.  In this state, the
             loader &lt;em&gt;must not&lt;/em&gt; report any new data, and &lt;em&gt;must&lt;/em&gt; keep
@@ -727,7 +733,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return whether this load has been reset.</summary>
-        <value>To be added.</value>
+        <value>Return whether this load has been reset. That is, either the loader has not yet been started for the first time, or its reset() has been called.</value>
         <remarks>
           <para>Return whether this load has been reset.  That is, either the loader
             has not yet been started for the first time, or its <c>#reset()</c>
@@ -771,7 +777,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return whether this load has been started.</summary>
-        <value>To be added.</value>
+        <value>Return whether this load has been started. That is, its startLoading() has been called and no calls to stopLoading() or reset() have yet been made.</value>
         <remarks>
           <para>Return whether this load has been started.  That is, its <c>#startLoading()</c>
             has been called and no calls to <c>#stopLoading()</c> or
@@ -818,8 +824,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>Loader</c>.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1176,8 +1182,8 @@
         <Parameter Name="listener" Type="Android.Content.Loader+IOnLoadCompleteListener" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="listener">To be added.</param>
+        <param name="id">The listener identifier.</param>
+        <param name="listener">The listener to register or unregister.</param>
         <summary>Registers a class that will receive callbacks when a load is complete.</summary>
         <remarks>
           <para>
@@ -1485,7 +1491,7 @@
       <Docs>
         <summary>Take the current flag indicating whether the loader's content had
             changed while it was stopped.</summary>
-        <returns>To be added.</returns>
+        <returns>Take the current flag indicating whether the loader's content had changed while it was stopped. If it had, true is returned and the flag is cleared.</returns>
         <remarks>
           <para>Take the current flag indicating whether the loader's content had
             changed while it was stopped.  If it had, true is returned and the
@@ -1597,7 +1603,7 @@
         <Parameter Name="listener" Type="Android.Content.Loader+IOnLoadCompleteListener" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
+        <param name="listener">The listener to register or unregister.</param>
         <summary>Remove a listener that was previously added with <c>#registerListener</c>.</summary>
         <remarks>
           <para>
