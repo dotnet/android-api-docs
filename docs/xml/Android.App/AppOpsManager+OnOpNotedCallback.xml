@@ -26,48 +26,11 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>Callback an app can <c>#setOnOpNotedCallback set</c> to monitor the app-ops the
-            system has tracked for it.</summary>
+    <summary>Callback an app can set to monitor the app-ops the system has tracked for it.</summary>
     <remarks>
-      <para>Callback an app can <c>#setOnOpNotedCallback set</c> to monitor the app-ops the
-            system has tracked for it. I.e. each time any app calls <c>#noteOp</c> or <c>#startOp</c>
-            one of a method of this object is called.</para>
-      <para>&lt;b&gt;There will be a call for all app-ops related to runtime permissions, but not
-            necessarily for all other app-ops.</para>
-      <code lang="text/java">setOnOpNotedCallback(getMainExecutor(), new OnOpNotedCallback() {
-                ArraySet&lt;Pair&lt;String, String&gt;&gt; opsNotedForThisProcess = new ArraySet&lt;&gt;();
-            
-                private synchronized void addAccess(String op, String accessLocation) {
-                    // Ops are often noted when runtime permission protected APIs were called.
-                    // In this case permissionToOp() allows to resolve the permission&lt;-&gt;op
-                    opsNotedForThisProcess.add(new Pair(accessType, accessLocation));
-                }
-            
-                public void onNoted(SyncNotedAppOp op) {
-                    // Accesses is currently happening, hence stack trace describes location of access
-                    addAccess(op.getOp(), Arrays.toString(Thread.currentThread().getStackTrace()));
-                }
-            
-                public void onSelfNoted(SyncNotedAppOp op) {
-                    onNoted(op);
-                }
-            
-                public void onAsyncNoted(AsyncNotedAppOp asyncOp) {
-                    // Stack trace is not useful for async ops as accessed happened on different thread
-                    addAccess(asyncOp.getOp(), asyncOp.getMessage());
-                }
-            });
-            </code>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback" title="Reference documentation">Java documentation for <code>android.app.AppOpsManager.OnOpNotedCallback</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>Callback an app can set to monitor the app-ops the system has tracked for it. I.e. each time any app calls AppOpsManager.noteOp(String, int, String) or AppOpsManager.startOp(String, int, String) one of a method of this object is called. There will be a call for all app-ops related to runtime permissions, but not necessarily for all other app-ops.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback" title="Reference documentation">Android reference for <code>android.app.AppOpsManager.OnOpNotedCallback</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -92,8 +55,11 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary></summary>
+        <remarks>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback#OnOpNotedCallback()" title="Reference documentation">Android reference for <code>android.app.AppOpsManager.OnOpNotedCallback.OnOpNotedCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -111,10 +77,13 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="javaReference">The Java Native Interface object reference.</param>
+        <param name="transfer">The ownership transfer to apply to the Java Native Interface object reference.</param>
+        <summary>Initializes a managed representation of an existing Java Native Interface object.</summary>
+        <remarks>
+          <para>This constructor is called by the .NET for Android binding runtime when it creates a managed peer for an existing Java object.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -141,9 +110,11 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Provides JNI binding infrastructure for Android.App.AppOpsManager.OnOpNotedCallback.</summary>
+        <remarks>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnAsyncNoted">
@@ -173,27 +144,12 @@
         <Parameter Name="asyncOp" Type="Android.App.AsyncNotedAppOp" />
       </Parameters>
       <Docs>
-        <param name="asyncOp">op noted</param>
-        <summary>Called when an app-op was noted for this package which cannot be delivered via the other
-            two mechanisms.</summary>
+        <param name="asyncOp">AsyncNotedAppOp: op noted. This value cannot be null.</param>
+        <summary>Called when an app-op was noted for this package which cannot be delivered via the other two mechanisms.</summary>
         <remarks>
-          <para>Called when an app-op was noted for this package which cannot be delivered via the other
-            two mechanisms.</para>
-          <para>Called as soon as possible after the app-op was noted, but the delivery delay is not
-            guaranteed. Due to how async calls work in Android this might even be delivered slightly
-            before the private data is delivered to the app.</para>
-          <para>If the app is not running or no <c>OnOpNotedCallback</c> is registered a small amount
-            of noted app-ops are buffered and then delivered as soon as a listener is registered.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback#onAsyncNoted(android.app.AsyncNotedAppOp)" title="Reference documentation">Java documentation for <code>android.app.AppOpsManager.OnOpNotedCallback.onAsyncNoted(android.app.AsyncNotedAppOp)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when an app-op was noted for this package which cannot be delivered via the other two mechanisms. Called as soon as possible after the app-op was noted, but the delivery delay is not guaranteed. Due to how async calls work in Android this might even be delivered slightly before the private data is delivered to the app. If the app is not running or no OnOpNotedCallback is registered a small amount of noted app-ops are buffered and then delivered as soon as a listener is registered.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback#onAsyncNoted(android.app.AsyncNotedAppOp)" title="Reference documentation">Android reference for <code>android.app.AppOpsManager.OnOpNotedCallback.onAsyncNoted</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -224,24 +180,12 @@
         <Parameter Name="op" Type="Android.App.SyncNotedAppOp" />
       </Parameters>
       <Docs>
-        <param name="op">op noted</param>
-        <summary>Called when an app-op was <c>#noteOp noted</c> for this package inside of a synchronous
-            API call, i.</summary>
+        <param name="op">SyncNotedAppOp: op noted. This value cannot be null.</param>
+        <summary>Called when an app-op was noted for this package inside of a synchronous API call, i.e.</summary>
         <remarks>
-          <para>Called when an app-op was <c>#noteOp noted</c> for this package inside of a synchronous
-            API call, i.e. a API call that returned data or waited until the action was performed.</para>
-          <para>Called on the calling thread before the API returns. This allows the app to e.g.
-            collect stack traces to figure out where the access came from.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback#onNoted(android.app.SyncNotedAppOp)" title="Reference documentation">Java documentation for <code>android.app.AppOpsManager.OnOpNotedCallback.onNoted(android.app.SyncNotedAppOp)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when an app-op was noted for this package inside of a synchronous API call, i.e. a API call that returned data or waited until the action was performed. Called on the calling thread before the API returns. This allows the app to e.g. collect stack traces to figure out where the access came from.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback#onNoted(android.app.SyncNotedAppOp)" title="Reference documentation">Android reference for <code>android.app.AppOpsManager.OnOpNotedCallback.onNoted</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -272,22 +216,14 @@
         <Parameter Name="op" Type="Android.App.SyncNotedAppOp" />
       </Parameters>
       <Docs>
-        <param name="op">op noted</param>
-        <summary>Called when this app noted an app-op for its own package,</summary>
+        <param name="op">SyncNotedAppOp: op noted. This value cannot be null.</param>
+        <summary>Called when this app noted an app-op for its own package, This is very similar to onNoted(SyncNotedAppOp) only that the tracking was not caused by the API provider in a separate process, but by one in the app's own process.</summary>
         <remarks>
-          <para>Called when this app noted an app-op for its own package,</para>
-          <para>This is very similar to <c>#onNoted</c> only that the tracking was not caused by the
-            API provider in a separate process, but by one in the app's own process.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback#onSelfNoted(android.app.SyncNotedAppOp)" title="Reference documentation">Java documentation for <code>android.app.AppOpsManager.OnOpNotedCallback.onSelfNoted(android.app.SyncNotedAppOp)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called when this app noted an app-op for its own package, This is very similar to onNoted(SyncNotedAppOp) only that the tracking was not caused by the API provider in a separate process, but by one in the app's own process.</para>
+          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
+          <para>Last updated 2026-08-03 UTC.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AppOpsManager.OnOpNotedCallback#onSelfNoted(android.app.SyncNotedAppOp)" title="Reference documentation">Android reference for <code>android.app.AppOpsManager.OnOpNotedCallback.onSelfNoted</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -315,9 +251,11 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Provides JNI binding infrastructure for Android.App.AppOpsManager.OnOpNotedCallback.</summary>
+        <remarks>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -344,9 +282,11 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Provides JNI binding infrastructure for Android.App.AppOpsManager.OnOpNotedCallback.</summary>
+        <remarks>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

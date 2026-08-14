@@ -25,16 +25,8 @@
     <summary>Class to manage and query the state of the lock screen (also known as Keyguard).</summary>
     <remarks>
       <para>Class to manage and query the state of the lock screen (also known as Keyguard).</para>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/app/KeyguardManager" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager" title="Reference documentation">Android reference for <code>android.app.KeyguardManager</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
     <since version="Added in API level 1" />
   </Docs>
@@ -54,11 +46,12 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
-        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
-        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <param name="javaReference">The Java Native Interface object reference.</param>
+        <param name="transfer">The ownership transfer to apply to the Java Native Interface object reference.</param>
+        <summary>Initializes a managed representation of an existing Java Native Interface object.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This constructor is called by the .NET for Android binding runtime when it creates a managed peer for an existing Java object.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -94,10 +87,15 @@
         <Parameter Name="listener" Type="Android.App.KeyguardManager+IKeyguardLockedStateListener" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">Executor: This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="listener">KeyguardManager.KeyguardLockedStateListener: The listener to add to receive keyguard locked state changes. This value cannot be null.</param>
+        <summary>Registers a listener to execute when the keyguard locked state changes.</summary>
+        <remarks>
+          <para>Registers a listener to execute when the keyguard locked state changes. Requires Manifest.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#addKeyguardLockedStateListener(java.util.concurrent.Executor,%20android.app.KeyguardManager.KeyguardLockedStateListener)" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.addKeyguardLockedStateListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateConfirmDeviceCredentialIntent">
@@ -128,27 +126,15 @@
         <Parameter Name="description" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="title">To be added.</param>
-        <param name="description">To be added.</param>
-        <summary>Get an intent to prompt the user to confirm credentials (pin, pattern, password or biometrics
-            if enrolled) for the current user of the device.</summary>
+        <param name="title">CharSequence</param>
+        <param name="description">CharSequence</param>
+        <summary>This method was deprecated in API level 29.</summary>
         <returns>the intent for launching the activity or null if no password is required.</returns>
         <remarks>
-          <para>Get an intent to prompt the user to confirm credentials (pin, pattern, password or biometrics
-            if enrolled) for the current user of the device. The caller is expected to launch this
-            activity using <c>android.app.Activity#startActivityForResult(Intent, int)</c> and check for
-            <c>android.app.Activity#RESULT_OK</c> if the user successfully completes the challenge.</para>
-          <para>This member is deprecated. see <c>android.hardware.biometrics.BiometricPrompt.Builder#setAllowedAuthenticators(int)</c></para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#createConfirmDeviceCredentialIntent(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.createConfirmDeviceCredentialIntent(java.lang.CharSequence, java.lang.CharSequence)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 29. see BiometricPrompt.Builder.setAllowedAuthenticators(int)</para>
+          <para>Get an intent to prompt the user to confirm credentials (pin, pattern, password or biometrics if enrolled) for the current user of the device. The caller is expected to launch this activity using android.app.Activity.startActivityForResult(Intent,int) and check for Activity.RESULT_OK if the user successfully completes the challenge. Requires the PackageManager.FEATURE_SECURE_LOCK_SCREEN feature which can be detected using PackageManager.hasSystemFeature(String).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#createConfirmDeviceCredentialIntent(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.createConfirmDeviceCredentialIntent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -176,27 +162,15 @@
         <Parameter Name="description" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="title">To be added.</param>
-        <param name="description">To be added.</param>
-        <summary>Get an intent to prompt the user to confirm credentials (pin, pattern, password or biometrics
-            if enrolled) for the current user of the device.</summary>
+        <param name="title">CharSequence</param>
+        <param name="description">CharSequence</param>
+        <summary>This method was deprecated in API level 29.</summary>
         <returns>the intent for launching the activity or null if no password is required.</returns>
         <remarks>
-          <para>Get an intent to prompt the user to confirm credentials (pin, pattern, password or biometrics
-            if enrolled) for the current user of the device. The caller is expected to launch this
-            activity using <c>android.app.Activity#startActivityForResult(Intent, int)</c> and check for
-            <c>android.app.Activity#RESULT_OK</c> if the user successfully completes the challenge.</para>
-          <para>This member is deprecated. see <c>android.hardware.biometrics.BiometricPrompt.Builder#setAllowedAuthenticators(int)</c></para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#createConfirmDeviceCredentialIntent(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.createConfirmDeviceCredentialIntent(java.lang.CharSequence, java.lang.CharSequence)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 29. see BiometricPrompt.Builder.setAllowedAuthenticators(int)</para>
+          <para>Get an intent to prompt the user to confirm credentials (pin, pattern, password or biometrics if enrolled) for the current user of the device. The caller is expected to launch this activity using android.app.Activity.startActivityForResult(Intent,int) and check for Activity.RESULT_OK if the user successfully completes the challenge. Requires the PackageManager.FEATURE_SECURE_LOCK_SCREEN feature which can be detected using PackageManager.hasSystemFeature(String).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#createConfirmDeviceCredentialIntent(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.createConfirmDeviceCredentialIntent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -231,21 +205,13 @@
         <Parameter Name="callback" Type="Android.App.KeyguardManager+IOnKeyguardExitResult" />
       </Parameters>
       <Docs>
-        <param name="callback">Lets you know whether the operation was successful and
-              it is safe to launch anything that would normally be considered safe
-              once the user has gotten past the keyguard.</param>
-        <summary>Exit the keyguard securely.</summary>
+        <param name="callback">KeyguardManager.OnKeyguardExitResult: Lets you know whether the operation was successful and it is safe to launch anything that would normally be considered safe once the user has gotten past the keyguard.</param>
+        <summary>This method was deprecated in API level 15.</summary>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#exitKeyguardSecurely(android.app.OnKeyguardExitResult)" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.exitKeyguardSecurely(android.app.OnKeyguardExitResult)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 15. Use R.attr.showWhenLocked or Activity.setShowWhenLocked(boolean) to seamlessly occlude and unocclude the keyguard as your application moves in and out of the foreground, without requiring any special permissions. Use requestDismissKeyguard(android.app.Activity,KeyguardDismissCallback) to request dismissal of the keyguard.</para>
+          <para>Exit the keyguard securely. The use case for this api is that, after disabling the keyguard, your app, which was granted permission to disable the keyguard and show a limited amount of information deemed safe without the user getting past the keyguard, needs to navigate to something that is not safe to view without getting past the keyguard. This will, if the keyguard is secure, bring up the unlock screen of the keyguard. Requires Manifest.permission.DISABLE_KEYGUARD</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#exitKeyguardSecurely(android.app.KeyguardManager.OnKeyguardExitResult)" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.exitKeyguardSecurely</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -275,22 +241,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Returns whether the lock screen is showing.</summary>
-        <returns>the value of <c>#isKeyguardLocked()</c></returns>
+        <summary>This method was deprecated in API level 28.</summary>
+        <returns>the value of isKeyguardLocked()</returns>
         <remarks>
-          <para>Returns whether the lock screen is showing.</para>
-          <para>This is exactly the same as <c>#isKeyguardLocked()</c>.</para>
-          <para>This member is deprecated. Use <c>#isKeyguardLocked()</c> instead.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#inKeyguardRestrictedInputMode()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.inKeyguardRestrictedInputMode()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 28. Use isKeyguardLocked() instead.</para>
+          <para>Returns whether the lock screen is showing. This is exactly the same as isKeyguardLocked().</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#inKeyguardRestrictedInputMode()" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.inKeyguardRestrictedInputMode</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -320,40 +277,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the device is currently locked for the user.</summary>
-        <value>
-          <c>true</c> if the device is currently locked for the user</value>
+        <value>true if the device is currently locked for the user</value>
         <remarks>
-          <para>Returns whether the device is currently locked for the user.</para>
-          <para>This method returns the device locked state for the <c>Context</c>'s user. The device is
-            considered to be locked for a user when the user's apps are currently inaccessible and some
-            form of lock screen authentication is required to regain access to them. The lock screen
-            authentication typically uses PIN, pattern, password, or biometric. Some devices may support
-            additional methods, such as unlock using a paired smartwatch. "Swipe" does not count as
-            authentication; if the lock screen is dismissible with swipe, for example due to the lock
-            screen being set to Swipe or due to the device being kept unlocked by being near a trusted
-            bluetooth device or in a trusted location, the device is considered unlocked.
-            &lt;div class="note"&gt;</para>
-          <para>&lt;b&gt;Note:&lt;/b&gt; In the case of multiple full users, each user can have their own lock screen
-            authentication configured. The device-locked state may differ between different users. For
-            example, the device may be unlocked for the current user, but locked for a non-current user
-            if lock screen authentication would be required to access that user's apps after switching to
-            that user.</para>
-          <para>In the case of a profile, when the device goes to the main lock screen, up to two layers of
-            authentication may be required to regain access to the profile's apps: one to unlock the main
-            lock screen, and one to unlock the profile (when a separate profile challenge is required).
-            For a profile, the device is considered to be locked as long as any challenge remains, either
-            the parent user's challenge (when applicable) or the profile's challenge (when applicable).
-            &lt;/div&gt;</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#isDeviceLocked()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isDeviceLocked()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns whether the device is currently locked for the user. This method returns the device locked state for the Context's user. The device is considered to be locked for a user when the user's apps are currently inaccessible and some form of lock screen authentication is required to regain access to them. The lock screen authentication typically uses PIN, pattern, password, or biometric. Some devices may support additional methods, such as unlock using a paired smartwatch. "Swipe" does not count as authentication; if the lock screen is dismissible with swipe, for example due to the lock screen being set to Swipe or due to the device being kept unlocked by being near a trusted bluetooth device or in a trusted location, the device is considered unlocked. Note: In the case of multiple full users, each user can have their own lock screen authentication configured. The device-locked state may differ between different users. For example, the device may be unlocked for the current user, but locked for a non-current user if lock screen authentication would be required to access that user's apps after switching to that user. In the case of a profile, when the device goes to the main lock screen, up to two layers of authentication may be required to regain access to the profile's apps: one to unlock the main lock screen, and one to unlock the profile (when a separate profile challenge is required). For a profile, the device is considered to be locked as long as any challenge remains, either the parent user's challenge (when applicable) or the profile's challenge (when applicable).</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#isDeviceLocked()" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.isDeviceLocked</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -382,27 +311,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the user has a secure lock screen.</summary>
-        <value>
-          <c>true</c> if the user has a secure lock screen</value>
+        <value>true if the user has a secure lock screen</value>
         <remarks>
-          <para>Returns whether the user has a secure lock screen.</para>
-          <para>This returns <c>true</c> if the <c>Context</c>'s user has a secure lock screen. A full user
-            or a profile that uses a separate challenge has a secure lock screen if its lock screen is
-            set to PIN, pattern, or password, as opposed to swipe or none. A profile that uses a unified
-            challenge is considered to have a secure lock screen if and only if its parent user has a
-            secure lock screen.</para>
-          <para>This method does not consider whether the lock screen is currently showing or not.</para>
-          <para>See also <c>#isKeyguardSecure()</c> which includes locked SIM cards.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#isDeviceSecure()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isDeviceSecure()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns whether the user has a secure lock screen. This returns true if the Context's user has a secure lock screen. A full user or a profile that uses a separate challenge has a secure lock screen if its lock screen is set to PIN, pattern, or password, as opposed to swipe or none. A profile that uses a unified challenge is considered to have a secure lock screen if and only if its parent user has a secure lock screen. This method does not consider whether the lock screen is currently showing or not. See also isKeyguardSecure() which includes locked SIM cards.</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#isDeviceSecure()" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.isDeviceSecure</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -427,40 +341,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the lock screen (also known as Keyguard) is showing.</summary>
-        <value>
-          <c>true</c> if the lock screen is showing</value>
+        <value>true if the lock screen is showing</value>
         <remarks>
-          <para>Returns whether the lock screen (also known as Keyguard) is showing.</para>
-          <para>Specifically, this returns <c>true</c> in the following cases:
-            &lt;ul&gt;
-              &lt;li&gt;The lock screen is showing in the foreground.&lt;/li&gt;
-              &lt;li&gt;The lock screen is showing, but it is occluded by an activity that is showing on top of
-              it. A common example is the phone app receiving a call or making an emergency call.&lt;/li&gt;
-              &lt;li&gt;The lock screen was showing but is temporarily disabled as a result of <see href="https://developer.android.com/work/dpc/dedicated-devices/lock-task-mode">lock task
-              mode</see> or an app using the deprecated <c>KeyguardLock</c> API.&lt;/li&gt;
-            &lt;/ul&gt;</para>
-          <para>"Showing" refers to a logical state of the UI, regardless of whether the screen happens to be
-            on. When the power button is pressed on an unlocked device, the lock screen starts "showing"
-            immediately when the screen turns off.</para>
-          <para>This method does not distinguish a lock screen that is requiring authentication (e.g. with
-            PIN, pattern, password, or biometric) from a lock screen that is trivially dismissible (e.g.
-            with swipe). It also does not distinguish a lock screen requesting a SIM card PIN from a
-            normal device lock screen. Finally, it always returns the global lock screen state and does
-            not consider the <c>Context</c>'s user specifically.</para>
-          <para>Note that <c>isKeyguardLocked()</c> is confusingly named and probably should be called
-            <c>isKeyguardShowing()</c>. On many devices, the lock screen displays an <i>unlocked</i>
-            padlock icon when it is trivially dismissible. As mentioned above, <c>isKeyguardLocked()</c>
-            actually returns <c>true</c> in this case, not <c>false</c> as might be expected. <c>#isDeviceLocked()</c> is an alternative API that has slightly different semantics.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#isKeyguardLocked()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isKeyguardLocked()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns whether the lock screen (also known as Keyguard) is showing. Specifically, this returns true in the following cases: The lock screen is showing in the foreground. The lock screen is showing, but it is occluded by an activity that is showing on top of it. A common example is the phone app receiving a call or making an emergency call. The lock screen was showing but is temporarily disabled as a result of lock task mode or an app using the deprecated KeyguardLock API. "Showing" refers to a logical state of the UI, regardless of whether the screen happens to be on. When the power button is pressed on an unlocked device, the lock screen starts "showing" immediately when the screen turns off. This method does not distinguish a lock screen that is requiring authentication (e.g. with PIN, pattern, password, or biometric) from a lock screen that is trivially dismissible (e.g. with swipe). It also does not distinguish a lock screen requesting a SIM card PIN from a normal device lock screen. Finally, it always returns the global lock screen state and does not consider the Context's user specifically. Note that isKeyguardLocked() is confusingly named and probably should be called isKeyguardShowing(). On many devices, the lock screen displays an unlocked padlock icon when it is trivially dismissible. As mentioned above, isKeyguardLocked() actually returns true in this case, not false as might be expected. isDeviceLocked() is an alternative API that has slightly different semantics.</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#isKeyguardLocked()" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.isKeyguardLocked</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -486,31 +372,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the user has a secure lock screen or there is a locked SIM card.</summary>
-        <value>
-          <c>true</c> if the user has a secure lock screen or there is a locked SIM card</value>
+        <value>true if the user has a secure lock screen or there is a locked SIM card</value>
         <remarks>
-          <para>Returns whether the user has a secure lock screen or there is a locked SIM card.</para>
-          <para>Specifically, this returns <c>true</c> if at least one of the following is true:
-            &lt;ul&gt;
-              &lt;li&gt;The <c>Context</c>'s user has a secure lock screen. A full user or a profile that uses
-              a separate challenge has a secure lock screen if its lock screen is set to PIN, pattern, or
-              password, as opposed to swipe or none. A profile that uses a unified challenge is
-              considered to have a secure lock screen if and only if its parent user has a secure lock
-              screen.&lt;/li&gt;
-              &lt;li&gt;At least one SIM card is currently locked and requires a PIN.&lt;/li&gt;
-            &lt;/ul&gt;</para>
-          <para>This method does not consider whether the lock screen is currently showing or not.</para>
-          <para>See also <c>#isDeviceSecure()</c> which excludes locked SIM cards.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#isKeyguardSecure()" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.isKeyguardSecure()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns whether the user has a secure lock screen or there is a locked SIM card. Specifically, this returns true if at least one of the following is true: The Context's user has a secure lock screen. A full user or a profile that uses a separate challenge has a secure lock screen if its lock screen is set to PIN, pattern, or password, as opposed to swipe or none. A profile that uses a unified challenge is considered to have a secure lock screen if and only if its parent user has a secure lock screen. At least one SIM card is currently locked and requires a PIN. This method does not consider whether the lock screen is currently showing or not. See also isDeviceSecure() which excludes locked SIM cards.</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#isKeyguardSecure()" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.isKeyguardSecure</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -539,10 +406,10 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.KeyguardManager.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -573,22 +440,14 @@
         <Parameter Name="tag" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tag">A tag that informally identifies who you are (for debugging who
-              is disabling the keyguard).</param>
-        <summary>Enables you to lock or unlock the keyguard.</summary>
-        <returns>A <c>KeyguardLock</c> handle to use to disable and reenable the
-              keyguard.</returns>
+        <param name="tag">String: A tag that informally identifies who you are (for debugging who is disabling the keyguard).</param>
+        <summary>This method was deprecated in API level 15.</summary>
+        <returns>A KeyguardLock handle to use to disable and reenable the keyguard.</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#newKeyguardLock(java.lang.String)" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.newKeyguardLock(java.lang.String)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 15. Use R.attr.showWhenLocked or Activity.setShowWhenLocked(boolean) instead. This allows you to seamlessly occlude and unocclude the keyguard as your application moves in and out of the foreground and does not require that any special permissions be requested.</para>
+          <para>Enables you to temporarily disable / reenable the keyguard (lock screen).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#newKeyguardLock(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.newKeyguardLock</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
       </Docs>
@@ -624,9 +483,14 @@
         <Parameter Name="listener" Type="Android.App.KeyguardManager+IKeyguardLockedStateListener" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">KeyguardManager.KeyguardLockedStateListener: The listener to remove. This value cannot be null.</param>
+        <summary>Unregisters a listener that executes when the keyguard locked state changes.</summary>
+        <remarks>
+          <para>Unregisters a listener that executes when the keyguard locked state changes. Requires Manifest.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#removeKeyguardLockedStateListener(android.app.KeyguardManager.KeyguardLockedStateListener)" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.removeKeyguardLockedStateListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestDismissKeyguard">
@@ -664,28 +528,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="activity">The activity requesting the dismissal. The activity must be either visible
-                            by using <c>LayoutParams#FLAG_SHOW_WHEN_LOCKED</c> or must be in a state in
-                            which it would be visible if Keyguard would not be hiding it. If that's not
-                            the case, the request will fail immediately and
-                            <c>KeyguardDismissCallback#onDismissError</c> will be invoked.</param>
-        <param name="callback">The callback to be called if the request to dismiss Keyguard was successful
-                            or <c>null</c> if the caller isn't interested in knowing the result. The
-                            callback will not be invoked if the activity was destroyed before the
-                            callback was received.</param>
-        <summary>If the device is currently locked (see <c>#isKeyguardLocked()</c>, requests the Keyguard to
-            be dismissed.</summary>
+        <param name="activity">Activity: The activity requesting the dismissal. The activity must either be visible by using R.attr.showWhenLocked or Activity.setShowWhenLocked(boolean), or must be in a state in which it would be visible if Keyguard would not be hiding it. If that's not the case, the request will fail immediately and KeyguardDismissCallback.onDismissError will be invoked. This value cannot be null.</param>
+        <param name="callback">KeyguardManager.KeyguardDismissCallback: The callback to be called if the request to dismiss Keyguard was successful or null if the caller isn't interested in knowing the result. The callback will not be invoked if the activity was destroyed before the callback was received.</param>
+        <summary>Requests that the Keyguard (lock screen) be dismissed if it is currently showing.</summary>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/KeyguardManager#requestDismissKeyguard(android.app.Activity,%20android.app.KeyguardDismissCallback)" title="Reference documentation">Java documentation for <code>android.app.KeyguardManager.requestDismissKeyguard(android.app.Activity, android.app.KeyguardDismissCallback)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Requests that the Keyguard (lock screen) be dismissed if it is currently showing. If the Keyguard is not secure or the device is currently in a trusted state, calling this method will immediately dismiss the Keyguard without any user interaction. If the Keyguard is secure and the device is not in a trusted state, this will bring up the UI so the user can enter their credentials. If the value set for the Activity attr R.attr.turnScreenOn is true, the screen will turn on when the keyguard is dismissed.</para>
+          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
+          <para>Last updated 2026-08-03 UTC.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/KeyguardManager#requestDismissKeyguard(android.app.Activity,%20android.app.KeyguardManager.KeyguardDismissCallback)" title="Reference documentation">Android reference for <code>android.app.KeyguardManager.requestDismissKeyguard</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -713,10 +564,10 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
-        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.KeyguardManager.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -744,10 +595,10 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
-        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.KeyguardManager.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

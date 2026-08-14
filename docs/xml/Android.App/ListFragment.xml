@@ -26,33 +26,20 @@
     </Attribute>
   </Attributes>
   <Docs since="11">
-    <summary>A fragment that displays a list of items by binding to a data source such as
-            an array or Cursor, and exposes event handlers when the user selects an item.</summary>
+    <summary>This class was deprecated in API level 28.</summary>
     <remarks>
-      <para>A fragment that displays a list of items by binding to a data source such as
-            an array or Cursor, and exposes event handlers when the user selects an item.</para>
-      <para>ListFragment hosts a <c>android.widget.ListView ListView</c> object that can
-            be bound to different data sources, typically either an array or a Cursor
-            holding query results. Binding, screen layout, and row layout are discussed
-            in the following sections.</para>
-      <para>&lt;strong&gt;Screen Layout&lt;/strong&gt;</para>
-      <para>ListFragment has a default layout that consists of a single list view.
-            However, if you desire, you can customize the fragment layout by returning
-            your own view hierarchy from <c>#onCreateView</c>.
-            To do this, your view hierarchy &lt;em&gt;must&lt;/em&gt; contain a ListView object with the
-            id "</para>
-      <para>This member is deprecated. Use the <see href="https://developer.android.com/tools/extras/support-library.html">Support Library</see><c>androidx.fragment.app.ListFragment</c> for consistent behavior across all devices
-                 and access to <see href="https://developer.android.com/topic/libraries/architecture/lifecycle.html">Lifecycle</see>.</para>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/app/ListFragment" title="Reference documentation">Java documentation for <code>android.app.ListFragment</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>This class was deprecated in API level 28. Use the Support Library ListFragment for consistent behavior across all devices and access to Lifecycle.</para>
+      <para>A fragment that displays a list of items by binding to a data source such as an array or Cursor, and exposes event handlers when the user selects an item. ListFragment hosts a ListView object that can be bound to different data sources, typically either an array or a Cursor holding query results. Binding, screen layout, and row layout are discussed in the following sections. Screen Layout</para>
+      <para>ListFragment has a default layout that consists of a single list view. However, if you desire, you can customize the fragment layout by returning your own view hierarchy from onCreateView(LayoutInflater, ViewGroup, Bundle). To do this, your view hierarchy must contain a ListView object with the id ":id/list" (or R.id.list if it's in code) Optionally, your view hierarchy can contain another view object of any type to display when the list view is empty. This "empty list" notifier must have an id "android:empty". Note that when an empty view is present, the list view will be hidden when there is no data to display. The following code demonstrates an (ugly) custom list layout. It has a list with a green background, and an alternate red "no data" message.</para>
+      <para>Row Layout</para>
+      <para>You can specify the layout of individual rows in the list. You do this by specifying a layout resource in the ListAdapter object hosted by the fragment (the ListAdapter binds the ListView to the data; more on this later). A ListAdapter constructor takes a parameter that specifies a layout resource for each row. It also has two additional parameters that let you specify which data field to associate with which object in the row layout resource. These two parameters are typically parallel arrays.</para>
+      <para>Android provides some standard row layout resources. These are in the R.layout class, and have names such as simple_list_item_1, simple_list_item_2, and two_line_list_item. The following layout XML is the source for the resource two_line_list_item, which displays two data fields,one above the other, for each list row.</para>
+      <para>You must identify the data bound to each TextView object in this layout. The syntax for this is discussed in the next section.</para>
+      <para>Binding to Data</para>
+      <para>You bind the ListFragment's ListView object to data using a class that implements the ListAdapter interface. Android provides two standard list adapters: SimpleAdapter for static data (Maps), and SimpleCursorAdapter for Cursor query results.</para>
+      <para>You must use ListFragment.setListAdapter() to associate the list with an adapter. Do not directly call ListView.setAdapter() or else important initialization will be skipped.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment" title="Reference documentation">Android reference for <code>android.app.ListFragment</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
     <since version="Added in API level 11" />
   </Docs>
@@ -78,10 +65,10 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
+        <summary></summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#ListFragment()" title="Reference documentation">Android reference for <code>android.app.ListFragment.ListFragment</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -101,11 +88,12 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
-        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
-        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <param name="javaReference">The Java Native Interface object reference.</param>
+        <param name="transfer">The ownership transfer to apply to the Java Native Interface object reference.</param>
+        <summary>Initializes a managed representation of an existing Java Native Interface object.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This constructor is called by the .NET for Android binding runtime when it creates a managed peer for an existing Java object.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -137,10 +125,10 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.ListFragment.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -172,28 +160,11 @@
         <ReturnType>Android.Widget.IListAdapter</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Get the ListAdapter associated with this fragment's ListView. -or- Provide the cursor for the list view.</summary>
-        <value>To be added.</value>
+        <summary>Get the ListAdapter associated with this fragment's ListView.</summary>
         <remarks>
-          <para>Property getter documentation:</para>
           <para>Get the ListAdapter associated with this fragment's ListView.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#getListAdapter()" title="Reference documentation">Java documentation for <code>android.app.ListFragment.getListAdapter()</code>.</a>
-            </format>
-          </para>
-          <para>Property setter documentation:</para>
-          <para>Provide the cursor for the list view.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#setListAdapter(android.widget.ListAdapter)" title="Reference documentation">Java documentation for <code>android.app.ListFragment.setListAdapter(android.widget.ListAdapter)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#getListAdapter()" title="Reference documentation">Android reference for <code>android.app.ListFragment.getListAdapter</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -223,19 +194,10 @@
       </ReturnValue>
       <Docs>
         <summary>Get the fragment's list view widget.</summary>
-        <value>To be added.</value>
         <remarks>
           <para>Get the fragment's list view widget.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#getListView()" title="Reference documentation">Java documentation for <code>android.app.ListFragment.getListView()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#getListView()" title="Reference documentation">Android reference for <code>android.app.ListFragment.getListView</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -270,26 +232,15 @@
         <Parameter Name="id" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="l">The ListView where the click happened</param>
-        <param name="v">The view that was clicked within the ListView</param>
-        <param name="position">The position of the view in the list</param>
-        <param name="id">The row id of the item that was clicked</param>
+        <param name="l">ListView: The ListView where the click happened</param>
+        <param name="v">View: The view that was clicked within the ListView</param>
+        <param name="position">int: The position of the view in the list</param>
+        <param name="id">long: The row id of the item that was clicked</param>
         <summary>This method will be called when an item in the list is selected.</summary>
         <remarks>
-          <para>This method will be called when an item in the list is selected.
-            Subclasses should override. Subclasses can call
-            getListView().getItemAtPosition(position) if they need to access the
-            data associated with the selected item.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#onListItemClick(android.widget.ListView,%20android.view.View,%20int,%20long)" title="Reference documentation">Java documentation for <code>android.app.ListFragment.onListItemClick(android.widget.ListView, android.view.View, int, long)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method will be called when an item in the list is selected. Subclasses should override. Subclasses can call getListView().getItemAtPosition(position) if they need to access the data associated with the selected item.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#onListItemClick(android.widget.ListView,%20android.view.View,%20int,%20long)" title="Reference documentation">Android reference for <code>android.app.ListFragment.onListItemClick</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -319,19 +270,10 @@
       </ReturnValue>
       <Docs>
         <summary>Get the cursor row ID of the currently selected list item.</summary>
-        <value>To be added.</value>
         <remarks>
           <para>Get the cursor row ID of the currently selected list item.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#getSelectedItemId()" title="Reference documentation">Java documentation for <code>android.app.ListFragment.getSelectedItemId()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#getSelectedItemId()" title="Reference documentation">Android reference for <code>android.app.ListFragment.getSelectedItemId</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -361,19 +303,10 @@
       </ReturnValue>
       <Docs>
         <summary>Get the position of the currently selected list item.</summary>
-        <value>To be added.</value>
         <remarks>
           <para>Get the position of the currently selected list item.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#getSelectedItemPosition()" title="Reference documentation">Java documentation for <code>android.app.ListFragment.getSelectedItemPosition()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#getSelectedItemPosition()" title="Reference documentation">Android reference for <code>android.app.ListFragment.getSelectedItemPosition</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -405,23 +338,12 @@
         <Parameter Name="text" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>The default content for a ListFragment has a TextView that can
-            be shown when the list is empty.</summary>
+        <param name="text">CharSequence</param>
+        <summary>The default content for a ListFragment has a TextView that can be shown when the list is empty.</summary>
         <remarks>
-          <para>The default content for a ListFragment has a TextView that can
-            be shown when the list is empty.  If you would like to have it
-            shown, call this method to supply the text it should use.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#setEmptyText(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.app.ListFragment.setEmptyText(java.lang.CharSequence)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The default content for a ListFragment has a TextView that can be shown when the list is empty. If you would like to have it shown, call this method to supply the text it should use.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#setEmptyText(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.app.ListFragment.setEmptyText</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -449,23 +371,12 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>The default content for a ListFragment has a TextView that can
-            be shown when the list is empty.</summary>
+        <param name="text">CharSequence</param>
+        <summary>The default content for a ListFragment has a TextView that can be shown when the list is empty.</summary>
         <remarks>
-          <para>The default content for a ListFragment has a TextView that can
-            be shown when the list is empty.  If you would like to have it
-            shown, call this method to supply the text it should use.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#setEmptyText(java.lang.CharSequence)" title="Reference documentation">Java documentation for <code>android.app.ListFragment.setEmptyText(java.lang.CharSequence)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>The default content for a ListFragment has a TextView that can be shown when the list is empty. If you would like to have it shown, call this method to supply the text it should use.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#setEmptyText(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.app.ListFragment.setEmptyText</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -496,28 +407,12 @@
         <Parameter Name="shown" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="shown">If true, the list view is shown; if false, the progress
-            indicator.  The initial value is true.</param>
+        <param name="shown">boolean: If true, the list view is shown; if false, the progress indicator. The initial value is true.</param>
         <summary>Control whether the list is being displayed.</summary>
         <remarks>
-          <para>Control whether the list is being displayed.  You can make it not
-            displayed if you are waiting for the initial data to show in it.  During
-            this time an indeterminant progress indicator will be shown instead.</para>
-          <para>Applications do not normally need to use this themselves.  The default
-            behavior of ListFragment is to start with the list not being shown, only
-            showing it once an adapter is given with <c>#setListAdapter(ListAdapter)</c>.
-            If the list at that point had not been shown, when it does get shown
-            it will be do without the user ever seeing the hidden state.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#setListShown(boolean)" title="Reference documentation">Java documentation for <code>android.app.ListFragment.setListShown(boolean)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Control whether the list is being displayed. You can make it not displayed if you are waiting for the initial data to show in it. During this time an indeterminant progress indicator will be shown instead. Applications do not normally need to use this themselves. The default behavior of ListFragment is to start with the list not being shown, only showing it once an adapter is given with setListAdapter(ListAdapter). If the list at that point had not been shown, when it does get shown it will be do without the user ever seeing the hidden state.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#setListShown(boolean)" title="Reference documentation">Android reference for <code>android.app.ListFragment.setListShown</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -549,22 +444,12 @@
         <Parameter Name="shown" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="shown">To be added.</param>
-        <summary>Like <c>#setListShown(boolean)</c>, but no animation is used when
-            transitioning from the previous state.</summary>
+        <param name="shown">boolean</param>
+        <summary>Like setListShown(boolean), but no animation is used when transitioning from the previous state.</summary>
         <remarks>
-          <para>Like <c>#setListShown(boolean)</c>, but no animation is used when
-            transitioning from the previous state.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#setListShownNoAnimation(boolean)" title="Reference documentation">Java documentation for <code>android.app.ListFragment.setListShownNoAnimation(boolean)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Like setListShown(boolean), but no animation is used when transitioning from the previous state.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#setListShownNoAnimation(boolean)" title="Reference documentation">Android reference for <code>android.app.ListFragment.setListShownNoAnimation</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -596,22 +481,13 @@
         <Parameter Name="position" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="position">position</param>
-        <summary>Set the currently selected list item to the specified
-            position with the adapter's data</summary>
+        <summary>Set the currently selected list item to the specified position with the adapter's data</summary>
         <remarks>
-          <para>Set the currently selected list item to the specified
-            position with the adapter's data</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ListFragment#setSelection(int)" title="Reference documentation">Java documentation for <code>android.app.ListFragment.setSelection(int)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Set the currently selected list item to the specified position with the adapter's data</para>
+          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
+          <para>Last updated 2026-08-03 UTC.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ListFragment#setSelection(int)" title="Reference documentation">Android reference for <code>android.app.ListFragment.setSelection</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 11" />
       </Docs>
@@ -640,10 +516,10 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
-        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.ListFragment.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -675,10 +551,10 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
-        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.ListFragment.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
