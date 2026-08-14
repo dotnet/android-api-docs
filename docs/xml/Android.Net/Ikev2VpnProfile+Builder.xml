@@ -27,9 +27,7 @@
   </Attributes>
   <Docs>
     <summary>A incremental builder for IKEv2 VPN profiles</summary>
-    <remarks>
-      <para>A incremental builder for IKEv2 VPN profiles</para>
-      <para>
+    <remarks><para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder</code>.</a>
         </format>
@@ -66,14 +64,13 @@
         <Parameter Name="ikeTunConnParams" Type="Android.Net.IpSec.Ike.IkeTunnelConnectionParams" />
       </Parameters>
       <Docs>
-        <param name="ikeTunConnParams">the <c>IkeTunnelConnectionParams</c> contains IKEv2
-                                    configurations</param>
-        <summary>Creates a new builder from a <c>IkeTunnelConnectionParams</c></summary>
+        <param name="ikeTunConnParams">The IKE tunnel connection parameters that supply the IKEv2 configuration, including authentication.</param>
+        <summary>Creates a builder that uses the supplied IKE tunnel connection parameters.</summary>
         <remarks>
-          <para>Creates a new builder from a <c>IkeTunnelConnectionParams</c></para>
+          <para>When this constructor is used, configure authentication and IKE negotiation parameters in <c>IkeTunnelConnectionParams</c>. Builder methods that configure those values throw <see cref="T:Java.Lang.IllegalArgumentException" />.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#Ikev2VpnProfile$Builder(android.net.ipsec.ike.IkeTunnelConnectionParams)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.Ikev2VpnProfile$Builder(android.net.ipsec.ike.IkeTunnelConnectionParams)</code>.</a>
+              <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#Builder(android.net.ipsec.ike.IkeTunnelConnectionParams)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.Builder(android.net.ipsec.ike.IkeTunnelConnectionParams)</code>.</a>
             </format>
           </para>
           <para>
@@ -109,13 +106,14 @@
         <Parameter Name="identity" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="serverAddr">the server that the VPN should connect to</param>
-        <param name="identity">the identity string to be used for IKEv2 authentication</param>
+        <param name="serverAddr">The server address to which the VPN connects.</param>
+        <param name="identity">The identity used for IKEv2 authentication.</param>
         <summary>Creates a new builder with the basic parameters of an IKEv2/IPsec VPN.</summary>
         <remarks>
+          <para>Use one of the authentication methods before calling <c>Build()</c>.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#Ikev2VpnProfile$Builder(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.Ikev2VpnProfile$Builder(java.lang.String, java.lang.String)</code>.</a>
+              <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#Builder(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.Builder(java.lang.String, java.lang.String)</code>.</a>
             </format>
           </para>
           <para>
@@ -156,7 +154,6 @@
                   <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when required values are invalid, authentication is missing, or incompatible options were combined.</exception>
         <remarks>
           <para>A direct server-address profile must have exactly one authentication method. Profiles built from <c>IkeTunnelConnectionParams</c> configure authentication in those parameters.</para>
-          <para>Validates, builds and provisions the VpnProfile.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#build()" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.build()</code>.</a>
@@ -228,10 +225,10 @@
         <summary>Sets the IPsec algorithms allowed for the VPN.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>Insecure <c>AUTH_HMAC_MD5</c> and <c>AUTH_HMAC_SHA1</c> algorithms are rejected. Without this call, secure <c>IpSecAlgorithm</c> algorithms are allowed.</para>
+          <para>Insecure <c>AUTH_HMAC_MD5</c> and <c>AUTH_HMAC_SHA1</c> algorithms are rejected. Without this call, all supported algorithms except insecure ones are allowed. This method throws <see cref="T:Java.Lang.IllegalArgumentException" /> when this builder was constructed with <c>IkeTunnelConnectionParams</c>.</para>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAllowedAlgorithms(java.util.List)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAllowedAlgorithms</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAllowedAlgorithms(java.util.List)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setAllowedAlgorithms(java.util.List)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -279,10 +276,10 @@
         <summary>Configures digital-signature authentication.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>Only one authentication method may be configured; this replaces a previously configured authentication method.</para>
+          <para>Only one authentication method may be configured; this replaces a previously configured authentication method. This method throws <see cref="T:Java.Lang.IllegalArgumentException" /> when this builder was constructed with <c>IkeTunnelConnectionParams</c>.</para>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthDigitalSignature(java.security.cert.X509Certificate,%20java.security.PrivateKey,%20java.security.cert.X509Certificate)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAuthDigitalSignature</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthDigitalSignature(java.security.cert.X509Certificate,%20java.security.PrivateKey,%20java.security.cert.X509Certificate)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setAuthDigitalSignature(java.security.cert.X509Certificate, java.security.PrivateKey, java.security.cert.X509Certificate)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -319,10 +316,10 @@
         <summary>Configures pre-shared-key authentication.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>Only one authentication method may be configured; this replaces a previously configured authentication method.</para>
+          <para>Only one authentication method may be configured; this replaces a previously configured authentication method. This method throws <see cref="T:Java.Lang.IllegalArgumentException" /> when this builder was constructed with <c>IkeTunnelConnectionParams</c>.</para>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthPsk(byte[])" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAuthPsk</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthPsk(byte[])" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setAuthPsk(byte[])</code>.</a>
   </format>
 </para>
 </remarks>
@@ -370,10 +367,10 @@
         <summary>Configures EAP-MSCHAPv2 authentication.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>Only one authentication method may be configured; this replaces a previously configured authentication method.</para>
+          <para>Only one authentication method may be configured; this replaces a previously configured authentication method. This method throws <see cref="T:Java.Lang.IllegalArgumentException" /> when this builder was constructed with <c>IkeTunnelConnectionParams</c>.</para>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthUsernamePassword(java.lang.String,%20java.lang.String,%20java.security.cert.X509Certificate)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAuthUsernamePassword</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAuthUsernamePassword(java.lang.String,%20java.lang.String,%20java.security.cert.X509Certificate)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setAuthUsernamePassword(java.lang.String, java.lang.String, java.security.cert.X509Certificate)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -412,7 +409,7 @@
         <remarks>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAutomaticIpVersionSelectionEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAutomaticIpVersionSelectionEnabled</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAutomaticIpVersionSelectionEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setAutomaticIpVersionSelectionEnabled(boolean)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -451,7 +448,7 @@
         <remarks>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAutomaticNattKeepaliveTimerEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetAutomaticNattKeepaliveTimerEnabled</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setAutomaticNattKeepaliveTimerEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setAutomaticNattKeepaliveTimerEnabled(boolean)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -490,7 +487,7 @@
         <remarks>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setBypassable(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetBypassable</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setBypassable(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setBypassable(boolean)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -531,7 +528,7 @@
           <para>Excluding local routes can allow destinations, including DNS servers, to bypass the VPN and cannot be used with a non-bypassable VPN.</para>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setLocalRoutesExcluded(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetLocalRoutesExcluded</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setLocalRoutesExcluded(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setLocalRoutesExcluded(boolean)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -571,7 +568,7 @@
         <remarks>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setMaxMtu(int)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetMaxMtu</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setMaxMtu(int)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setMaxMtu(int)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -610,7 +607,7 @@
         <remarks>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setMetered(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetMetered</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setMetered(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setMetered(boolean)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -656,7 +653,7 @@
         <remarks>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setProxy(android.net.ProxyInfo)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetProxy</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setProxy(android.net.ProxyInfo)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setProxy(android.net.ProxyInfo)</code>.</a>
   </format>
 </para>
 </remarks>
@@ -696,7 +693,7 @@
           <para>A validated connection receives <c>NET_CAPABILITY_VALIDATED</c>; without validation, the capability is added after connection regardless of Internet reachability.</para>
   <para>
   <format type="text/html">
-    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setRequiresInternetValidation(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.SetRequiresInternetValidation</code>.</a>
+    <a href="https://developer.android.com/reference/android/net/Ikev2VpnProfile.Builder#setRequiresInternetValidation(boolean)" title="Reference documentation">Java documentation for <code>android.net.Ikev2VpnProfile.Builder.setRequiresInternetValidation(boolean)</code>.</a>
   </format>
 </para>
 </remarks>
