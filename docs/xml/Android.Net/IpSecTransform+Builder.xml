@@ -27,9 +27,7 @@
   </Attributes>
   <Docs>
     <summary>This class is used to build <c>IpSecTransform</c> objects.</summary>
-    <remarks>
-      <para>This class is used to build <c>IpSecTransform</c> objects.</para>
-      <para>
+    <remarks><para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder</code>.</a>
         </format>
@@ -72,7 +70,7 @@
           <para>Create a new IpSecTransform.Builder.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder#IpSecTransform$Builder(android.content.Context)" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder.IpSecTransform$Builder(android.content.Context)</code>.</a>
+              <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder#Builder(android.content.Context)" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder.Builder(android.content.Context)</code>.</a>
             </format>
           </para>
           <para>
@@ -98,10 +96,10 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="javaReference">A handle to the Java peer.</param>
+        <param name="transfer">Specifies how ownership of <paramref name="javaReference" /> is transferred.</param>
+        <summary>Initializes a managed wrapper around an existing Java peer.</summary>
+        <remarks></remarks>
       </Docs>
     </Member>
     <Member MemberName="BuildTransportModeTransform">
@@ -132,11 +130,22 @@
         <Parameter Name="spi" Type="Android.Net.IpSecManager+SecurityParameterIndex" />
       </Parameters>
       <Docs>
-        <param name="sourceAddress">To be added.</param>
-        <param name="spi">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="sourceAddress">The source address of traffic on sockets that use the transform. It must belong to the network used by those sockets.</param>
+        <param name="spi">The unique reserved SPI that identifies transformed traffic.</param>
+        <summary>Builds and activates a transport-mode IPsec transform.</summary>
+        <returns>The active transport-mode transform.</returns>
+                  <exception cref="T:Java.Lang.IllegalArgumentException">Thrown when transform properties are combined invalidly.</exception>
+                  <exception cref="T:Android.Net.IpSecManager+ResourceUnavailableException">Thrown when too many transforms are active.</exception>
+                  <exception cref="T:Android.Net.IpSecManager+SpiUnavailableException">Thrown when the SPI cannot be used.</exception>
+                  <exception cref="T:Java.IO.IOException">Thrown for other IPsec errors.</exception>
+        <remarks>
+          <para>Traffic is affected only after the transform is applied to a socket.</para>
+  <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder#buildTransportModeTransform(java.net.InetAddress,%20android.net.IpSecManager.SecurityParameterIndex)" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder.buildTransportModeTransform(java.net.InetAddress, android.net.IpSecManager.SecurityParameterIndex)</code>.</a>
+  </format>
+</para>
+</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -162,11 +171,9 @@
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>The <see cref="T:Java.Interop.JniPeerMembers" /> instance that provides access to JNI peer-member information for this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="SetAuthenticatedEncryption">
       <MemberSignature Language="C#" Value="public virtual Android.Net.IpSecTransform.Builder SetAuthenticatedEncryption (Android.Net.IpSecAlgorithm algo);" />
@@ -195,10 +202,16 @@
         <Parameter Name="algo" Type="Android.Net.IpSecAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="algo">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="algo">The combined-mode algorithm. It is mutually exclusive with separate encryption and authentication algorithms.</param>
+        <summary>Sets the authenticated-encryption algorithm.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+  <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder#setAuthenticatedEncryption(android.net.IpSecAlgorithm)" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder.setAuthenticatedEncryption(android.net.IpSecAlgorithm)</code>.</a>
+  </format>
+</para>
+</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAuthentication">
@@ -228,10 +241,16 @@
         <Parameter Name="algo" Type="Android.Net.IpSecAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="algo">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="algo">The authentication algorithm. Authentication is mutually exclusive with authenticated encryption.</param>
+        <summary>Sets the authentication or integrity algorithm.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+  <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder#setAuthentication(android.net.IpSecAlgorithm)" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder.setAuthentication(android.net.IpSecAlgorithm)</code>.</a>
+  </format>
+</para>
+</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEncryption">
@@ -261,10 +280,16 @@
         <Parameter Name="algo" Type="Android.Net.IpSecAlgorithm" />
       </Parameters>
       <Docs>
-        <param name="algo">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="algo">The encryption algorithm. Encryption is mutually exclusive with authenticated encryption.</param>
+        <summary>Sets the encryption algorithm.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+  <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder#setEncryption(android.net.IpSecAlgorithm)" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder.setEncryption(android.net.IpSecAlgorithm)</code>.</a>
+  </format>
+</para>
+</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetIpv4Encapsulation">
@@ -295,11 +320,17 @@
         <Parameter Name="remotePort" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="localSocket">To be added.</param>
-        <param name="remotePort">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="localSocket">The UDP encapsulation socket.</param>
+        <param name="remotePort">The remote UDP port. IKEv2 conventionally uses port 4500.</param>
+        <summary>Enables IPv4 UDP encapsulation for NAT traversal.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+  <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/net/IpSecTransform.Builder#setIpv4Encapsulation(android.net.IpSecManager.UdpEncapsulationSocket,%20int)" title="Reference documentation">Java documentation for <code>android.net.IpSecTransform.Builder.setIpv4Encapsulation(android.net.IpSecManager.UdpEncapsulationSocket, int)</code>.</a>
+  </format>
+</para>
+</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -325,11 +356,9 @@
       <ReturnValue>
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
     <Member MemberName="ThresholdType">
       <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
@@ -354,11 +383,9 @@
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
-      <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
-      </Docs>
+      <Docs><summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <remarks>This member supports the .NET for Android binding runtime.</remarks></Docs>
     </Member>
   </Members>
 </Type>
