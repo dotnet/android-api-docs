@@ -81,13 +81,13 @@
       </Parameters>
       <Docs>
         <param name="url">The optional location URL to associate with this code source.</param>
-        <param name="certs">The certificates to associate; this array may be <c>null</c> and is copied.</param>
-        <summary>Initializes a code source with a location and its signing certificates.</summary>
+        <param name="certs">The certificates to provide; Android discards this array, which may be <c>null</c>.</param>
+        <summary>Initializes a code source retaining its location; Android discards certificate data.</summary>
         <remarks>
-          <para>The supplied certificate array is copied so that later changes to the array do not affect this instance.</para>
+          <para>Android's stub implementation stores <paramref name="url" /> but discards <paramref name="certs" />.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/security/CodeSource#CodeSource(java.net.URL,%20java.security.cert.Certificate%5B%5D)" title="Reference documentation">Java documentation for <code>java.security.CodeSource.CodeSource(java.net.URL, java.security.cert.Certificate[])</code>.</a>
+              <a href="https://android.googlesource.com/platform/libcore/+/refs/heads/main/ojluni/src/main/java/java/security/CodeSource.java" title="Android source implementation">Android source implementation of <code>java.security.CodeSource</code>.</a>
             </format>
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -124,13 +124,13 @@
       </Parameters>
       <Docs>
         <param name="url">The optional location URL to associate with this code source.</param>
-        <param name="signers">The code signers to associate; this array may be <c>null</c> and is copied.</param>
-        <summary>Initializes a code source with a location and its code signers.</summary>
+        <param name="signers">The code signers to provide; Android discards this array, which may be <c>null</c>.</param>
+        <summary>Initializes a code source retaining its location; Android discards code signer data.</summary>
         <remarks>
-          <para>The supplied code signer array is copied so that later changes to the array do not affect this instance.</para>
+          <para>Android's stub implementation stores <paramref name="url" /> but discards <paramref name="signers" />.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/security/CodeSource#CodeSource(java.net.URL,%20java.security.CodeSigner%5B%5D)" title="Reference documentation">Java documentation for <code>java.security.CodeSource.CodeSource(java.net.URL, java.security.CodeSigner[])</code>.</a>
+              <a href="https://android.googlesource.com/platform/libcore/+/refs/heads/main/ojluni/src/main/java/java/security/CodeSource.java" title="Android source implementation">Android source implementation of <code>java.security.CodeSource</code>.</a>
             </format>
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -188,13 +188,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Gets the certificates associated with this code source.</summary>
-        <returns>A copy of the associated certificates, or <c>null</c> if none are present.</returns>
+        <summary>Gets certificate data from this code source.</summary>
+        <returns><c>null</c>; Android's stub implementation does not retain certificate data.</returns>
         <remarks>
-          <para>For a code source created with code signers, this value contains each signer certificate followed by its supporting certificate chain, ordered from signer to root.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/security/CodeSource#getCertificates()" title="Reference documentation">Java documentation for <code>java.security.CodeSource.getCertificates()</code>.</a>
+              <a href="https://android.googlesource.com/platform/libcore/+/refs/heads/main/ojluni/src/main/java/java/security/CodeSource.java" title="Android source implementation">Android source implementation of <code>java.security.CodeSource</code>.</a>
             </format>
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -229,13 +228,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Gets the code signers associated with this code source.</summary>
-        <returns>A copy of the associated code signers, or <c>null</c> if none are present.</returns>
+        <summary>Gets code signer data from this code source.</summary>
+        <returns><c>null</c>; Android's stub implementation does not retain code signer data.</returns>
         <remarks>
-          <para>For a code source created with certificates, only X.509 certificate chains are converted to code signers.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/security/CodeSource#getCodeSigners()" title="Reference documentation">Java documentation for <code>java.security.CodeSource.getCodeSigners()</code>.</a>
+              <a href="https://android.googlesource.com/platform/libcore/+/refs/heads/main/ojluni/src/main/java/java/security/CodeSource.java" title="Android source implementation">Android source implementation of <code>java.security.CodeSource</code>.</a>
             </format>
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -266,14 +264,13 @@
         <Parameter Name="codesource" Type="Java.Security.CodeSource" />
       </Parameters>
       <Docs>
-        <param name="codesource">The code source to test against this source's certificate and location constraints.</param>
+        <param name="codesource">The code source to test; Android's stub implementation ignores this value.</param>
         <summary>Determines whether this code source implies another code source.</summary>
-        <returns><c>true</c> when all certificate and location constraints are satisfied; otherwise, <c>false</c>.</returns>
+        <returns><c>true</c>; Android's stub implementation always returns <c>true</c>.</returns>
         <remarks>
-          <para>A code source with neither a location nor certificates implies every code source. When present, its certificates and location constraints must be satisfied by <paramref name="codesource" />.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/security/CodeSource#implies(java.security.CodeSource)" title="Reference documentation">Java documentation for <code>java.security.CodeSource.implies(java.security.CodeSource)</code>.</a>
+              <a href="https://android.googlesource.com/platform/libcore/+/refs/heads/main/ojluni/src/main/java/java/security/CodeSource.java" title="Android source implementation">Android source implementation of <code>java.security.CodeSource</code>.</a>
             </format>
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
