@@ -105,10 +105,20 @@
  thread's main <see cref="T:Android.OS.Looper" />.</param>
         <summary>Creates a <see cref="T:Android.Hardware.Display.VirtualDisplay" /> to capture the
  contents of the screen.</summary>
-        <returns>To be added.</returns>
+        <returns>The created virtual display, or <see langword="null" /> if no virtual display could be created.</returns>
         <remarks>
+          <para>Register a <see cref="T:Android.Media.Projection.MediaProjection.Callback" /> before calling this method. Override <see cref="M:Android.Media.Projection.MediaProjection.Callback.OnStop" /> to release the virtual display, surface, and related resources and to update any UI that represents the projection state.</para>
+          <para>For applications targeting Android 14 (API level 34) or later, each user consent session grants one call to this method. Do not reuse the result data passed to <see cref="M:Android.Media.Projection.MediaProjectionManager.GetMediaProjection(System.Int32,Android.Content.Intent)" /> to obtain multiple projection instances, and do not call this method more than once on the same projection instance.</para>
+          <para>After <see cref="M:Android.Media.Projection.MediaProjection.Stop" /> is called, this projection can no longer create a virtual display. For applications targeting Android 14 (API level 34) or later, the same restriction applies after <see cref="M:Android.Media.Projection.MediaProjection.Callback.OnStop" /> is received. For applications targeting an earlier version, the user can be prompted to grant consent again instead of an exception being thrown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/media/projection/MediaProjection#createVirtualDisplay(java.lang.String,%20int,%20int,%20int,%20int,%20android.view.Surface,%20android.hardware.display.VirtualDisplay.Callback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.media.projection.MediaProjection.createVirtualDisplay(java.lang.String, int, int, int, int, android.view.Surface, android.hardware.display.VirtualDisplay.Callback, android.os.Handler)</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">For applications targeting Android 14 (API level 34) or later, if no <see cref="T:Android.Media.Projection.MediaProjection.Callback" /> is registered.</exception>
+        <exception cref="T:Java.Lang.SecurityException">If the projection has been stopped; or, for applications targeting Android 14 (API level 34) or later, if its <see cref="M:Android.Media.Projection.MediaProjection.Callback.OnStop" /> callback has been received, if this projection has already started a recording, or if it was obtained by invoking <see cref="M:Android.Media.Projection.MediaProjectionManager.GetMediaProjection(System.Int32,Android.Content.Intent)" /> more than once for the same consent result.</exception>
         <altmember cref="T:Android.Hardware.Display.VirtualDisplay" />
       </Docs>
     </Member>
@@ -136,8 +146,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>MediaProjection</c>.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -138,12 +138,14 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the root hints sent from the currently connected <c>MediaBrowser</c>.</summary>
-        <value>To be added.</value>
+        <value>The root hints sent from the currently connected media browser, or <see langword="null" /> if none were supplied.</value>
         <remarks>
           <para>Gets the root hints sent from the currently connected <c>MediaBrowser</c>.
             The root hints are service-specific arguments included in an optional bundle sent to the
             media browser service when connecting and retrieving the root id for browsing, or null if
             none. The contents of this bundle may affect the information returned when browsing.</para>
+          <para>This property may be accessed only while handling <c>OnGetRoot</c>, <c>OnLoadChildren</c>,
+            or <c>OnLoadItem</c>. The returned bundle is a defensive copy of the browser's root hints.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/service/media/MediaBrowserService#getBrowserRootHints()" title="Reference documentation">Java documentation for <code>android.service.media.MediaBrowserService.getBrowserRootHints()</code>.</a>
@@ -155,6 +157,7 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">This property is accessed outside <c>OnGetRoot</c>, <c>OnLoadChildren</c>, or <c>OnLoadItem</c>.</exception>
       </Docs>
     </Member>
     <Member MemberName="CurrentBrowserInfo">
@@ -186,8 +189,10 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the browser information who sent the current request.</summary>
-        <value>To be added.</value>
+        <value>Information about the browser that sent the current request.</value>
         <remarks>
+          <para>This property may be accessed only while handling <c>OnGetRoot</c>, <c>OnLoadChildren</c>,
+            or <c>OnLoadItem</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/service/media/MediaBrowserService#getCurrentBrowserInfo()" title="Reference documentation">Java documentation for <code>android.service.media.MediaBrowserService.getCurrentBrowserInfo()</code>.</a>
@@ -199,6 +204,7 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">This property is accessed outside <c>OnGetRoot</c>, <c>OnLoadChildren</c>, or <c>OnLoadItem</c>.</exception>
       </Docs>
     </Member>
     <Member MemberName="Dump">
@@ -268,11 +274,9 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>MediaBrowserService</c>.</value>
+        <remarks>This member supports the Java interop infrastructure and is not intended to be called directly by applications.</remarks>
       </Docs>
     </Member>
     <Member MemberName="NotifyChildrenChanged">
@@ -398,7 +402,7 @@
  as given to <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='M:Android Content Context BindService(Android Content Intent,Android Content IServiceConnection,Android Content IServiceConnection)';scope=Xamarin" title="M:Android.Content.Context.BindService(Android.Content.Intent,Android.Content.IServiceConnection,Android.Content.IServiceConnection)">M:Android.Content.Context.BindService(Android.Content.Intent,Android.Content.IServiceConnection,Android.Content.IServiceConnection)</a></format>.  Note that any extras that were included with
  the Intent at that point will <i>not</i> be seen here.</param>
         <summary>Return the communication channel to the service.</summary>
-        <returns>To be added.</returns>
+        <returns>An <see cref="T:Android.OS.IBinder" /> through which clients can call the service, or <see langword="null" /> if clients cannot bind to it.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -534,7 +538,7 @@
         <param name="parentId">The id of the parent media item whose children are to be
                        queried.</param>
         <param name="result">The Result to send the list of children to.</param>
-        <param name="options">To be added.</param>
+        <param name="options">The bundle of service-specific arguments sent from the media browser. The returned information should be affected by this bundle.</param>
         <summary>Called to get information about the children of a media item.</summary>
         <remarks>
           <para>
@@ -662,8 +666,7 @@
       <Docs>
         <summary>Gets the session token, or null if it has not yet been created
             or if it has been destroyed. -or- Call to set the media session.</summary>
-        <value>To be added.<list type="bullet"><item><term>The media session token, must not be null.
-</term></item></list></value>
+        <value>The media session token, or <see langword="null" /> if no media session is associated with the service. Set this property as soon as possible during service startup. A non-null token may be assigned only once; assigning <see langword="null" /> removes the current media session association and disconnects all existing media browsers.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>

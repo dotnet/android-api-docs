@@ -227,7 +227,7 @@
         <Parameter Name="operations" Type="System.Collections.Generic.IList&lt;Android.Content.ContentProviderOperation&gt;" />
       </Parameters>
       <Docs>
-        <param name="authority">To be added.</param>
+        <param name="authority">This value cannot be null .</param>
         <param name="operations">the operations to apply</param>
         <summary>Override this to handle requests to perform a batch of operations, or the
             default implementation will iterate over the operations and call
@@ -453,7 +453,7 @@
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="authority">To be added.</param>
+        <param name="authority">This value cannot be null .</param>
         <param name="method">method name to call.  Opaque to framework, but should not be <c>null</c>.</param>
         <param name="arg">provider-defined String argument.  May be <c>null</c>.</param>
         <param name="extras">provider-defined Bundle argument.  May be <c>null</c>.</param>
@@ -554,7 +554,7 @@
       <Docs>
         <summary>Return the attribution tag of the caller that initiated the request being
             processed on the current thread.</summary>
-        <value>To be added.</value>
+        <value>Return the attribution tag of the caller that initiated the request being processed on the current thread. Returns null if not currently processing a request of the request is for the default attribution. This will always return null when processing getTypeAnonymous(Uri) requests For getType(Uri) requests, this will be only available for cases, where the caller can be identified. See getTypeAnonymous(Uri)</value>
         <remarks>
           <para>Return the attribution tag of the caller that initiated the request being
             processed on the current thread. Returns <c>null</c> if not currently processing
@@ -599,7 +599,7 @@
       <Docs>
         <summary>Return the package name of the caller that initiated the request being
             processed on the current thread.</summary>
-        <value>To be added.</value>
+        <value>Return the package name of the caller that initiated the request being processed on the current thread. The returned package will have been verified to belong to the calling UID. Returns null if not currently processing a request. This will always return null when processing getTypeAnonymous(Uri) requests For getType(Uri) requests, this will be only available for cases, where the caller can be identified. See getTypeAnonymous(Uri)</value>
         <remarks>
           <para>Return the package name of the caller that initiated the request being
             processed on the current thread. The returned package will have been
@@ -655,7 +655,7 @@
       <Docs>
         <summary>Return the package name of the caller that initiated the request being
             processed on the current thread.</summary>
-        <value>To be added.</value>
+        <value>Return the package name of the caller that initiated the request being processed on the current thread. The returned package will have not been verified to belong to the calling UID. Returns null if not currently processing a request. This will always return null when processing getTypeAnonymous(Uri) requests For getType(Uri) requests, this will be only available for cases, where the caller can be identified. See getTypeAnonymous(Uri)</value>
         <remarks>
           <para>Return the package name of the caller that initiated the request being
             processed on the current thread. The returned package will have
@@ -811,7 +811,7 @@
       </ReturnValue>
       <Docs>
         <summary>Retrieves the Context this provider is running in.</summary>
-        <value>To be added.</value>
+        <value>Retrieves the Context this provider is running in. Only available once onCreate() has been called -- this will return null in the constructor.</value>
         <remarks>
           <para>Retrieves the Context this provider is running in.  Only available once
             <c>#onCreate</c> has been called -- this will return <c>null</c> in the
@@ -865,7 +865,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">The full URI to query, including a row ID (if a specific
+        <param name="uri">The full URI to delete, including a row ID (if a specific
                        record is requested).</param>
         <param name="extras">A Bundle containing additional information necessary for
                        the operation. Arguments may include SQL style arguments, such
@@ -873,7 +873,7 @@
                        the documentation for each individual provider will indicate
                        which arguments they support.</param>
         <summary>Implement this to handle requests to delete one or more rows.</summary>
-        <returns>To be added.</returns>
+        <returns>The number of rows deleted.</returns>
         <remarks>
           <para>Implement this to handle requests to delete one or more rows. The
             implementation should apply the selection clause when performing
@@ -940,7 +940,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="selectionArgs">To be added.</param>
+        <param name="selectionArgs">This value may be null .</param>
         <param name="uri">The full URI to query, including a row ID (if a specific
                        record is requested).</param>
         <param name="selection">An optional restriction to apply to rows when deleting.</param>
@@ -1061,14 +1061,20 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="fd">To be added.</param>
-        <param name="writer">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="fd">The raw file descriptor that the dump is being sent to.</param>
+        <param name="writer">The PrintWriter to which you should dump your state. This will be closed for you after you return.</param>
+        <param name="args">additional arguments to the dump request.</param>
+        <summary>Print the Provider's state into the given stream. This gets invoked if you run "adb shell dumpsys activity provider &lt;provider_component_name&gt;".</summary>
+        <returns>A task that completes after the provider's state has been written to the supplied stream.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/ContentProvider#dump(java.io.FileDescriptor,%20java.io.PrintWriter,%20java.lang.String[])" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[])</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetPathPermissions">
@@ -1100,7 +1106,7 @@
       <Docs>
         <summary>Return the path-based permissions required for read and/or write access to
             this content provider.</summary>
-        <returns>To be added.</returns>
+        <returns>This value may be null .</returns>
         <remarks>
           <para>Return the path-based permissions required for read and/or write access to
             this content provider.  This method can be called from multiple
@@ -1495,8 +1501,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>ContentProvider</c>.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1577,28 +1583,20 @@
       <Docs>
         <param name="newConfig">The new device configuration.
 </param>
-        <summary>To be added
-            This method is always called on the application main thread, and must
-            not perform lengthy operations.</summary>
-        <remarks>
-          <para>To be added
-            This method is always called on the application main thread, and must
-            not perform lengthy operations.</para>
-          <para>The default content provider implementation does nothing.
-            Override this method to take appropriate action.
-            (Content providers do not usually care about things like screen
-            orientation, but may want to know about locale changes.)</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/content/ContentProvider#onConfigurationChanged(android.content.res.Configuration)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.onConfigurationChanged(android.content.res.Configuration)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>Called by the system when the device configuration changes while your component is running. Note that, unlike activities, other components are never restarted when a configuration changes: they must always deal with the results of the change, such as by re-retrieving resources. At the time that this function has been called, your Resources object will have been updated to return resource values matching the new configuration. For more information, read Handling Runtime Changes . This method is always called on the application main thread, and must not perform lengthy operations. The default content provider implementation does nothing. Override this method to take appropriate action. (Content providers do not usually care about things like screen orientation, but may want to know about locale changes.) Parameters newConfig Configuration : The new device configuration. This value cannot be null .</summary>
+        <remarks>Called by the system when the device configuration changes while your component is running. Note that, unlike activities, other components are never restarted when a configuration changes: they must always deal with the results of the change, such as by re-retrieving resources. At the time that this function has been called, your Resources object will have been updated to return resource values matching the new configuration. For more information, read Handling Runtime Changes . This method is always called on the application main thread, and must not perform lengthy operations. The default content provider implementation does nothing. Override this method to take appropriate action. (Content providers do not usually care about things like screen orientation, but may want to know about locale changes.) Parameters newConfig Configuration : The new device configuration. This value cannot be null .
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/ContentProvider#onConfigurationChanged(android.content.res.Configuration)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.onConfigurationChanged(android.content.res.Configuration)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -1683,26 +1681,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added
-            This method is always called on the application main thread, and must
-            not perform lengthy operations.</summary>
-        <remarks>
-          <para>To be added
-            This method is always called on the application main thread, and must
-            not perform lengthy operations.</para>
-          <para>The default content provider implementation does nothing.
-            Subclasses may override this method to take appropriate action.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/content/ContentProvider#onLowMemory()" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.onLowMemory()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>This is called when the overall system is running low on memory, and actively running processes should trim their memory usage. While the exact point at which this will be called is not defined, generally it will happen when all background process have been killed. That is, before reaching the point of killing processes hosting service and foreground UI that we would like to avoid killing. This method is always called on the application main thread, and must not perform lengthy operations. The default content provider implementation does nothing. Subclasses may override this method to take appropriate action.</summary>
+        <remarks>This is called when the overall system is running low on memory, and actively running processes should trim their memory usage. While the exact point at which this will be called is not defined, generally it will happen when all background process have been killed. That is, before reaching the point of killing processes hosting service and foreground UI that we would like to avoid killing. This method is always called on the application main thread, and must not perform lengthy operations. The default content provider implementation does nothing. Subclasses may override this method to take appropriate action.
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/ContentProvider#onLowMemory()" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.onLowMemory()</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
         <since version="Added in API level 1" />
       </Docs>
     </Member>
@@ -2867,7 +2859,7 @@
         <summary>Return the name of the permission required for read-only access to
             this content provider. -or- Change the permission required to read data from the content
             provider.</summary>
-        <value>To be added.</value>
+        <value>This value may be null .</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Return the name of the permission required for read-only access to
@@ -2990,7 +2982,7 @@
       <Docs>
         <summary>Retrieves a Non-Nullable Context this provider is running in, this is intended to be called
             after <c>#onCreate</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null .</returns>
         <remarks>
           <para>Retrieves a Non-Nullable Context this provider is running in, this is intended to be called
             after <c>#onCreate</c>. When called before context was created, an IllegalStateException
@@ -3037,7 +3029,7 @@
         <Parameter Name="identity" Type="Android.Content.ContentProvider+CallingIdentity" />
       </Parameters>
       <Docs>
-        <param name="identity">To be added.</param>
+        <param name="identity">This value cannot be null .</param>
         <summary>Restore the identity of the incoming IPC on the current thread back to a
             previously identity that was returned by <c>#clearCallingIdentity</c>.</summary>
         <remarks>
@@ -3122,11 +3114,17 @@
         <Parameter Name="permission" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="permission">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="permission">Name of the permission required for read-only access. This value may be null .</param>
+        <summary>Change the permission required to read data from the content provider. This is normally set for you from its manifest information when the provider is first created.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/ContentProvider#setReadPermission(java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.setReadPermission(java.lang.String)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWritePermission">
@@ -3146,11 +3144,17 @@
         <Parameter Name="permission" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="permission">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="permission">Name of the permission required for write access. This value may be null .</param>
+        <summary>Change the permission required to write data in the content provider. This is normally set for you from its manifest information when the provider is first created.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/ContentProvider#setWritePermission(java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.ContentProvider.setWritePermission(java.lang.String)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="Shutdown">
@@ -3433,7 +3437,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="selectionArgs">To be added.</param>
+        <param name="selectionArgs">This value may be null .</param>
         <param name="uri">The URI to query. This can potentially have a record ID if
                        this is an update request for a specific record.</param>
         <param name="values">A set of column_name/value pairs to update in the database.</param>
@@ -3494,7 +3498,7 @@
         <summary>Return the name of the permission required for read/write access to
             this content provider. -or- Change the permission required to read and write data in the content
             provider.</summary>
-        <value>To be added.</value>
+        <value>This value may be null .</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Return the name of the permission required for read/write access to

@@ -22,42 +22,13 @@
     </Attribute>
   </Attributes>
   <Docs since="16">
-    <summary>Utility class for constructing synthetic back stacks for cross-task navigation
-            on Android 3.</summary>
+    <summary>Utility class for constructing synthetic back stacks for cross-task navigation on Android 3.0 and newer.</summary>
     <remarks>
-      <para>Utility class for constructing synthetic back stacks for cross-task navigation
-            on Android 3.0 and newer.</para>
-      <para>In API level 11 (Android 3.0/Honeycomb) the recommended conventions for
-            app navigation using the back key changed. The back key's behavior is local
-            to the current task and does not capture navigation across different tasks.
-            Navigating across tasks and easily reaching the previous task is accomplished
-            through the "recents" UI, accessible through the software-provided Recents key
-            on the navigation or system bar. On devices with the older hardware button configuration
-            the recents UI can be accessed with a long press on the Home key.</para>
-      <para>When crossing from one task stack to another post-Android 3.0,
-            the application should synthesize a back stack/history for the new task so that
-            the user may navigate out of the new task and back to the Launcher by repeated
-            presses of the back key. Back key presses should not navigate across task stacks.</para>
-      <para>TaskStackBuilder provides a way to obey the correct conventions
-            around cross-task navigation.</para>
-      <para>&lt;div class="special reference"&gt;
-            &lt;h3&gt;About Navigation&lt;/h3&gt;
-            For more detailed information about tasks, the back stack, and navigation design guidelines,
-            please read
-            <see href="https://developer.android.com/guide/topics/fundamentals/tasks-and-back-stack.html">Tasks and Back Stack</see>
-            from the developer guide and <see href="https://developer.android.com/design/patterns/navigation.html">Navigation</see>
-            from the design guide.
-            &lt;/div&gt;</para>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/app/TaskStackBuilder" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>Utility class for constructing synthetic back stacks for cross-task navigation on Android 3.0 and newer. In API level 11 (Android 3.0/Honeycomb) the recommended conventions for app navigation using the back key changed. The back key's behavior is local to the current task and does not capture navigation across different tasks. Navigating across tasks and easily reaching the previous task is accomplished through the "recents" UI, accessible through the software-provided Recents key on the navigation or system bar. On devices with the older hardware button configuration the recents UI can be accessed with a long press on the Home key.</para>
+      <para>When crossing from one task stack to another post-Android 3.0, the application should synthesize a back stack/history for the new task so that the user may navigate out of the new task and back to the Launcher by repeated presses of the back key. Back key presses should not navigate across task stacks.</para>
+      <para>TaskStackBuilder provides a way to obey the correct conventions around cross-task navigation.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
     <since version="Added in API level 16" />
   </Docs>
@@ -77,11 +48,12 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">A <see cref="T:System.IntPtr" />containing a Java Native Interface (JNI) object reference.</param>
-        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" />indicating how to handle <paramref name="javaReference" /></param>
-        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <param name="javaReference">The Java Native Interface object reference.</param>
+        <param name="transfer">The ownership transfer to apply to the Java Native Interface object reference.</param>
+        <summary>Initializes a managed representation of an existing Java Native Interface object.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This constructor is called by the .NET for Android binding runtime when it creates a managed peer for an existing Java object.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -108,22 +80,13 @@
         <Parameter Name="nextIntent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="nextIntent">Intent for the next Activity in the synthesized task stack</param>
+        <param name="nextIntent">Intent: Intent for the next Activity in the synthesized task stack</param>
         <summary>Add a new Intent to the task stack.</summary>
         <returns>This TaskStackBuilder for method chaining</returns>
         <remarks>
-          <para>Add a new Intent to the task stack. The most recently added Intent will invoke
-            the Activity at the top of the final task stack.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addNextIntent(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.addNextIntent(android.content.Intent)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add a new Intent to the task stack. The most recently added Intent will invoke the Activity at the top of the final task stack.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addNextIntent(android.content.Intent)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.addNextIntent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -151,27 +114,13 @@
         <Parameter Name="nextIntent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="nextIntent">Intent for the topmost Activity in the synthesized task stack.
-                              Its chain of parents as specified in the manifest will be added.</param>
-        <summary>Add a new Intent with the resolved chain of parents for the target activity to
-            the task stack.</summary>
+        <param name="nextIntent">Intent: Intent for the topmost Activity in the synthesized task stack. Its chain of parents as specified in the manifest will be added.</param>
+        <summary>Add a new Intent with the resolved chain of parents for the target activity to the task stack.</summary>
         <returns>This TaskStackBuilder for method chaining.</returns>
         <remarks>
-          <para>Add a new Intent with the resolved chain of parents for the target activity to
-            the task stack.</para>
-          <para>This is equivalent to calling <c>#addParentStack(ComponentName) addParentStack</c>
-            with the resolved ComponentName of nextIntent (if it can be resolved), followed by
-            <c>#addNextIntent(Intent) addNextIntent</c> with nextIntent.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addNextIntentWithParentStack(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.addNextIntentWithParentStack(android.content.Intent)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add a new Intent with the resolved chain of parents for the target activity to the task stack. This is equivalent to calling addParentStack with the resolved ComponentName of nextIntent (if it can be resolved), followed by addNextIntent with nextIntent.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addNextIntentWithParentStack(android.content.Intent)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.addNextIntentWithParentStack</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -199,29 +148,13 @@
         <Parameter Name="sourceActivity" Type="Android.App.Activity" />
       </Parameters>
       <Docs>
-        <param name="sourceActivity">All parents of this activity will be added</param>
-        <summary>Add the activity parent chain as specified by the
-            <c>Activity#getParentActivityIntent() getParentActivityIntent()</c> method of the activity
-            specified and the <c>android.R.attr#parentActivityName parentActivityName</c> attributes
-            of each successive activity (or activity-alias) element in the application's manifest
-            to the task stack builder.</summary>
+        <param name="sourceActivity">Activity: All parents of this activity will be added</param>
+        <summary>Add the activity parent chain as specified by the getParentActivityIntent() method of the activity specified and the parentActivityName attributes of each successive activity (or activity-alias) element in the application's manifest to the task stack builder.</summary>
         <returns>This TaskStackBuilder for method chaining</returns>
         <remarks>
-          <para>Add the activity parent chain as specified by the
-            <c>Activity#getParentActivityIntent() getParentActivityIntent()</c> method of the activity
-            specified and the <c>android.R.attr#parentActivityName parentActivityName</c> attributes
-            of each successive activity (or activity-alias) element in the application's manifest
-            to the task stack builder.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addParentStack(android.app.Activity)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.addParentStack(android.app.Activity)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add the activity parent chain as specified by the getParentActivityIntent() method of the activity specified and the parentActivityName attributes of each successive activity (or activity-alias) element in the application's manifest to the task stack builder.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addParentStack(android.app.Activity)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.addParentStack</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -249,26 +182,13 @@
         <Parameter Name="sourceActivityName" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="sourceActivityName">Must specify an Activity component. All parents of
-                                      this activity will be added</param>
-        <summary>Add the activity parent chain as specified by the
-            <c>android.R.attr#parentActivityName parentActivityName</c> attribute of the activity
-            (or activity-alias) element in the application's manifest to the task stack builder.</summary>
+        <param name="sourceActivityName">ComponentName: Must specify an Activity component. All parents of this activity will be added</param>
+        <summary>Add the activity parent chain as specified by the parentActivityName attribute of the activity (or activity-alias) element in the application's manifest to the task stack builder.</summary>
         <returns>This TaskStackBuilder for method chaining</returns>
         <remarks>
-          <para>Add the activity parent chain as specified by the
-            <c>android.R.attr#parentActivityName parentActivityName</c> attribute of the activity
-            (or activity-alias) element in the application's manifest to the task stack builder.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addParentStack(android.content.ComponentName)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.addParentStack(android.content.ComponentName)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add the activity parent chain as specified by the parentActivityName attribute of the activity (or activity-alias) element in the application's manifest to the task stack builder.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addParentStack(android.content.ComponentName)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.addParentStack</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -296,25 +216,13 @@
         <Parameter Name="sourceActivityClass" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="sourceActivityClass">All parents of this activity will be added</param>
-        <summary>Add the activity parent chain as specified by the
-            <c>android.R.attr#parentActivityName parentActivityName</c> attribute of the activity
-            (or activity-alias) element in the application's manifest to the task stack builder.</summary>
+        <param name="sourceActivityClass">Class: All parents of this activity will be added</param>
+        <summary>Add the activity parent chain as specified by the parentActivityName attribute of the activity (or activity-alias) element in the application's manifest to the task stack builder.</summary>
         <returns>This TaskStackBuilder for method chaining</returns>
         <remarks>
-          <para>Add the activity parent chain as specified by the
-            <c>android.R.attr#parentActivityName parentActivityName</c> attribute of the activity
-            (or activity-alias) element in the application's manifest to the task stack builder.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addParentStack(java.lang.Class%3C?%3E)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.addParentStack(java.lang.Class&lt;?&gt;)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Add the activity parent chain as specified by the parentActivityName attribute of the activity (or activity-alias) element in the application's manifest to the task stack builder.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#addParentStack(java.lang.Class&lt;?&gt;)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.addParentStack</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -341,23 +249,13 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">The context that will launch the new task stack or generate a PendingIntent</param>
-        <summary>Return a new TaskStackBuilder for launching a fresh task stack consisting
-            of a series of activities.</summary>
+        <param name="context">Context: The context that will launch the new task stack or generate a PendingIntent</param>
+        <summary>Return a new TaskStackBuilder for launching a fresh task stack consisting of a series of activities.</summary>
         <returns>A new TaskStackBuilder</returns>
         <remarks>
-          <para>Return a new TaskStackBuilder for launching a fresh task stack consisting
-            of a series of activities.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#create(android.content.Context)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.create(android.content.Context)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return a new TaskStackBuilder for launching a fresh task stack consisting of a series of activities.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#create(android.content.Context)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.create</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -385,23 +283,13 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">Index from 0-getIntentCount()</param>
+        <param name="index">int: Index from 0-getIntentCount()</param>
         <summary>Return the intent at the specified index for modification.</summary>
         <returns>the intent at position index</returns>
         <remarks>
-          <para>Return the intent at the specified index for modification.
-            Useful if you need to modify the flags or extras of an intent that was previously added,
-            for example with <c>#addParentStack(Activity)</c>.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#editIntentAt(int)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.editIntentAt(int)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return the intent at the specified index for modification. Useful if you need to modify the flags or extras of an intent that was previously added, for example with addParentStack(Activity).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#editIntentAt(int)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.editIntentAt</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -428,21 +316,11 @@
       <Parameters />
       <Docs>
         <summary>Return an array containing the intents added to this builder.</summary>
-        <returns>An array containing the intents added to this builder.</returns>
+        <returns>An array containing the intents added to this builder. This value cannot be null.</returns>
         <remarks>
-          <para>Return an array containing the intents added to this builder. The intent at the
-            root of the task stack will appear as the first item in the array and the
-            intent at the top of the stack will appear as the last item.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getIntents()" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.getIntents()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Return an array containing the intents added to this builder. The intent at the root of the task stack will appear as the first item in the array and the intent at the top of the stack will appear as the last item.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getIntents()" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.getIntents</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -478,26 +356,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="requestCode">Private request code for the sender</param>
-        <param name="flags">May be <c>PendingIntent#FLAG_ONE_SHOT</c>,
-                         <c>PendingIntent#FLAG_NO_CREATE</c>, <c>PendingIntent#FLAG_CANCEL_CURRENT</c>,
-                         <c>PendingIntent#FLAG_UPDATE_CURRENT</c>, or any of the flags supported by
-                         <c>Intent#fillIn(Intent, int)</c> to control which unspecified parts of the
-                         intent that can be supplied when the actual send happens.</param>
-        <summary>Obtain a <c>PendingIntent</c> for launching the task constructed by this builder so far.</summary>
+        <param name="requestCode">int: Private request code for the sender</param>
+        <param name="flags">int: May be PendingIntent.FLAG_ONE_SHOT, PendingIntent.FLAG_NO_CREATE, PendingIntent.FLAG_CANCEL_CURRENT, PendingIntent.FLAG_UPDATE_CURRENT, or any of the flags supported by Intent.fillIn(Intent,int) to control which unspecified parts of the intent that can be supplied when the actual send happens. Value is either 0 or a combination of the following: PendingIntent.FLAG_ONE_SHOT PendingIntent.FLAG_NO_CREATE PendingIntent.FLAG_CANCEL_CURRENT PendingIntent.FLAG_UPDATE_CURRENT PendingIntent.FLAG_IMMUTABLE PendingIntent.FLAG_MUTABLE PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT Intent.FILL_IN_ACTION Intent.FILL_IN_DATA Intent.FILL_IN_CATEGORIES Intent.FILL_IN_COMPONENT Intent.FILL_IN_PACKAGE Intent.FILL_IN_SOURCE_BOUNDS Intent.FILL_IN_SELECTOR Intent.FILL_IN_CLIP_DATA</param>
+        <summary>Obtain a PendingIntent for launching the task constructed by this builder so far.</summary>
         <returns>The obtained PendingIntent</returns>
         <remarks>
-          <para>Obtain a <c>PendingIntent</c> for launching the task constructed by this builder so far.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getPendingIntent(int,%20int)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.getPendingIntent(int, int)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Obtain a PendingIntent for launching the task constructed by this builder so far.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getPendingIntent(int,%20int)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.getPendingIntent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -534,29 +400,15 @@
         <Parameter Name="options" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="requestCode">Private request code for the sender</param>
-        <param name="flags">May be <c>PendingIntent#FLAG_ONE_SHOT</c>,
-                         <c>PendingIntent#FLAG_NO_CREATE</c>, <c>PendingIntent#FLAG_CANCEL_CURRENT</c>,
-                         <c>PendingIntent#FLAG_UPDATE_CURRENT</c>, or any of the flags supported by
-                         <c>Intent#fillIn(Intent, int)</c> to control which unspecified parts of the
-                         intent that can be supplied when the actual send happens.</param>
-        <param name="options">Additional options for how the Activity should be started.
-            See <c>android.content.Context#startActivity(Intent, Bundle)</c>
-            Context.startActivity(Intent, Bundle)} for more details.</param>
-        <summary>Obtain a <c>PendingIntent</c> for launching the task constructed by this builder so far.</summary>
+        <param name="requestCode">int: Private request code for the sender</param>
+        <param name="flags">int: May be PendingIntent.FLAG_ONE_SHOT, PendingIntent.FLAG_NO_CREATE, PendingIntent.FLAG_CANCEL_CURRENT, PendingIntent.FLAG_UPDATE_CURRENT, or any of the flags supported by Intent.fillIn(Intent,int) to control which unspecified parts of the intent that can be supplied when the actual send happens. Value is either 0 or a combination of the following: PendingIntent.FLAG_ONE_SHOT PendingIntent.FLAG_NO_CREATE PendingIntent.FLAG_CANCEL_CURRENT PendingIntent.FLAG_UPDATE_CURRENT PendingIntent.FLAG_IMMUTABLE PendingIntent.FLAG_MUTABLE PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT Intent.FILL_IN_ACTION Intent.FILL_IN_DATA Intent.FILL_IN_CATEGORIES Intent.FILL_IN_COMPONENT Intent.FILL_IN_PACKAGE Intent.FILL_IN_SOURCE_BOUNDS Intent.FILL_IN_SELECTOR Intent.FILL_IN_CLIP_DATA</param>
+        <param name="options">Bundle: Additional options for how the Activity should be started. See android.content.Context.startActivity(Intent,Bundle) Context.startActivity(Intent, Bundle)} for more details.</param>
+        <summary>Obtain a PendingIntent for launching the task constructed by this builder so far.</summary>
         <returns>The obtained PendingIntent</returns>
         <remarks>
-          <para>Obtain a <c>PendingIntent</c> for launching the task constructed by this builder so far.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getPendingIntent(int,%20int,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.getPendingIntent(int, int, android.os.Bundle)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Obtain a PendingIntent for launching the task constructed by this builder so far.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getPendingIntent(int,%20int,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.getPendingIntent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -581,20 +433,11 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary></summary>
         <value>the number of intents added so far.</value>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getIntentCount()" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.getIntentCount()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#getIntentCount()" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.getIntentCount</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -627,10 +470,10 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.TaskStackBuilder.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -658,16 +501,8 @@
         <summary>Start the task stack constructed by this builder.</summary>
         <remarks>
           <para>Start the task stack constructed by this builder.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#startActivities()" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.startActivities()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#startActivities()" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.startActivities</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -695,22 +530,14 @@
         <Parameter Name="options" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="options">Additional options for how the Activity should be started.
-            See <c>android.content.Context#startActivity(Intent, Bundle)</c>
-            Context.startActivity(Intent, Bundle)} for more details.</param>
+        <param name="options">Bundle: Additional options for how the Activity should be started. See android.content.Context.startActivity(Intent,Bundle) Context.startActivity(Intent, Bundle)} for more details.</param>
         <summary>Start the task stack constructed by this builder.</summary>
         <remarks>
           <para>Start the task stack constructed by this builder.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/TaskStackBuilder#startActivities(android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.app.TaskStackBuilder.startActivities(android.os.Bundle)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
+          <para>Last updated 2026-08-03 UTC.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/TaskStackBuilder#startActivities(android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.TaskStackBuilder.startActivities</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
       </Docs>
@@ -739,10 +566,10 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
-        <value>A <see cref="T:System.IntPtr" /> which contains the <c>java.lang.Class</c> JNI value corresponding to this type.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.TaskStackBuilder.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -774,10 +601,10 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
-        <value>A <see cref="T:System.Type" /> which provides the declaring type.</value>
+        <summary>Provides JNI binding infrastructure for Android.App.TaskStackBuilder.</summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
