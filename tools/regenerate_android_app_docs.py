@@ -934,6 +934,19 @@ def retained_since(old_docs: str) -> list[str]:
     return re.findall(r"<since\b[^>]*/>", old_docs)
 
 
+def retained_summary(old_docs: str) -> str:
+    """Keep an existing non-placeholder summary when no source replacement exists."""
+    match = re.search(r"<summary\b[^>]*>(.*?)</summary>", old_docs, flags=re.DOTALL)
+    if not match:
+        return ""
+    summary = match.group(1).strip()
+    try:
+        text = normalize_text("".join(ET.fromstring(f"<summary>{summary}</summary>").itertext()))
+    except ET.ParseError:
+        return ""
+    return summary if text and text != "To be added." else ""
+
+
 def reference_para(url: str, label: str) -> str:
     if not url:
         return ""
@@ -965,7 +978,8 @@ def render_docs(
     summary = extracted.summary
     if not summary and member is None:
         summary = TYPE_SUMMARY_OVERRIDES.get(root.attrib["FullName"], "")
-    lines.append(f"{child_indent}<summary>{escape_xml(summary)}</summary>")
+    summary_xml = escape_xml(summary) if summary else retained_summary(old_docs)
+    lines.append(f"{child_indent}<summary>{summary_xml}</summary>")
 
     if member is not None:
         member_type = member.findtext("MemberType", default="")
