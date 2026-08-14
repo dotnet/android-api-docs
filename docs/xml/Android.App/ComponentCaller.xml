@@ -28,20 +28,9 @@
   <Docs>
     <summary>Represents the app that launched the component.</summary>
     <remarks>
-      <para>Represents the app that launched the component. See below for the APIs available on the component
-            caller.</para>
-      <para>&lt;b&gt;Note&lt;/b&gt;, that in <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> only
-            <c>Activity</c> has access to <c>ComponentCaller</c> instances.</para>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/app/ComponentCaller" title="Reference documentation">Java documentation for <code>android.app.ComponentCaller</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>Represents the app that launched the component. See below for the APIs available on the component caller. Note, that in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ComponentCaller" title="Reference documentation">Android reference for <code>android.app.ComponentCaller</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -86,15 +75,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">Uri : The content uri that is being checked. This value cannot be null .</param>
-        <param name="modeFlags">Determines whether this component caller had access to a specific content URI at launch time. Apps can use this API to validate content URIs coming from other apps. Note , in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances. Before using this method, note the following: You must have access to the supplied URI, otherwise it will throw a SecurityException . This is not a real time check, i.e. the permissions have been computed at launch time. This method will return the correct result for content URIs passed at launch time, specifically the ones from Intent.getData() , Intent.EXTRA_STREAM , and Intent.getClipData() in the intent of startActivity(intent) . For others, it will throw an IllegalArgumentException . Parameters uri Uri : The content uri that is being checked. This value cannot be null .</param>
-        <summary>Determines whether this component caller had access to a specific content URI at launch time. Apps can use this API to validate content URIs coming from other apps. Note , in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances. Before using this method, note the following: You must have access to the supplied URI, otherwise it will throw a SecurityException . This is not a real time check, i.e. the permissions have been computed at launch time. This method will return the correct result for content URIs passed at launch time, specifically the ones from Intent.getData() , Intent.EXTRA_STREAM , and Intent.getClipData() in the intent of startActivity(intent) . For others, it will throw an IllegalArgumentException . Parameters uri Uri : The content uri that is being checked. This value cannot be null .</summary>
-        <returns>Determines whether this component caller had access to a specific content URI at launch time. Apps can use this API to validate content URIs coming from other apps. Note , in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances. Before using this method, note the following: You must have access to the supplied URI, otherwise it will throw a SecurityException . This is not a real time check, i.e. the permissions have been computed at launch time. This method will return the correct result for content URIs passed at launch time, specifically the ones from Intent.getData() , Intent.EXTRA_STREAM , and Intent.getClipData() in the intent of startActivity(intent) . For others, it will throw an IllegalArgumentException . Parameters uri Uri : The content uri that is being checked. This value cannot be null .</returns>
-        <remarks>Determines whether this component caller had access to a specific content URI at launch time. Apps can use this API to validate content URIs coming from other apps. Note , in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances. Before using this method, note the following: You must have access to the supplied URI, otherwise it will throw a SecurityException . This is not a real time check, i.e. the permissions have been computed at launch time. This method will return the correct result for content URIs passed at launch time, specifically the ones from Intent.getData() , Intent.EXTRA_STREAM , and Intent.getClipData() in the intent of startActivity(intent) . For others, it will throw an IllegalArgumentException . Parameters uri Uri : The content uri that is being checked. This value cannot be null .          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ComponentCaller#checkContentUriPermission(android.net.Uri,%20int)" title="Reference documentation">Java documentation for <code>android.app.ComponentCaller.checkContentUriPermission(android.net.Uri,int)</code>.</a>
-            </format>
-          </para>
+        <param name="uri">Uri: The content uri that is being checked. This value cannot be null.</param>
+        <param name="modeFlags">int: The access modes to check. Value is either 0 or a combination of the following: Intent.FLAG_GRANT_READ_URI_PERMISSION Intent.FLAG_GRANT_WRITE_URI_PERMISSION</param>
+        <summary>Determines whether this component caller had access to a specific content URI at launch time.</summary>
+        <returns>PackageManager.PERMISSION_GRANTED if this activity caller is allowed to access that uri, or PackageManager.PERMISSION_DENIED if it is not. Value is one of the following: PackageManager.PERMISSION_GRANTED PackageManager.PERMISSION_DENIED</returns>
+        <remarks>
+          <para>Determines whether this component caller had access to a specific content URI at launch time. Apps can use this API to validate content URIs coming from other apps. Note, in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances. Before using this method, note the following: You must have access to the supplied URI, otherwise it will throw a SecurityException. This is not a real time check, i.e. the permissions have been computed at launch time. This method will return the correct result for content URIs passed at launch time, specifically the ones from Intent.getData(), Intent.EXTRA_STREAM, and Intent.getClipData() in the intent of startActivity(intent). For others, it will throw an IllegalArgumentException.</para>
+          <para>See also:</para>
+          <para>Throws: IllegalArgumentException if uri is a non-content URI or it wasn't passed at launch in Intent.getData(), Intent.EXTRA_STREAM, and Intent.getClipData()</para>
+          <para>Throws: SecurityException if you don't have access to uri</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ComponentCaller#checkContentUriPermission(android.net.Uri,%20int)" title="Reference documentation">Android reference for <code>android.app.ComponentCaller.checkContentUriPermission</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -122,9 +113,11 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Provides JNI binding infrastructure for the associated Java peer.</summary>
-        <value>JNI peer metadata used by the managed binding runtime.</value>
-        <remarks>This member is binding infrastructure and does not define an Android application-level contract.</remarks>
+        <summary>Provides JNI binding infrastructure for Android.App.ComponentCaller.</summary>
+        <remarks>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Package">
@@ -156,12 +149,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the package name of this component caller.</summary>
-        <value>package name of the calling app or null if the current component cannot access the identity of the calling app or the caller is invalid</value>
-        <remarks>Returns the package name of this component caller. Note , in only has access to instances. Requirements for callers In order to receive the calling app&#x27;s package name, at least one of the following has to be met: The calling app must call with a value of true and launch this activity with the resulting ActivityOptions. The launched activity has the same uid as the calling app. The launched activity is running in a package that is signed with the same key used to sign the platform (typically only system packages such as Settings will meet this meet this requirement). These are the same requirements for ; if any of these are met, then these methods can be used to obtain the uid and package name of the calling app. If none are met, then null is returned. Note, even if the above conditions are not met, the calling app&#x27;s identity may still be available from if this activity was started with Activity#startActivityForResult to allow validation of the result&#x27;s recipient.          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ComponentCaller#getPackage()" title="Reference documentation">Java documentation for <code>android.app.ComponentCaller.getPackage()</code>.</a>
-            </format>
-          </para>
+        <value>the package name of the calling app or null if the current component cannot access the identity of the calling app or the caller is invalid</value>
+        <remarks>
+          <para>Returns the package name of this component caller. Note, in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances. Requirements for Activity callers In order to receive the calling app's package name, at least one of the following has to be met: The calling app must call ActivityOptions.setShareIdentityEnabled(boolean) with a value of true and launch this activity with the resulting ActivityOptions. The launched activity has the same uid as the calling app. The launched activity is running in a package that is signed with the same key used to sign the platform (typically only system packages such as Settings will meet this meet this requirement). These are the same requirements for getUid(); if any of these are met, then these methods can be used to obtain the uid and package name of the calling app. If none are met, then null is returned. Note, even if the above conditions are not met, the calling app's identity may still be available from Activity.getCallingPackage() if this activity was started with Activity.startActivityForResult to allow validation of the result's recipient.</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ComponentCaller#getPackage()" title="Reference documentation">Android reference for <code>android.app.ComponentCaller.getPackage</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -189,9 +182,11 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Provides JNI binding infrastructure for the associated Java peer.</summary>
-        <value>JNI peer metadata used by the managed binding runtime.</value>
-        <remarks>This member is binding infrastructure and does not define an Android application-level contract.</remarks>
+        <summary>Provides JNI binding infrastructure for Android.App.ComponentCaller.</summary>
+        <remarks>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -218,9 +213,11 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Provides JNI binding infrastructure for the associated Java peer.</summary>
-        <value>JNI peer metadata used by the managed binding runtime.</value>
-        <remarks>This member is binding infrastructure and does not define an Android application-level contract.</remarks>
+        <summary>Provides JNI binding infrastructure for Android.App.ComponentCaller.</summary>
+        <remarks>
+          <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Uid">
@@ -248,39 +245,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the uid of this component caller.</summary>
-        <value>the uid of the calling app or <c>Process#INVALID_UID</c> if the current component
-            cannot access the identity of the calling app or the caller is invalid</value>
+        <value>the uid of the calling app or Process.INVALID_UID if the current component cannot access the identity of the calling app or the caller is invalid</value>
         <remarks>
-          <para>Returns the uid of this component caller.</para>
-          <para>&lt;b&gt;Note&lt;/b&gt;, in <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c> only
-            <c>Activity</c> has access to <c>ComponentCaller</c> instances.</para>
-          <para>&lt;h3&gt;Requirements for <c>Activity</c> callers&lt;/h3&gt;</para>
-          <para>In order to receive the calling app's uid, at least one of the following has to be met:
-            &lt;ul&gt;
-                &lt;li&gt;The calling app must call <c>ActivityOptions#setShareIdentityEnabled(boolean)</c>
-                with a value of <c>true</c> and launch this activity with the resulting
-                <c>ActivityOptions</c>.
-                &lt;li&gt;The launched activity has the same uid as the calling app.
-                &lt;li&gt;The launched activity is running in a package that is signed with the same key used
-                to sign the platform (typically only system packages such as Settings will meet this
-                requirement).
-            &lt;/ul&gt;
-            These are the same requirements for <c>#getPackage()</c>; if any of these are met, then
-            these methods can be used to obtain the uid and package name of the calling app. If none are
-            met, then <c>Process#INVALID_UID</c> is returned.</para>
-          <para>Note, even if the above conditions are not met, the calling app's identity may still be
-            available from <c>Activity#getCallingPackage()</c> if this activity was started with
-            <c>Activity#startActivityForResult</c> to allow validation of the result's recipient.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/app/ComponentCaller#getUid()" title="Reference documentation">Java documentation for <code>android.app.ComponentCaller.getUid()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the uid of this component caller. Note, in Build.VERSION_CODES.VANILLA_ICE_CREAM only Activity has access to ComponentCaller instances. Requirements for Activity callers In order to receive the calling app's uid, at least one of the following has to be met: The calling app must call ActivityOptions.setShareIdentityEnabled(boolean) with a value of true and launch this activity with the resulting ActivityOptions. The launched activity has the same uid as the calling app. The launched activity is running in a package that is signed with the same key used to sign the platform (typically only system packages such as Settings will meet this requirement). These are the same requirements for getPackage(); if any of these are met, then these methods can be used to obtain the uid and package name of the calling app. If none are met, then Process.INVALID_UID is returned. Note, even if the above conditions are not met, the calling app's identity may still be available from Activity.getCallingPackage() if this activity was started with Activity.startActivityForResult to allow validation of the result's recipient.</para>
+          <para>See also:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ComponentCaller#getUid()" title="Reference documentation">Android reference for <code>android.app.ComponentCaller.getUid</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
