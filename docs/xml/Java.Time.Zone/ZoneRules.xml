@@ -470,9 +470,10 @@
         <Parameter Name="offset" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="offset">The offset to use for the rules.</param>
+        <param name="offset">The non-null offset to use for the rules.</param>
         <summary>Obtains an instance of <see cref="T:Java.Time.Zone.ZoneRules" /> with a fixed offset.</summary>
         <returns>The zone rules with the specified fixed offset.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="offset" /> is <see langword="null" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -527,13 +528,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="baseStandardOffset">The standard offset to use before legal rules were set.</param>
-        <param name="baseWallOffset">The wall offset to use before legal rules were set.</param>
-        <param name="standardOffsetTransitionList">The list of changes to the standard offset.</param>
-        <param name="transitionList">The list of transitions.</param>
-        <param name="lastRules">The recurring last rules.</param>
+        <param name="baseStandardOffset">The non-null standard offset to use before legal rules were set.</param>
+        <param name="baseWallOffset">The non-null wall offset to use before legal rules were set.</param>
+        <param name="standardOffsetTransitionList">The non-null list of changes to the standard offset.</param>
+        <param name="transitionList">The non-null list of transitions.</param>
+        <param name="lastRules">The non-null recurring last rules, with at most 16 entries.</param>
         <summary>Obtains an instance of <see cref="T:Java.Time.Zone.ZoneRules" />.</summary>
         <returns>The zone rules.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if any argument is <see langword="null" />.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">Thrown if <paramref name="lastRules" /> contains more than 16 rules.</exception>
       </Docs>
     </Member>
     <Member MemberName="PreviousTransition">
