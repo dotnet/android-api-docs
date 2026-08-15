@@ -41,56 +41,9 @@
   <Docs>
     <summary>Information for generating a widget to handle classified text.</summary>
     <remarks>
-      <para>Information for generating a widget to handle classified text.</para>
-      <para>A TextClassification object contains icons, labels, onClickListeners and intents that may
-            be used to build a widget that can be used to act on classified text. There is the concept of a
-            <i>primary action</i> and other <i>secondary actions</i>.</para>
-      <para>e.g. building a view that, when clicked, shares the classified text with the preferred app:</para>
-      <code lang="text/java">{@code
-              // Called preferably outside the UiThread.
-              TextClassification classification = textClassifier.classifyText(allText, 10, 25);
-            
-              // Called on the UiThread.
-              Button button = new Button(context);
-              button.setCompoundDrawablesWithIntrinsicBounds(classification.getIcon(), null, null, null);
-              button.setText(classification.getLabel());
-              button.setOnClickListener(v -&gt; classification.getActions().get(0).getActionIntent().send());
-            }</code>
-      <para>e.g. starting an action mode with menu items that can handle the classified text:</para>
-      <code lang="text/java">{@code
-              // Called preferably outside the UiThread.
-              final TextClassification classification = textClassifier.classifyText(allText, 10, 25);
-            
-              // Called on the UiThread.
-              view.startActionMode(new ActionMode.Callback() {
-            
-                  public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                      for (int i = 0; i &lt; classification.getActions().size(); ++i) {
-                         RemoteAction action = classification.getActions().get(i);
-                         menu.add(Menu.NONE, i, 20, action.getTitle())
-                            .setIcon(action.getIcon());
-                      }
-                      return true;
-                  }
-            
-                  public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                      classification.getActions().get(item.getItemId()).getActionIntent().send();
-                      return true;
-                  }
-            
-                  ...
-              });
-            }</code>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>Information for generating a widget to handle classified text. A TextClassification object contains icons, labels, onClickListeners and intents that may be used to build a widget that can be used to act on classified text. There is the concept of a primary action and other secondary actions. e.g. building a view that, when clicked, shares the classified text with the preferred app: e.g. starting an action mode with menu items that can handle the classified text:</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -123,20 +76,10 @@
       </ReturnValue>
       <Docs>
         <summary>Returns a list of actions that may be performed on the text.</summary>
-        <value>To be added.</value>
         <remarks>
-          <para>Returns a list of actions that may be performed on the text. The list is ordered based on
-            the likelihood that a user will use the action, with the most likely action appearing first.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getActions()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getActions()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns a list of actions that may be performed on the text. The list is ordered based on the likelihood that a user will use the action, with the most likely action appearing first.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getActions()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getActions</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -197,9 +140,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
+        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <remarks>
+          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#describeContents()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.describeContents</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="EntityCount">
@@ -227,19 +174,11 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the number of entities found in the classified text.</summary>
-        <value>To be added.</value>
+        <value>Value is 0 or greater</value>
         <remarks>
           <para>Returns the number of entities found in the classified text.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getEntityCount()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getEntityCount()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getEntityCount()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getEntityCount</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -272,20 +211,11 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the extended data.</summary>
-        <value>To be added.</value>
+        <value>This value cannot be null.</value>
         <remarks>
-          <para>Returns the extended data.</para>
-          <para>&lt;b&gt;NOTE: &lt;/b&gt;Do not modify this bundle.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getExtras()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getExtras()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the extended data. NOTE: Do not modify this bundle.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getExtras()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getExtras</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -327,23 +257,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="entity">To be added.</param>
+        <param name="entity">String: Value is one of the following: TextClassifier.TYPE_UNKNOWN TextClassifier.TYPE_OTHER TextClassifier.TYPE_EMAIL TextClassifier.TYPE_PHONE TextClassifier.TYPE_ADDRESS TextClassifier.TYPE_URL TextClassifier.TYPE_DATE TextClassifier.TYPE_DATE_TIME TextClassifier.TYPE_FLIGHT_NUMBER TextClassifier.TYPE_OTP TextClassifier.TYPE_SMS_RETRIEVER_OTP TextClassifier.TYPE_SMS_WEB_OTP</param>
         <summary>Returns the confidence score for the specified entity.</summary>
-        <returns>To be added.</returns>
+        <returns>Value is between 0.0f and 1.0f inclusive</returns>
         <remarks>
-          <para>Returns the confidence score for the specified entity. The value ranges from
-            0 (low confidence) to 1 (high confidence). 0 indicates that the entity was not found for the
-            classified text.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getConfidenceScore(java.lang.String)" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getConfidenceScore(java.lang.String)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the confidence score for the specified entity. The value ranges from 0 (low confidence) to 1 (high confidence). 0 indicates that the entity was not found for the classified text.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getConfidenceScore(java.lang.String)" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getConfidenceScore</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -382,22 +302,15 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
+        <param name="index">int</param>
         <summary>Returns the entity at the specified index.</summary>
-        <returns>To be added.</returns>
+        <returns>This value cannot be null. Value is one of the following: TextClassifier.TYPE_UNKNOWN TextClassifier.TYPE_OTHER TextClassifier.TYPE_EMAIL TextClassifier.TYPE_PHONE TextClassifier.TYPE_ADDRESS TextClassifier.TYPE_URL TextClassifier.TYPE_DATE TextClassifier.TYPE_DATE_TIME TextClassifier.TYPE_FLIGHT_NUMBER TextClassifier.TYPE_OTP TextClassifier.TYPE_SMS_RETRIEVER_OTP TextClassifier.TYPE_SMS_WEB_OTP</returns>
         <remarks>
-          <para>Returns the entity at the specified index. Entities are ordered from high confidence
-            to low confidence.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getEntity(int)" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getEntity(int)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Returns the entity at the specified index. Entities are ordered from high confidence to low confidence.</para>
+          <para>See also:</para>
+          <para>Throws: IndexOutOfBoundsException if the specified index is out of range.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getEntity(int)" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getEntity</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -429,23 +342,13 @@
         <ReturnType>Android.Graphics.Drawables.Drawable</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns an icon that may be rendered on a widget used to act on the classified text.</summary>
-        <value>To be added.</value>
+        <summary>This method was deprecated in API level 28.</summary>
+        <value>This value may be null.</value>
         <remarks>
-          <para>Returns an icon that may be rendered on a widget used to act on the classified text.</para>
-          <para>&lt;strong&gt;NOTE: &lt;/strong&gt;This field is not parcelable and only represents the icon of the
-            first <c>RemoteAction</c> (if one exists) when this object is read from a parcel.</para>
-          <para>This member is deprecated. Use <c>#getActions()</c> instead.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getIcon()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getIcon()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 28. Use getActions() instead.</para>
+          <para>Returns an icon that may be rendered on a widget used to act on the classified text. NOTE: This field is not parcelable and only represents the icon of the first RemoteAction (if one exists) when this object is read from a parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getIcon()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getIcon</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -474,19 +377,11 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the id, if one exists, for this object.</summary>
-        <value>To be added.</value>
+        <value>This value may be null.</value>
         <remarks>
           <para>Returns the id, if one exists, for this object.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getId()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getId()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getId()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getId</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -518,23 +413,12 @@
         <ReturnType>Android.Content.Intent</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns an intent that may be fired to act on the classified text.</summary>
-        <value>To be added.</value>
+        <summary>This method was deprecated in API level 28.</summary>
         <remarks>
-          <para>Returns an intent that may be fired to act on the classified text.</para>
-          <para>&lt;strong&gt;NOTE: &lt;/strong&gt;This field is not parcelled and will always return null when this
-            object is read from a parcel.</para>
-          <para>This member is deprecated. Use <c>#getActions()</c> instead.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getIntent()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getIntent()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 28. Use getActions() instead.</para>
+          <para>Returns an intent that may be fired to act on the classified text. NOTE: This field is not parcelled and will always return null when this object is read from a parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getIntent()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getIntent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -568,7 +452,7 @@
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
-      <Docs>
+<Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
         <remarks>
@@ -595,7 +479,7 @@
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
-      <Docs>
+<Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
         <remarks>
@@ -631,23 +515,13 @@
         <ReturnType>Java.Lang.ICharSequence</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns a label that may be rendered on a widget used to act on the classified text.</summary>
-        <value>To be added.</value>
+        <summary>This method was deprecated in API level 28.</summary>
+        <value>This value may be null.</value>
         <remarks>
-          <para>Returns a label that may be rendered on a widget used to act on the classified text.</para>
-          <para>&lt;strong&gt;NOTE: &lt;/strong&gt;This field is not parcelable and only represents the label of the
-            first <c>RemoteAction</c> (if one exists) when this object is read from a parcel.</para>
-          <para>This member is deprecated. Use <c>#getActions()</c> instead.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getLabel()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getLabel()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 28. Use getActions() instead.</para>
+          <para>Returns a label that may be rendered on a widget used to act on the classified text. NOTE: This field is not parcelable and only represents the label of the first RemoteAction (if one exists) when this object is read from a parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getLabel()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getLabel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -679,19 +553,13 @@
         <ReturnType>Android.Views.View+IOnClickListener</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the OnClickListener that may be triggered to act on the classified text.</summary>
-        <value>To be added.</value>
+        <summary>This method was deprecated in API level 28.</summary>
+        <value>This value may be null.</value>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getOnClickListener()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getOnClickListener()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>This method was deprecated in API level 28. Use getActions() instead.</para>
+          <para>Returns the OnClickListener that may be triggered to act on the classified text. NOTE: This field is not parcelable and only represents the first RemoteAction (if one exists) when this object is read from a parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getOnClickListener()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getOnClickListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -720,19 +588,11 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the classified text.</summary>
-        <value>To be added.</value>
+        <value>This value may be null.</value>
         <remarks>
           <para>Gets the classified text.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getText()" title="Reference documentation">Java documentation for <code>android.view.textclassifier.TextClassification.getText()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#getText()" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.getText</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -759,7 +619,7 @@
       <ReturnValue>
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
-      <Docs>
+<Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
         <remarks>
@@ -794,7 +654,7 @@
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
-      <Docs>
+<Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
         <remarks>
@@ -840,10 +700,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">Parcel: The Parcel in which the object should be written. This value cannot be null.</param>
+        <param name="flags">int: Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
+        <summary>Flatten this object in to a Parcel.</summary>
+        <remarks>
+          <para>Flatten this object in to a Parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification.writeToParcel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
