@@ -19,11 +19,13 @@ Dry-run is the default. An unscoped scan is rejected, and `--apply` requires a
 path or namespace write scope. `docs/xml/index.xml` is always excluded. The
 default limit is 25 placeholder elements.
 
-The importer uses the managed type registration and the member's exact JNI name
-and descriptor. It skips members with missing registrations, unknown type
-descriptors, overload mismatches, ambiguous matches, inherited-only detail, or
-missing documentation channels. It never creates generic prose or falls back to
-AOSP. Existing non-placeholder documentation is retained.
+The importer uses the managed type registration, exact JNI names and descriptors,
+and `JniField` owner metadata for projected constants. It skips members with
+missing registrations, unknown type descriptors, overload mismatches, ambiguous
+matches, inherited-only detail, missing documentation channels, or source text
+that contains only a Java type, nullability marker, cross-reference heading, or
+deprecation boilerplate. It never creates generic prose or falls back to AOSP.
+Existing non-placeholder documentation is retained.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`

@@ -457,16 +457,20 @@ static class ImporterProgram
     {
         return placeholder.Name switch
         {
-            "summary" => ValueOrSkip(docs.Summary, "source_summary_missing"),
-            "remarks" or "para" => ValueOrSkip(
+            "summary" => ChannelValueOrSkip(docs.Summary, "summary", "source_summary_missing"),
+            "remarks" or "para" => ChannelValueOrSkip(
                 docs.Paragraphs.FirstOrDefault(),
+                "remarks",
                 "source_remarks_missing"),
             "param" => docs.Parameters.TryGetValue(placeholder.Key, out var parameter)
-                ? ValueOrSkip(parameter, "source_parameter_missing")
+                ? ChannelValueOrSkip(parameter, "param", "source_parameter_missing")
                 : Replacement.Skip(
                     "source_parameter_missing",
                     $"The exact source member did not document parameter '{placeholder.Key}'."),
-            "returns" or "value" => ValueOrSkip(docs.Returns, "source_return_missing"),
+            "returns" or "value" => ChannelValueOrSkip(
+                docs.Returns,
+                placeholder.Name,
+                "source_return_missing"),
             "exception" => ExceptionReplacement(placeholder, docs),
             _ => Replacement.Skip(
                 "unsupported_placeholder_target",
@@ -474,10 +478,60 @@ static class ImporterProgram
         };
     }
 
-    static Replacement ValueOrSkip(string? value, string reason) =>
-        string.IsNullOrWhiteSpace(value)
-            ? Replacement.Skip(reason, "The exact source member did not provide this documentation channel.")
-            : Replacement.Use(value);
+    static Replacement ChannelValueOrSkip(string? value, string channel, string missingReason)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Replacement.Skip(
+                missingReason,
+                "The exact source member did not provide this documentation channel.");
+
+        var cleaned = channel is "param" or "returns" or "value"
+            ? RemoveLeadingJavaType(value)
+            : CleanSourceText(value);
+        if (!IsMeaningfulChannel(cleaned, channel))
+            return Replacement.Skip(
+                "source_channel_not_meaningful",
+                $"The official {channel} text was only a type, nullability marker, cross-reference heading, or deprecation boilerplate.");
+        return Replacement.Use(cleaned);
+    }
+
+    static string RemoveLeadingJavaType(string value)
+    {
+        var cleaned = CleanSourceText(value);
+        return Regex.Replace(
+            cleaned,
+            @"^(?:[\w.$]+(?:<[^>]+>)?(?:\[\])?)\s*:\s*(?=\S)",
+            "",
+            RegexOptions.CultureInvariant).Trim();
+    }
+
+    static bool IsMeaningfulChannel(string value, string channel)
+    {
+        var normalized = NormalizeText(value).TrimEnd('.').Trim();
+        if (normalized.Length == 0 ||
+            normalized.Equals("See also:", StringComparison.OrdinalIgnoreCase) ||
+            normalized.Equals("See also", StringComparison.OrdinalIgnoreCase))
+            return false;
+        if (channel is "returns" or "value" or "param")
+        {
+            if (Regex.IsMatch(
+                normalized,
+                @"^(?:boolean|byte|char|double|float|int|long|short|void|String|CharSequence|[\w$]+(?:\.[\w$]+)+(?:<[^>]+>)?(?:\[\])?)$",
+                RegexOptions.CultureInvariant))
+                return false;
+            if (Regex.IsMatch(
+                normalized,
+                @"^This value (?:cannot|can|may|must not) be null$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                return false;
+        }
+        if (channel == "summary" && Regex.IsMatch(
+            normalized,
+            @"^This (?:constant|method|field|class|interface) (?:is|was) deprecated(?: in API level \d+)?$",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            return false;
+        return true;
+    }
 
     static Replacement ExceptionReplacement(Placeholder placeholder, SourceDocs docs)
     {
@@ -587,10 +641,10 @@ static class ImporterProgram
         var remarksClose = blockText.LastIndexOf("</remarks>", StringComparison.Ordinal);
         if (remarksClose >= 0)
         {
-            var closingLineStart = blockText.LastIndexOf(newline, remarksClose, StringComparison.Ordinal);
-            closingLineStart = closingLineStart < 0 ? remarksClose : closingLineStart + newline.Length;
+            var insertion = ClosingInsertionPoint(blockText, remarksClose, newline);
+            var separator = insertion == remarksClose ? newline : "";
             replacementBlock =
-                blockText[..closingLineStart] +
+                blockText[..insertion] + separator +
                 string.Join(newline, additions) + newline + childIndent +
                 blockText[remarksClose..];
         }
@@ -599,16 +653,25 @@ static class ImporterProgram
             var docsClose = blockText.LastIndexOf("</Docs>", StringComparison.Ordinal);
             if (docsClose < 0)
                 return text;
-            var closingLineStart = blockText.LastIndexOf(newline, docsClose, StringComparison.Ordinal);
-            closingLineStart = closingLineStart < 0 ? docsClose : closingLineStart + newline.Length;
+            var insertion = ClosingInsertionPoint(blockText, docsClose, newline);
+            var separator = insertion == docsClose ? newline : "";
             replacementBlock =
-                blockText[..closingLineStart] +
+                blockText[..insertion] + separator +
                 $"{childIndent}<remarks>{newline}" +
                 string.Join(newline, additions) + newline +
                 $"{childIndent}</remarks>{newline}{docsIndent}" +
                 blockText[docsClose..];
         }
         return text[..block.Start] + replacementBlock + text[block.End..];
+    }
+
+    static int ClosingInsertionPoint(string text, int closingTag, string newline)
+    {
+        var lineStart = text.LastIndexOf(newline, closingTag, StringComparison.Ordinal);
+        lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
+        return string.IsNullOrWhiteSpace(text[lineStart..closingTag])
+            ? lineStart
+            : closingTag;
     }
 
     static string XmlEscape(string value) =>
@@ -629,6 +692,7 @@ static class ImporterProgram
         text = Regex.Replace(text, @"\{@(?:link|linkplain|code|literal|value)\s+([^}]+)\}", "$1");
         text = Regex.Replace(text, @"\{@\w+(?:\s+[^}]*)?\}", "");
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
+        text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
     }
 
@@ -728,10 +792,14 @@ static class ImporterProgram
             [request.Url] = SourceLoadResult.Success(androidPage),
         };
         var mapped = MapOwner(setTitle, pages);
-        Assert(mapped.Docs is not null, "exact Android JNI match");
-        Assert(mapped.Docs!.Parameters["title"] == "the title to display", "Android parameter");
-        Assert(mapped.Docs.Returns == "the number of displayed characters", "Android return");
-        Assert(mapped.Docs.Exceptions["IllegalArgumentException"] == "if title is empty", "Android exception");
+        var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
+            "SELF-TEST FAIL: exact Android JNI match");
+        var titleParameter = setTitle.Placeholders.Single(item => item.Name == "param");
+        Assert(
+            ReplacementFor(titleParameter, mappedDocs).Text == "the title to display",
+            "Android parameter type-prefix cleanup");
+        Assert(mappedDocs.Returns == "the number of displayed characters", "Android return");
+        Assert(mappedDocs.Exceptions["IllegalArgumentException"] == "if title is empty", "Android exception");
 
         var mismatch = file.Owners.Single(owner => owner.Id.Contains("SetCount", StringComparison.Ordinal));
         var mismatchResult = MapOwner(mismatch, pages);
@@ -740,6 +808,10 @@ static class ImporterProgram
         var favorite = file.Owners.Single(owner => owner.Id.Contains("Favorite", StringComparison.Ordinal));
         var favoriteResult = MapOwner(favorite, pages);
         Assert(favoriteResult.Docs?.Summary == "Identifies the favorite fixture value.", "exact field match");
+        var typeOnly = ReplacementFor(
+            new Placeholder(0, "returns", "", "returns"),
+            favoriteResult.Docs! with { Returns = "String" });
+        Assert(typeOnly.Reason == "source_channel_not_meaningful", "type-only return skip");
 
         var javaRequest = new SourceRequest(
             "java/lang/String",
@@ -758,7 +830,7 @@ static class ImporterProgram
             file.Text,
             block,
             summary,
-            mapped.Docs.Summary,
+            mappedDocs.Summary,
             out var updated,
             out _), "surgical placeholder replacement");
         Assert(updated.Contains("<summary>Sets the widget title.</summary>", StringComparison.Ordinal),
@@ -766,9 +838,34 @@ static class ImporterProgram
         Assert(updated.Contains("<para>Keep this existing prose.</para>", StringComparison.Ordinal),
             "existing prose was preserved");
         file.UpdateBlockOffsets(setTitle.Order, updated);
-        var withRemarks = AddSourceRemarksIfSafe(updated, file, setTitle, mapped.Docs);
-        Assert(withRemarks.Contains(mapped.Docs.SourceUrl, StringComparison.Ordinal), "source link was added");
+        var withRemarks = AddSourceRemarksIfSafe(updated, file, setTitle, mappedDocs);
+        Assert(withRemarks.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal), "source link was added");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
+
+        file.UpdateBlockOffsets(setTitle.Order, withRemarks);
+        var favoriteText = withRemarks;
+        var favoriteSummary = favorite.Placeholders.Single(item => item.Name == "summary");
+        Assert(TryReplacePlaceholder(
+            favoriteText,
+            file.DocsBlocks[favorite.Order],
+            favoriteSummary,
+            favoriteResult.Docs!.Summary,
+            out favoriteText,
+            out _), "field summary replacement");
+        file.UpdateBlockOffsets(favorite.Order, favoriteText);
+        var favoriteRemarks = favorite.Placeholders.Single(item => item.Name == "remarks");
+        Assert(TryReplacePlaceholder(
+            favoriteText,
+            file.DocsBlocks[favorite.Order],
+            favoriteRemarks,
+            favoriteResult.Docs.Paragraphs[0],
+            out favoriteText,
+            out _), "inline remarks replacement");
+        file.UpdateBlockOffsets(favorite.Order, favoriteText);
+        favoriteText = AddSourceRemarksIfSafe(favoriteText, file, favorite, favoriteResult.Docs);
+        Assert(
+            XDocument.Parse(favoriteText, LoadOptions.PreserveWhitespace).Root is not null,
+            "inline remarks source-link insertion produced valid XML");
 
         var tempDirectory = Path.Combine(
             Path.GetTempPath(),
@@ -779,7 +876,7 @@ static class ImporterProgram
             var tempPath = Path.Combine(tempDirectory, "source.xml");
             File.WriteAllText(
                 tempPath,
-                withRemarks.Replace("\r\n", "\n", StringComparison.Ordinal)
+                favoriteText.Replace("\r\n", "\n", StringComparison.Ordinal)
                     .Replace("\n", "\r\n", StringComparison.Ordinal),
                 new UTF8Encoding(false));
             var writable = LoadedFile.Load(repositoryRoot, tempPath);
@@ -796,7 +893,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 17 assertions; exact Android/Java method and field matching, mismatch skipping, channel extraction, preservation, source links, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 21 assertions; exact Android/Java method and field matching, mismatch and low-value channel skipping, channel extraction, preservation, inline remarks, source links, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -965,7 +1062,7 @@ static class ImporterProgram
         {
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
-            var request = SourceRequest.Create(typeRegistration);
+            var typeRequest = SourceRequest.Create(typeRegistration);
             var typeName = (string?)Root.Attribute("FullName") ?? (string?)Root.Attribute("Name") ?? "";
             var ordered = new List<(XElement Docs, XElement? Member)>
             {
@@ -996,6 +1093,10 @@ static class ImporterProgram
                     .Where(element => !element.HasElements && IsPlaceholder(element.Value))
                     .Select((element, index) => Placeholder.Create(element, index))
                     .ToList();
+                var memberField = member is null ? null : Registration.JniField(member);
+                var request = member is null
+                    ? typeRequest
+                    : SourceRequest.Create(memberField?.Owner) ?? typeRequest;
                 Owners.Add(new DocsOwner(
                     order,
                     id,
@@ -1085,6 +1186,7 @@ static class ImporterProgram
     }
 
     sealed record MemberRegistration(string Name, string? Descriptor, bool IsField);
+    sealed record JniFieldRegistration(string Owner, string Name);
 
     static class Registration
     {
@@ -1093,6 +1195,9 @@ static class ImporterProgram
             RegexOptions.CultureInvariant);
         static readonly Regex MemberRegex = new(
             @"Register\(""(?<name>[^""]+)""\s*,\s*""(?<descriptor>[^""]*)""",
+            RegexOptions.CultureInvariant);
+        static readonly Regex JniFieldRegex = new(
+            @"JniField=""(?<owner>[^""]+)\.(?<name>[^"".]+)""",
             RegexOptions.CultureInvariant);
 
         public static string? Type(XElement root)
@@ -1123,6 +1228,9 @@ static class ImporterProgram
             }
             if (member.Element("MemberType")?.Value == "Field")
             {
+                var jniField = JniField(member);
+                if (jniField is not null)
+                    return new MemberRegistration(jniField.Name, null, true);
                 foreach (var attribute in member
                     .Element("Attributes")?.Elements("Attribute")
                     .SelectMany(item => item.Elements("AttributeName")) ?? [])
@@ -1131,6 +1239,21 @@ static class ImporterProgram
                     if (match.Success)
                         return new MemberRegistration(match.Groups["name"].Value, null, true);
                 }
+            }
+            return null;
+        }
+
+        public static JniFieldRegistration? JniField(XElement member)
+        {
+            foreach (var attribute in member
+                .Element("Attributes")?.Elements("Attribute")
+                .SelectMany(item => item.Elements("AttributeName")) ?? [])
+            {
+                var match = JniFieldRegex.Match(attribute.Value);
+                if (match.Success)
+                    return new JniFieldRegistration(
+                        match.Groups["owner"].Value,
+                        match.Groups["name"].Value);
             }
             return null;
         }

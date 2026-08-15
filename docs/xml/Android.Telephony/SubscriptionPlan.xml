@@ -211,7 +211,7 @@
       <Docs>
         <summary>Return an iterator that will return all valid data usage cycles based on
             any recurrence rules.</summary>
-        <returns>To be added.</returns>
+        <returns>An iterator for the plan's billing cycles.</returns>
         <remarks>
           <para>Return an iterator that will return all valid data usage cycles based on
             any recurrence rules. The iterator starts from the currently active cycle
@@ -255,7 +255,7 @@
       <Docs>
         <summary>Return the behavior of data access when usage reaches
             <c>#getDataLimitBytes()</c>.</summary>
-        <value>To be added.</value>
+        <value>The data limit behavior, which will be one of LIMIT_BEHAVIOR_UNKNOWN, LIMIT_BEHAVIOR_DISABLED, LIMIT_BEHAVIOR_BILLED, or LIMIT_BEHAVIOR_THROTTLED. Value is one of the following: LIMIT_BEHAVIOR_UNKNOWN LIMIT_BEHAVIOR_DISABLED LIMIT_BEHAVIOR_BILLED LIMIT_BEHAVIOR_THROTTLED</value>
         <remarks>
           <para>Return the behavior of data access when usage reaches
             <c>#getDataLimitBytes()</c>.</para>
@@ -298,7 +298,7 @@
       <Docs>
         <summary>Return the usage threshold at which data access changes according to
             <c>#getDataLimitBehavior()</c>.</summary>
-        <value>To be added.</value>
+        <value>The data limit in bytes. This may be BYTES_UNKNOWN if the limit is not available, or BYTES_UNLIMITED if there is no limit. Value is a non-negative number of bytes.</value>
         <remarks>
           <para>Return the usage threshold at which data access changes according to
             <c>#getDataLimitBehavior()</c>.</para>
@@ -341,7 +341,7 @@
       <Docs>
         <summary>Return a snapshot of currently known mobile data usage at
             <c>#getDataUsageTime()</c>.</summary>
-        <value>To be added.</value>
+        <value>The data usage in bytes, or BYTES_UNKNOWN if unavailable. Value is a non-negative number of bytes.</value>
         <remarks>
           <para>Return a snapshot of currently known mobile data usage at
             <c>#getDataUsageTime()</c>.</para>
@@ -383,7 +383,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the time at which <c>#getDataUsageBytes()</c> was valid.</summary>
-        <value>To be added.</value>
+        <value>The time of the data usage snapshot as a Unix epoch timestamp, or TIME_UNKNOWN if unavailable. Value is a non-negative timestamp measured as the number of milliseconds since 1970-01-01T00:00:00Z.</value>
         <remarks>
           <para>Return the time at which <c>#getDataUsageBytes()</c> was valid.</para>
           <para>
@@ -427,9 +427,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
+        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <remarks>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/SubscriptionPlan#describeContents()" title="Reference documentation">Android reference for <code>android.telephony.SubscriptionPlan.describeContents</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetNetworkTypes">
@@ -458,7 +461,7 @@
       <Parameters />
       <Docs>
         <summary>Return an array containing all network types this SubscriptionPlan applies to.</summary>
-        <returns>To be added.</returns>
+        <returns>A new copy of the array of network types this plan applies to. The values will be constants from TelephonyManager, such as TelephonyManager.NETWORK_TYPE_LTE. This value cannot be null. Value is one of the following: TelephonyManager.NETWORK_TYPE_UNKNOWN TelephonyManager.NETWORK_TYPE_GPRS TelephonyManager.NETWORK_TYPE_EDGE TelephonyManager.NETWORK_TYPE_UMTS TelephonyManager.NETWORK_TYPE_CDMA TelephonyManager.NETWORK_TYPE_EVDO_0 TelephonyManager.NETWORK_TYPE_EVDO_A TelephonyManager.NETWORK_TYPE_1xRTT TelephonyManager.NETWORK_TYPE_HSDPA TelephonyManager.NETWORK_TYPE_HSUPA TelephonyManager.NETWORK_TYPE_HSPA TelephonyManager.NETWORK_TYPE_IDEN TelephonyManager.NETWORK_TYPE_EVDO_B TelephonyManager.NETWORK_TYPE_LTE TelephonyManager.NETWORK_TYPE_EHRPD TelephonyManager.NETWORK_TYPE_HSPAP TelephonyManager.NETWORK_TYPE_GSM TelephonyManager.NETWORK_TYPE_TD_SCDMA TelephonyManager.NETWORK_TYPE_IWLAN TelephonyManager.NETWORK_TYPE_NR</returns>
         <remarks>
           <para>Return an array containing all network types this SubscriptionPlan applies to.</para>
           <para>
@@ -727,7 +730,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the end date of this plan, or null if no end date exists.</summary>
-        <value>To be added.</value>
+        <value>The plan's end date as a ZonedDateTime, or null if unavailable.</value>
         <remarks>
           <para>Return the end date of this plan, or null if no end date exists.</para>
           <para>
@@ -1074,7 +1077,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the short summary of this plan.</summary>
-        <value>To be added.</value>
+        <value>A short, user-friendly summary of the plan, or null if not specified.</value>
         <remarks>
           <para>Return the short summary of this plan.</para>
           <para>
@@ -1246,7 +1249,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the short title of this plan.</summary>
-        <value>To be added.</value>
+        <value>The title of the plan, or null if not specified.</value>
         <remarks>
           <para>Return the short title of this plan.</para>
           <para>
@@ -1300,10 +1303,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The Parcel in which the object should be written. This value cannot be null.</param>
+        <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
+        <summary>Flatten this object in to a Parcel.</summary>
+        <remarks>Flatten this object in to a Parcel.
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/SubscriptionPlan#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Android reference for <code>android.telephony.SubscriptionPlan.writeToParcel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
