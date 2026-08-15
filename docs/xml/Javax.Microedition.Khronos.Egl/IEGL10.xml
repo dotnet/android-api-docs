@@ -1218,6 +1218,11 @@
           <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" />
           if no context is current.
         </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="readdraw" /> is neither
+          <see cref="F:Javax.Microedition.Khronos.Egl.IEGL10.EglRead" /> nor
+          <see cref="F:Javax.Microedition.Khronos.Egl.IEGL10.EglDraw" />.
+        </exception>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1248,19 +1253,18 @@
       </Parameters>
       <Docs>
         <param name="native_display">
-          The native display to connect to. Use
-          <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglDefaultDisplay" />
-          for the default display.
+          Ignored by Android's EGL binding.
         </param>
         <summary>
-          Gets an EGL display connection for a native display.
+          Gets Android's default EGL display connection.
         </summary>
         <returns>
-          An EGL display connection, or
+          The default EGL display connection, or
           <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoDisplay" />
-          if no matching connection is available.
+          if no display connection is available.
         </returns>
         <remarks>
+          <para>Android's <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/jni/com_google_android_gles_jni_EGLImpl.cpp" title="Android Open Source Project EGL binding">AOSP EGL binding</a></format> always obtains <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglDefaultDisplay" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1411,6 +1415,10 @@
           <see langword="true" /> if the display connection was initialized; otherwise,
           <see langword="false" />.
         </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" /> is <see langword="null" />, or
+          <paramref name="major_minor" /> is non-null and has fewer than two elements.
+        </exception>
         <remarks>
           <para>Android's <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/jni/com_google_android_gles_jni_EGLImpl.cpp" title="Android Open Source Project EGL binding">AOSP EGL binding</a></format> exposes EGL 1.0 through <paramref name="major_minor" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1566,6 +1574,10 @@
           <see langword="true" /> if the context was made current; otherwise,
           <see langword="false" />.
         </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" />, <paramref name="draw" />, <paramref name="read" />, or
+          <paramref name="context" /> is <see langword="null" />.
+        </exception>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2393,6 +2405,10 @@
           <see langword="true" /> if the buffers were swapped; otherwise,
           <see langword="false" />.
         </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" /> or <paramref name="surface" /> is
+          <see langword="null" />.
+        </exception>
         <remarks>
           <para>For a back-buffered window surface, this posts the color buffer to its native window. It has no effect on a single-buffered window, pixmap, or pixel-buffer surface.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2431,6 +2447,9 @@
           <see langword="true" /> if the display connection was terminated; otherwise,
           <see langword="false" />.
         </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" /> is <see langword="null" />.
+        </exception>
         <remarks>
           <para>Resources associated with contexts or surfaces that are current remain until they are no longer current.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
