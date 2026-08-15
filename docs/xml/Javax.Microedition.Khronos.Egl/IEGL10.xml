@@ -1400,7 +1400,10 @@
       </Parameters>
       <Docs>
         <param name="display">The EGL display connection to initialize.</param>
-        <param name="major_minor">Receives the implementation's EGL major and minor version numbers.</param>
+        <param name="major_minor">
+          May be <see langword="null" />. Otherwise, it must contain at least two elements and
+          receives the EGL major and minor version numbers at indices 0 and 1.
+        </param>
         <summary>
           Initializes an EGL display connection.
         </summary>
@@ -1409,6 +1412,7 @@
           <see langword="false" />.
         </returns>
         <remarks>
+          <para>Android's <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/jni/com_google_android_gles_jni_EGLImpl.cpp" title="Android Open Source Project EGL binding">AOSP EGL binding</a></format> exposes EGL 1.0 through <paramref name="major_minor" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1541,9 +1545,20 @@
       </Parameters>
       <Docs>
         <param name="display">The EGL display connection.</param>
-        <param name="draw">The draw surface.</param>
-        <param name="read">The read surface.</param>
-        <param name="context">The rendering context to attach to the surfaces.</param>
+        <param name="draw">
+          The draw surface, or <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" />
+          when releasing the current context.
+        </param>
+        <param name="read">
+          The read surface, or <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" />
+          when releasing the current context.
+        </param>
+        <param name="context">
+          The rendering context to attach to the surfaces. Pass
+          <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoContext" /> with both surfaces
+          set to <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" /> to release
+          the current context.
+        </param>
         <summary>
           Binds a rendering context to the calling thread and to its draw and read surfaces.
         </summary>
@@ -2372,13 +2387,14 @@
         <param name="display">The EGL display connection.</param>
         <param name="surface">The drawing surface whose buffers are swapped.</param>
         <summary>
-          Posts a back-buffered window surface's color buffer to its native window.
+          Swaps the color buffers of an EGL drawing surface.
         </summary>
         <returns>
           <see langword="true" /> if the buffers were swapped; otherwise,
           <see langword="false" />.
         </returns>
         <remarks>
+          <para>For a back-buffered window surface, this posts the color buffer to its native window. It has no effect on a single-buffered window, pixmap, or pixel-buffer surface.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
