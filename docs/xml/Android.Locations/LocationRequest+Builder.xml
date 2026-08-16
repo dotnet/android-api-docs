@@ -430,9 +430,10 @@
         <Parameter Name="minUpdateDistanceMeters" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="minUpdateDistanceMeters">The minimum distance, in meters, between updates. The value must be non-negative.</param>
+        <param name="minUpdateDistanceMeters">The minimum distance, in meters, between updates. The value must be finite and between 0.0f and <c>float.MaxValue</c> inclusive.</param>
         <summary>Sets the minimum distance between location updates.</summary>
         <returns>This builder.</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">If <paramref name="minUpdateDistanceMeters" /> is <c>float.PositiveInfinity</c> or <c>float.NaN</c>.</exception>
         <remarks>
           <para>A potential update that is closer to the preceding update than this distance is not delivered. The default is zero, which sets no minimum update distance.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationRequest.Builder#setMinUpdateDistanceMeters(float)" title="Reference documentation">Java documentation for <code>android.location.LocationRequest.Builder.setMinUpdateDistanceMeters(float)</code>.</a></format></para>
@@ -475,7 +476,7 @@
         <summary>Sets an explicit minimum update interval.</summary>
         <returns>This builder.</returns>
         <remarks>
-          <para>When updates are available more frequently than the request interval, an update is delivered only after this interval has expired since the preceding update. Without an explicit value, the system chooses a sensible default between zero and the request interval.</para>
+          <para>When updates are available more frequently than the request interval, this interval controls how frequently updates are delivered. Android allows a small amount of timing jitter, so an update can arrive slightly earlier than the specified interval. Without an explicit value, the system chooses a sensible default between zero and the request interval.</para>
           <para>When <see cref="M:Android.Locations.LocationRequest.Builder.Build" /> is called, the smaller of the request interval and this value becomes the built request's minimum update interval.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationRequest.Builder#setMinUpdateIntervalMillis(long)" title="Reference documentation">Java documentation for <code>android.location.LocationRequest.Builder.setMinUpdateIntervalMillis(long)</code>.</a></format></para>
           <para>
