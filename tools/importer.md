@@ -26,9 +26,13 @@ matches, inherited-only detail, missing documentation channels, or source text
 that contains only a Java type, nullability marker, cross-reference heading, or
 deprecation boilerplate. Android page license/trademark footers and update
 timestamps are filtered, and literal Unicode escapes are decoded before XML
-escaping. Imported remarks use `<para>` elements, with source links placed before
-existing attribution. The importer never creates generic prose or falls back to
-AOSP. Existing non-placeholder documentation is retained.
+escaping. HTML tags are removed with quoted attributes intact, and empty table
+description cells remain empty rather than shifting Java types into prose.
+Imported remarks use `<para>` elements, with stale links for the same source
+member replaced and current links placed before existing attribution. Enum field
+prose, source links, and attribution are emitted in `<summary>` because their
+`<remarks>` are not published by ECMA2Yaml. The importer never creates generic
+prose or falls back to AOSP. Existing non-placeholder documentation is retained.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`
@@ -36,8 +40,9 @@ only reads the cache. `--report path` writes a deterministic JSON report and an
 adjacent text report.
 
 On apply, each changed file is reparsed before and after an atomic write while
-retaining its original newline convention and UTF-8 BOM state. Run
-`git diff --check` after a batch.
+retaining its original newline convention and UTF-8 BOM state. Report entries
+remain `would_apply` until the corresponding atomic write succeeds. Run `git
+diff --check` after a batch.
 
 Limitations:
 

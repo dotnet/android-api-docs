@@ -156,7 +156,10 @@ static class ImporterProgram
                             continue;
                         }
 
-                        var replacement = ReplacementFor(placeholder, mapping.Docs!);
+                        var replacement = ReplacementFor(
+                            placeholder,
+                            mapping.Docs!,
+                            owner.IsEnumField);
                         if (replacement.Text is null)
                         {
                             report.Entries.Add(ReportEntry.Skipped(
@@ -205,7 +208,7 @@ static class ImporterProgram
                         ownerChanged = true;
                         remaining--;
                         report.Entries.Add(ReportEntry.Changed(
-                            options.Apply ? "applied" : "would_apply",
+                            "would_apply",
                             file.RelativePath,
                             owner.Id,
                             placeholder.Target,
@@ -214,7 +217,7 @@ static class ImporterProgram
 
                     if (ownerChanged && mapping.Docs is not null)
                     {
-                        text = AddSourceRemarksIfSafe(text, file, owner, mapping.Docs);
+                        text = AddSourceDocumentationIfSafe(text, file, owner, mapping.Docs);
                         file.UpdateBlockOffsets(owner.Order, text);
                     }
                 }
@@ -235,13 +238,7 @@ static class ImporterProgram
             }
 
             if (options.Apply && !report.Entries.Any(entry => entry.Status == "error"))
-            {
-                foreach (var (file, text) in changedFiles)
-                    file.WriteAtomically(text);
-
-                foreach (var (file, _) in changedFiles)
-                    _ = XDocument.Load(file.Path, LoadOptions.PreserveWhitespace);
-            }
+                ApplyChangedFiles(changedFiles, report);
 
             report.FilesChanged = changedFiles.Count;
             report.SourcesFetched = fetcher.NetworkFetches;
@@ -453,11 +450,22 @@ static class ImporterProgram
                 member.Name.Equals("<init>", StringComparison.Ordinal))
             : !member.IsConstructor && member.Name.Equals(name, StringComparison.Ordinal);
 
-    static Replacement ReplacementFor(Placeholder placeholder, SourceDocs docs)
+    static Replacement ReplacementFor(
+        Placeholder placeholder,
+        SourceDocs docs,
+        bool isEnumField = false)
     {
+        if (isEnumField && placeholder.Name is "remarks" or "para")
+            return Replacement.Skip(
+                "enum_field_remarks_not_rendered",
+                "Enum field remarks are not emitted by ECMA2Yaml; authoritative prose is imported into the summary.");
+
         return placeholder.Name switch
         {
-            "summary" => ChannelValueOrSkip(docs.Summary, "summary", "source_summary_missing"),
+            "summary" => ChannelValueOrSkip(
+                isEnumField ? docs.Paragraphs.FirstOrDefault() : docs.Summary,
+                "summary",
+                "source_summary_missing"),
             "remarks" or "para" => ChannelValueOrSkip(
                 docs.Paragraphs.FirstOrDefault(),
                 "remarks",
@@ -621,7 +629,7 @@ static class ImporterProgram
         return true;
     }
 
-    static string AddSourceRemarksIfSafe(
+    static string AddSourceDocumentationIfSafe(
         string text,
         LoadedFile file,
         DocsOwner owner,
@@ -629,8 +637,17 @@ static class ImporterProgram
     {
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
-        if (blockText.Contains(docs.SourceUrl, StringComparison.Ordinal))
-            return text;
+        blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, owner.IsEnumField);
+
+        if (owner.IsEnumField)
+        {
+            blockText = RemoveEnumDiscardedMetadata(blockText);
+            blockText = AddEnumSummaryMetadata(blockText, file, docs);
+            return text[..block.Start] + blockText + text[block.End..];
+        }
+
+        if (ContainsSourceUrl(blockText, docs.SourceUrl))
+            return text[..block.Start] + blockText + text[block.End..];
 
         var remarks = owner.Docs.Element("remarks");
         var remarksText = remarks is null ? "" : NormalizeText(remarks.Value);
@@ -698,6 +715,110 @@ static class ImporterProgram
                 blockText[docsClose..];
         }
         return text[..block.Start] + replacementBlock + text[block.End..];
+    }
+
+    static string RemoveStaleSourceLinks(
+        string blockText,
+        string sourceUrl,
+        bool removeAll)
+    {
+        var expectedMember = SourceAnchorMember(sourceUrl);
+        return Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                var href = Regex.Match(
+                    match.Value,
+                    @"\bhref=""(?<url>[^""]+)""",
+                    RegexOptions.CultureInvariant);
+                if (!href.Success)
+                    return match.Value;
+                var existingUrl = WebUtility.HtmlDecode(href.Groups["url"].Value);
+                if (UrlsEqual(existingUrl, sourceUrl))
+                    return match.Value;
+                return removeAll ||
+                    SourceAnchorMember(existingUrl).Equals(expectedMember, StringComparison.Ordinal)
+                    ? ""
+                    : match.Value;
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
+    static string RemoveEnumDiscardedMetadata(string blockText) =>
+        Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>\r?\n?",
+            "",
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+
+    static string AddEnumSummaryMetadata(
+        string blockText,
+        LoadedFile file,
+        SourceDocs docs)
+    {
+        var summary = Regex.Match(
+            blockText,
+            @"<summary\b[^>]*>(?<value>.*?)</summary>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        if (!summary.Success || ContainsSourceUrl(summary.Value, docs.SourceUrl))
+            return blockText;
+
+        var newline = file.Newline;
+        var lineStart = blockText.LastIndexOf(newline, summary.Index, StringComparison.Ordinal);
+        lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
+        var summaryIndent = blockText[lineStart..summary.Index];
+        var paraIndent = summaryIndent + "  ";
+        var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
+        var additions = new List<string>
+        {
+            $"{paraIndent}<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
+            $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
+            "</a></format></para>",
+        };
+        if (docs.SourceKind == "android")
+            additions.Add($"{paraIndent}<para>{AndroidAttribution}</para>");
+
+        var value = summary.Groups["value"].Value.Trim();
+        var replacement =
+            $"<summary>{newline}{paraIndent}<para>{value}</para>{newline}" +
+            string.Join(newline, additions) +
+            $"{newline}{summaryIndent}</summary>";
+        return blockText[..summary.Index] + replacement + blockText[(summary.Index + summary.Length)..];
+    }
+
+    static bool ContainsSourceUrl(string text, string sourceUrl) =>
+        Regex.Matches(
+            text,
+            @"\bhref=""(?<url>[^""]+)""",
+            RegexOptions.CultureInvariant)
+            .Any(match => UrlsEqual(
+                WebUtility.HtmlDecode(match.Groups["url"].Value),
+                sourceUrl));
+
+    static bool UrlsEqual(string left, string right) =>
+        Uri.UnescapeDataString(left).Equals(
+            Uri.UnescapeDataString(right),
+            StringComparison.Ordinal);
+
+    static string SourceAnchorMember(string url)
+    {
+        var anchor = WebUtility.HtmlDecode(url).Split('#', 2).ElementAtOrDefault(1) ?? "";
+        return Uri.UnescapeDataString(anchor).Split('(', 2)[0];
+    }
+
+    static void ApplyChangedFiles(
+        IReadOnlyList<(LoadedFile File, string Text)> changedFiles,
+        ImportReport report)
+    {
+        foreach (var (file, text) in changedFiles)
+        {
+            file.WriteAtomically(text);
+            report.MarkApplied(file.RelativePath);
+        }
+
+        foreach (var (file, _) in changedFiles)
+            _ = XDocument.Load(file.Path, LoadOptions.PreserveWhitespace);
     }
 
     static int ClosingInsertionPoint(string text, int closingTag, string newline)
@@ -924,8 +1045,13 @@ static class ImporterProgram
         Assert(updated.Contains("<para>Keep this existing prose.</para>", StringComparison.Ordinal),
             "existing prose was preserved");
         file.UpdateBlockOffsets(setTitle.Order, updated);
-        var withRemarks = AddSourceRemarksIfSafe(updated, file, setTitle, mappedDocs);
+        var withRemarks = AddSourceDocumentationIfSafe(updated, file, setTitle, mappedDocs);
         Assert(withRemarks.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal), "source link was added");
+        Assert(
+            !withRemarks.Contains(
+                "Widget#setTitle(java.lang.String)",
+                StringComparison.Ordinal),
+            "stale source overload link was removed");
         Assert(
             withRemarks.IndexOf(mappedDocs.SourceUrl, StringComparison.Ordinal) <
                 withRemarks.IndexOf(
@@ -954,15 +1080,63 @@ static class ImporterProgram
             out favoriteText,
             out _), "inline remarks replacement");
         file.UpdateBlockOffsets(favorite.Order, favoriteText);
-        favoriteText = AddSourceRemarksIfSafe(favoriteText, file, favorite, favoriteResult.Docs);
+        favoriteText = AddSourceDocumentationIfSafe(favoriteText, file, favorite, favoriteResult.Docs);
+        var favoriteDocument = XDocument.Parse(favoriteText, LoadOptions.PreserveWhitespace);
+        var favoriteDocs = favoriteDocument.Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "Favorite")
+            .Element("Docs")!;
         Assert(
-            favoriteText.Contains(
-                "<remarks>\r\n          <para>Identifies the favorite fixture value for the user\u2019s selection.</para>",
-                StringComparison.Ordinal),
+            favoriteDocs.Element("remarks")!.Elements("para").First().Value
+                .StartsWith(
+                    "Identifies the favorite fixture value for the user\u2019s selection.",
+                    StringComparison.Ordinal),
             "inline remarks replacement uses paragraph markup");
         Assert(
-            XDocument.Parse(favoriteText, LoadOptions.PreserveWhitespace).Root is not null,
+            favoriteDocument.Root is not null,
             "inline remarks source-link insertion produced valid XML");
+
+        var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
+        Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
+        Assert(
+            !favoriteResult.Docs!.Paragraphs[0].Contains(")&quot;&gt;", StringComparison.Ordinal) &&
+                !favoriteResult.Docs.Paragraphs[0].Contains(")\"&gt;", StringComparison.Ordinal) &&
+                favoriteResult.Docs.Paragraphs[0].Contains("consume(List)", StringComparison.Ordinal),
+            "quoted generic link stripped without corrupt fragments");
+
+        var enumFile = LoadedFile.Load(
+            repositoryRoot,
+            Path.Combine(fixtureRoot, "enum-source.xml"));
+        enumFile.SelectOwners(null);
+        var enumFavorite = enumFile.Owners.Single(owner => owner.Member is not null);
+        Assert(enumFavorite.IsEnumField, "enum field detection");
+        var enumMapped = MapOwner(enumFavorite, pages);
+        var enumSummary = enumFavorite.Placeholders.Single(item => item.Name == "summary");
+        Assert(TryReplacePlaceholder(
+            enumFile.Text,
+            enumFile.DocsBlocks[enumFavorite.Order],
+            enumSummary,
+            ReplacementFor(enumSummary, enumMapped.Docs!, true).Text!,
+            out var enumText,
+            out _), "enum summary replacement");
+        enumFile.UpdateBlockOffsets(enumFavorite.Order, enumText);
+        enumText = AddSourceDocumentationIfSafe(
+            enumText,
+            enumFile,
+            enumFavorite,
+            enumMapped.Docs!);
+        var enumDocument = XDocument.Parse(enumText, LoadOptions.PreserveWhitespace);
+        var enumDocs = enumDocument.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+        Assert(
+            enumDocs.Element("summary")!.Descendants("a").Any() &&
+                enumDocs.Element("summary")!.Value.Contains(
+                    "Android Open Source Project",
+                    StringComparison.Ordinal),
+            "enum source metadata is rendered in summary");
+        Assert(
+            !enumDocs.Element("remarks")!.Descendants("a").Any() &&
+                NormalizeText(enumDocs.Element("remarks")!.Value)
+                    .Equals("To be added.", StringComparison.Ordinal),
+            "enum discarded remarks retain only placeholder");
 
         var tempDirectory = Path.Combine(
             Path.GetTempPath(),
@@ -984,13 +1158,45 @@ static class ImporterProgram
                 "atomic write preserved CRLF");
             _ = XDocument.Load(tempPath, LoadOptions.PreserveWhitespace);
             Assert(true, "atomic write produced valid XML");
+
+            var pendingReport = new ImportReport
+            {
+                Mode = "apply",
+                Offline = true,
+                MaxChanges = 1,
+            };
+            pendingReport.Entries.Add(ReportEntry.Changed(
+                "would_apply",
+                writable.RelativePath,
+                "fixture",
+                "summary",
+                ""));
+            Directory.CreateDirectory(tempPath + ".importer.tmp");
+            try
+            {
+                try
+                {
+                    ApplyChangedFiles([(writable, writable.Text)], pendingReport);
+                    Assert(false, "blocked apply must fail");
+                }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+                {
+                    Assert(
+                        pendingReport.Entries.Single().Status == "would_apply",
+                        "failed apply is not reported as applied");
+                }
+            }
+            finally
+            {
+                Directory.Delete(tempPath + ".importer.tmp");
+            }
         }
         finally
         {
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 27 assertions; exact Android/Java method and field matching, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 35 assertions; exact Android/Java method and field matching, enum summaries, table alignment, quote-aware HTML cleanup, stale-link replacement, transactional apply reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -1161,6 +1367,11 @@ static class ImporterProgram
             var typeRegistration = Registration.Type(Root);
             var typeRequest = SourceRequest.Create(typeRegistration);
             var typeName = (string?)Root.Attribute("FullName") ?? (string?)Root.Attribute("Name") ?? "";
+            var isEnum = Root.Elements("TypeSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "C#" &&
+                ((string?)signature.Attribute("Value"))?.StartsWith(
+                    "public enum ",
+                    StringComparison.Ordinal) == true);
             var ordered = new List<(XElement Docs, XElement? Member)>
             {
                 (Root.Element("Docs") ?? new XElement("Docs"), null),
@@ -1200,7 +1411,8 @@ static class ImporterProgram
                     docs,
                     member,
                     request,
-                    placeholders));
+                    placeholders,
+                    isEnum && (string?)member?.Element("MemberType") == "Field"));
             }
         }
 
@@ -1264,7 +1476,8 @@ static class ImporterProgram
         XElement Docs,
         XElement? Member,
         SourceRequest? SourceRequest,
-        List<Placeholder> Placeholders);
+        List<Placeholder> Placeholders,
+        bool IsEnumField);
 
     sealed record Placeholder(int Order, string Name, string Key, string Target)
     {
@@ -1691,7 +1904,6 @@ static class ImporterProgram
                         @"<t[dh]\b[^>]*>(?<cell>.*?)</t[dh]>",
                         RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
                         .Select(cell => HtmlText(cell.Groups["cell"].Value))
-                        .Where(value => value.Length > 0)
                         .ToList();
                     if (cells.Count > 0 && !string.Join(" ", cells).Contains(heading, StringComparison.OrdinalIgnoreCase))
                         return string.Join(" ", cells.Skip(cells.Count > 1 ? 1 : 0));
@@ -1919,7 +2131,46 @@ static class ImporterProgram
                 @"</?(?:p|div|li|tr|td|th|dd|dt|br|ul|ol|blockquote)\b[^>]*>",
                 " ",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            return CleanSourceText(Regex.Replace(withBreaks, @"<[^>]+>", " "));
+            return CleanSourceText(StripHtmlTags(withBreaks));
+        }
+
+        static string StripHtmlTags(string html)
+        {
+            var text = new StringBuilder(html.Length);
+            var inTag = false;
+            var quote = '\0';
+            foreach (var character in html)
+            {
+                if (!inTag)
+                {
+                    if (character == '<')
+                    {
+                        inTag = true;
+                        quote = '\0';
+                        text.Append(' ');
+                    }
+                    else
+                    {
+                        text.Append(character);
+                    }
+                    continue;
+                }
+
+                if (quote != '\0')
+                {
+                    if (character == quote)
+                        quote = '\0';
+                }
+                else if (character is '"' or '\'')
+                {
+                    quote = character;
+                }
+                else if (character == '>')
+                {
+                    inTag = false;
+                }
+            }
+            return text.ToString();
         }
 
         static string FirstSentence(string text)
@@ -2143,6 +2394,19 @@ static class ImporterProgram
             WouldApplyCount = Entries.Count(entry => entry.Status == "would_apply");
             SkippedCount = Entries.Count(entry => entry.Status == "skipped");
             ErrorCount = Entries.Count(entry => entry.Status == "error");
+        }
+
+        public void MarkApplied(string path)
+        {
+            for (var index = 0; index < Entries.Count; index++)
+            {
+                var entry = Entries[index];
+                if (entry.Status == "would_apply" &&
+                    entry.Path.Equals(path, StringComparison.Ordinal))
+                {
+                    Entries[index] = entry with { Status = "applied" };
+                }
+            }
         }
 
         public string ToHumanText()
