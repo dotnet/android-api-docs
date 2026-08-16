@@ -95,10 +95,10 @@
         <Parameter Name="instant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="instant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="instant">The instant to find the daylight savings for. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Gets the amount of daylight savings in use for the specified instant in this zone.</summary>
+        <returns>The difference between the standard offset and the actual offset in use at the specified instant.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="GetOffset">
@@ -128,10 +128,10 @@
         <Parameter Name="instant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="instant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="instant">The instant to find the offset for. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Gets the offset applicable at the specified instant in these rules.</summary>
+        <returns>The offset applicable at the specified instant.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="GetOffset">
@@ -161,10 +161,10 @@
         <Parameter Name="localDateTime" Type="Java.Time.LocalDateTime" />
       </Parameters>
       <Docs>
-        <param name="localDateTime">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="localDateTime">The local date-time to query. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Gets a suitable offset for the specified local date-time in these rules.</summary>
+        <returns>The best available offset for the local date-time; for a gap or overlap, the offset before the transition.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="GetStandardOffset">
@@ -194,10 +194,9 @@
         <Parameter Name="instant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="instant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="instant">The instant to find the offset information for; <see langword="null" /> may be ignored if the rules have a single standard offset for all instants.</param>
+        <summary>Gets the standard offset for the specified instant in this zone.</summary>
+        <returns>The standard offset for the specified instant.</returns>
       </Docs>
     </Member>
     <Member MemberName="GetTransition">
@@ -227,10 +226,10 @@
         <Parameter Name="localDateTime" Type="Java.Time.LocalDateTime" />
       </Parameters>
       <Docs>
-        <param name="localDateTime">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="localDateTime">The local date-time to query for an offset transition. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Gets the offset transition applicable at the specified local date-time in these rules.</summary>
+        <returns>The transition for a gap or overlap; otherwise, <see langword="null" />.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="GetValidOffsets">
@@ -266,10 +265,10 @@
         <Parameter Name="localDateTime" Type="Java.Time.LocalDateTime" />
       </Parameters>
       <Docs>
-        <param name="localDateTime">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="localDateTime">The local date-time to query for valid offsets. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Gets the offsets applicable at the specified local date-time in these rules.</summary>
+        <returns>A potentially immutable list of valid offsets. The list has zero entries for a gap, one for a normal local date-time, and two for an overlap; in an overlap, the earlier offset is first.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="IsDaylightSavings">
@@ -299,10 +298,10 @@
         <Parameter Name="instant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="instant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="instant">The instant to check for daylight savings. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Checks whether the specified instant is in daylight savings.</summary>
+        <returns><see langword="true" /> if the specified instant is in daylight savings; otherwise, <see langword="false" />.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="IsFixedOffset">
@@ -374,11 +373,11 @@
         <Parameter Name="offset" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="localDateTime">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="localDateTime">The local date-time to check. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <param name="offset">The offset to check; <see langword="null" /> returns <see langword="false" />.</param>
+        <summary>Checks whether the offset date-time is valid for these rules.</summary>
+        <returns><see langword="true" /> if the offset date-time is valid for these rules; otherwise, <see langword="false" />.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -446,10 +445,10 @@
         <Parameter Name="instant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="instant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="instant">The instant after which to get the next transition. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Gets the next transition after the specified instant.</summary>
+        <returns>The next transition after the specified instant, or <see langword="null" /> if it is after the last transition.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -479,10 +478,10 @@
         <Parameter Name="offset" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="offset">The non-null offset to use for the rules.</param>
+        <summary>Obtains an instance of <see cref="T:Java.Time.Zone.ZoneRules" /> with a fixed offset.</summary>
+        <returns>The zone rules with the specified fixed offset.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="offset" /> is <see langword="null" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -537,14 +536,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="baseStandardOffset">To be added.</param>
-        <param name="baseWallOffset">To be added.</param>
-        <param name="standardOffsetTransitionList">To be added.</param>
-        <param name="transitionList">To be added.</param>
-        <param name="lastRules">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="baseStandardOffset">The non-null standard offset to use before legal rules were set.</param>
+        <param name="baseWallOffset">The non-null wall offset to use before legal rules were set.</param>
+        <param name="standardOffsetTransitionList">The non-null list of changes to the standard offset.</param>
+        <param name="transitionList">The non-null list of transitions.</param>
+        <param name="lastRules">The non-null recurring last rules, with at most 16 entries.</param>
+        <summary>Obtains an instance of <see cref="T:Java.Time.Zone.ZoneRules" />.</summary>
+        <returns>The zone rules.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if any argument is <see langword="null" />.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">Thrown if <paramref name="lastRules" /> contains more than 16 rules.</exception>
       </Docs>
     </Member>
     <Member MemberName="PreviousTransition">
@@ -574,10 +574,10 @@
         <Parameter Name="instant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="instant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="instant">The instant before which to get the previous transition. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
+        <summary>Gets the previous transition before the specified instant.</summary>
+        <returns>The previous transition before the specified instant, or <see langword="null" /> if it is before the first transition.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
