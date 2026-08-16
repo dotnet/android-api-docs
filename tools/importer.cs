@@ -237,12 +237,18 @@ static class ImporterProgram
                 }
             }
 
-            if (options.Apply && !report.Entries.Any(entry => entry.Status == "error"))
-                ApplyChangedFiles(changedFiles, report);
-
-            report.FilesChanged = changedFiles.Count;
             report.SourcesFetched = fetcher.NetworkFetches;
             report.SourcesFromCache = fetcher.CacheHits;
+            if (options.Apply)
+            {
+                report.FilesChanged = 0;
+                if (!report.Entries.Any(entry => entry.Status == "error"))
+                    ApplyChangedFiles(changedFiles, report);
+            }
+            else
+            {
+                report.FilesChanged = changedFiles.Count;
+            }
         }
         catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
         {
@@ -682,6 +688,10 @@ static class ImporterProgram
         }
 
         string replacementBlock;
+        var selfClosingRemarks = Regex.Match(
+            blockText,
+            @"<remarks\b[^>]*/>",
+            RegexOptions.CultureInvariant);
         var attribution = blockText.IndexOf(
             "https://developers.google.com/terms/site-policies",
             StringComparison.Ordinal);
@@ -689,7 +699,17 @@ static class ImporterProgram
             ? -1
             : blockText.LastIndexOf("<para", attribution, StringComparison.Ordinal);
         var remarksClose = blockText.LastIndexOf("</remarks>", StringComparison.Ordinal);
-        if (remarksClose >= 0)
+        if (selfClosingRemarks.Success)
+        {
+            var expanded =
+                $"<remarks>{newline}" +
+                string.Join(newline, additions) + newline +
+                $"{childIndent}</remarks>";
+            replacementBlock =
+                blockText[..selfClosingRemarks.Index] + expanded +
+                blockText[(selfClosingRemarks.Index + selfClosingRemarks.Length)..];
+        }
+        else if (remarksClose >= 0)
         {
             var insertionTarget = attributionPara >= 0 ? attributionPara : remarksClose;
             var insertion = ClosingInsertionPoint(blockText, insertionTarget, newline);
@@ -815,6 +835,7 @@ static class ImporterProgram
         {
             file.WriteAtomically(text);
             report.MarkApplied(file.RelativePath);
+            report.FilesChanged++;
         }
 
         foreach (var (file, _) in changedFiles)
@@ -964,7 +985,7 @@ static class ImporterProgram
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         file.SelectOwners(null);
-        Assert(file.Owners.Count == 5, "fixture owner count");
+        Assert(file.Owners.Count == 6, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1138,6 +1159,35 @@ static class ImporterProgram
                     .Equals("To be added.", StringComparison.Ordinal),
             "enum discarded remarks retain only placeholder");
 
+        var emptyRemarks = file.Owners.Single(
+            owner => owner.Id.Contains("EmptyRemarks", StringComparison.Ordinal));
+        var emptyRemarksMapping = MapOwner(emptyRemarks, pages);
+        var emptyRemarksSummary = emptyRemarks.Placeholders.Single(
+            item => item.Name == "summary");
+        Assert(TryReplacePlaceholder(
+            file.Text,
+            file.DocsBlocks[emptyRemarks.Order],
+            emptyRemarksSummary,
+            emptyRemarksMapping.Docs!.Summary,
+            out var emptyRemarksText,
+            out _), "self-closing remarks summary replacement");
+        file.UpdateBlockOffsets(emptyRemarks.Order, emptyRemarksText);
+        emptyRemarksText = AddSourceDocumentationIfSafe(
+            emptyRemarksText,
+            file,
+            emptyRemarks,
+            emptyRemarksMapping.Docs);
+        var emptyRemarksDocument = XDocument.Parse(
+            emptyRemarksText,
+            LoadOptions.PreserveWhitespace);
+        var emptyRemarksDocs = emptyRemarksDocument.Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "EmptyRemarks")
+            .Element("Docs")!;
+        Assert(
+            emptyRemarksDocs.Elements("remarks").Count() == 1 &&
+                emptyRemarksDocs.Element("remarks")!.Descendants("a").Any(),
+            "self-closing remarks expanded in place");
+
         var tempDirectory = Path.Combine(
             Path.GetTempPath(),
             $"android-api-doc-importer-self-test-{Environment.ProcessId}");
@@ -1164,6 +1214,8 @@ static class ImporterProgram
                 Mode = "apply",
                 Offline = true,
                 MaxChanges = 1,
+                SourcesFetched = 2,
+                SourcesFromCache = 3,
             };
             pendingReport.Entries.Add(ReportEntry.Changed(
                 "would_apply",
@@ -1171,24 +1223,43 @@ static class ImporterProgram
                 "fixture",
                 "summary",
                 ""));
-            Directory.CreateDirectory(tempPath + ".importer.tmp");
+            var blockedPath = Path.Combine(tempDirectory, "blocked.xml");
+            File.WriteAllText(blockedPath, writable.Text, new UTF8Encoding(false));
+            var blocked = LoadedFile.Load(repositoryRoot, blockedPath);
+            pendingReport.Entries.Add(ReportEntry.Changed(
+                "would_apply",
+                blocked.RelativePath,
+                "blocked-fixture",
+                "summary",
+                ""));
+            Directory.CreateDirectory(blockedPath + ".importer.tmp");
             try
             {
                 try
                 {
-                    ApplyChangedFiles([(writable, writable.Text)], pendingReport);
+                    ApplyChangedFiles(
+                        [(writable, writable.Text), (blocked, blocked.Text)],
+                        pendingReport);
                     Assert(false, "blocked apply must fail");
                 }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException)
                 {
                     Assert(
-                        pendingReport.Entries.Single().Status == "would_apply",
-                        "failed apply is not reported as applied");
+                        pendingReport.Entries.Single(
+                            entry => entry.Path == writable.RelativePath).Status == "applied" &&
+                            pendingReport.Entries.Single(
+                                entry => entry.Path == blocked.RelativePath).Status == "would_apply",
+                        "partial apply reports per-file status");
+                    Assert(
+                        pendingReport.FilesChanged == 1 &&
+                            pendingReport.SourcesFetched == 2 &&
+                            pendingReport.SourcesFromCache == 3,
+                        "partial apply aggregate counters remain consistent");
                 }
             }
             finally
             {
-                Directory.Delete(tempPath + ".importer.tmp");
+                Directory.Delete(blockedPath + ".importer.tmp");
             }
         }
         finally
@@ -1196,7 +1267,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 35 assertions; exact Android/Java method and field matching, enum summaries, table alignment, quote-aware HTML cleanup, stale-link replacement, transactional apply reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 38 assertions; exact Android/Java method and field matching, enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 

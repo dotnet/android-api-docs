@@ -33,6 +33,8 @@ member replaced and current links placed before existing attribution. Enum field
 prose, source links, and attribution are emitted in `<summary>` because their
 `<remarks>` are not published by ECMA2Yaml. The importer never creates generic
 prose or falls back to AOSP. Existing non-placeholder documentation is retained.
+Existing self-closing `<remarks />` elements are expanded in place rather than
+duplicated.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`
@@ -41,8 +43,9 @@ adjacent text report.
 
 On apply, each changed file is reparsed before and after an atomic write while
 retaining its original newline convention and UTF-8 BOM state. Report entries
-remain `would_apply` until the corresponding atomic write succeeds. Run `git
-diff --check` after a batch.
+remain `would_apply` until the corresponding atomic write succeeds; partial
+failures retain the completed-file count and source counters. Run `git diff
+--check` after a batch.
 
 Limitations:
 
