@@ -1406,7 +1406,9 @@
         <param name="display">The EGL display connection to initialize.</param>
         <param name="major_minor">
           May be <see langword="null" />. Otherwise, it must contain at least two elements and
-          receives the EGL major and minor version numbers at indices 0 and 1.
+          receives the EGL major and minor version numbers at indices 0 and 1 when this method
+          returns <see langword="true" />. It remains unchanged when this method returns
+          <see langword="false" />.
         </param>
         <summary>
           Initializes an EGL display connection.
@@ -2444,13 +2446,14 @@
           Releases resources associated with an EGL display connection.
         </summary>
         <returns>
-          <see langword="true" /> if the display connection was terminated; otherwise,
+          <see langword="true" /> if the termination operation completed successfully; otherwise,
           <see langword="false" />.
         </returns>
         <exception cref="T:Java.Lang.IllegalArgumentException">
           <paramref name="display" /> is <see langword="null" />.
         </exception>
         <remarks>
+          <para>On Android, a successful call can be a no-op for an already uninitialized display, or can leave a display initialized when reference-counted initialization remains.</para>
           <para>Resources associated with contexts or surfaces that are current remain until they are no longer current.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
