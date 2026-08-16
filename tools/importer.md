@@ -24,8 +24,11 @@ and `JniField` owner metadata for projected constants. It skips members with
 missing registrations, unknown type descriptors, overload mismatches, ambiguous
 matches, inherited-only detail, missing documentation channels, or source text
 that contains only a Java type, nullability marker, cross-reference heading, or
-deprecation boilerplate. It never creates generic prose or falls back to AOSP.
-Existing non-placeholder documentation is retained.
+deprecation boilerplate. Android page license/trademark footers and update
+timestamps are filtered, and literal Unicode escapes are decoded before XML
+escaping. Imported remarks use `<para>` elements, with source links placed before
+existing attribution. The importer never creates generic prose or falls back to
+AOSP. Existing non-placeholder documentation is retained.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`

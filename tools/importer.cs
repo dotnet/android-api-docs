@@ -510,13 +510,27 @@ static class ImporterProgram
         var normalized = NormalizeText(value).TrimEnd('.').Trim();
         if (normalized.Length == 0 ||
             normalized.Equals("See also:", StringComparison.OrdinalIgnoreCase) ||
-            normalized.Equals("See also", StringComparison.OrdinalIgnoreCase))
+            normalized.Equals("See also", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith(
+                "Content and code samples on this page are subject to the licenses described in the Content License",
+                StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith(
+                "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
+                StringComparison.OrdinalIgnoreCase) ||
+            Regex.IsMatch(
+                normalized,
+                @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) ||
+            Regex.IsMatch(
+                normalized,
+                @"^Constant Value:\s*\S+(?:\s+\(\S+\))?$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
         if (channel is "returns" or "value" or "param")
         {
             if (Regex.IsMatch(
                 normalized,
-                @"^(?:boolean|byte|char|double|float|int|long|short|void|String|CharSequence|[\w$]+(?:\.[\w$]+)+(?:<[^>]+>)?(?:\[\])?)$",
+                @"^(?:boolean|byte|char|double|float|int|long|short|void|[A-Z][\w$]*(?:<[^>]+>)?(?:\[\])?|[\w$]+(?:\.[\w$]+)+(?:<[^>]+>)?(?:\[\])?)$",
                 RegexOptions.CultureInvariant))
                 return false;
             if (Regex.IsMatch(
@@ -586,6 +600,19 @@ static class ImporterProgram
         }
 
         var escaped = XmlEscape(replacement);
+        if (placeholder.Name == "remarks")
+        {
+            var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+            var lineStart = blockText.LastIndexOf(newline, match.Index, StringComparison.Ordinal);
+            lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
+            var indent = blockText[lineStart..match.Index];
+            if (string.IsNullOrWhiteSpace(indent))
+            {
+                escaped =
+                    newline + indent + "  " + $"<para>{escaped}</para>" +
+                    newline + indent;
+            }
+        }
         var localStart = match.Groups["value"].Index;
         var localEnd = localStart + match.Groups["value"].Length;
         var replacementBlock = blockText[..localStart] + escaped + blockText[localEnd..];
@@ -638,15 +665,23 @@ static class ImporterProgram
         }
 
         string replacementBlock;
+        var attribution = blockText.IndexOf(
+            "https://developers.google.com/terms/site-policies",
+            StringComparison.Ordinal);
+        var attributionPara = attribution < 0
+            ? -1
+            : blockText.LastIndexOf("<para", attribution, StringComparison.Ordinal);
         var remarksClose = blockText.LastIndexOf("</remarks>", StringComparison.Ordinal);
         if (remarksClose >= 0)
         {
-            var insertion = ClosingInsertionPoint(blockText, remarksClose, newline);
-            var separator = insertion == remarksClose ? newline : "";
+            var insertionTarget = attributionPara >= 0 ? attributionPara : remarksClose;
+            var insertion = ClosingInsertionPoint(blockText, insertionTarget, newline);
+            var separator = insertion == insertionTarget ? newline : "";
             replacementBlock =
                 blockText[..insertion] + separator +
-                string.Join(newline, additions) + newline + childIndent +
-                blockText[remarksClose..];
+                string.Join(newline, additions) + newline +
+                (insertion == insertionTarget ? childIndent : "") +
+                blockText[insertion..];
         }
         else
         {
@@ -689,11 +724,39 @@ static class ImporterProgram
     static string CleanSourceText(string value)
     {
         var text = NormalizeText(value);
+        text = Regex.Replace(
+            text,
+            @"\\u(?<hex>[0-9a-fA-F]{4})",
+            match =>
+            {
+                var character = (char)Convert.ToInt32(match.Groups["hex"].Value, 16);
+                return char.IsSurrogate(character) ? match.Value : character.ToString();
+            },
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(text, @"\{@(?:link|linkplain|code|literal|value)\s+([^}]+)\}", "$1");
         text = Regex.Replace(text, @"\{@\w+(?:\s+[^}]*)?\}", "");
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
         text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
+    }
+
+    static string CleanSourceParagraph(string value)
+    {
+        var text = CleanSourceText(value);
+        string[] footerMarkers =
+        [
+            "Content and code samples on this page are subject to the licenses described in the Content License.",
+            "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.",
+            "Java is a registered trademark of Oracle and/or its affiliates.",
+            "Last updated ",
+        ];
+        foreach (var marker in footerMarkers)
+        {
+            var markerIndex = text.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (markerIndex >= 0)
+                text = text[..markerIndex].Trim();
+        }
+        return text;
     }
 
     static string NormalizeText(string value) =>
@@ -807,11 +870,34 @@ static class ImporterProgram
 
         var favorite = file.Owners.Single(owner => owner.Id.Contains("Favorite", StringComparison.Ordinal));
         var favoriteResult = MapOwner(favorite, pages);
-        Assert(favoriteResult.Docs?.Summary == "Identifies the favorite fixture value.", "exact field match");
+        Assert(
+            favoriteResult.Docs?.Summary == "Identifies the favorite fixture value for the user\u2019s selection.",
+            "exact field match");
         var typeOnly = ReplacementFor(
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
         Assert(typeOnly.Reason == "source_channel_not_meaningful", "type-only return skip");
+        var simpleTypeOnly = ReplacementFor(
+            new Placeholder(0, "param", "items", "param:items"),
+            favoriteResult.Docs! with
+            {
+                Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["items"] = "List",
+                },
+            });
+        Assert(simpleTypeOnly.Reason == "source_channel_not_meaningful", "simple type-only parameter skip");
+        Assert(
+            CleanSourceText(@"the user\u2019s \u201cvalue\u201d") == "the user\u2019s \u201cvalue\u201d",
+            "literal Unicode escape decoding");
+        Assert(
+            androidPage.Members.Single(member => member.Name == "Widget").Docs is null,
+            "boilerplate-only member documentation skip");
+        Assert(
+            !favoriteResult.Docs.Paragraphs.Any(
+                paragraph => paragraph.Contains("Content and code samples", StringComparison.Ordinal) ||
+                    paragraph.StartsWith("Last updated ", StringComparison.Ordinal)),
+            "Android footer paragraphs filtered");
 
         var javaRequest = new SourceRequest(
             "java/lang/String",
@@ -840,6 +926,12 @@ static class ImporterProgram
         file.UpdateBlockOffsets(setTitle.Order, updated);
         var withRemarks = AddSourceRemarksIfSafe(updated, file, setTitle, mappedDocs);
         Assert(withRemarks.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal), "source link was added");
+        Assert(
+            withRemarks.IndexOf(mappedDocs.SourceUrl, StringComparison.Ordinal) <
+                withRemarks.IndexOf(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal),
+            "source link precedes existing attribution");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
 
         file.UpdateBlockOffsets(setTitle.Order, withRemarks);
@@ -863,6 +955,11 @@ static class ImporterProgram
             out _), "inline remarks replacement");
         file.UpdateBlockOffsets(favorite.Order, favoriteText);
         favoriteText = AddSourceRemarksIfSafe(favoriteText, file, favorite, favoriteResult.Docs);
+        Assert(
+            favoriteText.Contains(
+                "<remarks>\r\n          <para>Identifies the favorite fixture value for the user\u2019s selection.</para>",
+                StringComparison.Ordinal),
+            "inline remarks replacement uses paragraph markup");
         Assert(
             XDocument.Parse(favoriteText, LoadOptions.PreserveWhitespace).Root is not null,
             "inline remarks source-link insertion produced valid XML");
@@ -893,7 +990,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 21 assertions; exact Android/Java method and field matching, mismatch and low-value channel skipping, channel extraction, preservation, inline remarks, source links, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 27 assertions; exact Android/Java method and field matching, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -1782,8 +1879,8 @@ static class ImporterProgram
                 html,
                 @"<p\b[^>]*>(?<body>.*?)</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                .Select(match => HtmlText(match.Groups["body"].Value))
-                .Where(value => value.Length > 0)
+                .Select(match => CleanSourceParagraph(HtmlText(match.Groups["body"].Value)))
+                .Where(value => IsMeaningfulChannel(value, "remarks"))
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
 
