@@ -120,12 +120,9 @@
       <Docs>
         <param name="attachedSurfaceControl">The AttachedSurfaceControl that will be add to this
                                           SurfaceSyncGroup.</param>
-        <param name="runnable">This is run on the same thread that the call was made on, but
-                                          after the rendering is paused and before continuing to render
-                                          the next frame. This method will not return until the
-                                          execution of the runnable completes. This can be used to make
-                                          changes to the AttachedSurfaceControl, ensuring that the
-                                          changes are included in the sync.</param>
+        <param name="runnable">Runs synchronously on the calling thread after rendering is paused
+            and before the next frame is rendered. This method blocks until the runnable completes.
+            Use it to make changes to the AttachedSurfaceControl that are included in the sync.</param>
         <summary>Add an AttachedSurfaceControl to the SurfaceSyncGroup.</summary>
         <returns>true if the AttachedSurfaceControl was successfully added to the SurfaceSyncGroup,
             false otherwise.</returns>
@@ -182,7 +179,10 @@
       </Parameters>
       <Docs>
         <param name="surfacePackage">The surface package to add to this synchronization group.</param>
-        <param name="runnable">An optional operation that updates the hosted surface while its rendering is paused.</param>
+        <param name="runnable">An optional operation that runs synchronously on the calling thread
+            after rendering is paused and before the next frame is rendered. This method blocks
+            until the operation completes, allowing its changes to the hosted surface to be
+            included in the sync.</param>
         <summary>Adds a surface package to this synchronization group.</summary>
         <returns><see langword="true" /> if the surface package was added; otherwise, <see langword="false" />.</returns>
         <remarks>Rendering is paused while the optional operation executes so its changes can be included in the synchronized frame.</remarks>
