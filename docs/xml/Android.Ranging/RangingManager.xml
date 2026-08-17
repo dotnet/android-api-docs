@@ -175,7 +175,8 @@
         <param name="executor">The executor on which the callback will be invoked.</param>
         <param name="callback">The callback to receive session-related events.</param>
         <summary>Creates a new ranging session.</summary>
-        <returns>A <c>RangingSession</c> that can initiate, manage, and stop ranging operations.</returns>
+        <returns>A <c>RangingSession</c> that can initiate, manage, and stop ranging operations if
+          the session is successfully created; otherwise, <c>null</c>.</returns>
         <remarks>
           <para>Creates a new ranging session. A ranging session enables the application to perform
             ranging operations using available technologies such as Ultra-Wideband (UWB) or Wi-Fi
@@ -362,8 +363,9 @@
         <summary>Unregisters a previously registered ranging capabilities callback.</summary>
         <remarks>
           <para>Unregisters a previously registered ranging capabilities callback.</para>
-          <para>After it is unregistered, the callback no longer receives ranging capabilities
-            updates.</para>
+          <para>After it is unregistered, no further ranging capabilities updates are dispatched to
+            the callback. Callbacks that were already queued on the callback's executor, or are
+            already in progress, can still be delivered after this method returns.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/ranging/RangingManager#unregisterCapabilitiesCallback(android.ranging.RangingManager.RangingCapabilitiesCallback)" title="Reference documentation">Java documentation for <code>android.ranging.RangingManager.unregisterCapabilitiesCallback(android.ranging.RangingManager.RangingCapabilitiesCallback)</code>.</a>
