@@ -7,12 +7,11 @@ reference pages and official Java 21 API pages.
 Run it with the .NET 10 SDK or newer:
 
 ```powershell
-cd tools
-dotnet run importer.cs -- --self-test
-dotnet run importer.cs -- --path ..\docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report ..\artifacts\argb-import
-dotnet run importer.cs -- --path ..\docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
-dotnet run importer.cs -- --path ..\docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --apply --max-changes 4
-dotnet run importer.cs -- --path ..\docs\xml\Android.Animation --namespace Android.Animation --offline --cache C:\temp\android-doc-cache
+dotnet run tools\importer.cs -- --self-test
+dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report artifacts\argb-import
+dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
+dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --apply --max-changes 4
+dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --offline --cache C:\temp\android-doc-cache
 ```
 
 Dry-run is the default. An unscoped scan is rejected, and `--apply` requires a
@@ -24,7 +23,7 @@ and `JniField` owner metadata for projected constants. It skips members with
 missing registrations, unknown type descriptors, overload mismatches, ambiguous
 matches, inherited-only detail, missing documentation channels, or source text
 that contains only a Java type, nullability marker, cross-reference heading, or
-deprecation boilerplate. Android page license/trademark footers and update
+standalone deprecation boilerplate. Android page license/trademark footers and update
 timestamps are filtered, and literal Unicode escapes are decoded before XML
 escaping. HTML tags are removed with quoted attributes intact, and empty table
 description cells remain empty rather than shifting Java types into prose. Java
@@ -34,8 +33,11 @@ heading cell, not by prose containing that word.
 Imported remarks use `<para>` elements, with stale links for the same source
 member replaced and current links placed before existing attribution. Enum field
 prose, source links, and attribution are emitted in `<summary>` because their
-`<remarks>` are not published by ECMA2Yaml. The importer never creates generic
-prose or falls back to AOSP. Existing non-placeholder documentation is retained.
+`<remarks>` are not published by ECMA2Yaml. A deprecated enum summary retains
+both its caution and subsequent semantic value prose. The importer never creates
+generic prose or falls back to AOSP. Existing non-placeholder documentation is
+retained, except that an exact prior importer-generated caution-only enum summary
+can be completed from the same authoritative source.
 Existing self-closing `<remarks />` elements are expanded in place rather than
 duplicated.
 

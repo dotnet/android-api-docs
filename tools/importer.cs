@@ -88,7 +88,9 @@ static class ImporterProgram
 
             var sourceRequests = loadedFiles
                 .SelectMany(file => file.Owners)
-                .Where(owner => owner.Placeholders.Count > 0)
+                .Where(owner =>
+                    owner.Placeholders.Count > 0 ||
+                    HasImporterEnumSummaryMetadata(owner))
                 .Select(owner => owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
@@ -213,6 +215,44 @@ static class ImporterProgram
                             owner.Id,
                             placeholder.Target,
                             mapping.SourceUrl));
+                    }
+
+                    if (!ownerChanged &&
+                        mapping.Docs is not null &&
+                        HasImporterEnumSummaryMetadata(owner))
+                    {
+                        var refreshed = AddSourceDocumentationIfSafe(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs);
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                        {
+                            if (remaining == 0)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "summary",
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                            else
+                            {
+                                text = refreshed;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "summary",
+                                    mapping.SourceUrl));
+                            }
+                        }
                     }
 
                     if (ownerChanged && mapping.Docs is not null)
@@ -491,6 +531,16 @@ static class ImporterProgram
                 $"Placeholder element <{placeholder.Name}> is not imported."),
         };
     }
+
+    static bool HasImporterEnumSummaryMetadata(DocsOwner owner) =>
+        owner.IsEnumField &&
+        owner.Docs.Element("summary") is XElement summary &&
+        summary.Descendants("a").Any(link =>
+            (string?)link.Attribute("title") == "Reference documentation") &&
+        summary.Descendants("a").Any(link =>
+            ((string?)link.Attribute("href"))?.Equals(
+                "https://developers.google.com/terms/site-policies",
+                StringComparison.Ordinal) == true);
 
     static Replacement ChannelValueOrSkip(string? value, string channel, string missingReason)
     {
@@ -781,7 +831,49 @@ static class ImporterProgram
             blockText,
             @"<summary\b[^>]*>(?<value>.*?)</summary>",
             RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        if (!summary.Success || ContainsSourceUrl(summary.Value, docs.SourceUrl))
+        if (!summary.Success)
+            return blockText;
+
+        var summaryElement = XElement.Parse(summary.Value, LoadOptions.PreserveWhitespace);
+        var existingProse = summaryElement.Elements("para")
+            .Where(paragraph => !paragraph.Descendants("a").Any(link =>
+                (string?)link.Attribute("title") == "Reference documentation" ||
+                ((string?)link.Attribute("href"))?.Equals(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal) == true))
+            .Select(paragraph => CleanSourceText(paragraph.Value))
+            .Where(value => value.Length > 0)
+            .ToList();
+        if (existingProse.Count == 0)
+        {
+            var directText = CleanSourceText(string.Concat(
+                summaryElement.Nodes().OfType<XText>().Select(node => node.Value)));
+            if (directText.Length > 0)
+                existingProse.Add(directText);
+        }
+
+        var sourceParagraphs = docs.Paragraphs
+            .Select(CleanSourceText)
+            .Where(value => IsMeaningfulChannel(value, "remarks"))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        var priorGeneratedProse = sourceParagraphs.Count > 0 &&
+            existingProse.Count == 1 &&
+            NormalizeText(existingProse[0]).Equals(
+                NormalizeText(sourceParagraphs[0]),
+                StringComparison.Ordinal) &&
+            IsDeprecationParagraph(sourceParagraphs[0]) &&
+            sourceParagraphs.Skip(1).Any(paragraph =>
+                !IsDeprecationParagraph(paragraph));
+        var alreadyComplete = existingProse.SequenceEqual(
+            sourceParagraphs,
+            StringComparer.Ordinal);
+        var hasSource = ContainsSourceUrl(summary.Value, docs.SourceUrl);
+        if (hasSource && (alreadyComplete || !priorGeneratedProse))
+            return blockText;
+
+        var prose = priorGeneratedProse ? sourceParagraphs : existingProse;
+        if (prose.Count == 0)
             return blockText;
 
         var newline = file.Newline;
@@ -790,22 +882,28 @@ static class ImporterProgram
         var summaryIndent = blockText[lineStart..summary.Index];
         var paraIndent = summaryIndent + "  ";
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
-        var additions = new List<string>
-        {
+        var additions = prose
+            .Select(paragraph => $"{paraIndent}<para>{XmlEscape(paragraph)}</para>")
+            .ToList();
+        additions.Add(
             $"{paraIndent}<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
             $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
-            "</a></format></para>",
-        };
+            "</a></format></para>");
         if (docs.SourceKind == "android")
             additions.Add($"{paraIndent}<para>{AndroidAttribution}</para>");
 
-        var value = summary.Groups["value"].Value.Trim();
         var replacement =
-            $"<summary>{newline}{paraIndent}<para>{value}</para>{newline}" +
+            $"<summary>{newline}" +
             string.Join(newline, additions) +
             $"{newline}{summaryIndent}</summary>";
         return blockText[..summary.Index] + replacement + blockText[(summary.Index + summary.Length)..];
     }
+
+    static bool IsDeprecationParagraph(string value) =>
+        Regex.IsMatch(
+            NormalizeText(value),
+            @"^(?:This\s+)?(?:constant|field|member|method|class|interface)\s+(?:is|was)\s+deprecated\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     static bool ContainsSourceUrl(string text, string sourceUrl) =>
         Regex.Matches(
@@ -1143,7 +1241,8 @@ static class ImporterProgram
             repositoryRoot,
             Path.Combine(fixtureRoot, "enum-source.xml"));
         enumFile.SelectOwners(null);
-        var enumFavorite = enumFile.Owners.Single(owner => owner.Member is not null);
+        var enumFavorite = enumFile.Owners.Single(
+            owner => (string?)owner.Member?.Attribute("MemberName") == "Favorite");
         Assert(enumFavorite.IsEnumField, "enum field detection");
         var enumMapped = MapOwner(enumFavorite, pages);
         var enumSummary = enumFavorite.Placeholders.Single(item => item.Name == "summary");
@@ -1161,7 +1260,9 @@ static class ImporterProgram
             enumFavorite,
             enumMapped.Docs!);
         var enumDocument = XDocument.Parse(enumText, LoadOptions.PreserveWhitespace);
-        var enumDocs = enumDocument.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+        var enumDocs = enumDocument.Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "Favorite")
+            .Element("Docs")!;
         Assert(
             enumDocs.Element("summary")!.Descendants("a").Any() &&
                 enumDocs.Element("summary")!.Value.Contains(
@@ -1173,6 +1274,58 @@ static class ImporterProgram
                 NormalizeText(enumDocs.Element("remarks")!.Value)
                     .Equals("To be added.", StringComparison.Ordinal),
             "enum discarded remarks retain only placeholder");
+
+        enumFile.UpdateBlockOffsets(enumFavorite.Order, enumText);
+        var enumDeprecated = enumFile.Owners.Single(
+            owner => (string?)owner.Member?.Attribute("MemberName") == "Deprecated");
+        var deprecatedMapped = MapOwner(enumDeprecated, pages);
+        var deprecatedSummary = enumDeprecated.Placeholders.Single(item => item.Name == "summary");
+        Assert(TryReplacePlaceholder(
+            enumText,
+            enumFile.DocsBlocks[enumDeprecated.Order],
+            deprecatedSummary,
+            ReplacementFor(deprecatedSummary, deprecatedMapped.Docs!, true).Text!,
+            out enumText,
+            out _), "deprecated enum summary replacement");
+        enumFile.UpdateBlockOffsets(enumDeprecated.Order, enumText);
+        enumText = AddSourceDocumentationIfSafe(
+            enumText,
+            enumFile,
+            enumDeprecated,
+            deprecatedMapped.Docs!);
+        var deprecatedDocument = XDocument.Parse(enumText, LoadOptions.PreserveWhitespace);
+        var deprecatedDocs = deprecatedDocument.Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "Deprecated")
+            .Element("Docs")!;
+        var deprecatedProse = deprecatedDocs.Element("summary")!.Elements("para")
+            .Where(paragraph => !paragraph.Descendants("a").Any())
+            .Select(paragraph => NormalizeText(paragraph.Value))
+            .ToList();
+        Assert(
+            deprecatedProse.Count == 2 &&
+                deprecatedProse[0].StartsWith(
+                    "This constant was deprecated in API level 31.",
+                    StringComparison.Ordinal) &&
+                deprecatedProse[1] == "Identifies the deprecated fixture value.",
+            "deprecated enum publishes caution and semantic prose");
+
+        var legacyEnumText = Regex.Replace(
+            enumText,
+            @"^[ \t]*<para>Identifies the deprecated fixture value\.</para>\r?\n",
+            "",
+            RegexOptions.Multiline | RegexOptions.CultureInvariant);
+        enumFile.UpdateBlockOffsets(enumDeprecated.Order, legacyEnumText);
+        var refreshedEnumText = AddSourceDocumentationIfSafe(
+            legacyEnumText,
+            enumFile,
+            enumDeprecated,
+            deprecatedMapped.Docs!);
+        Assert(
+            !refreshedEnumText.Equals(legacyEnumText, StringComparison.Ordinal) &&
+                refreshedEnumText.Contains(
+                    "<para>Identifies the deprecated fixture value.</para>",
+                    StringComparison.Ordinal),
+            "prior generated enum summary refreshes semantic prose");
 
         var emptyRemarks = file.Owners.Single(
             owner => owner.Id.Contains("EmptyRemarks", StringComparison.Ordinal));
@@ -1282,7 +1435,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 41 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 44 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, complete deprecated enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 

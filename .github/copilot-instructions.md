@@ -13,9 +13,10 @@ dotnet run tools\importer.cs -- --path docs\xml\<Namespace> --namespace <Namespa
 ```
 
 Dry-run is the default. Review both generated reports before adding `--apply`,
-and keep every apply operation scoped with `--path`, `--namespace`, or
-`--member` plus a conservative `--max-changes`. Use `--cache` and `--offline`
-for reproducible follow-up runs.
+and keep every apply operation scoped with `--path` or `--namespace` plus a
+conservative `--max-changes`. `--member` may narrow that write scope but is not
+sufficient by itself. Use `--cache` and `--offline` for reproducible follow-up
+runs.
 
 The importer must preserve existing non-placeholder documentation, apply only
 exact structural matches, and report ambiguous or missing source documentation
