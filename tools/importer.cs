@@ -1128,6 +1128,11 @@ static class ImporterProgram
 
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
         Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
+        var networkScan = androidPage.Members.Single(member => member.Name == "requestNetworkScan");
+        Assert(
+            networkScan.Docs?.Returns ==
+                "a scan handle that can be used to stop the network scan",
+            "exact Android Returns heading selected");
         Assert(
             !favoriteResult.Docs!.Paragraphs[0].Contains(")&quot;&gt;", StringComparison.Ordinal) &&
                 !favoriteResult.Docs.Paragraphs[0].Contains(")\"&gt;", StringComparison.Ordinal) &&
@@ -1277,7 +1282,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 40 assertions; exact Android/Java method and field matching, deprecated Java block exclusion, enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 41 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -1973,20 +1978,34 @@ static class ImporterProgram
                 @"<table\b[^>]*>(?<table>.*?)</table>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             {
-                if (!HtmlText(table.Value).Contains(heading, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                foreach (Match row in Regex.Matches(
+                var rows = Regex.Matches(
                     table.Groups["table"].Value,
                     @"<tr\b[^>]*>(?<row>.*?)</tr>",
-                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                    .Select(row => new
+                    {
+                        Cells = Regex.Matches(
+                            row.Groups["row"].Value,
+                            @"<t[dh]\b[^>]*>(?<cell>.*?)</t[dh]>",
+                            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .ToList(),
+                        Headings = Regex.Matches(
+                            row.Groups["row"].Value,
+                            @"<th\b[^>]*>(?<cell>.*?)</th>",
+                            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .ToList(),
+                    })
+                    .ToList();
+                var headingRow = rows.FindIndex(row => row.Headings.Any(
+                    cell => cell.Equals(heading, StringComparison.OrdinalIgnoreCase)));
+                if (headingRow < 0)
+                    continue;
+                foreach (var row in rows.Skip(headingRow + 1))
                 {
-                    var cells = Regex.Matches(
-                        row.Groups["row"].Value,
-                        @"<t[dh]\b[^>]*>(?<cell>.*?)</t[dh]>",
-                        RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                        .Select(cell => HtmlText(cell.Groups["cell"].Value))
-                        .ToList();
-                    if (cells.Count > 0 && !string.Join(" ", cells).Contains(heading, StringComparison.OrdinalIgnoreCase))
+                    var cells = row.Cells;
+                    if (cells.Count > 0)
                         return string.Join(" ", cells.Skip(cells.Count > 1 ? 1 : 0));
                 }
             }

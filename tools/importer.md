@@ -29,7 +29,8 @@ timestamps are filtered, and literal Unicode escapes are decoded before XML
 escaping. HTML tags are removed with quoted attributes intact, and empty table
 description cells remain empty rather than shifting Java types into prose. Java
 `deprecation-block` containers are excluded before selecting exact `block`
-documentation.
+documentation. Android return tables are selected only by an exact `Returns`
+heading cell, not by prose containing that word.
 Imported remarks use `<para>` elements, with stale links for the same source
 member replaced and current links placed before existing attribution. Enum field
 prose, source links, and attribution are emitted in `<summary>` because their
