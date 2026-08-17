@@ -1046,9 +1046,19 @@ static class ImporterProgram
             JavaReference + "java.base/java/lang/String.html",
             "java");
         var javaPage = SourcePage.Parse(javaRequest, javaHtml);
+        Assert(
+            javaPage.TypeDocs?.Summary == "Represents a sequence of characters." &&
+                !javaPage.TypeDocs.Paragraphs.Any(
+                    paragraph => paragraph.Contains("Deprecated", StringComparison.Ordinal)),
+            "Java deprecated type block excluded");
         var length = javaPage.Members.Single(member => member.Name == "length");
         Assert(length.ArgumentDescriptors?.Count == 0, "Java no-argument descriptor");
         Assert(length.Docs?.Returns == "the length of this string", "Java return extraction");
+        Assert(
+            length.Docs?.Summary == "Returns the length of this string." &&
+                !length.Docs.Paragraphs.Any(
+                    paragraph => paragraph.Contains("Deprecated", StringComparison.Ordinal)),
+            "Java deprecated member block excluded");
         var empty = javaPage.Members.Single(member => member.Name == "EMPTY");
         Assert(empty.IsField && empty.Docs?.Summary == "An empty fixture string.", "Java field extraction");
 
@@ -1267,7 +1277,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 38 assertions; exact Android/Java method and field matching, enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 40 assertions; exact Android/Java method and field matching, deprecated Java block exclusion, enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -2170,8 +2180,19 @@ static class ImporterProgram
         static List<string> ExtractBlocks(string html) =>
             Regex.Matches(
                 html,
-                @"<div\b[^>]*class=""[^""]*\bblock\b[^""]*""[^>]*>(?<body>.*?)</div>",
+                @"<div\b(?<attrs>[^>]*)>(?<body>.*?)</div>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Where(match =>
+                {
+                    var attributes = ParseAttributes(match.Groups["attrs"].Value);
+                    if (!attributes.TryGetValue("class", out var classes))
+                        return false;
+                    var classTokens = classes.Split(
+                        (char[]?)null,
+                        StringSplitOptions.RemoveEmptyEntries);
+                    return classTokens.Contains("block", StringComparer.Ordinal) &&
+                        !classTokens.Contains("deprecation-block", StringComparer.Ordinal);
+                })
                 .Select(match => HtmlText(match.Groups["body"].Value))
                 .Where(value => value.Length > 0)
                 .Distinct(StringComparer.Ordinal)
