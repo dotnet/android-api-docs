@@ -3032,11 +3032,11 @@
       </Parameters>
       <Docs>
         <param name="message">The static NDEF message to push over NFC, or <see langword="null" /> to clear the static message provider.</param>
-        <param name="activity">The activity for which the NDEF message will be pushed.</param>
-        <param name="activities">Optional additional activities. Register one activity at a time from that activity's <c>OnCreate</c> method.</param>
+        <param name="activity">The non-null activity for which the NDEF message will be pushed.</param>
+        <param name="activities">A non-null array of additional non-null activities. Pass an empty array if there are no additional activities. Register one activity at a time from that activity's <c>OnCreate</c> method.</param>
         <summary>Sets a static NDEF message to send using Android Beam.</summary>
         <remarks>
-          <para>Android Beam is deprecated in API level 29 and is no longer available on Android 10 (API level 29) or later.</para>
+          <para>Android Beam was deprecated in API level 29. On devices that support Android Beam, it remains functional through API level 33. Starting in API level 34, Android Beam is removed and calls to this method have no effect.</para>
           <para>The message is made available for NDEF push only while a specified activity is resumed. Call this method before <c>Activity.OnDestroy</c>, preferably from <c>Activity.OnCreate</c>. It does not perform I/O or blocking work and is safe to call from the main thread.</para>
           <para>Only one NDEF message can be pushed by the resumed activity. If a message callback is also set with <c>SetNdefPushMessageCallback</c>, the callback takes priority. Passing <see langword="null" /> clears the static message provider; a registered callback continues to supply the NDEF message.</para>
           <para>Use <c>SetNdefPushMessageCallback</c> when the message must be generated dynamically. Do not pass an activity that has already reached <c>Activity.OnDestroy</c>.</para>
@@ -3055,6 +3055,7 @@
         </remarks>
         <exception cref="T:Java.Lang.UnsupportedOperationException">The device does not support NFC.</exception>
         <exception cref="T:Java.Lang.IllegalStateException">The specified activity has already been destroyed.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">On Android versions where Android Beam is functional, <paramref name="activity" />, <paramref name="activities" />, or an element of <paramref name="activities" /> is <see langword="null" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetNdefPushMessageCallback">
@@ -3098,11 +3099,11 @@
       </Parameters>
       <Docs>
         <param name="callback">The callback that creates the NDEF message, or <see langword="null" /> to clear the callback provider.</param>
-        <param name="activity">The activity for which the NDEF message will be pushed.</param>
-        <param name="activities">Optional additional activities. Register one activity at a time from that activity's <c>OnCreate</c> method.</param>
+        <param name="activity">The non-null activity for which the NDEF message will be pushed.</param>
+        <param name="activities">A non-null array of additional non-null activities. Pass an empty array if there are no additional activities. Register one activity at a time from that activity's <c>OnCreate</c> method.</param>
         <summary>Sets a callback that dynamically generates NDEF messages to send using Android Beam.</summary>
         <remarks>
-          <para>Android Beam is deprecated in API level 29 and is no longer available on Android 10 (API level 29) or later.</para>
+          <para>Android Beam was deprecated in API level 29. On devices that support Android Beam, it remains functional through API level 33. Starting in API level 34, Android Beam is removed and calls to this method have no effect.</para>
           <para>The callback can run only while a specified activity is resumed. Call this method before <c>Activity.OnDestroy</c>, preferably from <c>Activity.OnCreate</c>. It does not perform I/O or blocking work and is safe to call from the main thread.</para>
           <para>Only one NDEF message can be pushed by the resumed activity. If a static message is also set with <c>SetNdefPushMessage</c>, this callback takes priority. Passing <see langword="null" /> clears the callback provider; a registered static message continues to be used.</para>
           <para>Use <c>SetNdefPushMessage</c> when the message does not need to change. Do not pass an activity that has already reached <c>Activity.OnDestroy</c>.</para>
@@ -3121,6 +3122,7 @@
         </remarks>
         <exception cref="T:Java.Lang.UnsupportedOperationException">The device does not support NFC.</exception>
         <exception cref="T:Java.Lang.IllegalStateException">The specified activity has already been destroyed.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">On Android versions where Android Beam is functional, <paramref name="activity" />, <paramref name="activities" />, or an element of <paramref name="activities" /> is <see langword="null" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetObserveModeEnabled">
