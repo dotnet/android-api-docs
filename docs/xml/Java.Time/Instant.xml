@@ -57,99 +57,18 @@
   <Docs>
     <summary>An instantaneous point on the time-line.</summary>
     <remarks>
-      <para>An instantaneous point on the time-line.</para>
-      <para>This class models a single instantaneous point on the time-line.
-            This might be used to record event time-stamps in the application.</para>
-      <para>The range of an instant requires the storage of a number larger than a <c>long</c>.
-            To achieve this, the class stores a <c>long</c> representing epoch-seconds and an
-            <c>int</c> representing nanosecond-of-second, which will always be between 0 and 999,999,999.
-            The epoch-seconds are measured from the standard Java epoch of <c>1970-01-01T00:00:00Z</c>
-            where instants after the epoch have positive values, and earlier instants have negative values.
-            For both the epoch-second and nanosecond parts, a larger value is always later on the time-line
-            than a smaller value.
-            
-            &lt;h2&gt;Time-scale&lt;/h2&gt;</para>
-      <para>The length of the solar day is the standard way that humans measure time.
-            This has traditionally been subdivided into 24 hours of 60 minutes of 60 seconds,
-            forming a 86400 second day.</para>
-      <para>Modern timekeeping is based on atomic clocks which precisely define an SI second
-            relative to the transitions of a Caesium atom. The length of an SI second was defined
-            to be very close to the 86400th fraction of a day.</para>
-      <para>Unfortunately, as the Earth rotates the length of the day varies.
-            In addition, over time the average length of the day is getting longer as the Earth slows.
-            As a result, the length of a solar day in 2012 is slightly longer than 86400 SI seconds.
-            The actual length of any given day and the amount by which the Earth is slowing
-            are not predictable and can only be determined by measurement.
-            The UT1 time-scale captures the accurate length of day, but is only available some
-            time after the day has completed.</para>
-      <para>The UTC time-scale is a standard approach to bundle up all the additional fractions
-            of a second from UT1 into whole seconds, known as <i>leap-seconds</i>.
-            A leap-second may be added or removed depending on the Earth's rotational changes.
-            As such, UTC permits a day to have 86399 SI seconds or 86401 SI seconds where
-            necessary in order to keep the day aligned with the Sun.</para>
-      <para>The modern UTC time-scale was introduced in 1972, introducing the concept of whole leap-seconds.
-            Between 1958 and 1972, the definition of UTC was complex, with minor sub-second leaps and
-            alterations to the length of the notional second. As of 2012, discussions are underway
-            to change the definition of UTC again, with the potential to remove leap seconds or
-            introduce other changes.</para>
-      <para>Given the complexity of accurate timekeeping described above, this Java API defines
-            its own time-scale, the <i>Java Time-Scale</i>.</para>
-      <para>The Java Time-Scale divides each calendar day into exactly 86400
-            subdivisions, known as seconds.  These seconds may differ from the
-            SI second.  It closely matches the de facto international civil time
-            scale, the definition of which changes from time to time.</para>
-      <para>The Java Time-Scale has slightly different definitions for different
-            segments of the time-line, each based on the consensus international
-            time scale that is used as the basis for civil time. Whenever the
-            internationally-agreed time scale is modified or replaced, a new
-            segment of the Java Time-Scale must be defined for it.  Each segment
-            must meet these requirements:
-            &lt;ul&gt;
-            &lt;li&gt;the Java Time-Scale shall closely match the underlying international
-             civil time scale;&lt;/li&gt;
-            &lt;li&gt;the Java Time-Scale shall exactly match the international civil
-             time scale at noon each day;&lt;/li&gt;
-            &lt;li&gt;the Java Time-Scale shall have a precisely-defined relationship to
-             the international civil time scale.&lt;/li&gt;
-            &lt;/ul&gt;
-            There are currently, as of 2013, two segments in the Java time-scale.</para>
-      <para>For the segment from 1972-11-03 (exact boundary discussed below) until
-            further notice, the consensus international time scale is UTC (with
-            leap seconds).  In this segment, the Java Time-Scale is identical to
-            <see href="http://www.cl.cam.ac.uk/~mgk25/time/utc-sls/">UTC-SLS</see>.
-            This is identical to UTC on days that do not have a leap second.
-            On days that do have a leap second, the leap second is spread equally
-            over the last 1000 seconds of the day, maintaining the appearance of
-            exactly 86400 seconds per day.</para>
-      <para>For the segment prior to 1972-11-03, extending back arbitrarily far,
-            the consensus international time scale is defined to be UT1, applied
-            proleptically, which is equivalent to the (mean) solar time on the
-            prime meridian (Greenwich). In this segment, the Java Time-Scale is
-            identical to the consensus international time scale. The exact
-            boundary between the two segments is the instant where UT1 = UTC
-            between 1972-11-03T00:00 and 1972-11-04T12:00.</para>
-      <para>Implementations of the Java time-scale using the JSR-310 API are not
-            required to provide any clock that is sub-second accurate, or that
-            progresses monotonically or smoothly. Implementations are therefore
-            not required to actually perform the UTC-SLS slew or to otherwise be
-            aware of leap seconds. JSR-310 does, however, require that
-            implementations must document the approach they use when defining a
-            clock representing the current instant.
-            See <c>Clock</c> for details on the available clocks.</para>
-      <para>The Java time-scale is used for all date-time classes.
-            This includes <c>Instant</c>, <c>LocalDate</c>, <c>LocalTime</c>, <c>OffsetDateTime</c>,
-            <c>ZonedDateTime</c> and <c>Duration</c>.</para>
-      <para>Added in 1.8.</para>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/java/time/Instant" title="Reference documentation">Java documentation for <code>java.time.Instant</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>This class models a single instantaneous point on the time-line, such as an event timestamp.</para>
+      <para>An instant stores epoch-seconds and a nanosecond-of-second. Epoch-seconds are measured from the standard Java epoch of <c>1970-01-01T00:00:00Z</c>; later instants have positive values and earlier instants have negative values.</para>
+      <para>The Java Time-Scale divides each calendar day into exactly 86,400 subdivisions, known as seconds. It closely matches the civil time scale and has different definitions for different segments of the time-line.</para>
+      <para>Each Java Time-Scale segment must meet these requirements:</para>
+      <list type="bullet">
+        <item><term>The Java Time-Scale closely matches the underlying international civil time scale.</term></item>
+        <item><term>The Java Time-Scale exactly matches the international civil time scale at noon each day.</term></item>
+        <item><term>The Java Time-Scale has a precisely defined relationship to the international civil time scale.</term></item>
+      </list>
+      <para>This value-based class treats equal instances as interchangeable. Do not use instances for synchronization; use <c>Equals</c> for comparisons.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant" title="Reference documentation">Android reference for <code>java.time.Instant</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -183,10 +102,16 @@
         <Parameter Name="temporal" Type="Java.Time.Temporal.ITemporal" />
       </Parameters>
       <Docs>
-        <param name="temporal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="temporal">Temporal: the target object to be adjusted, not null</param>
+        <summary>Adjusts the specified temporal object to have this instant.</summary>
+        <returns>the adjusted object, not null</returns>
+        <remarks>
+          <para>Adjusts the specified temporal object to have this instant. This returns a temporal object of the same observable type as the input with the instant changed to be the same as this. The adjustment is equivalent to using Temporal.with(TemporalField,long) twice, passing ChronoField.INSTANT_SECONDS and ChronoField.NANO_OF_SECOND as the fields. In most cases, it is clearer to reverse the calling pattern by using Temporal.with(TemporalAdjuster). This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if unable to make the adjustment</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#adjustInto(java.time.temporal.Temporal)" title="Reference documentation">Android reference for <code>java.time.Instant.adjustInto</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AtOffset">
@@ -216,10 +141,15 @@
         <Parameter Name="offset" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="offset">ZoneOffset: the offset to combine with, not null</param>
+        <summary>Combines this instant with an offset to create an OffsetDateTime.</summary>
+        <returns>the offset date-time formed from this instant and the specified offset, not null</returns>
+        <remarks>
+          <para>Combines this instant with an offset to create an OffsetDateTime. This returns an OffsetDateTime formed from this instant at the specified offset from UTC/Greenwich. An exception will be thrown if the instant is too large to fit into an offset date-time. This method is equivalent to OffsetDateTime.ofInstant(this, offset).</para>
+          <para>Throws: DateTimeException if the result exceeds the supported range</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#atOffset(java.time.ZoneOffset)" title="Reference documentation">Android reference for <code>java.time.Instant.atOffset</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AtZone">
@@ -249,10 +179,15 @@
         <Parameter Name="zone" Type="Java.Time.ZoneId" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="zone">ZoneId: the zone to combine with, not null</param>
+        <summary>Combines this instant with a time-zone to create a ZonedDateTime.</summary>
+        <returns>the zoned date-time formed from this instant and the specified zone, not null</returns>
+        <remarks>
+          <para>Combines this instant with a time-zone to create a ZonedDateTime. This returns a ZonedDateTime formed from this instant at the specified time-zone. An exception will be thrown if the instant is too large to fit into a zoned date-time. This method is equivalent to ZonedDateTime.ofInstant(this, zone).</para>
+          <para>Throws: DateTimeException if the result exceeds the supported range</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#atZone(java.time.ZoneId)" title="Reference documentation">Android reference for <code>java.time.Instant.atZone</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CompareTo">
@@ -282,10 +217,15 @@
         <Parameter Name="otherInstant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="otherInstant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="otherInstant">Instant: the other instant to compare to, not null</param>
+        <summary>Compares this instant to the specified instant.</summary>
+        <returns>the comparator value, that is less than zero if this instant is before otherInstant, zero if they are equal, or greater than zero if this instant is after otherInstant</returns>
+        <remarks>
+          <para>Compares this instant to the specified instant. The comparison is based on the time-line position of the instants. It is "consistent with equals", as defined by Comparable.</para>
+          <para>Throws: NullPointerException if otherInstant is null</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#compareTo(java.time.Instant)" title="Reference documentation">Android reference for <code>java.time.Instant.compareTo</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Epoch">
@@ -312,9 +252,12 @@
         <ReturnType>Java.Time.Instant</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Constant for the 1970-01-01T00:00:00Z epoch instant.</summary>
+        <remarks>
+          <para>Constant for the 1970-01-01T00:00:00Z epoch instant.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#EPOCH" title="Reference documentation">Android reference for <code>java.time.Instant.EPOCH</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="EpochSecond">
@@ -344,20 +287,9 @@
         <summary>Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z.</summary>
         <value>the seconds from the epoch of 1970-01-01T00:00:00Z</value>
         <remarks>
-          <para>Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z.</para>
-          <para>The epoch second count is a simple incrementing count of seconds where
-            second 0 is 1970-01-01T00:00:00Z.
-            The nanosecond part is returned by <c>#getNano</c>.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/time/Instant#getEpochSecond()" title="Reference documentation">Java documentation for <code>java.time.Instant.getEpochSecond()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the number of seconds from the Java epoch of 1970-01-01T00:00:00Z. The epoch second count is a simple incrementing count of seconds where second 0 is 1970-01-01T00:00:00Z. The nanosecond part is returned by getNano().</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#getEpochSecond()" title="Reference documentation">Android reference for <code>java.time.Instant.getEpochSecond</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -388,10 +320,15 @@
         <Parameter Name="temporal" Type="Java.Time.Temporal.ITemporalAccessor" />
       </Parameters>
       <Docs>
-        <param name="temporal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="temporal">TemporalAccessor: the temporal object to convert, not null</param>
+        <summary>Obtains an instance of Instant from a temporal object.</summary>
+        <returns>the instant, not null</returns>
+        <remarks>
+          <para>Obtains an instance of Instant from a temporal object. This obtains an instant based on the specified temporal. A TemporalAccessor represents an arbitrary set of date and time information, which this factory converts to an instance of Instant. The conversion extracts the INSTANT_SECONDS and NANO_OF_SECOND fields. This method matches the signature of the functional interface TemporalQuery allowing it to be used as a query via method reference, Instant::from.</para>
+          <para>Throws: DateTimeException if unable to convert to an Instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#from(java.time.temporal.TemporalAccessor)" title="Reference documentation">Android reference for <code>java.time.Instant.from</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Get">
@@ -424,10 +361,17 @@
         <Parameter Name="field" Type="Java.Time.Temporal.ITemporalField" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="field">TemporalField: the field to get, not null</param>
+        <summary>Gets the value of the specified field from this instant as an int.</summary>
+        <returns>the value for the field</returns>
+        <remarks>
+          <para>Gets the value of the specified field from this instant as an int. This queries this instant for the value of the specified field. The returned value will always be within the valid range of values for the field. If it is not possible to return the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return valid values based on this date-time, except INSTANT_SECONDS which is too large to fit in an int and throws a DateTimeException. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.getFrom(TemporalAccessor) passing this as the argument. Whether the value can be obtained, and what the value represents, is determined by the field.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if a value for the field cannot be obtained or the value is outside the range of valid values for the field</para>
+          <para>Throws: UnsupportedTemporalTypeException if the field is not supported or the range of values exceeds an int</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#get(java.time.temporal.TemporalField)" title="Reference documentation">Android reference for <code>java.time.Instant.get</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetLong">
@@ -460,10 +404,17 @@
         <Parameter Name="field" Type="Java.Time.Temporal.ITemporalField" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="field">TemporalField: the field to get, not null</param>
+        <summary>Gets the value of the specified field from this instant as a long.</summary>
+        <returns>the value for the field</returns>
+        <remarks>
+          <para>Gets the value of the specified field from this instant as a long. This queries this instant for the value of the specified field. If it is not possible to return the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return valid values based on this date-time. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.getFrom(TemporalAccessor) passing this as the argument. Whether the value can be obtained, and what the value represents, is determined by the field.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if a value for the field cannot be obtained</para>
+          <para>Throws: UnsupportedTemporalTypeException if the field is not supported</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#getLong(java.time.temporal.TemporalField)" title="Reference documentation">Android reference for <code>java.time.Instant.getLong</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsAfter">
@@ -493,10 +444,15 @@
         <Parameter Name="otherInstant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="otherInstant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="otherInstant">Instant: the other instant to compare to, not null</param>
+        <summary>Checks if this instant is after the specified instant.</summary>
+        <returns>true if this instant is after the specified instant</returns>
+        <remarks>
+          <para>Checks if this instant is after the specified instant. The comparison is based on the time-line position of the instants.</para>
+          <para>Throws: NullPointerException if otherInstant is null</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#isAfter(java.time.Instant)" title="Reference documentation">Android reference for <code>java.time.Instant.isAfter</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsBefore">
@@ -526,10 +482,15 @@
         <Parameter Name="otherInstant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="otherInstant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="otherInstant">Instant: the other instant to compare to, not null</param>
+        <summary>Checks if this instant is before the specified instant.</summary>
+        <returns>true if this instant is before the specified instant</returns>
+        <remarks>
+          <para>Checks if this instant is before the specified instant. The comparison is based on the time-line position of the instants.</para>
+          <para>Throws: NullPointerException if otherInstant is null</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#isBefore(java.time.Instant)" title="Reference documentation">Android reference for <code>java.time.Instant.isBefore</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsSupported">
@@ -562,10 +523,14 @@
         <Parameter Name="field" Type="Java.Time.Temporal.ITemporalField" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="field">TemporalField: the field to check, null returns false</param>
+        <summary>Checks if the specified field is supported.</summary>
+        <returns>true if the field is supported on this instant, false if not</returns>
+        <remarks>
+          <para>Checks if the specified field is supported. This checks if this instant can be queried for the specified field. If false, then calling the range, get and with(TemporalField,long) methods will throw an exception. If the field is a ChronoField then the query is implemented here. The supported fields are: NANO_OF_SECOND MICRO_OF_SECOND MILLI_OF_SECOND INSTANT_SECONDS All other ChronoField instances will return false. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.isSupportedBy(TemporalAccessor) passing this as the argument. Whether the field is supported is determined by the field.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#isSupported(java.time.temporal.TemporalField)" title="Reference documentation">Android reference for <code>java.time.Instant.isSupported</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsSupported">
@@ -598,10 +563,14 @@
         <Parameter Name="unit" Type="Java.Time.Temporal.ITemporalUnit" />
       </Parameters>
       <Docs>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="unit">TemporalUnit: the unit to check, null returns false</param>
+        <summary>Checks if the specified unit is supported.</summary>
+        <returns>true if the unit is supported on this instant, false if not</returns>
+        <remarks>
+          <para>Checks if the specified unit is supported. This checks if the specified unit can be added to, or subtracted from, this date-time. If false, then calling the plus(long,TemporalUnit) and minus methods will throw an exception. If the unit is a ChronoUnit then the query is implemented here. The supported units are: NANOS MICROS MILLIS SECONDS MINUTES HOURS HALF_DAYS DAYS All other ChronoUnit instances will return false. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.isSupportedBy(Temporal) passing this as the argument. Whether the unit is supported is determined by the unit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#isSupported(java.time.temporal.TemporalUnit)" title="Reference documentation">Android reference for <code>java.time.Instant.isSupported</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -722,9 +691,12 @@
         <ReturnType>Java.Time.Instant</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The maximum supported Instant, '1000000000-12-31T23:59:59.999999999Z'.</summary>
+        <remarks>
+          <para>The maximum supported Instant, '1000000000-12-31T23:59:59.999999999Z'. This could be used by an application as a "far future" instant. This is one year later than the maximum LocalDateTime. This provides sufficient values to handle the range of ZoneOffset which affect the instant in addition to the local date-time. The value is also chosen such that the value of the year fits in an int.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#MAX" title="Reference documentation">Android reference for <code>java.time.Instant.MAX</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Min">
@@ -751,9 +723,12 @@
         <ReturnType>Java.Time.Instant</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The minimum supported Instant, '-1000000000-01-01T00:00Z'.</summary>
+        <remarks>
+          <para>The minimum supported Instant, '-1000000000-01-01T00:00Z'. This could be used by an application as a "far past" instant. This is one year earlier than the minimum LocalDateTime. This provides sufficient values to handle the range of ZoneOffset which affect the instant in addition to the local date-time. The value is also chosen such that the value of the year fits in an int.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#MIN" title="Reference documentation">Android reference for <code>java.time.Instant.MIN</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Minus">
@@ -783,10 +758,16 @@
         <Parameter Name="amountToSubtract" Type="Java.Time.Temporal.ITemporalAmount" />
       </Parameters>
       <Docs>
-        <param name="amountToSubtract">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="amountToSubtract">TemporalAmount: the amount to subtract, not null</param>
+        <summary>Returns a copy of this instant with the specified amount subtracted.</summary>
+        <returns>an Instant based on this instant with the subtraction made, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified amount subtracted. This returns an Instant, based on this one, with the specified amount subtracted. The amount is typically Duration but may be any other type implementing the TemporalAmount interface. The calculation is delegated to the amount object by calling TemporalAmount.subtractFrom(Temporal). The amount implementation is free to implement the subtraction in any way it wishes, however it typically calls back to minus(long,TemporalUnit). Consult the documentation of the amount implementation to determine if it can be successfully subtracted. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the subtraction cannot be made</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#minus(java.time.temporal.TemporalAmount)" title="Reference documentation">Android reference for <code>java.time.Instant.minus</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Minus">
@@ -817,11 +798,18 @@
         <Parameter Name="unit" Type="Java.Time.Temporal.ITemporalUnit" />
       </Parameters>
       <Docs>
-        <param name="amountToSubtract">To be added.</param>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="amountToSubtract">long: the amount of the unit to subtract from the result, may be negative</param>
+        <param name="unit">TemporalUnit: the unit of the amount to subtract, not null</param>
+        <summary>Returns a copy of this instant with the specified amount subtracted.</summary>
+        <returns>an Instant based on this instant with the specified amount subtracted, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified amount subtracted. This returns an Instant, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. This method is equivalent to plus(long,TemporalUnit) with the amount negated. See that method for a full description of how addition, and thus subtraction, works. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the subtraction cannot be made</para>
+          <para>Throws: UnsupportedTemporalTypeException if the unit is not supported</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#minus(long,%20java.time.temporal.TemporalUnit)" title="Reference documentation">Android reference for <code>java.time.Instant.minus</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MinusMillis">
@@ -851,10 +839,16 @@
         <Parameter Name="millisToSubtract" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="millisToSubtract">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="millisToSubtract">long: the milliseconds to subtract, positive or negative</param>
+        <summary>Returns a copy of this instant with the specified duration in milliseconds subtracted.</summary>
+        <returns>an Instant based on this instant with the specified milliseconds subtracted, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified duration in milliseconds subtracted. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the result exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#minusMillis(long)" title="Reference documentation">Android reference for <code>java.time.Instant.minusMillis</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MinusNanos">
@@ -884,10 +878,16 @@
         <Parameter Name="nanosToSubtract" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="nanosToSubtract">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="nanosToSubtract">long: the nanoseconds to subtract, positive or negative</param>
+        <summary>Returns a copy of this instant with the specified duration in nanoseconds subtracted.</summary>
+        <returns>an Instant based on this instant with the specified nanoseconds subtracted, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified duration in nanoseconds subtracted. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the result exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#minusNanos(long)" title="Reference documentation">Android reference for <code>java.time.Instant.minusNanos</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MinusSeconds">
@@ -917,10 +917,16 @@
         <Parameter Name="secondsToSubtract" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="secondsToSubtract">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="secondsToSubtract">long: the seconds to subtract, positive or negative</param>
+        <summary>Returns a copy of this instant with the specified duration in seconds subtracted.</summary>
+        <returns>an Instant based on this instant with the specified seconds subtracted, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified duration in seconds subtracted. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the result exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#minusSeconds(long)" title="Reference documentation">Android reference for <code>java.time.Instant.minusSeconds</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Nano">
@@ -947,24 +953,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the number of nanoseconds, later along the time-line, from the start
-            of the second.</summary>
+        <summary>Gets the number of nanoseconds, later along the time-line, from the start of the second.</summary>
         <value>the nanoseconds within the second, always positive, never exceeds 999,999,999</value>
         <remarks>
-          <para>Gets the number of nanoseconds, later along the time-line, from the start
-            of the second.</para>
-          <para>The nanosecond-of-second value measures the total number of nanoseconds from
-            the second returned by <c>#getEpochSecond</c>.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/time/Instant#getNano()" title="Reference documentation">Java documentation for <code>java.time.Instant.getNano()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Gets the number of nanoseconds, later along the time-line, from the start of the second. The nanosecond-of-second value measures the total number of nanoseconds from the second returned by getEpochSecond().</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#getNano()" title="Reference documentation">Android reference for <code>java.time.Instant.getNano</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -993,9 +987,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Obtains the current instant from the system clock.</summary>
+        <returns>the current instant using the system clock, not null</returns>
+        <remarks>
+          <para>Obtains the current instant from the system clock. This will query the system UTC clock to obtain the current instant. Using this method will prevent the ability to use an alternate time-source for testing because the clock is effectively hard-coded.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#now()" title="Reference documentation">Android reference for <code>java.time.Instant.now</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Now">
@@ -1025,10 +1023,14 @@
         <Parameter Name="clock" Type="Java.Time.Clock" />
       </Parameters>
       <Docs>
-        <param name="clock">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="clock">Clock: the clock to use, not null</param>
+        <summary>Obtains the current instant from the specified clock.</summary>
+        <returns>the current instant, not null</returns>
+        <remarks>
+          <para>Obtains the current instant from the specified clock. This will query the specified clock to obtain the current time. Using this method allows the use of an alternate clock for testing. The alternate clock may be introduced using dependency injection.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#now(java.time.Clock)" title="Reference documentation">Android reference for <code>java.time.Instant.now</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OfEpochMilli">
@@ -1058,10 +1060,14 @@
         <Parameter Name="epochMilli" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="epochMilli">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="epochMilli">long: the number of milliseconds from 1970-01-01T00:00:00Z</param>
+        <summary>Obtains an instance of Instant using milliseconds from the epoch of 1970-01-01T00:00:00Z.</summary>
+        <returns>an instant, not null</returns>
+        <remarks>
+          <para>Obtains an instance of Instant using milliseconds from the epoch of 1970-01-01T00:00:00Z. The seconds and nanoseconds are extracted from the specified milliseconds.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#ofEpochMilli(long)" title="Reference documentation">Android reference for <code>java.time.Instant.ofEpochMilli</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OfEpochSecond">
@@ -1091,10 +1097,15 @@
         <Parameter Name="epochSecond" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="epochSecond">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="epochSecond">long: the number of seconds from 1970-01-01T00:00:00Z</param>
+        <summary>Obtains an instance of Instant using seconds from the epoch of 1970-01-01T00:00:00Z.</summary>
+        <returns>an instant, not null</returns>
+        <remarks>
+          <para>Obtains an instance of Instant using seconds from the epoch of 1970-01-01T00:00:00Z. The nanosecond field is set to zero.</para>
+          <para>Throws: DateTimeException if the instant exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#ofEpochSecond(long)" title="Reference documentation">Android reference for <code>java.time.Instant.ofEpochSecond</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OfEpochSecond">
@@ -1125,11 +1136,17 @@
         <Parameter Name="nanoAdjustment" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="epochSecond">To be added.</param>
-        <param name="nanoAdjustment">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="epochSecond">long: the number of seconds from 1970-01-01T00:00:00Z</param>
+        <param name="nanoAdjustment">long: the nanosecond adjustment to the number of seconds, positive or negative</param>
+        <summary>Obtains an instance of Instant using seconds from the epoch of 1970-01-01T00:00:00Z and nanosecond fraction of second.</summary>
+        <returns>an instant, not null</returns>
+        <remarks>
+          <para>Obtains an instance of Instant using seconds from the epoch of 1970-01-01T00:00:00Z and nanosecond fraction of second. This method allows an arbitrary number of nanoseconds to be passed in. The factory will alter the values of the second and nanosecond in order to ensure that the stored nanosecond is in the range 0 to 999,999,999.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the instant exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#ofEpochSecond(long,%20long)" title="Reference documentation">Android reference for <code>java.time.Instant.ofEpochSecond</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -1159,10 +1176,15 @@
         <Parameter Name="text" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">ICharSequence: the text to parse, not null</param>
+        <summary>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z.</summary>
+        <returns>the parsed instant, not null</returns>
+        <remarks>
+          <para>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z. The string must represent a valid instant in UTC and is parsed using DateTimeFormatter.ISO_INSTANT.</para>
+          <para>Throws: DateTimeParseException if the text cannot be parsed</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#parse(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>java.time.Instant.parse</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -1188,10 +1210,15 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">string: the text to parse, not null</param>
+        <summary>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z.</summary>
+        <returns>the parsed instant, not null</returns>
+        <remarks>
+          <para>Obtains an instance of Instant from a text string such as 2007-12-03T10:15:30.00Z. The string must represent a valid instant in UTC and is parsed using DateTimeFormatter.ISO_INSTANT.</para>
+          <para>Throws: DateTimeParseException if the text cannot be parsed</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#parse(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>java.time.Instant.parse</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Plus">
@@ -1221,10 +1248,16 @@
         <Parameter Name="amountToAdd" Type="Java.Time.Temporal.ITemporalAmount" />
       </Parameters>
       <Docs>
-        <param name="amountToAdd">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="amountToAdd">TemporalAmount: the amount to add, not null</param>
+        <summary>Returns a copy of this instant with the specified amount added.</summary>
+        <returns>an Instant based on this instant with the addition made, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified amount added. This returns an Instant, based on this one, with the specified amount added. The amount is typically Duration but may be any other type implementing the TemporalAmount interface. The calculation is delegated to the amount object by calling TemporalAmount.addTo(Temporal). The amount implementation is free to implement the addition in any way it wishes, however it typically calls back to plus(long,TemporalUnit). Consult the documentation of the amount implementation to determine if it can be successfully added. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the addition cannot be made</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#plus(java.time.temporal.TemporalAmount)" title="Reference documentation">Android reference for <code>java.time.Instant.plus</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Plus">
@@ -1258,11 +1291,18 @@
         <Parameter Name="unit" Type="Java.Time.Temporal.ITemporalUnit" />
       </Parameters>
       <Docs>
-        <param name="amountToAdd">To be added.</param>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="amountToAdd">long: the amount of the unit to add to the result, may be negative</param>
+        <param name="unit">TemporalUnit: the unit of the amount to add, not null</param>
+        <summary>Returns a copy of this instant with the specified amount added.</summary>
+        <returns>an Instant based on this instant with the specified amount added, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified amount added. This returns an Instant, based on this one, with the amount in terms of the unit added. If it is not possible to add the amount, because the unit is not supported or for some other reason, an exception is thrown. If the field is a ChronoUnit then the addition is implemented here. The supported fields behave as follows: NANOS - Returns an Instant with the specified number of nanoseconds added. This is equivalent to plusNanos(long). MICROS - Returns an Instant with the specified number of microseconds added. This is equivalent to plusNanos(long) with the amount multiplied by 1,000. MILLIS - Returns an Instant with the specified number of milliseconds added. This is equivalent to plusNanos(long) with the amount multiplied by 1,000,000. SECONDS - Returns an Instant with the specified number of seconds added. This is equivalent to plusSeconds(long). MINUTES - Returns an Instant with the specified number of minutes added. This is equivalent to plusSeconds(long) with the amount multiplied by 60. HOURS - Returns an Instant with the specified number of hours added. This is equivalent to plusSeconds(long) with the amount multiplied by 3,600. HALF_DAYS - Returns an Instant with the specified number of half-days added. This is equivalent to plusSeconds(long) with the amount multiplied by 43,200 (12 hours). DAYS - Returns an Instant with the specified number of days added. This is equivalent to plusSeconds(long) with the amount multiplied by 86,400 (24 hours). All other ChronoUnit instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.addTo(Temporal, long) passing this as the argument. In this case, the unit determines whether and how to perform the addition. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the addition cannot be made</para>
+          <para>Throws: UnsupportedTemporalTypeException if the unit is not supported</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#plus(long,%20java.time.temporal.TemporalUnit)" title="Reference documentation">Android reference for <code>java.time.Instant.plus</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PlusMillis">
@@ -1292,10 +1332,16 @@
         <Parameter Name="millisToAdd" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="millisToAdd">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="millisToAdd">long: the milliseconds to add, positive or negative</param>
+        <summary>Returns a copy of this instant with the specified duration in milliseconds added.</summary>
+        <returns>an Instant based on this instant with the specified milliseconds added, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified duration in milliseconds added. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the result exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#plusMillis(long)" title="Reference documentation">Android reference for <code>java.time.Instant.plusMillis</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PlusNanos">
@@ -1325,10 +1371,16 @@
         <Parameter Name="nanosToAdd" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="nanosToAdd">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="nanosToAdd">long: the nanoseconds to add, positive or negative</param>
+        <summary>Returns a copy of this instant with the specified duration in nanoseconds added.</summary>
+        <returns>an Instant based on this instant with the specified nanoseconds added, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified duration in nanoseconds added. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the result exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#plusNanos(long)" title="Reference documentation">Android reference for <code>java.time.Instant.plusNanos</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PlusSeconds">
@@ -1358,10 +1410,16 @@
         <Parameter Name="secondsToAdd" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="secondsToAdd">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="secondsToAdd">long: the seconds to add, positive or negative</param>
+        <summary>Returns a copy of this instant with the specified duration in seconds added.</summary>
+        <returns>an Instant based on this instant with the specified seconds added, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified duration in seconds added. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the result exceeds the maximum or minimum instant</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#plusSeconds(long)" title="Reference documentation">Android reference for <code>java.time.Instant.plusSeconds</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">
@@ -1398,10 +1456,16 @@
         <Parameter Name="query" Type="Java.Time.Temporal.ITemporalQuery" />
       </Parameters>
       <Docs>
-        <param name="query">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="query">TemporalQuery: the query to invoke, not null</param>
+        <summary>Queries this instant using the specified query.</summary>
+        <returns>the query result, null may be returned (defined by the query)</returns>
+        <remarks>
+          <para>Queries this instant using the specified query. This queries this instant using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. The result of this method is obtained by invoking the TemporalQuery.queryFrom(TemporalAccessor) method on the specified query passing this as the argument.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs (defined by the query)</para>
+          <para>Throws: DateTimeException if unable to query (defined by the query)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#query(java.time.temporal.TemporalQuery&lt;R&gt;)" title="Reference documentation">Android reference for <code>java.time.Instant.query</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Range">
@@ -1434,10 +1498,16 @@
         <Parameter Name="field" Type="Java.Time.Temporal.ITemporalField" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="field">TemporalField: the field to query the range for, not null</param>
+        <summary>Gets the range of valid values for the specified field.</summary>
+        <returns>the range of valid values for the field, not null</returns>
+        <remarks>
+          <para>Gets the range of valid values for the specified field. The range object expresses the minimum and maximum valid values for a field. This instant is used to enhance the accuracy of the returned range. If it is not possible to return the range, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return appropriate range instances. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.rangeRefinedBy(TemporalAccessor) passing this as the argument. Whether the range can be obtained is determined by the field.</para>
+          <para>Throws: DateTimeException if the range for the field cannot be obtained</para>
+          <para>Throws: UnsupportedTemporalTypeException if the field is not supported</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#range(java.time.temporal.TemporalField)" title="Reference documentation">Android reference for <code>java.time.Instant.range</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -1531,27 +1601,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Converts this instant to the number of milliseconds from the epoch
-            of 1970-01-01T00:00:00Z.</summary>
+        <summary>Converts this instant to the number of milliseconds from the epoch of 1970-01-01T00:00:00Z.</summary>
         <returns>the number of milliseconds since the epoch of 1970-01-01T00:00:00Z</returns>
         <remarks>
-          <para>Converts this instant to the number of milliseconds from the epoch
-            of 1970-01-01T00:00:00Z.</para>
-          <para>If this instant represents a point on the time-line too far in the future
-            or past to fit in a <c>long</c> milliseconds, then an exception is thrown.</para>
-          <para>If this instant has greater than millisecond precision, then the conversion
-            will drop any excess precision information as though the amount in nanoseconds
-            was subject to integer division by one million.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/time/Instant#toEpochMilli()" title="Reference documentation">Java documentation for <code>java.time.Instant.toEpochMilli()</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Converts this instant to the number of milliseconds from the epoch of 1970-01-01T00:00:00Z. If this instant represents a point on the time-line too far in the future or past to fit in a long milliseconds, then an exception is thrown. If this instant has greater than millisecond precision, then the conversion will drop any excess precision information as though the amount in nanoseconds was subject to integer division by one million.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#toEpochMilli()" title="Reference documentation">Android reference for <code>java.time.Instant.toEpochMilli</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1582,10 +1638,16 @@
         <Parameter Name="unit" Type="Java.Time.Temporal.ITemporalUnit" />
       </Parameters>
       <Docs>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="unit">TemporalUnit: the unit to truncate to, not null</param>
+        <summary>Returns a copy of this Instant truncated to the specified unit.</summary>
+        <returns>an Instant based on this instant with the time truncated, not null</returns>
+        <remarks>
+          <para>Returns a copy of this Instant truncated to the specified unit. Truncating the instant returns a copy of the original with fields smaller than the specified unit set to zero. The fields are calculated on the basis of using a UTC offset as seen in toString. For example, truncating with the MINUTES unit will round down to the nearest minute, setting the seconds and nanoseconds to zero. The unit must have a duration that divides into the length of a standard day without remainder. This includes all supplied time units on ChronoUnit and DAYS. Other units throw an exception. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: DateTimeException if the unit is invalid for truncation</para>
+          <para>Throws: UnsupportedTemporalTypeException if the unit is not supported</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#truncatedTo(java.time.temporal.TemporalUnit)" title="Reference documentation">Android reference for <code>java.time.Instant.truncatedTo</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Until">
@@ -1619,11 +1681,18 @@
         <Parameter Name="unit" Type="Java.Time.Temporal.ITemporalUnit" />
       </Parameters>
       <Docs>
-        <param name="endExclusive">To be added.</param>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="endExclusive">Temporal: the end date, exclusive, which is converted to an Instant, not null</param>
+        <param name="unit">TemporalUnit: the unit to measure the amount in, not null</param>
+        <summary>Calculates the amount of time until another instant in terms of the specified unit.</summary>
+        <returns>the amount of time between this instant and the end instant</returns>
+        <remarks>
+          <para>Calculates the amount of time until another instant in terms of the specified unit. This calculates the amount of time between two Instant objects in terms of a single TemporalUnit. The start and end points are this and the specified instant. The result will be negative if the end is before the start. The calculation returns a whole number, representing the number of complete units between the two instants. The Temporal passed to this method is converted to a Instant using from(TemporalAccessor). For example, the amount in seconds between two dates can be calculated using startInstant.until(endInstant, SECONDS). There are two equivalent ways of using this method. The first is to invoke this method. The second is to use TemporalUnit.between(Temporal,Temporal): The choice should be made based on which makes the code more readable. The calculation is implemented in this method for ChronoUnit. The units NANOS, MICROS, MILLIS, SECONDS, MINUTES, HOURS, HALF_DAYS and DAYS are supported. Other ChronoUnit values will throw an exception. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.between(Temporal, Temporal) passing this as the first argument and the converted input temporal as the second argument. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the amount cannot be calculated, or the end temporal cannot be converted to an Instant</para>
+          <para>Throws: UnsupportedTemporalTypeException if the unit is not supported</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#until(java.time.temporal.Temporal,%20java.time.temporal.TemporalUnit)" title="Reference documentation">Android reference for <code>java.time.Instant.until</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="With">
@@ -1653,10 +1722,16 @@
         <Parameter Name="adjuster" Type="Java.Time.Temporal.ITemporalAdjuster" />
       </Parameters>
       <Docs>
-        <param name="adjuster">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="adjuster">TemporalAdjuster: the adjuster to use, not null</param>
+        <summary>Returns an adjusted copy of this instant.</summary>
+        <returns>an Instant based on this with the adjustment made, not null</returns>
+        <remarks>
+          <para>Returns an adjusted copy of this instant. This returns an Instant, based on this one, with the instant adjusted. The adjustment takes place using the specified adjuster strategy object. Read the documentation of the adjuster to understand what adjustment will be made. The result of this method is obtained by invoking the TemporalAdjuster.adjustInto(Temporal) method on the specified adjuster passing this as the argument. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the adjustment cannot be made</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#with(java.time.temporal.TemporalAdjuster)" title="Reference documentation">Android reference for <code>java.time.Instant.with</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="With">
@@ -1690,11 +1765,18 @@
         <Parameter Name="newValue" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <param name="newValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="field">TemporalField: the field to set in the result, not null</param>
+        <param name="newValue">long: the new value of the field in the result</param>
+        <summary>Returns a copy of this instant with the specified field set to a new value.</summary>
+        <returns>an Instant based on this with the specified field set, not null</returns>
+        <remarks>
+          <para>Returns a copy of this instant with the specified field set to a new value. This returns an Instant, based on this one, with the value for the specified field changed. If it is not possible to set the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the adjustment is implemented here. The supported fields behave as follows: NANO_OF_SECOND - Returns an Instant with the specified nano-of-second. The epoch-second will be unchanged. MICRO_OF_SECOND - Returns an Instant with the nano-of-second replaced by the specified micro-of-second multiplied by 1,000. The epoch-second will be unchanged. MILLI_OF_SECOND - Returns an Instant with the nano-of-second replaced by the specified milli-of-second multiplied by 1,000,000. The epoch-second will be unchanged. INSTANT_SECONDS - Returns an Instant with the specified epoch-second. The nano-of-second will be unchanged. In all cases, if the new value is outside the valid range of values for the field then a DateTimeException will be thrown. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the instant. This instance is immutable and unaffected by this method call.</para>
+          <para>Throws: ArithmeticException if numeric overflow occurs</para>
+          <para>Throws: DateTimeException if the field cannot be set</para>
+          <para>Throws: UnsupportedTemporalTypeException if the field is not supported</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/time/Instant#with(java.time.temporal.TemporalField,%20long)" title="Reference documentation">Android reference for <code>java.time.Instant.with</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
