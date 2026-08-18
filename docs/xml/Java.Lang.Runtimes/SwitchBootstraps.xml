@@ -122,11 +122,16 @@
         <param name="invocationType">The call site invocation type with an enum parameter, an <c>int</c> parameter, and an <c>int</c> return type.</param>
         <param name="labels">The case labels, represented by <see cref="T:System.String" /> constants or <see cref="T:Java.Lang.Class" /> instances.</param>
         <summary>Links an <c>invokedynamic</c> call site that switches on an enum target.</summary>
-        <returns>A call site that returns the index of the first matching label.</returns>
+        <returns>A call site that returns <c>-1</c> for a <see langword="null" /> target, the index of the first matching label at or after the restart index, or <c>labels.Length</c> when no label matches.</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">An element of <paramref name="labels" /> is <see langword="null" />; <paramref name="invocationType" /> does not accept an enum and an <c>int</c> and return an <c>int</c>; or a label is neither a <see cref="T:System.String" /> nor a <see cref="T:Java.Lang.Class" /> for the target enum type.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">An argument is <see langword="null" />.</exception>
         <remarks>
           <para>
+            The restart index accepted by the returned call site must be from zero through <c>labels.Length</c>, inclusive; otherwise, invoking the call site throws <see cref="T:Java.Lang.IndexOutOfBoundsException" />.
+          </para>
+          <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#enumSwitch(java.lang.invoke.MethodHandles.Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.Object...)" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.enumSwitch</code>.</a>
+              <a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#enumSwitch(java.lang.invoke.MethodHandles.Lookup,%20java.lang.String,%20java.lang.invoke.MethodType,%20java.lang.Object[])" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.enumSwitch</code>.</a>
             </format>
           </para>
           <para>
@@ -273,11 +278,16 @@
         <param name="invocationType">The call site invocation type with a reference-type parameter, an <c>int</c> parameter, and an <c>int</c> return type.</param>
         <param name="labels">The case labels, represented by <see cref="T:System.String" />, <see cref="T:System.Int32" />, <see cref="T:Java.Lang.Class" />, or enum-description values.</param>
         <summary>Links an <c>invokedynamic</c> call site that switches on a reference-type target.</summary>
-        <returns>A call site that returns the index of the first matching label.</returns>
+        <returns>A call site that returns <c>-1</c> for a <see langword="null" /> target, the index of the first matching label at or after the restart index, or <c>labels.Length</c> when no label matches.</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">An element of <paramref name="labels" /> is <see langword="null" />; <paramref name="invocationType" /> does not accept a reference type and an <c>int</c> and return an <c>int</c>; or a label is not a <see cref="T:System.String" />, <see cref="T:System.Int32" />, <see cref="T:Java.Lang.Class" />, or enum-description value.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">An argument is <see langword="null" />.</exception>
         <remarks>
           <para>
+            The restart index accepted by the returned call site must be from zero through <c>labels.Length</c>, inclusive; otherwise, invoking the call site throws <see cref="T:Java.Lang.IndexOutOfBoundsException" />.
+          </para>
+          <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#typeSwitch(java.lang.invoke.MethodHandles.Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.Object...)" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.typeSwitch</code>.</a>
+              <a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#typeSwitch(java.lang.invoke.MethodHandles.Lookup,%20java.lang.String,%20java.lang.invoke.MethodType,%20java.lang.Object[])" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.typeSwitch</code>.</a>
             </format>
           </para>
           <para>
