@@ -90,7 +90,7 @@ static class ImporterProgram
                 .SelectMany(file => file.Owners)
                 .Where(owner =>
                     owner.Placeholders.Count > 0 ||
-                    HasImporterEnumSummaryMetadata(owner))
+                    IsEnumSummaryRepairCandidate(owner))
                 .Select(owner => owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
@@ -144,20 +144,11 @@ static class ImporterProgram
                 {
                     var ownerChanged = false;
                     var mapping = MapOwner(owner, pages);
+                    if (ReportMappingFailure(report, file, owner, mapping))
+                        continue;
+
                     foreach (var placeholder in owner.Placeholders.OrderBy(item => item.Order))
                     {
-                        if (mapping.ErrorReason is not null)
-                        {
-                            report.Entries.Add(ReportEntry.Skipped(
-                                file.RelativePath,
-                                owner.Id,
-                                placeholder.Target,
-                                mapping.ErrorReason,
-                                mapping.Detail,
-                                mapping.SourceUrl));
-                            continue;
-                        }
-
                         var replacement = ReplacementFor(
                             placeholder,
                             mapping.Docs!,
@@ -219,13 +210,14 @@ static class ImporterProgram
 
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
-                        HasImporterEnumSummaryMetadata(owner))
+                        IsEnumSummaryRepairCandidate(owner))
                     {
                         var refreshed = AddSourceDocumentationIfSafe(
                             text,
                             file,
                             owner,
-                            mapping.Docs);
+                            mapping.Docs,
+                            allowEnumCreation: false);
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
                             if (remaining == 0)
@@ -399,7 +391,10 @@ static class ImporterProgram
             return MappingResult.Skip("missing_type_registration",
                 "No supported Android or Java type registration was found.");
         if (!pages.TryGetValue(owner.SourceRequest.Url, out var loaded))
-            return MappingResult.Skip("source_not_loaded", "The official source page was not loaded.");
+            return MappingResult.Skip(
+                "source_not_loaded",
+                "The official source page was not loaded.",
+                owner.SourceRequest.Url);
         if (loaded.Error is not null)
             return MappingResult.Skip(loaded.Reason!, loaded.Error, owner.SourceRequest.Url);
 
@@ -489,6 +484,39 @@ static class ImporterProgram
         return MappingResult.Success(docs);
     }
 
+    static bool ReportMappingFailure(
+        ImportReport report,
+        LoadedFile file,
+        DocsOwner owner,
+        MappingResult mapping)
+    {
+        if (mapping.ErrorReason is null)
+            return false;
+
+        foreach (var placeholder in owner.Placeholders)
+        {
+            report.Entries.Add(ReportEntry.Skipped(
+                file.RelativePath,
+                owner.Id,
+                placeholder.Target,
+                mapping.ErrorReason,
+                mapping.Detail,
+                mapping.SourceUrl));
+        }
+        if (IsEnumSummaryRepairCandidate(owner) &&
+            !owner.Placeholders.Any(placeholder => placeholder.Name == "summary"))
+        {
+            report.Entries.Add(ReportEntry.Skipped(
+                file.RelativePath,
+                owner.Id,
+                "summary",
+                mapping.ErrorReason,
+                mapping.Detail,
+                mapping.SourceUrl));
+        }
+        return true;
+    }
+
     static bool MemberNameMatches(SourceMember member, string name, bool constructor) =>
         constructor
             ? member.IsConstructor && (
@@ -532,15 +560,29 @@ static class ImporterProgram
         };
     }
 
-    static bool HasImporterEnumSummaryMetadata(DocsOwner owner) =>
+    static bool IsEnumSummaryRepairCandidate(DocsOwner owner) =>
         owner.IsEnumField &&
         owner.Docs.Element("summary") is XElement summary &&
-        summary.Descendants("a").Any(link =>
-            (string?)link.Attribute("title") == "Reference documentation") &&
-        summary.Descendants("a").Any(link =>
+        IsEnumSummaryRepairCandidate(summary);
+
+    static bool IsEnumSummaryRepairCandidate(XElement summary)
+    {
+        var hasReference = summary.Descendants("a").Any(link =>
+            (string?)link.Attribute("title") == "Reference documentation");
+        var hasAttribution = summary.Descendants("a").Any(link =>
             ((string?)link.Attribute("href"))?.Equals(
                 "https://developers.google.com/terms/site-policies",
                 StringComparison.Ordinal) == true);
+        var prose = summary.Elements("para")
+            .Where(paragraph => !paragraph.Descendants("a").Any())
+            .ToList();
+        return hasReference &&
+            hasAttribution &&
+            prose.Count == 1 &&
+            !prose[0].HasAttributes &&
+            !prose[0].HasElements &&
+            IsDeprecationParagraph(prose[0].Value);
+    }
 
     static Replacement ChannelValueOrSkip(string? value, string channel, string missingReason)
     {
@@ -689,19 +731,26 @@ static class ImporterProgram
         string text,
         LoadedFile file,
         DocsOwner owner,
-        SourceDocs docs)
+        SourceDocs docs,
+        bool allowEnumCreation = true)
     {
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
-        blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, owner.IsEnumField);
 
         if (owner.IsEnumField)
         {
-            blockText = RemoveEnumDiscardedMetadata(blockText);
-            blockText = AddEnumSummaryMetadata(blockText, file, docs);
-            return text[..block.Start] + blockText + text[block.End..];
+            var updatedBlock = AddEnumSummaryMetadata(
+                blockText,
+                file,
+                docs,
+                allowEnumCreation);
+            if (updatedBlock.Equals(blockText, StringComparison.Ordinal))
+                return text;
+            updatedBlock = RemoveEnumDiscardedMetadata(updatedBlock);
+            return text[..block.Start] + updatedBlock + text[block.End..];
         }
 
+        blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
         if (ContainsSourceUrl(blockText, docs.SourceUrl))
             return text[..block.Start] + blockText + text[block.End..];
 
@@ -818,14 +867,23 @@ static class ImporterProgram
     static string RemoveEnumDiscardedMetadata(string blockText) =>
         Regex.Replace(
             blockText,
-            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>\r?\n?",
-            "",
+            @"<remarks\b(?<attrs>[^>]*)>(?<body>.*?)</remarks>",
+            match =>
+            {
+                var body = Regex.Replace(
+                    match.Groups["body"].Value,
+                    @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>\r?\n?",
+                    "",
+                    RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+                return $"<remarks{match.Groups["attrs"].Value}>{body}</remarks>";
+            },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
 
     static string AddEnumSummaryMetadata(
         string blockText,
         LoadedFile file,
-        SourceDocs docs)
+        SourceDocs docs,
+        bool allowCreation)
     {
         var summary = Regex.Match(
             blockText,
@@ -857,7 +915,16 @@ static class ImporterProgram
             .Where(value => IsMeaningfulChannel(value, "remarks"))
             .Distinct(StringComparer.Ordinal)
             .ToList();
-        var priorGeneratedProse = sourceParagraphs.Count > 0 &&
+        var hasReferenceMetadata = summaryElement.Descendants("a").Any(link =>
+            (string?)link.Attribute("title") == "Reference documentation");
+        var hasAttribution = summaryElement.Descendants("a").Any(link =>
+            ((string?)link.Attribute("href"))?.Equals(
+                "https://developers.google.com/terms/site-policies",
+                StringComparison.Ordinal) == true);
+        var hasCorrectSource = ContainsSourceUrl(summary.Value, docs.SourceUrl);
+        var repairEligible = IsEnumSummaryRepairCandidate(summaryElement) &&
+            hasCorrectSource &&
+            sourceParagraphs.Count > 0 &&
             existingProse.Count == 1 &&
             NormalizeText(existingProse[0]).Equals(
                 NormalizeText(sourceParagraphs[0]),
@@ -865,14 +932,30 @@ static class ImporterProgram
             IsDeprecationParagraph(sourceParagraphs[0]) &&
             sourceParagraphs.Skip(1).Any(paragraph =>
                 !IsDeprecationParagraph(paragraph));
+        var creationEligible = !hasReferenceMetadata &&
+            !hasAttribution &&
+            allowCreation &&
+            sourceParagraphs.Count > 0 &&
+            existingProse.Count == 1 &&
+            NormalizeText(existingProse[0]).Equals(
+                NormalizeText(sourceParagraphs[0]),
+                StringComparison.Ordinal);
         var alreadyComplete = existingProse.SequenceEqual(
             sourceParagraphs,
             StringComparer.Ordinal);
-        var hasSource = ContainsSourceUrl(summary.Value, docs.SourceUrl);
-        if (hasSource && (alreadyComplete || !priorGeneratedProse))
+        if (hasReferenceMetadata || hasAttribution)
+        {
+            if (alreadyComplete || !repairEligible)
+                return blockText;
+        }
+        else if (!allowCreation)
+        {
             return blockText;
+        }
 
-        var prose = priorGeneratedProse ? sourceParagraphs : existingProse;
+        var prose = repairEligible || creationEligible
+            ? sourceParagraphs
+            : existingProse;
         if (prose.Count == 0)
             return blockText;
 
@@ -893,10 +976,12 @@ static class ImporterProgram
             additions.Add($"{paraIndent}<para>{AndroidAttribution}</para>");
 
         var replacement =
-            $"<summary>{newline}" +
+            newline +
             string.Join(newline, additions) +
-            $"{newline}{summaryIndent}</summary>";
-        return blockText[..summary.Index] + replacement + blockText[(summary.Index + summary.Length)..];
+            $"{newline}{summaryIndent}";
+        var valueStart = summary.Groups["value"].Index;
+        var valueEnd = valueStart + summary.Groups["value"].Length;
+        return blockText[..valueStart] + replacement + blockText[valueEnd..];
     }
 
     static bool IsDeprecationParagraph(string value) =>
@@ -1319,13 +1404,43 @@ static class ImporterProgram
             legacyEnumText,
             enumFile,
             enumDeprecated,
-            deprecatedMapped.Docs!);
+            deprecatedMapped.Docs!,
+            allowEnumCreation: false);
         Assert(
             !refreshedEnumText.Equals(legacyEnumText, StringComparison.Ordinal) &&
                 refreshedEnumText.Contains(
                     "<para>Identifies the deprecated fixture value.</para>",
                     StringComparison.Ordinal),
             "prior generated enum summary refreshes semantic prose");
+
+        const string generatedCaution =
+            "<para>This constant was deprecated in API level 31. Use FAVORITE instead.</para>";
+        var decoratedEnumText = legacyEnumText.Replace(
+            generatedCaution,
+            "<para data-preserve=\"true\"><c>This constant was deprecated in API level 31. Use FAVORITE instead.</c></para>",
+            StringComparison.Ordinal);
+        decoratedEnumText = Regex.Replace(
+            decoratedEnumText,
+            @"<summary>(?=\s*<para data-preserve=""true"")",
+            "<summary data-summary-preserve=\"true\">",
+            RegexOptions.CultureInvariant);
+        Assert(
+            !decoratedEnumText.Equals(legacyEnumText, StringComparison.Ordinal) &&
+                decoratedEnumText.Contains(
+                    "<summary data-summary-preserve=\"true\">",
+                    StringComparison.Ordinal),
+            "non-qualifying enum fixture decoration");
+        enumFile.UpdateBlockOffsets(enumDeprecated.Order, decoratedEnumText);
+        Assert(
+            AddSourceDocumentationIfSafe(
+                decoratedEnumText,
+                enumFile,
+                enumDeprecated,
+                deprecatedMapped.Docs!,
+                allowEnumCreation: false).Equals(
+                    decoratedEnumText,
+                    StringComparison.Ordinal),
+            "non-qualifying enum summary preserved verbatim");
 
         var emptyRemarks = file.Owners.Single(
             owner => owner.Id.Contains("EmptyRemarks", StringComparison.Ordinal));
@@ -1362,6 +1477,52 @@ static class ImporterProgram
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var repairFailureDocument = XDocument.Parse(
+                legacyEnumText,
+                LoadOptions.PreserveWhitespace);
+            repairFailureDocument.Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "Deprecated")
+                .Element("Docs")!
+                .Element("remarks")!
+                .Remove();
+            var repairFailurePath = Path.Combine(tempDirectory, "repair-failure.xml");
+            File.WriteAllText(
+                repairFailurePath,
+                repairFailureDocument.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var repairFailureFile = LoadedFile.Load(repositoryRoot, repairFailurePath);
+            repairFailureFile.SelectOwners("Deprecated");
+            var repairFailureOwner = repairFailureFile.Owners.Single();
+            Assert(
+                repairFailureOwner.Placeholders.Count == 0 &&
+                    IsEnumSummaryRepairCandidate(repairFailureOwner),
+                "repair-only enum fixture has no placeholders");
+            var repairFailureReport = new ImportReport
+            {
+                Mode = "dry-run",
+                Offline = true,
+                MaxChanges = 1,
+            };
+            var repairFailureMapping = MapOwner(
+                repairFailureOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [repairFailureOwner.SourceRequest!.Url] = SourceLoadResult.Failure(
+                        "offline_cache_miss",
+                        "No cached official page exists for the fixture."),
+                });
+            Assert(
+                ReportMappingFailure(
+                    repairFailureReport,
+                    repairFailureFile,
+                    repairFailureOwner,
+                    repairFailureMapping) &&
+                    repairFailureReport.Entries.Count == 1 &&
+                    repairFailureReport.Entries[0].Target == "summary" &&
+                    repairFailureReport.Entries[0].Reason == "offline_cache_miss" &&
+                    repairFailureReport.Entries[0].SourceUrl.Length > 0,
+                "repair-only mapping failure reported for summary");
+
             var tempPath = Path.Combine(tempDirectory, "source.xml");
             File.WriteAllText(
                 tempPath,
@@ -1435,7 +1596,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 44 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, complete deprecated enum summaries, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 48 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, conservative deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
