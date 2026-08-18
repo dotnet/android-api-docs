@@ -12,9 +12,9 @@
   </Base>
   <Interfaces />
   <Attributes>
-    <Attribute FrameworkAlternate="net-android-34.0">
-      <AttributeName Language="C#">[Android.Runtime.Register("android/view/WindowManager", DoNotGenerateAcw=true)]</AttributeName>
-      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/view/WindowManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("mono/internal/android/view/WindowManager", DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("mono/internal/android/view/WindowManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
       <AttributeName Language="C#">[System.Obsolete("Use the 'Android.Views.IWindowManager' type. This class will be removed in a future release.")]</AttributeName>
@@ -24,9 +24,9 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
-    <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
-      <AttributeName Language="C#">[Android.Runtime.Register("mono/internal/android/view/WindowManager", DoNotGenerateAcw=true)]</AttributeName>
-      <AttributeName Language="F#">[&lt;Android.Runtime.Register("mono/internal/android/view/WindowManager", DoNotGenerateAcw=true)&gt;]</AttributeName>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs>
@@ -45,15 +45,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("COMPAT_SMALL_COVER_SCREEN_OPT_IN", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("COMPAT_SMALL_COVER_SCREEN_OPT_IN", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.CompatSmallCoverScreen enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.CompatSmallCoverScreen enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -366,6 +366,73 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="PropertyCameraCompatAllowSimulateRequestedOrientation">
+      <MemberSignature Language="C#" Value="public const string PropertyCameraCompatAllowSimulateRequestedOrientation;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string PropertyCameraCompatAllowSimulateRequestedOrientation" />
+      <MemberSignature Language="DocId" Value="F:Android.Views.WindowManager.PropertyCameraCompatAllowSimulateRequestedOrientation" />
+      <MemberSignature Language="F#" Value="val mutable PropertyCameraCompatAllowSimulateRequestedOrientation : string" Usage="Android.Views.WindowManager.PropertyCameraCompatAllowSimulateRequestedOrientation" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_CAMERA_COMPAT_ALLOW_SIMULATE_REQUESTED_ORIENTATION", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_CAMERA_COMPAT_ALLOW_SIMULATE_REQUESTED_ORIENTATION", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCameraCompatAllowSimulateRequestedOrientation'. This class will be removed in a future release.")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCameraCompatAllowSimulateRequestedOrientation'. This class will be removed in a future release.")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Application-level [PackageManager][android.</summary>
+        <remarks>
+          <para>Application-level [PackageManager][android.content.pm.PackageManager.Property] tag that (when
+            set to false) informs the system the app has opted out of the camera compatibility treatment
+            for fixed-orientation apps, which simulates running on a portrait device, in the orientation
+            requested by the app.</para>
+          <para>This treatment aims to mitigate camera issues on large screens, like stretched or sideways
+            previews. It simulates running on a portrait device by:
+            &lt;ul&gt;
+              &lt;li&gt;Letterboxing the app window,
+              &lt;li&gt;Cropping the camera buffer to match the app's requested orientation,
+              &lt;li&gt;Setting the camera sensor orientation to portrait.
+              &lt;li&gt;Setting the display rotation to match the app's requested orientation, given portrait
+                  natural orientation,
+              &lt;li&gt;Refreshes the activity to trigger new camera setup, with sandboxed values.
+            &lt;/ul&gt;</para>
+          <para>To opt out of the camera compatibility treatment, add this property to your app manifest
+            and set the value to <c>false</c>.</para>
+          <para>Not setting this property at all, or setting this property to <c>true</c> has no effect.</para>
+          <para>&lt;b&gt;Syntax:&lt;/b&gt;</para>
+          <code lang="text/java">&amp;lt;application&amp;gt;
+              &amp;lt;property
+                android:name="android.window.PROPERTY_CAMERA_COMPAT_ALLOW_SIMULATE_REQUESTED_ORIENTATION"
+                android:value="true|false"/&amp;gt;
+            &amp;lt;/application&amp;gt;
+            </code>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/view/WindowManager#PROPERTY_CAMERA_COMPAT_ALLOW_SIMULATE_REQUESTED_ORIENTATION" title="Reference documentation">Java documentation for <code>android.view.WindowManager.PROPERTY_CAMERA_COMPAT_ALLOW_SIMULATE_REQUESTED_ORIENTATION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="PropertyCameraCompatEnableRefreshViaPause">
       <MemberSignature Language="C#" Value="public const string PropertyCameraCompatEnableRefreshViaPause;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string PropertyCameraCompatEnableRefreshViaPause" />
@@ -535,15 +602,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowIgnoringOrientationRequestWhenLoopDetected'. This class will be removed in a future release.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowIgnoringOrientationRequestWhenLoopDetected'. This class will be removed in a future release.")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -606,15 +673,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowMinAspectRatioOverride'. This class will be removed in a future release.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowMinAspectRatioOverride'. This class will be removed in a future release.")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -741,15 +808,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowResizeableActivityOverrides'. This class will be removed in a future release.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowResizeableActivityOverrides'. This class will be removed in a future release.")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -871,15 +938,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_SMALL_COVER_SCREEN", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_SMALL_COVER_SCREEN", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowSmallCoverScreen'. This class will be removed in a future release.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowSmallCoverScreen'. This class will be removed in a future release.")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -929,15 +996,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowUserAspectRatioFullscreenOverride'. This class will be removed in a future release.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowUserAspectRatioFullscreenOverride'. This class will be removed in a future release.")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1003,15 +1070,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowUserAspectRatioOverride'. This class will be removed in a future release.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertyCompatAllowUserAspectRatioOverride'. This class will be removed in a future release.")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1226,15 +1293,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("PROPERTY_SUPPORTS_MULTI_INSTANCE_SYSTEM_UI", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("PROPERTY_SUPPORTS_MULTI_INSTANCE_SYSTEM_UI", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("Use 'Android.Views.IWindowManager.PropertySupportsMultiInstanceSystemUi'. This class will be removed in a future release.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("Use 'Android.Views.IWindowManager.PropertySupportsMultiInstanceSystemUi'. This class will be removed in a future release.")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1287,15 +1354,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("SCREEN_RECORDING_STATE_NOT_VISIBLE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("SCREEN_RECORDING_STATE_NOT_VISIBLE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.ScreenRecordingState enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.ScreenRecordingState enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -1332,15 +1399,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("SCREEN_RECORDING_STATE_VISIBLE", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("SCREEN_RECORDING_STATE_VISIBLE", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.ScreenRecordingState enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.ScreenRecordingState enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
