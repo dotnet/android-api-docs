@@ -1,5 +1,5 @@
 <Type Name="BluetoothDevice" FullName="Android.Bluetooth.BluetoothDevice">
-  <TypeSignature Language="C#" Value="public sealed class BluetoothDevice : Java.Lang.Object, Android.OS.IParcelable, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public sealed class BluetoothDevice : Java.Lang.Object, Android.OS.IParcelable, IDisposable" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit BluetoothDevice extends Java.Lang.Object implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Bluetooth.BluetoothDevice" />
   <TypeSignature Language="F#" Value="type BluetoothDevice = class&#xA;    inherit Object&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
@@ -32,6 +32,10 @@
     <Attribute>
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
     </Attribute>
   </Attributes>
   <Docs since="5">
@@ -367,15 +371,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_ENCRYPTION_CHANGE", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_ENCRYPTION_CHANGE", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -439,6 +443,27 @@
           <para>Sent when a remote device is found during discovery.</para>
           <para>Always contains the extra fields <c>#EXTRA_DEVICE</c> and <c>#EXTRA_CLASS</c>. Can
             contain the extra fields <c>#EXTRA_NAME</c> and/or <c>#EXTRA_RSSI</c> and/or <c>#EXTRA_IS_COORDINATED_SET_MEMBER</c> if they are available.</para>
+          <para>From <c>Build.VERSION_CODES_FULL.BAKLAVA_1</c>, it contains the extra field <c>#EXTRA_DISCOVERY_RESULT_TYPE</c>. Based on the discovery result type, it can contain extra
+            fields for UUIDs:
+            
+            &lt;ul&gt;
+              &lt;li&gt;If <c>#EXTRA_DISCOVERY_RESULT_TYPE</c> is <c>#DEVICE_TYPE_CLASSIC</c>, it can contain
+                  <c>#EXTRA_UUID</c> for BR/EDR UUIDs.
+              &lt;li&gt;If <c>#EXTRA_DISCOVERY_RESULT_TYPE</c> is <c>#DEVICE_TYPE_LE</c>, it can contain
+                  <c>#EXTRA_UUID_LE</c> for LE UUIDs.
+              &lt;li&gt;If <c>#EXTRA_DISCOVERY_RESULT_TYPE</c> is <c>#DEVICE_TYPE_DUAL</c>, it can contain
+                  <c>#EXTRA_UUID</c> for BR/EDR UUIDs and <c>#EXTRA_UUID_LE</c> for LE UUIDs.
+            &lt;/ul&gt;</para>
+          <para>
+            <c>#EXTRA_UUID</c> includes BR/EDR UUIDs in the extended inquiry response (EIR). A <c>null</c> or absent <c>#EXTRA_UUID</c> indicates EIR does not include Service Class UUID list.
+            An empty <c>#EXTRA_UUID</c> indicates EIR includes Service Class UUID filed, but the list is
+            empty.</para>
+          <para>
+            <c>#EXTRA_UUID_LE</c> includes BLE UUIDs in the BLE advertising data (AD). Specifically,
+            it includes UUIDs present in SERVICE UUID data type and SERVICE DATA data type, as defined by
+            Bluetooth Core Specification Supplement (CSS). A <c>null</c> or absent <c>#EXTRA_UUID_LE</c> indicates the AD does not include Service UUID or Service DATA. An empty
+            <c>#EXTRA_UUID</c> indicates AD includes Service UUID and/or Service DATA, but the list is
+            empty.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#ACTION_FOUND" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.ACTION_FOUND</code>.</a>
@@ -467,11 +492,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ACTION_KEY_MISSING", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_KEY_MISSING", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -492,6 +517,9 @@
               &lt;li&gt;in case of LE devices, very unlikely address collision
             &lt;/ul&gt;</para>
           <para>Always contains the extra field <c>#EXTRA_DEVICE</c></para>
+          <para>From <c>Build.VERSION_CODES#BAKLAVA</c>, it can contain the extra field <c>#EXTRA_BOND_LOSS_REASON</c> which contains the reason for the bond loss. The possible values
+            are: <c>#BOND_LOSS_REASON_BREDR_AUTH_FAILURE</c>, <c>#BOND_LOSS_REASON_BREDR_INCOMING_PAIRING</c>, <c>#BOND_LOSS_REASON_LE_ENCRYPT_FAILURE</c>,
+            <c>#BOND_LOSS_REASON_LE_INCOMING_PAIRING</c>.</para>
           <para>This method requires the calling app to have the <c>android.Manifest.permission#BLUETOOTH_CONNECT</c> permission. Before <c>android.os.Build.VERSION_CODES#BAKLAVA</c> this method also required <c>android.Manifest.permission#BLUETOOTH_PRIVILEGED</c></para>
           <para>
             <format type="text/html">
@@ -628,6 +656,10 @@
           <para>Broadcast Action: This intent is used to broadcast the <c>UUID</c> wrapped as a <c>android.os.ParcelUuid</c> of the remote device after it has been fetched. This intent is sent
             only when the UUIDs of the remote device are requested to be fetched using Service Discovery
             Protocol</para>
+          <para>
+            <c>#EXTRA_UUID</c> includes UUIDs from both BR/EDR and LE service discovery results. A
+            <c>null</c><c>#EXTRA_UUID</c> indicates a timeout. An empty <c>#EXTRA_UUID</c> indicates
+            a successful discovery, but zero UUIDs are discovered.</para>
           <para>Always contains the extra field <c>#EXTRA_DEVICE</c></para>
           <para>Always contains the extra field <c>#EXTRA_UUID</c></para>
           <para>
@@ -662,6 +694,10 @@
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getAddress", "()Ljava/lang/String;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAddress", "()Ljava/lang/String;", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -698,11 +734,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getAddressType", "()I", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getAddressType", "()I", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -742,15 +778,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ADDRESS_TYPE_ANONYMOUS", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ADDRESS_TYPE_ANONYMOUS", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.AddressType enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.AddressType enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
@@ -947,6 +983,10 @@
           <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -993,6 +1033,10 @@
           <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Bluetooth.BluetoothClass</ReturnType>
@@ -1014,6 +1058,246 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 5" />
+      </Docs>
+    </Member>
+    <Member MemberName="BondLossReasonBredrAuthFailure">
+      <MemberSignature Language="C#" Value="public const Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonBredrAuthFailure = 1;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonBredrAuthFailure = (1)" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.BondLossReasonBredrAuthFailure" />
+      <MemberSignature Language="F#" Value="val mutable BondLossReasonBredrAuthFailure : Android.Bluetooth.BluetoothDeviceBondLossReason" Usage="Android.Bluetooth.BluetoothDevice.BondLossReasonBredrAuthFailure" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("BOND_LOSS_REASON_BREDR_AUTH_FAILURE", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("BOND_LOSS_REASON_BREDR_AUTH_FAILURE", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.BluetoothDeviceBondLossReason</ReturnType>
+      </ReturnValue>
+      <MemberValue>1</MemberValue>
+      <Docs>
+        <summary>Indicates the reason for the bond loss is BREDR authentication failure.</summary>
+        <remarks>
+          <para>Indicates the reason for the bond loss is BREDR authentication failure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#BOND_LOSS_REASON_BREDR_AUTH_FAILURE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.BOND_LOSS_REASON_BREDR_AUTH_FAILURE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="BondLossReasonBredrIncomingPairing">
+      <MemberSignature Language="C#" Value="public const Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonBredrIncomingPairing = 2;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonBredrIncomingPairing = (2)" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.BondLossReasonBredrIncomingPairing" />
+      <MemberSignature Language="F#" Value="val mutable BondLossReasonBredrIncomingPairing : Android.Bluetooth.BluetoothDeviceBondLossReason" Usage="Android.Bluetooth.BluetoothDevice.BondLossReasonBredrIncomingPairing" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("BOND_LOSS_REASON_BREDR_INCOMING_PAIRING", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("BOND_LOSS_REASON_BREDR_INCOMING_PAIRING", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.BluetoothDeviceBondLossReason</ReturnType>
+      </ReturnValue>
+      <MemberValue>2</MemberValue>
+      <Docs>
+        <summary>Indicates the reason for the bond loss is BREDR pairing failure.</summary>
+        <remarks>
+          <para>Indicates the reason for the bond loss is BREDR pairing failure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#BOND_LOSS_REASON_BREDR_INCOMING_PAIRING" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.BOND_LOSS_REASON_BREDR_INCOMING_PAIRING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="BondLossReasonLeEncryptFailure">
+      <MemberSignature Language="C#" Value="public const Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonLeEncryptFailure = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonLeEncryptFailure = (3)" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.BondLossReasonLeEncryptFailure" />
+      <MemberSignature Language="F#" Value="val mutable BondLossReasonLeEncryptFailure : Android.Bluetooth.BluetoothDeviceBondLossReason" Usage="Android.Bluetooth.BluetoothDevice.BondLossReasonLeEncryptFailure" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("BOND_LOSS_REASON_LE_ENCRYPT_FAILURE", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("BOND_LOSS_REASON_LE_ENCRYPT_FAILURE", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.BluetoothDeviceBondLossReason</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>Indicates the reason for the bond loss is LE encryption failure.</summary>
+        <remarks>
+          <para>Indicates the reason for the bond loss is LE encryption failure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#BOND_LOSS_REASON_LE_ENCRYPT_FAILURE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.BOND_LOSS_REASON_LE_ENCRYPT_FAILURE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="BondLossReasonLeIncomingPairing">
+      <MemberSignature Language="C#" Value="public const Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonLeIncomingPairing = 4;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonLeIncomingPairing = (4)" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.BondLossReasonLeIncomingPairing" />
+      <MemberSignature Language="F#" Value="val mutable BondLossReasonLeIncomingPairing : Android.Bluetooth.BluetoothDeviceBondLossReason" Usage="Android.Bluetooth.BluetoothDevice.BondLossReasonLeIncomingPairing" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("BOND_LOSS_REASON_LE_INCOMING_PAIRING", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("BOND_LOSS_REASON_LE_INCOMING_PAIRING", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.BluetoothDeviceBondLossReason</ReturnType>
+      </ReturnValue>
+      <MemberValue>4</MemberValue>
+      <Docs>
+        <summary>Indicates the reason for the bond loss is LE pairing failure.</summary>
+        <remarks>
+          <para>Indicates the reason for the bond loss is LE pairing failure.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#BOND_LOSS_REASON_LE_INCOMING_PAIRING" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.BOND_LOSS_REASON_LE_INCOMING_PAIRING</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="BondLossReasonUnknown">
+      <MemberSignature Language="C#" Value="public const Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonUnknown = 0;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Bluetooth.BluetoothDeviceBondLossReason BondLossReasonUnknown = (0)" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.BondLossReasonUnknown" />
+      <MemberSignature Language="F#" Value="val mutable BondLossReasonUnknown : Android.Bluetooth.BluetoothDeviceBondLossReason" Usage="Android.Bluetooth.BluetoothDevice.BondLossReasonUnknown" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("BOND_LOSS_REASON_UNKNOWN", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("BOND_LOSS_REASON_UNKNOWN", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceBondLossReason enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.BluetoothDeviceBondLossReason</ReturnType>
+      </ReturnValue>
+      <MemberValue>0</MemberValue>
+      <Docs>
+        <summary>Indicates the reason for the bond loss is unknown.</summary>
+        <remarks>
+          <para>Indicates the reason for the bond loss is unknown.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#BOND_LOSS_REASON_UNKNOWN" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.BOND_LOSS_REASON_UNKNOWN</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="BondState">
@@ -1078,6 +1362,10 @@
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.Bluetooth.BluetoothGatt</ReturnType>
@@ -1133,6 +1421,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
@@ -1199,6 +1491,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -1272,6 +1568,10 @@
           <AttributeName Language="F#">[&lt;System.Obsolete("This method has the wrong enumeration. Use the version that takes an 'Android.Bluetooth.BluetoothPhy' instead.")&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
         </Attribute>
@@ -1331,6 +1631,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -1405,6 +1709,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This method has the wrong enumeration. Use the version that takes an 'Android.Bluetooth.BluetoothPhy' instead.")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This method has the wrong enumeration. Use the version that takes an 'Android.Bluetooth.BluetoothPhy' instead.")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
@@ -1511,10 +1819,6 @@
           <AttributeName Language="C#">[Android.Runtime.Register("createInsecureL2capChannel", "(I)Landroid/bluetooth/BluetoothSocket;", "", ApiSince=29)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("createInsecureL2capChannel", "(I)Landroid/bluetooth/BluetoothSocket;", "", ApiSince=29)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
-          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
-          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
-        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
@@ -1570,9 +1874,9 @@
           <AttributeName Language="C#">[Android.Runtime.Register("createInsecureRfcommSocketToServiceRecord", "(Ljava/util/UUID;)Landroid/bluetooth/BluetoothSocket;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("createInsecureRfcommSocketToServiceRecord", "(Ljava/util/UUID;)Landroid/bluetooth/BluetoothSocket;", "")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
-          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
-          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1635,10 +1939,6 @@
           <AttributeName Language="C#">[Android.Runtime.Register("createL2capChannel", "(I)Landroid/bluetooth/BluetoothSocket;", "", ApiSince=29)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("createL2capChannel", "(I)Landroid/bluetooth/BluetoothSocket;", "", ApiSince=29)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
-          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
-          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
-        </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android29.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android29.0")&gt;]</AttributeName>
@@ -1696,9 +1996,9 @@
           <AttributeName Language="C#">[Android.Runtime.Register("createRfcommSocketToServiceRecord", "(Ljava/util/UUID;)Landroid/bluetooth/BluetoothSocket;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("createRfcommSocketToServiceRecord", "(Ljava/util/UUID;)Landroid/bluetooth/BluetoothSocket;", "")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
-          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
-          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1758,11 +2058,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("createUsingSocketSettings", "(Landroid/bluetooth/BluetoothSocketSettings;)Landroid/bluetooth/BluetoothSocket;", "", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("createUsingSocketSettings", "(Landroid/bluetooth/BluetoothSocketSettings;)Landroid/bluetooth/BluetoothSocket;", "", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -1771,7 +2071,7 @@
         <ReturnType>Android.Bluetooth.BluetoothSocket</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="settings" Type="Android.Bluetooth.BluetoothSocketSettings" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="settings" Type="Android.Bluetooth.BluetoothSocketSettings" />
       </Parameters>
       <Docs>
         <param name="settings">Bluetooth socket settings <c>BluetoothSocketSettings</c>.</param>
@@ -1823,6 +2123,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2065,15 +2369,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ENCRYPTION_ALGORITHM_AES", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ENCRYPTION_ALGORITHM_AES", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -2113,15 +2417,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ENCRYPTION_ALGORITHM_E0", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ENCRYPTION_ALGORITHM_E0", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -2161,15 +2465,15 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("ENCRYPTION_ALGORITHM_NONE", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("ENCRYPTION_ALGORITHM_NONE", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -2185,6 +2489,54 @@
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#ENCRYPTION_ALGORITHM_NONE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.ENCRYPTION_ALGORITHM_NONE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="EncryptionAlgorithmUnknown">
+      <MemberSignature Language="C#" Value="public const Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm EncryptionAlgorithmUnknown = 3;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm EncryptionAlgorithmUnknown = (3)" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.EncryptionAlgorithmUnknown" />
+      <MemberSignature Language="F#" Value="val mutable EncryptionAlgorithmUnknown : Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm" Usage="Android.Bluetooth.BluetoothDevice.EncryptionAlgorithmUnknown" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ENCRYPTION_ALGORITHM_UNKNOWN", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ENCRYPTION_ALGORITHM_UNKNOWN", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.BluetoothDeviceEncryptionAlgorithm</ReturnType>
+      </ReturnValue>
+      <MemberValue>3</MemberValue>
+      <Docs>
+        <summary>Indicates link was encrypted using unknown algorithm</summary>
+        <remarks>
+          <para>Indicates link was encrypted using unknown algorithm</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#ENCRYPTION_ALGORITHM_UNKNOWN" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.ENCRYPTION_ALGORITHM_UNKNOWN</code>.</a>
             </format>
           </para>
           <para>
@@ -2240,6 +2592,53 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 5" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraBondLossReason">
+      <MemberSignature Language="C#" Value="public const string ExtraBondLossReason;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraBondLossReason" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.ExtraBondLossReason" />
+      <MemberSignature Language="F#" Value="val mutable ExtraBondLossReason : string" Usage="Android.Bluetooth.BluetoothDevice.ExtraBondLossReason" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_BOND_LOSS_REASON", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_BOND_LOSS_REASON", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Contains the reason for the bond loss.</summary>
+        <remarks>
+          <para>Contains the reason for the bond loss.
+            
+            &lt;ul&gt;
+              Possible values are:
+              &lt;li&gt;<c>#BOND_LOSS_REASON_UNKNOWN</c>&lt;li&gt;<c>#BOND_LOSS_REASON_BREDR_AUTH_FAILURE</c>&lt;li&gt;<c>#BOND_LOSS_REASON_BREDR_INCOMING_PAIRING</c>&lt;li&gt;<c>#BOND_LOSS_REASON_LE_ENCRYPT_FAILURE</c>&lt;li&gt;<c>#BOND_LOSS_REASON_LE_INCOMING_PAIRING</c>&lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#EXTRA_BOND_LOSS_REASON" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.EXTRA_BOND_LOSS_REASON</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraBondState">
@@ -2366,6 +2765,56 @@
         <since version="Added in API level 5" />
       </Docs>
     </Member>
+    <Member MemberName="ExtraDiscoveryResultType">
+      <MemberSignature Language="C#" Value="public const string ExtraDiscoveryResultType;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraDiscoveryResultType" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.ExtraDiscoveryResultType" />
+      <MemberSignature Language="F#" Value="val mutable ExtraDiscoveryResultType : string" Usage="Android.Bluetooth.BluetoothDevice.ExtraDiscoveryResultType" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_DISCOVERY_RESULT_TYPE", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_DISCOVERY_RESULT_TYPE", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Used as an integer field in <c>#ACTION_FOUND</c> intents.</summary>
+        <remarks>
+          <para>Used as an integer field in <c>#ACTION_FOUND</c> intents. It contains the discovery type for
+            how the device is found:
+            
+            &lt;ul&gt;
+              &lt;li&gt;If BR/EDR inquiry result is received, <c>#DEVICE_TYPE_CLASSIC</c>.
+              &lt;li&gt;If BLE advertising data is received, <c>#DEVICE_TYPE_LE</c>.
+              &lt;li&gt;If both are received, <c>#DEVICE_TYPE_DUAL</c>.
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#EXTRA_DISCOVERY_RESULT_TYPE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.EXTRA_DISCOVERY_RESULT_TYPE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ExtraEncryptionAlgorithm">
       <MemberSignature Language="C#" Value="public const string ExtraEncryptionAlgorithm;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraEncryptionAlgorithm" />
@@ -2380,11 +2829,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_ENCRYPTION_ALGORITHM", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_ENCRYPTION_ALGORITHM", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -2399,7 +2848,7 @@
           <para>Used as an int extra field in <c>#ACTION_ENCRYPTION_CHANGE</c> intents as the algorithm used
             for encryption.</para>
           <para>Possible values are: <c>#ENCRYPTION_ALGORITHM_NONE</c>, <c>#ENCRYPTION_ALGORITHM_E0</c>,
-            <c>#ENCRYPTION_ALGORITHM_AES</c>.</para>
+            <c>#ENCRYPTION_ALGORITHM_AES</c>, <c>#ENCRYPTION_ALGORITHM_UNKNOWN</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#EXTRA_ENCRYPTION_ALGORITHM" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.EXTRA_ENCRYPTION_ALGORITHM</code>.</a>
@@ -2427,11 +2876,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_ENCRYPTION_ENABLED", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_ENCRYPTION_ENABLED", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -2471,11 +2920,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_ENCRYPTION_STATUS", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_ENCRYPTION_STATUS", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -2562,11 +3011,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_KEY_SIZE", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_KEY_SIZE", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -2870,10 +3319,13 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Used as an extra field in <c>#ACTION_UUID</c> intents, Contains the <c>android.os.ParcelUuid</c>s of the remote device which is a parcelable version of <c>UUID</c>.</summary>
+        <summary>Contains the <c>android.os.ParcelUuid</c>s of the remote device which is a parcelable
+            version of <c>UUID</c>.</summary>
         <remarks>
-          <para>Used as an extra field in <c>#ACTION_UUID</c> intents, Contains the <c>android.os.ParcelUuid</c>s of the remote device which is a parcelable version of <c>UUID</c>. A
-            <c>null</c> EXTRA_UUID indicates a timeout.</para>
+          <para>Contains the <c>android.os.ParcelUuid</c>s of the remote device which is a parcelable
+            version of <c>UUID</c>.</para>
+          <para>An empty EXTRA_UUID indicates the UUIDs are discovered, but zero UUIDs were found.</para>
+          <para>A <c>null</c> or absent EXTRA_UUID indicates the system failed obtain the UUIDs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#EXTRA_UUID" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.EXTRA_UUID</code>.</a>
@@ -2886,6 +3338,53 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 15" />
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraUuidLe">
+      <MemberSignature Language="C#" Value="public const string ExtraUuidLe;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraUuidLe" />
+      <MemberSignature Language="DocId" Value="F:Android.Bluetooth.BluetoothDevice.ExtraUuidLe" />
+      <MemberSignature Language="F#" Value="val mutable ExtraUuidLe : string" Usage="Android.Bluetooth.BluetoothDevice.ExtraUuidLe" />
+      <MemberType>Field</MemberType>
+      <Implements>
+        <InterfaceMember>F:Android.OS.IParcelable.ContentsFileDescriptor</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_UUID_LE", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_UUID_LE", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Contains the <c>android.os.ParcelUuid</c>s of the remote device which is a parcelable
+            version of <c>UUID</c>.</summary>
+        <remarks>
+          <para>Contains the <c>android.os.ParcelUuid</c>s of the remote device which is a parcelable
+            version of <c>UUID</c>. Only services discovered for the LE transport is included here.</para>
+          <para>An empty EXTRA_UUID_LE indicates the UUIDs are discovered, but zero UUIDs were found.</para>
+          <para>A <c>null</c> or absent EXTRA_UUID_LE indicates the system failed obtain the UUIDs.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#EXTRA_UUID_LE" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.EXTRA_UUID_LE</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FetchUuidsWithSdp">
@@ -2937,6 +3436,69 @@
         <since version="Added in API level 15" />
       </Docs>
     </Member>
+    <Member MemberName="GetEncryptionStatus">
+      <MemberSignature Language="C#" Value="public Android.Bluetooth.EncryptionStatus? GetEncryptionStatus (int transport);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.Bluetooth.EncryptionStatus GetEncryptionStatus(int32 transport) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Bluetooth.BluetoothDevice.GetEncryptionStatus(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.GetEncryptionStatus : int -&gt; Android.Bluetooth.EncryptionStatus" Usage="bluetoothDevice.GetEncryptionStatus transport" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getEncryptionStatus", "(I)Landroid/bluetooth/EncryptionStatus;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getEncryptionStatus", "(I)Landroid/bluetooth/EncryptionStatus;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Bluetooth.EncryptionStatus</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="transport" Type="System.Int32">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "", "" }, Type="")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "", "" }, Type="")&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="transport">the transport to get the link status for.</param>
+        <summary>Get the encryption status of the connected device.</summary>
+        <returns>the encryption status of the device, null if the device is not encrypted or not
+                connected.</returns>
+        <remarks>
+          <para>Get the encryption status of the connected device. This API will return the encryption state
+            (if connected). The encryption details are enclosed in a <c>EncryptionStatus</c> object,
+            which can be null if the device is not encrypted (or not connected)</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#getEncryptionStatus(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.getEncryptionStatus(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetUuids">
       <MemberSignature Language="C#" Value="public Android.OS.ParcelUuid[]? GetUuids ();" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance class Android.OS.ParcelUuid[] GetUuids() cil managed" />
@@ -2960,7 +3522,7 @@
       <ReturnValue>
         <ReturnType>Android.OS.ParcelUuid[]</ReturnType>
         <Attributes>
-          <Attribute FrameworkAlternate="net-android-34.0">
+          <Attribute>
             <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
           </Attribute>
@@ -3000,11 +3562,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getIdentityAddressWithType", "()Landroid/bluetooth/BluetoothDevice$BluetoothAddress;", "", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getIdentityAddressWithType", "()Landroid/bluetooth/BluetoothDevice$BluetoothAddress;", "", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
@@ -3015,6 +3577,84 @@
       <Docs>
         <summary>To be added.</summary>
         <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="IsConnected">
+      <MemberSignature Language="C#" Value="public bool IsConnected (int transport);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance bool IsConnected(int32 transport) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Bluetooth.BluetoothDevice.IsConnected(System.Int32)" />
+      <MemberSignature Language="F#" Value="member this.IsConnected : int -&gt; bool" Usage="bluetoothDevice.IsConnected transport" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isConnected", "(I)Z", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isConnected", "(I)Z", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="transport" Type="System.Int32">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.IntDef(Fields=new System.String[] { "", "" }, Type="")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.IntDef(Fields=new System.String[] { "", "" }, Type="")&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="transport">To be added.</param>
+        <summary>Returns whether there is an open connection to this device on the given transport.</summary>
+        <returns>True if there is at least one open connection to this device.</returns>
+        <remarks>
+          <para>Returns whether there is an open connection to this device on the given transport.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#isConnected(int)" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.isConnected(int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Bluetooth.BluetoothDevice.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="bluetoothDevice.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -3052,6 +3692,54 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="KeyMissingCount">
+      <MemberSignature Language="C#" Value="public int KeyMissingCount { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 KeyMissingCount" />
+      <MemberSignature Language="DocId" Value="P:Android.Bluetooth.BluetoothDevice.KeyMissingCount" />
+      <MemberSignature Language="F#" Value="member this.KeyMissingCount : int" Usage="Android.Bluetooth.BluetoothDevice.KeyMissingCount" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getKeyMissingCount", "()I", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getKeyMissingCount", "()I", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Get the number of times <c>ACTION_KEY_MISSING</c> intent was thrown for this device since
+            the last successful encrypted connection</summary>
+        <value>number of times <c>ACTION_KEY_MISSING</c> intent was thrown for this device since
+                the last successful encrypted connection</value>
+        <remarks>
+          <para>Get the number of times <c>ACTION_KEY_MISSING</c> intent was thrown for this device since
+            the last successful encrypted connection</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#getKeyMissingCount()" title="Reference documentation">Java documentation for <code>android.bluetooth.BluetoothDevice.getKeyMissingCount()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Name">
       <MemberSignature Language="C#" Value="public string? Name { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance string Name" />
@@ -3074,6 +3762,10 @@
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -3197,9 +3889,9 @@
           <AttributeName Language="C#">[Android.Runtime.Register("setAlias", "(Ljava/lang/String;)I", "", ApiSince=31)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setAlias", "(Ljava/lang/String;)I", "", ApiSince=31)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-34.0;net-android-35.0">
-          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
-          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
@@ -3297,6 +3989,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.BLUETOOTH_CONNECT")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -3445,6 +4141,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

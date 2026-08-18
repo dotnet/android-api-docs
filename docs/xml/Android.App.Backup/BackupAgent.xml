@@ -20,69 +20,56 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="8">
-    <summary>Provides the central interface between an
-            application and Android's data backup infrastructure.</summary>
+    <summary>Provides the central interface between an application and Android's data backup infrastructure.</summary>
     <remarks>
-      <para>Provides the central interface between an
-            application and Android's data backup infrastructure.  An application that wishes
-            to participate in the backup and restore mechanism will declare a subclass of
-            <c>android.app.backup.BackupAgent</c>, implement the
-            <c>#onBackup(ParcelFileDescriptor, BackupDataOutput, ParcelFileDescriptor) onBackup()</c>
-            and <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c> methods,
-            and provide the name of its backup agent class in its <c>AndroidManifest.xml</c> file via
-            the <c>
+      <para>Provides the central interface between an application and Android's data backup infrastructure.
+            An application that wishes to participate in the backup and restore mechanism will declare a
+            subclass of <c>android.app.backup.BackupAgent</c>, implement the <c>#onBackup(ParcelFileDescriptor, BackupDataOutput, ParcelFileDescriptor) onBackup()</c> and <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c> methods, and provide the name
+            of its backup agent class in its <c>AndroidManifest.xml</c> file via the <c>
             &lt;a href="{@docRoot}guide/topics/manifest/application-element.html"&gt;&amp;lt;application&amp;gt;&lt;/a&gt;</c>
-            tag's <c>android:backupAgent</c> attribute.
+            tag's <c>android:backupAgent</c> attribute.</para>
+      <para>&lt;div class="special reference"&gt;
             
-            &lt;div class="special reference"&gt;
             &lt;h3&gt;Developer Guides&lt;/h3&gt;</para>
-      <para>For more information about using BackupAgent, read the
-            <see href="https://developer.android.com/guide/topics/data/backup.html">Data Backup</see> developer guide.</para>
-      <para>&lt;/div&gt;
+      <para>For more information about using BackupAgent, read the <see href="https://developer.android.com/guide/topics/data/backup.html">Data Backup</see> developer guide.&lt;/div&gt;
             
             &lt;h3&gt;Basic Operation&lt;/h3&gt;</para>
-      <para>When the application makes changes to data that it wishes to keep backed up,
-            it should call the
-            <c>android.app.backup.BackupManager#dataChanged() BackupManager.dataChanged()</c> method.
-            This notifies the Android Backup Manager that the application needs an opportunity
-            to update its backup image.  The Backup Manager, in turn, schedules a
-            backup pass to be performed at an opportune time.</para>
-      <para>Restore operations are typically performed only when applications are first
-            installed on a device.  At that time, the operating system checks to see whether
-            there is a previously-saved data set available for the application being installed, and if so,
-            begins an immediate restore pass to deliver the backup data as part of the installation
-            process.</para>
-      <para>When a backup or restore pass is run, the application's process is launched
-            (if not already running), the manifest-declared backup agent class (in the <c>android:backupAgent</c> attribute) is instantiated within
-            that process, and the agent's <c>#onCreate()</c> method is invoked.  This prepares the
-            agent instance to run the actual backup or restore logic.  At this point the
-            agent's
+      <para>When the application makes changes to data that it wishes to keep backed up, it should call
+            the <c>android.app.backup.BackupManager#dataChanged() BackupManager.dataChanged()</c> method.
+            This notifies the Android Backup Manager that the application needs an opportunity to update its
+            backup image. The Backup Manager, in turn, schedules a backup pass to be performed at an
+            opportune time.</para>
+      <para>Restore operations are typically performed only when applications are first installed on a
+            device. At that time, the operating system checks to see whether there is a previously-saved data
+            set available for the application being installed, and if so, begins an immediate restore pass to
+            deliver the backup data as part of the installation process.</para>
+      <para>When a backup or restore pass is run, the application's process is launched (if not already
+            running), the manifest-declared backup agent class (in the <c>android:backupAgent</c> attribute)
+            is instantiated within that process, and the agent's <c>#onCreate()</c> method is invoked. This
+            prepares the agent instance to run the actual backup or restore logic. At this point the agent's
             <c>#onBackup(ParcelFileDescriptor, BackupDataOutput, ParcelFileDescriptor) onBackup()</c> or
-            <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c> method will be
-            invoked as appropriate for the operation being performed.</para>
-      <para>A backup data set consists of one or more "entities," flattened binary data
-            records that are each identified with a key string unique within the data set.  Adding a
-            record to the active data set or updating an existing record is done by simply
-            writing new entity data under the desired key.  Deleting an entity from the data set
-            is done by writing an entity under that key with header specifying a negative data
-            size, and no actual entity data.</para>
+            <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c> method will be invoked
+            as appropriate for the operation being performed.</para>
+      <para>A backup data set consists of one or more "entities," flattened binary data records that are
+            each identified with a key string unique within the data set. Adding a record to the active data
+            set or updating an existing record is done by simply writing new entity data under the desired
+            key. Deleting an entity from the data set is done by writing an entity under that key with header
+            specifying a negative data size, and no actual entity data.</para>
       <para>&lt;b&gt;Helper Classes&lt;/b&gt;</para>
-      <para>An extensible agent based on convenient helper classes is available in
-            <c>android.app.backup.BackupAgentHelper</c>.  That class is particularly
-            suited to handling of simple file or <c>android.content.SharedPreferences</c>
-            backup and restore.</para>
+      <para>An extensible agent based on convenient helper classes is available in <c>android.app.backup.BackupAgentHelper</c>. That class is particularly suited to handling of simple
+            file or <c>android.content.SharedPreferences</c> backup and restore.</para>
       <para>&lt;b&gt;Threading&lt;/b&gt;</para>
-      <para>The constructor, as well as <c>#onCreate()</c> and <c>#onDestroy()</c> lifecycle callbacks run
-            on the main thread (UI thread) of the application that implements the BackupAgent.
-            The data-handling callbacks:
-            <c>#onBackup(ParcelFileDescriptor, BackupDataOutput, ParcelFileDescriptor) onBackup()</c>,
-            <c>#onFullBackup(FullBackupDataOutput)</c>,
-            <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c>,
-            <c>#onRestoreFile(ParcelFileDescriptor, long, File, int, long, long) onRestoreFile()</c>,
-            <c>#onRestoreFinished()</c>, and <c>#onQuotaExceeded(long, long) onQuotaExceeded()</c>
-            run on binder pool threads.</para>
+      <para>The constructor, as well as <c>#onCreate()</c> and <c>#onDestroy()</c> lifecycle callbacks
+            run on the main thread (UI thread) of the application that implements the BackupAgent. The
+            data-handling callbacks: <c>#onBackup(ParcelFileDescriptor, BackupDataOutput,
+            ParcelFileDescriptor) onBackup()</c>, <c>#onFullBackup(FullBackupDataOutput)</c>, <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c>, <c>#onRestoreFile(ParcelFileDescriptor, long, File, int, long, long) onRestoreFile()</c>, <c>#onRestoreFinished()</c>, and <c>#onQuotaExceeded(long, long) onQuotaExceeded()</c> run on binder
+            pool threads.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/backup/BackupAgent" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent</code>.</a>
@@ -174,18 +161,62 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Flag for <c>BackupDataOutput#getTransportFlags()</c> and
-            <c>FullBackupDataOutput#getTransportFlags()</c> only.</summary>
+        <summary>Transport flag indicating that the transport has client-side encryption enabled.</summary>
         <remarks>
-          <para>Flag for <c>BackupDataOutput#getTransportFlags()</c> and
-            <c>FullBackupDataOutput#getTransportFlags()</c> only.</para>
-          <para>The transport has client-side encryption enabled. i.e., the user's backup has been
-            encrypted with a key known only to the device, and not to the remote storage solution. Even
-            if an attacker had root access to the remote storage provider they should not be able to
-            decrypt the user's backup data.</para>
+          <para>Transport flag indicating that the transport has client-side encryption enabled. i.e., the
+            user's backup has been encrypted with a key known only to the device, and not to the remote
+            storage solution. Even if an attacker had root access to the remote storage provider they
+            should not be able to decrypt the user's backup data.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#FLAG_CLIENT_SIDE_ENCRYPTION_ENABLED" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.FLAG_CLIENT_SIDE_ENCRYPTION_ENABLED</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FlagCrossPlatformDataTransferIos">
+      <MemberSignature Language="C#" Value="public const Android.App.Backup.BackupTransportFlags FlagCrossPlatformDataTransferIos = 8;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.App.Backup.BackupTransportFlags FlagCrossPlatformDataTransferIos = (8)" />
+      <MemberSignature Language="DocId" Value="F:Android.App.Backup.BackupAgent.FlagCrossPlatformDataTransferIos" />
+      <MemberSignature Language="F#" Value="val mutable FlagCrossPlatformDataTransferIos : Android.App.Backup.BackupTransportFlags" Usage="Android.App.Backup.BackupAgent.FlagCrossPlatformDataTransferIos" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("FLAG_CROSS_PLATFORM_DATA_TRANSFER_IOS", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("FLAG_CROSS_PLATFORM_DATA_TRANSFER_IOS", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.App.Backup.BackupTransportFlags enum directly instead of this field.", true)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.App.Backup.BackupTransportFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.Backup.BackupTransportFlags</ReturnType>
+      </ReturnValue>
+      <MemberValue>8</MemberValue>
+      <Docs>
+        <summary>Transport flag indicating that the transport is used for a cross-platform transfer to or from
+            iOS.</summary>
+        <remarks>
+          <para>Transport flag indicating that the transport is used for a cross-platform transfer to or from
+            iOS. The user's backup data is sent directly to another device over e.g. USB or WiFi.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#FLAG_CROSS_PLATFORM_DATA_TRANSFER_IOS" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.FLAG_CROSS_PLATFORM_DATA_TRANSFER_IOS</code>.</a>
             </format>
           </para>
           <para>
@@ -225,13 +256,11 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>Flag for <c>BackupDataOutput#getTransportFlags()</c> and
-            <c>FullBackupDataOutput#getTransportFlags()</c> only.</summary>
+        <summary>Transport flag indicating that the transport is used for a device-to-device transfer.</summary>
         <remarks>
-          <para>Flag for <c>BackupDataOutput#getTransportFlags()</c> and
-            <c>FullBackupDataOutput#getTransportFlags()</c> only.</para>
-          <para>The transport is for a device-to-device transfer. There is no third party or intermediate
-            storage. The user's backup data is sent directly to another device over e.g., USB or WiFi.</para>
+          <para>Transport flag indicating that the transport is used for a device-to-device transfer. There
+            is no third party or intermediate storage. The user's backup data is sent directly to another
+            device over e.g., USB or WiFi.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#FLAG_DEVICE_TO_DEVICE_TRANSFER" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.FLAG_DEVICE_TO_DEVICE_TRANSFER</code>.</a>
@@ -269,20 +298,17 @@
         <Parameter Name="output" Type="Android.App.Backup.FullBackupDataOutput" />
       </Parameters>
       <Docs>
-        <param name="file">The file to be backed up.  The file must exist and be readable by
-                the caller.</param>
+        <param name="file">The file to be backed up. The file must exist and be readable by the caller.</param>
         <param name="output">The destination to which the backed-up file data will be sent.</param>
         <summary>Write an entire file as part of a full-backup operation.</summary>
         <remarks>
-          <para>Write an entire file as part of a full-backup operation.  The file's contents
-            will be delivered to the backup destination along with the metadata necessary
-            to place it with the proper location and permissions on the device where the
-            data is restored.</para>
-          <para>Attempting to back up files in directories that are ignored by
-            the backup system will have no effect.  For example, if the app calls this method
-            with a file inside the <c>#getNoBackupFilesDir()</c> directory, it will be ignored.
-            See <c>#onFullBackup(FullBackupDataOutput)</c> for details on what directories
-            are excluded from backups.</para>
+          <para>Write an entire file as part of a full-backup operation. The file's contents will be
+            delivered to the backup destination along with the metadata necessary to place it with the
+            proper location and permissions on the device where the data is restored.</para>
+          <para>Attempting to back up files in directories that are ignored by the backup
+            system will have no effect. For example, if the app calls this method with a file inside the
+            <c>#getNoBackupFilesDir()</c> directory, it will be ignored. See <c>#onFullBackup(FullBackupDataOutput)</c> for details on what directories are excluded from
+            backups.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#fullBackupFile(java.io.File,%20android.app.backup.FullBackupDataOutput)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.fullBackupFile(java.io.File, android.app.backup.FullBackupDataOutput)</code>.</a>
@@ -310,7 +336,7 @@
       <ReturnValue>
         <ReturnType>System.Threading.Tasks.Task</ReturnType>
         <Attributes>
-          <Attribute FrameworkAlternate="net-android-34.0">
+          <Attribute>
             <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
           </Attribute>
@@ -353,6 +379,10 @@
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -390,34 +420,29 @@
         <Parameter Name="newState" Type="Android.OS.ParcelFileDescriptor" />
       </Parameters>
       <Docs>
-        <param name="oldState">An open, read-only ParcelFileDescriptor pointing to the
-                       last backup state provided by the application. May be
-                       <c>null</c>, in which case no prior state is being
-                       provided and the application should perform a full backup.</param>
-        <param name="data">A structured wrapper around an open, read/write
-                       file descriptor pointing to the backup data destination.
-                       Typically the application will use backup helper classes to
-                       write to this file.</param>
-        <param name="newState">An open, read/write ParcelFileDescriptor pointing to an
-                       empty file. The application should record the final backup
-                       state here after writing the requested data to the <c>data</c>
-                       output stream.</param>
-        <summary>The application is being asked to write any data changed since the last
-            time it performed a backup operation.</summary>
+        <param name="oldState">An open, read-only ParcelFileDescriptor pointing to the last backup state
+                provided by the application. May be <c>null</c>, in which case no prior state is
+                being provided and the application should perform a full backup.</param>
+        <param name="data">A structured wrapper around an open, read/write file descriptor pointing to the
+                backup data destination. Typically the application will use backup helper classes to
+                write to this file.</param>
+        <param name="newState">An open, read/write ParcelFileDescriptor pointing to an empty file. The
+                application should record the final backup state here after writing the requested data to
+                the <c>data</c> output stream.</param>
+        <summary>The application is being asked to write any data changed since the last time it performed a
+            backup operation.</summary>
         <remarks>
-          <para>The application is being asked to write any data changed since the last
-            time it performed a backup operation. The state data recorded during the
-            last backup pass is provided in the <c>oldState</c> file
-            descriptor. If <c>oldState</c> is <c>null</c>, no old state
-            is available and the application should perform a full backup. In both
-            cases, a representation of the final backup state after this pass should
-            be written to the file pointed to by the file descriptor wrapped in
-            <c>newState</c>.</para>
-          <para>Each entity written to the <c>android.app.backup.BackupDataOutput</c><c>data</c> stream will be transmitted
-            over the current backup transport and stored in the remote data set under
-            the key supplied as part of the entity.  Writing an entity with a negative
-            data size instructs the transport to delete whatever entity currently exists
-            under that key from the remote data set.</para>
+          <para>The application is being asked to write any data changed since the last time it performed a
+            backup operation. The state data recorded during the last backup pass is provided in the
+            <c>oldState</c> file descriptor. If <c>oldState</c> is <c>null</c>, no old
+            state is available and the application should perform a full backup. In both cases, a
+            representation of the final backup state after this pass should be written to the file
+            pointed to by the file descriptor wrapped in <c>newState</c>.</para>
+          <para>Each entity written to the <c>android.app.backup.BackupDataOutput</c><c>data</c>
+            stream will be transmitted over the current backup transport and stored in the remote data
+            set under the key supplied as part of the entity. Writing an entity with a negative data size
+            instructs the transport to delete whatever entity currently exists under that key from the
+            remote data set.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onBackup(android.os.ParcelFileDescriptor,%20android.app.backup.BackupDataOutput,%20android.os.ParcelFileDescriptor)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onBackup(android.os.ParcelFileDescriptor, android.app.backup.BackupDataOutput, android.os.ParcelFileDescriptor)</code>.</a>
@@ -454,14 +479,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Provided as a convenience for agent implementations that need an opportunity
-            to do one-time initialization before the actual backup or restore operation
-            is begun.</summary>
+        <summary>Provided as a convenience for agent implementations that need an opportunity to do one-time
+            initialization before the actual backup or restore operation is begun.</summary>
         <remarks>
-          <para>Provided as a convenience for agent implementations that need an opportunity
-            to do one-time initialization before the actual backup or restore operation
-            is begun.</para>
-          <para />
+          <para>Provided as a convenience for agent implementations that need an opportunity to do one-time
+            initialization before the actual backup or restore operation is begun.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onCreate()" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onCreate()</code>.</a>
@@ -497,11 +519,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Provided as a convenience for agent implementations that need to do some
-            sort of shutdown process after backup or restore is completed.</summary>
+        <summary>Provided as a convenience for agent implementations that need to do some sort of shutdown
+            process after backup or restore is completed.</summary>
         <remarks>
-          <para>Provided as a convenience for agent implementations that need to do some
-            sort of shutdown process after backup or restore is completed.</para>
+          <para>Provided as a convenience for agent implementations that need to do some sort of shutdown
+            process after backup or restore is completed.</para>
           <para>Agents do not need to override this method.</para>
           <para>
             <format type="text/html">
@@ -515,6 +537,59 @@
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 8" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnEstimateFullBackupBytes">
+      <MemberSignature Language="C#" Value="public virtual long OnEstimateFullBackupBytes (long quotaBytes, int transportFlags);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int64 OnEstimateFullBackupBytes(int64 quotaBytes, int32 transportFlags) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Backup.BackupAgent.OnEstimateFullBackupBytes(System.Int64,System.Int32)" />
+      <MemberSignature Language="F#" Value="abstract member OnEstimateFullBackupBytes : int64 * int -&gt; int64&#xA;override this.OnEstimateFullBackupBytes : int64 * int -&gt; int64" Usage="backupAgent.OnEstimateFullBackupBytes (quotaBytes, transportFlags)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onEstimateFullBackupBytes", "(JI)J", "GetOnEstimateFullBackupBytes_JIHandler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onEstimateFullBackupBytes", "(JI)J", "GetOnEstimateFullBackupBytes_JIHandler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="quotaBytes" Type="System.Int64" />
+        <Parameter Name="transportFlags" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="quotaBytes">The maximum data size that the transport currently permits this application
+                to store as a backup.</param>
+        <param name="transportFlags">flags with additional information about the backup transport.</param>
+        <summary>Estimate how much data in bytes a full backup will deliver.</summary>
+        <returns>estimated size of the full backup. If the returned size is negative, the backup agent
+                will fallback to using <c>#onFullBackup(FullBackupDataOutput)</c> to measure the size.</returns>
+        <remarks>
+          <para>Estimate how much data in bytes a full backup will deliver. This is used during the preflight
+            check to make sure the size doesn't exceed the backup quota.</para>
+          <para>By default, the backup size is measured by calling <c>#onFullBackup(FullBackupDataOutput)</c> and looking at the size of the backup it produces while
+            discarding the data. This method can be overridden to provide an alternative, more efficient
+            estimation if necessary.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onEstimateFullBackupBytes(long,%20int)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onEstimateFullBackupBytes(long, int)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnFullBackup">
@@ -543,27 +618,25 @@
         <param name="data">A structured wrapper pointing to the backup destination.</param>
         <summary>The application is having its entire file system contents backed up.</summary>
         <remarks>
-          <para>The application is having its entire file system contents backed up.  <c>data</c>
-            points to the backup destination, and the app has the opportunity to choose which
-            files are to be stored.  To commit a file as part of the backup, call the
-            <c>#fullBackupFile(File, FullBackupDataOutput)</c> helper method.  After all file
-            data is written to the output, the agent returns from this method and the backup
-            operation concludes.</para>
-          <para>Certain parts of the app's data are never backed up even if the app explicitly
-            sends them to the output:
+          <para>The application is having its entire file system contents backed up. <c>data</c> points to
+            the backup destination, and the app has the opportunity to choose which files are to be
+            stored. To commit a file as part of the backup, call the <c>#fullBackupFile(File,
+            FullBackupDataOutput)</c> helper method. After all file data is written to the output, the agent
+            returns from this method and the backup operation concludes.</para>
+          <para>Certain parts of the app's data are never backed up even if the app explicitly sends them
+            to the output:
             
             &lt;ul&gt;
-            &lt;li&gt;The contents of the <c>#getCacheDir()</c> directory&lt;/li&gt;
-            &lt;li&gt;The contents of the <c>#getCodeCacheDir()</c> directory&lt;/li&gt;
-            &lt;li&gt;The contents of the <c>#getNoBackupFilesDir()</c> directory&lt;/li&gt;
-            &lt;li&gt;The contents of the app's shared library directory&lt;/li&gt;
+              &lt;li&gt;The contents of the <c>#getCacheDir()</c> directory
+              &lt;li&gt;The contents of the <c>#getCodeCacheDir()</c> directory
+              &lt;li&gt;The contents of the <c>#getNoBackupFilesDir()</c> directory
+              &lt;li&gt;The contents of the app's shared library directory
             &lt;/ul&gt;</para>
-          <para>The default implementation of this method backs up the entirety of the
-            application's "owned" file system trees to the output other than the few exceptions
-            listed above.  Apps only need to override this method if they need to impose special
-            limitations on which files are being stored beyond the control that
-            <c>#getNoBackupFilesDir()</c> offers.
-            Alternatively they can provide an xml resource to specify what data to include or exclude.</para>
+          <para>The default implementation of this method backs up the entirety of the application's
+            "owned" file system trees to the output other than the few exceptions listed above. Apps only
+            need to override this method if they need to impose special limitations on which files are
+            being stored beyond the control that <c>#getNoBackupFilesDir()</c> offers. Alternatively
+            they can provide an xml resource to specify what data to include or exclude.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onFullBackup(android.app.backup.FullBackupDataOutput)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onFullBackup(android.app.backup.FullBackupDataOutput)</code>.</a>
@@ -610,31 +683,29 @@
         <Parameter Name="quotaBytes" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="backupDataBytes">The amount of data measured while initializing the backup
-               operation, if the total exceeds the app's alloted quota.  If initial measurement
-               suggested that the data would fit but then too much data was actually submitted
-               as part of the operation, then this value is the amount of data that had been
-               streamed into the transport at the time the quota was reached.</param>
-        <param name="quotaBytes">The maximum data size that the transport currently permits
-               this application to store as a backup.</param>
-        <summary>Notification that the application's current backup operation causes it to exceed
-            the maximum size permitted by the transport.</summary>
+        <param name="backupDataBytes">The amount of data measured while initializing the backup operation,
+                if the total exceeds the app's alloted quota. If initial measurement suggested that the
+                data would fit but then too much data was actually submitted as part of the operation,
+                then this value is the amount of data that had been streamed into the transport at the
+                time the quota was reached.</param>
+        <param name="quotaBytes">The maximum data size that the transport currently permits this application
+                to store as a backup.</param>
+        <summary>Notification that the application's current backup operation causes it to exceed the maximum
+            size permitted by the transport.</summary>
         <remarks>
-          <para>Notification that the application's current backup operation causes it to exceed
-            the maximum size permitted by the transport.  The ongoing backup operation is
-            halted and rolled back: any data that had been stored by a previous backup operation
-            is still intact.  Typically the quota-exceeded state will be detected before any data
-            is actually transmitted over the network.</para>
+          <para>Notification that the application's current backup operation causes it to exceed the maximum
+            size permitted by the transport. The ongoing backup operation is halted and rolled back: any
+            data that had been stored by a previous backup operation is still intact. Typically the
+            quota-exceeded state will be detected before any data is actually transmitted over the
+            network.</para>
           <para>The <c>quotaBytes</c> value is the total data size currently permitted for this
-            application.  If desired, the application can use this as a hint for determining
-            how much data to store.  For example, a messaging application might choose to
-            store only the newest messages, dropping enough older content to stay under
-            the quota.</para>
-          <para>Note that the maximum quota for the application can change over
-            time.  In particular, in the future the quota may grow.  Applications that adapt
-            to the quota when deciding what data to store should be aware of this and implement
-            their data storage mechanisms in a way that can take advantage of additional
-            quota.</para>
+            application. If desired, the application can use this as a hint for determining how much data
+            to store. For example, a messaging application might choose to store only the newest
+            messages, dropping enough older content to stay under the quota.</para>
+          <para>Note that the maximum quota for the application can change over time. In
+            particular, in the future the quota may grow. Applications that adapt to the quota when
+            deciding what data to store should be aware of this and implement their data storage
+            mechanisms in a way that can take advantage of additional quota.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onQuotaExceeded(long,%20long)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onQuotaExceeded(long, long)</code>.</a>
@@ -673,34 +744,28 @@
         <Parameter Name="newState" Type="Android.OS.ParcelFileDescriptor" />
       </Parameters>
       <Docs>
-        <param name="data">A structured wrapper around an open, read-only
-                       file descriptor pointing to a full snapshot of the
-                       application's data.  The application should consume every
-                       entity represented in this data stream.</param>
-        <param name="appVersionCode">The value of the <see href="https://developer.android.com/guide/topics/manifest/manifest-element.html#vcode"><c>android:versionCode</c></see> manifest attribute,
-                       from the application that backed up this particular data set. This
-                       makes it possible for an application's agent to distinguish among any
-                       possible older data versions when asked to perform the restore
-                       operation.</param>
-        <param name="newState">An open, read/write ParcelFileDescriptor pointing to an
-                       empty file. The application should record the final backup
-                       state here after restoring its data from the <c>data</c> stream.
-                       When a full-backup dataset is being restored, this will be <c>null</c>.</param>
-        <summary>The application is being restored from backup and should replace any
-            existing data with the contents of the backup.</summary>
+        <param name="data">A structured wrapper around an open, read-only file descriptor pointing to a full
+                snapshot of the application's data. The application should consume every entity
+                represented in this data stream.</param>
+        <param name="appVersionCode">The value of the <see href="https://developer.android.com/guide/topics/manifest/manifest-element.html#vcode"><c>android:versionCode</c></see> manifest attribute, from the application that backed up this
+                particular data set. This makes it possible for an application's agent to distinguish
+                among any possible older data versions when asked to perform the restore operation.</param>
+        <param name="newState">An open, read/write ParcelFileDescriptor pointing to an empty file. The
+                application should record the final backup state here after restoring its data from the
+                <c>data</c> stream. When a full-backup dataset is being restored, this will be
+                <c>null</c>.</param>
+        <summary>The application is being restored from backup and should replace any existing data with the
+            contents of the backup.</summary>
         <remarks>
-          <para>The application is being restored from backup and should replace any
-            existing data with the contents of the backup. The backup data is
-            provided through the <c>data</c> parameter. Once
-            the restore is finished, the application should write a representation of
-            the final state to the <c>newState</c> file descriptor.</para>
-          <para>The application is responsible for properly erasing its old data and
-            replacing it with the data supplied to this method. No "clear user data"
-            operation will be performed automatically by the operating system. The
-            exception to this is in the case of a failed restore attempt: if
-            onRestore() throws an exception, the OS will assume that the
-            application's data may now be in an incoherent state, and will clear it
-            before proceeding.</para>
+          <para>The application is being restored from backup and should replace any existing data with the
+            contents of the backup. The backup data is provided through the <c>data</c> parameter.
+            Once the restore is finished, the application should write a representation of the final
+            state to the <c>newState</c> file descriptor.</para>
+          <para>The application is responsible for properly erasing its old data and replacing it with the
+            data supplied to this method. No "clear user data" operation will be performed automatically
+            by the operating system. The exception to this is in the case of a failed restore attempt: if
+            onRestore() throws an exception, the OS will assume that the application's data may now be in
+            an incoherent state, and will clear it before proceeding.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onRestore(android.app.backup.BackupDataInput,%20int,%20android.os.ParcelFileDescriptor)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onRestore(android.app.backup.BackupDataInput, int, android.os.ParcelFileDescriptor)</code>.</a>
@@ -759,15 +824,70 @@
                        empty file. The application should record the final backup
                        state here after restoring its data from the &lt;code&gt;data&lt;/code&gt; stream.
                        When a full-backup dataset is being restored, this will be &lt;code&gt;null&lt;/code&gt;.</param>
-        <summary>New version of <c>#onRestore(BackupDataInput, int, android.os.ParcelFileDescriptor)</c>
-            that handles a long app version code.</summary>
+        <summary>New version of <c>#onRestore(BackupDataInput, int, android.os.ParcelFileDescriptor)</c> that
+            handles a long app version code.</summary>
         <remarks>
-          <para>New version of <c>#onRestore(BackupDataInput, int, android.os.ParcelFileDescriptor)</c>
-            that handles a long app version code.  Default implementation casts the version code to
-            an int and calls <c>#onRestore(BackupDataInput, int, android.os.ParcelFileDescriptor)</c>.</para>
+          <para>New version of <c>#onRestore(BackupDataInput, int, android.os.ParcelFileDescriptor)</c> that
+            handles a long app version code. Default implementation casts the version code to an int and
+            calls <c>#onRestore(BackupDataInput, int, android.os.ParcelFileDescriptor)</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onRestore(android.app.backup.BackupDataInput,%20long,%20android.os.ParcelFileDescriptor)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onRestore(android.app.backup.BackupDataInput, long, android.os.ParcelFileDescriptor)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="OnRestoreFile">
+      <MemberSignature Language="C#" Value="public virtual void OnRestoreFile (Android.App.Backup.FullRestoreDataInput data);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void OnRestoreFile(class Android.App.Backup.FullRestoreDataInput data) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.Backup.BackupAgent.OnRestoreFile(Android.App.Backup.FullRestoreDataInput)" />
+      <MemberSignature Language="F#" Value="abstract member OnRestoreFile : Android.App.Backup.FullRestoreDataInput -&gt; unit&#xA;override this.OnRestoreFile : Android.App.Backup.FullRestoreDataInput -&gt; unit" Usage="backupAgent.OnRestoreFile data" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("onRestoreFile", "(Landroid/app/backup/FullRestoreDataInput;)V", "GetOnRestoreFile_Landroid_app_backup_FullRestoreDataInput_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("onRestoreFile", "(Landroid/app/backup/FullRestoreDataInput;)V", "GetOnRestoreFile_Landroid_app_backup_FullRestoreDataInput_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="data" Type="Android.App.Backup.FullRestoreDataInput" />
+      </Parameters>
+      <Docs>
+        <param name="data">A structured wrapper containing the details of the file that's being restored and
+                additional metadata from the backup.</param>
+        <summary>Handle the data delivered via the given file descriptor during a full restore operation.</summary>
+        <remarks>
+          <para>Handle the data delivered via the given file descriptor during a full restore operation. The
+            agent is given the path to the file's original location as well as its size and metadata.</para>
+          <para>The file descriptor can only be read for <c>size</c> bytes; attempting to read more data
+            has undefined behavior.</para>
+          <para>The default implementation creates the destination file/directory and populates it with
+            the data from the file descriptor, then sets the file's access mode and modification time to
+            match the restore arguments.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onRestoreFile(android.app.backup.FullRestoreDataInput)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onRestoreFile(android.app.backup.FullRestoreDataInput)</code>.</a>
             </format>
           </para>
           <para>
@@ -813,29 +933,25 @@
         <Parameter Name="mtime" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="data">A read-only file descriptor from which the agent can read <c>size</c>
-                bytes of file data.</param>
-        <param name="size">The number of bytes of file content to be restored to the given
-                destination.  If the file system object being restored is a directory, <c>size</c>
-                will be zero.</param>
+        <param name="data">A read-only file descriptor from which the agent can read <c>size</c> bytes of
+                file data.</param>
+        <param name="size">The number of bytes of file content to be restored to the given destination. If
+                the file system object being restored is a directory, <c>size</c> will be zero.</param>
         <param name="destination">The File on disk to be restored with the given data.</param>
-        <param name="type">The kind of file system object being restored.  This will be either
-                <c>BackupAgent#TYPE_FILE</c> or <c>BackupAgent#TYPE_DIRECTORY</c>.</param>
-        <param name="mode">The access mode to be assigned to the destination after its data is
-                written.  This is in the standard format used by <c>chmod()</c>.</param>
-        <param name="mtime">The modification time of the file when it was backed up, suitable to
-                be assigned to the file after its data is written.</param>
-        <summary>Handle the data delivered via the given file descriptor during a full restore
-            operation.</summary>
+        <param name="type">The kind of file system object being restored. This will be either <c>BackupAgent#TYPE_FILE</c> or <c>BackupAgent#TYPE_DIRECTORY</c>.</param>
+        <param name="mode">The access mode to be assigned to the destination after its data is written. This
+                is in the standard format used by <c>chmod()</c>.</param>
+        <param name="mtime">The modification time of the file when it was backed up, suitable to be assigned
+                to the file after its data is written.</param>
+        <summary>Handle the data delivered via the given file descriptor during a full restore operation.</summary>
         <remarks>
-          <para>Handle the data delivered via the given file descriptor during a full restore
-            operation.  The agent is given the path to the file's original location as well
-            as its size and metadata.</para>
-          <para>The file descriptor can only be read for <c>size</c> bytes; attempting to read
-            more data has undefined behavior.</para>
-          <para>The default implementation creates the destination file/directory and populates it
-            with the data from the file descriptor, then sets the file's access mode and
-            modification time to match the restore arguments.</para>
+          <para>Handle the data delivered via the given file descriptor during a full restore operation. The
+            agent is given the path to the file's original location as well as its size and metadata.</para>
+          <para>The file descriptor can only be read for <c>size</c> bytes; attempting to read more data
+            has undefined behavior.</para>
+          <para>The default implementation creates the destination file/directory and populates it with
+            the data from the file descriptor, then sets the file's access mode and modification time to
+            match the restore arguments.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onRestoreFile(android.os.ParcelFileDescriptor,%20long,%20java.io.File,%20int,%20long,%20long)" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onRestoreFile(android.os.ParcelFileDescriptor, long, java.io.File, int, long, long)</code>.</a>
@@ -874,12 +990,10 @@
       <Docs>
         <summary>The application's restore operation has completed.</summary>
         <remarks>
-          <para>The application's restore operation has completed.  This method is called after
-            all available data has been delivered to the application for restore (via either
-            the <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c> or
-            <c>#onRestoreFile(ParcelFileDescriptor, long, File, int, long, long) onRestoreFile()</c>
-            callbacks).  This provides the app with a stable end-of-restore opportunity to
-            perform any appropriate post-processing on the data that was just delivered.</para>
+          <para>The application's restore operation has completed. This method is called after all available
+            data has been delivered to the application for restore (via either the <c>#onRestore(BackupDataInput, int, ParcelFileDescriptor) onRestore()</c> or <c>#onRestoreFile(ParcelFileDescriptor, long, File, int, long, long) onRestoreFile()</c>
+            callbacks). This provides the app with a stable end-of-restore opportunity to perform any
+            appropriate post-processing on the data that was just delivered.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#onRestoreFinished()" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.onRestoreFinished()</code>.</a>
@@ -950,6 +1064,10 @@
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Type</ReturnType>
@@ -987,11 +1105,9 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>During a full restore, indicates that the file system object being restored
-            is a directory.</summary>
+        <summary>During a full restore, indicates that the file system object being restored is a directory.</summary>
         <remarks>
-          <para>During a full restore, indicates that the file system object being restored
-            is a directory.</para>
+          <para>During a full restore, indicates that the file system object being restored is a directory.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#TYPE_DIRECTORY" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.TYPE_DIRECTORY</code>.</a>
@@ -1031,11 +1147,11 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>During a full restore, indicates that the file system object being restored
-            is an ordinary file.</summary>
+        <summary>During a full restore, indicates that the file system object being restored is an ordinary
+            file.</summary>
         <remarks>
-          <para>During a full restore, indicates that the file system object being restored
-            is an ordinary file.</para>
+          <para>During a full restore, indicates that the file system object being restored is an ordinary
+            file.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/backup/BackupAgent#TYPE_FILE" title="Reference documentation">Java documentation for <code>android.app.backup.BackupAgent.TYPE_FILE</code>.</a>

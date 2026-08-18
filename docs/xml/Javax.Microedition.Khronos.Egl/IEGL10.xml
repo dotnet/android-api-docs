@@ -26,6 +26,10 @@
       <AttributeName Language="C#">[Android.Runtime.Register("javax/microedition/khronos/egl/EGL10", "", "Javax.Microedition.Khronos.Egl.IEGL10Invoker")]</AttributeName>
       <AttributeName Language="F#">[&lt;Android.Runtime.Register("javax/microedition/khronos/egl/EGL10", "", "Javax.Microedition.Khronos.Egl.IEGL10Invoker")&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>To be added.</summary>
@@ -1134,8 +1138,13 @@
       <Parameters />
       <Docs>
         <summary>
+          Gets the EGL rendering context current to the calling thread.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          The current rendering context, or
+          <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoContext" />
+          if no context is current.
+        </returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1164,8 +1173,13 @@
       <Parameters />
       <Docs>
         <summary>
+          Gets the EGL display connection for the current rendering context.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          The current display connection, or
+          <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoDisplay" />
+          if no context is current.
+        </returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1195,10 +1209,24 @@
         <Parameter Name="readdraw" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="readdraw">To be added.</param>
+        <param name="readdraw">
+          Specifies whether to retrieve the read
+          (<see cref="F:Javax.Microedition.Khronos.Egl.IEGL10.EglRead" />) or draw
+          (<see cref="F:Javax.Microedition.Khronos.Egl.IEGL10.EglDraw" />) surface.
+        </param>
         <summary>
+          Gets the requested surface of the current EGL rendering context.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          The requested current surface, or
+          <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" />
+          if no context is current.
+        </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="readdraw" /> is neither
+          <see cref="F:Javax.Microedition.Khronos.Egl.IEGL10.EglRead" /> nor
+          <see cref="F:Javax.Microedition.Khronos.Egl.IEGL10.EglDraw" />.
+        </exception>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1228,11 +1256,19 @@
         <Parameter Name="native_display" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="native_display">To be added.</param>
+        <param name="native_display">
+          Ignored by Android's EGL binding.
+        </param>
         <summary>
+          Gets Android's default EGL display connection.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          The default EGL display connection, or
+          <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoDisplay" />
+          if no display connection is available.
+        </returns>
         <remarks>
+          <para>Android's <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/jni/com_google_android_gles_jni_EGLImpl.cpp" title="Android Open Source Project EGL binding">AOSP EGL binding</a></format> always obtains <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglDefaultDisplay" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1260,8 +1296,12 @@
       <Parameters />
       <Docs>
         <summary>
+          Gets and clears the error from the last EGL function invoked on the current thread.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          The EGL error code. Calling this method resets the error to
+          <see cref="F:Javax.Microedition.Khronos.Egl.IEGL10.EglSuccess" />.
+        </returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1367,12 +1407,27 @@
         <Parameter Name="major_minor" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="display">To be added.</param>
-        <param name="major_minor">To be added.</param>
+        <param name="display">The EGL display connection to initialize.</param>
+        <param name="major_minor">
+          May be <see langword="null" />. Otherwise, it must contain at least two elements and
+          receives the EGL major and minor version numbers at indices 0 and 1 when this method
+          returns <see langword="true" />. It remains unchanged when this method returns
+          <see langword="false" />.
+        </param>
         <summary>
+          Initializes an EGL display connection.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          <see langword="true" /> if the initialization operation completed successfully; otherwise,
+          <see langword="false" />.
+        </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" /> is <see langword="null" />, or
+          <paramref name="major_minor" /> is non-null and has fewer than two elements.
+        </exception>
         <remarks>
+          <para>Android's <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/jni/com_google_android_gles_jni_EGLImpl.cpp" title="Android Open Source Project EGL binding">AOSP EGL binding</a></format> exposes EGL 1.0 through <paramref name="major_minor" />.</para>
+          <para>On Android, initialization is reference counted. A later successful call for an initialized display returns <see langword="true" /> without reinitializing the display, and each successful call requires a corresponding call to <see cref="M:Javax.Microedition.Khronos.Egl.IEGL10.EglTerminate(Javax.Microedition.Khronos.Egl.EGLDisplay)" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1504,13 +1559,32 @@
         <Parameter Name="context" Type="Javax.Microedition.Khronos.Egl.EGLContext" />
       </Parameters>
       <Docs>
-        <param name="display">To be added.</param>
-        <param name="draw">To be added.</param>
-        <param name="read">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="display">The EGL display connection.</param>
+        <param name="draw">
+          The draw surface, or <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" />
+          when releasing the current context.
+        </param>
+        <param name="read">
+          The read surface, or <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" />
+          when releasing the current context.
+        </param>
+        <param name="context">
+          The rendering context to attach to the surfaces. Pass
+          <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoContext" /> with both surfaces
+          set to <see cref="P:Javax.Microedition.Khronos.Egl.IEGL10.EglNoSurface" /> to release
+          the current context.
+        </param>
         <summary>
+          Binds a rendering context to the calling thread and to its draw and read surfaces.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          <see langword="true" /> if the binding or release operation completed successfully; otherwise,
+          <see langword="false" />.
+        </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" />, <paramref name="draw" />, <paramref name="read" />, or
+          <paramref name="context" /> is <see langword="null" />.
+        </exception>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2329,12 +2403,21 @@
         <Parameter Name="surface" Type="Javax.Microedition.Khronos.Egl.EGLSurface" />
       </Parameters>
       <Docs>
-        <param name="display">To be added.</param>
-        <param name="surface">To be added.</param>
+        <param name="display">The EGL display connection.</param>
+        <param name="surface">The drawing surface whose buffers are swapped.</param>
         <summary>
+          Swaps the color buffers of an EGL drawing surface.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          <see langword="true" /> if the swap operation completed successfully; otherwise,
+          <see langword="false" />.
+        </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" /> or <paramref name="surface" /> is
+          <see langword="null" />.
+        </exception>
         <remarks>
+          <para>For a back-buffered window surface, this posts the color buffer to its native window. It has no effect on a single-buffered window, pixmap, or pixel-buffer surface.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -2363,11 +2446,20 @@
         <Parameter Name="display" Type="Javax.Microedition.Khronos.Egl.EGLDisplay" />
       </Parameters>
       <Docs>
-        <param name="display">To be added.</param>
+        <param name="display">The EGL display connection to terminate.</param>
         <summary>
+          Releases resources associated with an EGL display connection.
         </summary>
-        <returns>To be added.</returns>
+        <returns>
+          <see langword="true" /> if the termination operation completed successfully; otherwise,
+          <see langword="false" />.
+        </returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">
+          <paramref name="display" /> is <see langword="null" />.
+        </exception>
         <remarks>
+          <para>On Android, a successful call can be a no-op for an already uninitialized display, or can leave a display initialized when reference-counted initialization remains.</para>
+          <para>Resources associated with contexts or surfaces that are current remain until they are no longer current.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />

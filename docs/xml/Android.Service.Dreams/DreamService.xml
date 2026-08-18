@@ -1,5 +1,5 @@
 <Type Name="DreamService" FullName="Android.Service.Dreams.DreamService">
-  <TypeSignature Language="C#" Value="public class DreamService : Android.App.Service, Android.Views.Window.ICallback, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public class DreamService : Android.App.Service, Android.Views.Window.ICallback, IDisposable" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DreamService extends Android.App.Service implements class Android.Runtime.IJavaObject, class Android.Views.Window/ICallback, class Java.Interop.IJavaPeerable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Service.Dreams.DreamService" />
   <TypeSignature Language="F#" Value="type DreamService = class&#xA;    inherit Service&#xA;    interface Window.ICallback&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
@@ -33,6 +33,10 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="17">
     <summary>Extend this class to implement a custom dream (available to the user as a "Daydream").</summary>
@@ -56,12 +60,15 @@
       <para>In addition, onCreate and onDestroy (from the Service interface) will also be called, but
             initialization and teardown should be done by overriding the hooks above.</para>
       <para>To be available to the system, your <c>DreamService</c> should be declared in the
-            manifest as follows:</para>
+            manifest as follows (note: when targeting API level 21 and above, you must declare the service in
+            your app manifest file with the <c>android.Manifest.permission#BIND_DREAM_SERVICE</c>
+            permission):</para>
       <code lang="text/java">&amp;lt;service
                 android:name=".MyDream"
                 android:exported="true"
                 android:icon="@drawable/my_icon"
-                android:label="@string/my_dream_label" &gt;
+                android:label="@string/my_dream_label"
+                android:permission="android.permission.BIND_DREAM_SERVICE"&gt;
             
                 &amp;lt;intent-filter&gt;
                     &amp;lt;action android:name="android.service.dreams.DreamService" /&gt;
@@ -77,15 +84,25 @@
       <para>If specified with the <c>&lt;meta-data&gt;</c> element,
             additional information for the dream is defined using the
             <c>android.R.styleable#Dream &amp;lt;dream&amp;gt;</c> element in a separate XML file.
-            Currently, the only additional
-            information you can provide is for a settings activity that allows the user to configure
-            the dream behavior. For example:</para>
+            For example:</para>
       <para>res/xml/my_dream.xml</para>
       <code lang="text/java">&amp;lt;dream xmlns:android="http://schemas.android.com/apk/res/android"
+                android:previewImage="@drawable/screensaver_preview"
+                android:showClockAndComplications="true"
                 android:settingsActivity="com.example.app/.MyDreamSettingsActivity" /&gt;
             </code>
-      <para>This makes a Settings button available alongside your dream's listing in the
-            system settings, which when pressed opens the specified activity.</para>
+      <para>
+        <c>android:previewImage</c> specifies a preview image to display in the screensavers
+            grid in Settings. <c>android:settingsActivity</c> makes a Settings button available
+            alongside your dream's listing in the system settings, which when pressed opens the specified
+            activity. <c>android:showClockAndComplications</c> can be set to <c>true</c> to
+            indicate that a clock and other complications may be shown above the screensaver. (This is
+            currently only available on large-screen devices.)</para>
+      <para>Interactive screensavers that require users to swipe near areas reserved for system gestures
+            can use the <c>Window#setSystemGestureExclusionRects</c> API to exclude areas that overlap
+            system gesture areas. See <see href="https://developer.android.com/develop/ui/views/touch-and-input/gestures/gesturenav#games">
+            https://developer.android.com/develop/ui/views/touch-and-input/gestures/gesturenav#games</see> for
+            more information.</para>
       <para>To specify your dream layout, call <c>#setContentView</c>, typically during the
             <c>#onAttachedToWindow</c> callback. For example:</para>
       <code lang="text/java">public class MyDream extends DreamService {
@@ -102,20 +119,6 @@
                     setContentView(R.layout.dream);
                 }
             }
-            </code>
-      <para>When targeting api level 21 and above, you must declare the service in your manifest file
-            with the <c>android.Manifest.permission#BIND_DREAM_SERVICE</c> permission. For example:</para>
-      <code lang="text/java">&amp;lt;service
-                android:name=".MyDream"
-                android:exported="true"
-                android:icon="@drawable/my_icon"
-                android:label="@string/my_dream_label"
-                android:permission="android.permission.BIND_DREAM_SERVICE"&gt;
-              &amp;lt;intent-filter&gt;
-                &amp;lt;action android:name=”android.service.dreams.DreamService” /&gt;
-                &amp;lt;category android:name=”android.intent.category.DEFAULT” /&gt;
-              &amp;lt;/intent-filter&gt;
-            &amp;lt;/service&gt;
             </code>
       <para>
         <format type="text/html">
@@ -499,10 +502,8 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
+        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -740,6 +741,28 @@
         <altmember cref="P:Android.Service.Dreams.DreamService.Interactive" />
       </Docs>
     </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Service.Dreams.DreamService.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="dreamService.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -765,6 +788,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1738,6 +1765,10 @@
           <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "T extends android.view.View" })&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
         </Attribute>
@@ -1838,10 +1869,8 @@
       <MemberType>Field</MemberType>
       <Implements>
         <InterfaceMember>F:Android.Views.Window.ICallback._members</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_Z</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-34.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
-        <InterfaceMember FrameworkAlternate="net-android-35.0;net-android-36.0">F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
+        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onPointerCaptureChanged_OnPointerCaptureChanged_Z_V</InterfaceMember>
+        <InterfaceMember>F:Android.Views.Window.ICallback.cb_onProvideKeyboardShortcuts_OnProvideKeyboardShortcuts_Ljava_util_List_Landroid_view_Menu_I_V</InterfaceMember>
       </Implements>
       <AssemblyInfo>
         <AssemblyName>Mono.Android</AssemblyName>
@@ -2068,6 +2097,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
