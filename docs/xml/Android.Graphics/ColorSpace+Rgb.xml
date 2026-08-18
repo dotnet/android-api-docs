@@ -91,11 +91,14 @@
         <Parameter Name="function" Type="Android.Graphics.ColorSpace+Rgb+TransferParameters" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="toXYZ">To be added.</param>
-        <param name="function">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">Name of the color space, cannot be null, its length must be &gt;= 1</param>
+        <param name="toXYZ">3x3 column-major transform matrix from RGB to the profile connection space CIE XYZ as an array of 9 floats, cannot be null</param>
+        <param name="function">Parameters for the transfer functions. This value cannot be null.</param>
+        <summary>Creates a new RGB color space using a 3x3 column-major transform matrix.</summary>
         <remarks>
+          <para>Creates a new RGB color space using a 3x3 column-major transform matrix. The transform matrix must convert from the RGB space to the profile connection space CIE XYZ.</para>
+          <para>The range of the color space is imposed to be \([0..1]\).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#Rgb(java.lang.String,%20float[],%20android.graphics.ColorSpace.Rgb.TransferParameters)" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.Rgb</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -227,12 +230,16 @@
         <Parameter Name="function" Type="Android.Graphics.ColorSpace+Rgb+TransferParameters" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="primaries">To be added.</param>
-        <param name="whitePoint">To be added.</param>
-        <param name="function">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="name">Name of the color space, cannot be null, its length must be &gt;= 1</param>
+        <param name="primaries">RGB primaries as an array of 6 (xy) or 9 (XYZ) floats. This value cannot be null.</param>
+        <param name="whitePoint">Reference white as an array of 2 (xy) or 3 (XYZ) floats. This value cannot be null.</param>
+        <param name="function">Parameters for the transfer functions. This value cannot be null.</param>
+        <summary>Creates a new RGB color space using a specified set of primaries and a specified white point.</summary>
         <remarks>
+          <para>Creates a new RGB color space using a specified set of primaries and a specified white point.</para>
+          <para>The primaries and white point can be specified in the CIE xyY space or in CIE XYZ. The length of the arrays depends on the chosen space:</para>
+          <para>When the primaries and/or white point are specified in xyY, the Y component does not need to be specified and is assumed to be 1.0. Only the xy components are required.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#Rgb(java.lang.String,%20float[],%20float[],%20android.graphics.ColorSpace.Rgb.TransferParameters)" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.Rgb</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -549,9 +556,12 @@
       </Parameters>
       <Docs>
         <param name="v">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Converts tristimulus values from the CIE XYZ space to this color space's color model.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Converts tristimulus values from the CIE XYZ space to this color space's color model. The resulting value is passed back in the specified array.</para>
+          <para>The specified array's length must be at least equal to to the number of color components as returned by Model.getComponentCount(), and its first 3 values must be the XYZ components to convert from.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#fromXyz(float[])" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.fromXyz</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -683,10 +693,12 @@
         <Parameter Name="component" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="component">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="component">The index of the component. Value is between 0 and 3 inclusive</param>
+        <summary>Returns the maximum valid value for the specified component of this color space's color model.</summary>
+        <returns>A floating point value greater than getMinValue(int)</returns>
         <remarks>
+          <para>Returns the maximum valid value for the specified component of this color space's color model.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#getMaxValue(int)" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.getMaxValue</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -718,10 +730,12 @@
         <Parameter Name="component" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="component">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="component">The index of the component. Value is between 0 and 3 inclusive</param>
+        <summary>Returns the minimum valid value for the specified component of this color space's color model.</summary>
+        <returns>A floating point value less than getMaxValue(int)</returns>
         <remarks>
+          <para>Returns the minimum valid value for the specified component of this color space's color model.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#getMinValue(int)" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.getMinValue</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -855,9 +869,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the parameters used by the electro-optical and opto-electronic transfer functions.</summary>
+        <returns>An instance of TransferParameters or null if this color space's transfer functions do not match the equation defined in TransferParameters</returns>
         <remarks>
+          <para>Returns the parameters used by the electro-optical and opto-electronic transfer functions. If the transfer functions do not match the ICC parametric curves defined in ICC.1:2004-10 (section 10.15), this method returns null.</para>
+          <para>See TransferParameters for a full description of the transfer functions.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#getTransferParameters()" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.getTransferParameters</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1082,9 +1099,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns whether this color space is a wide-gamut color space.</summary>
+        <value>True if this color space is a wide-gamut color space, false otherwise</value>
         <remarks>
+          <para>Returns whether this color space is a wide-gamut color space. An RGB color space is wide-gamut if its gamut entirely contains the sRGB gamut and if the area of its gamut is 90% of greater than the area of the NTSC gamut.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#isWideGamut()" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.isWideGamut</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1367,9 +1386,12 @@
       </Parameters>
       <Docs>
         <param name="v">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Converts a color value from this color space's model to tristimulus CIE XYZ values.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Converts a color value from this color space's model to tristimulus CIE XYZ values. If the color model of this color space is not RGB, it is assumed that the target CIE XYZ space uses a D50 standard illuminant.</para>
+          <para>The specified array's length must be at least equal to to the number of color components as returned by Model.getComponentCount().</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ColorSpace.Rgb#toXyz(float[])" title="Reference documentation">Android reference for <code>android.graphics.ColorSpace.Rgb.toXyz</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

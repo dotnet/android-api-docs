@@ -2141,13 +2141,9 @@
                 the appropriate values given the paint's text attributes.</param>
         <summary>Allocates a new FontMetrics object, and then calls getFontMetrics(fm)
             with it, returning the object.</summary>
-        <returns>To be added.</returns>
+        <returns>the font's recommended interline spacing.</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/graphics/Paint#getFontMetrics()" title="Reference documentation">Java documentation for <code>android.graphics.Paint.getFontMetrics()</code>.</a>
-            </format>
-          </para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#getFontMetrics(android.graphics.Paint.FontMetrics)" title="Reference documentation">Android reference for <code>android.graphics.Paint.getFontMetrics</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2188,9 +2184,13 @@
         <Parameter Name="metrics" Type="Android.Graphics.Paint+FontMetrics" />
       </Parameters>
       <Docs>
-        <param name="metrics">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="metrics">an output parameter. All members will be set by calling this function. This value cannot be null.</param>
+        <summary>Get the font metrics used for the locale Obtain the metrics of the font that is used for the specified locale by setTextLocales(LocaleList).</summary>
+        <remarks>
+          <para>Get the font metrics used for the locale Obtain the metrics of the font that is used for the specified locale by setTextLocales(LocaleList). If multiple locales are specified, the minimum ascent and maximum descent will be set. This API is useful for determining the default line height of the empty text field, e.g. EditText. Note, if the Typeface is created from the custom font files, its metrics are reserved, i.e. the ascent will be the custom font's ascent or smaller, the descent will be the custom font's descent or larger. Note, if the Typeface is a system fallback, e.g. Typeface.SERIF, the default font's metrics are reserved, i.e. the ascent will be the serif font's ascent or smaller, the descent will be the serif font's descent or larger.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#getFontMetricsForLocale(android.graphics.Paint.FontMetrics)" title="Reference documentation">Android reference for <code>android.graphics.Paint.getFontMetricsForLocale</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetFontMetricsInt">
@@ -2311,15 +2311,19 @@
         <Parameter Name="outMetrics" Type="Android.Graphics.Paint+FontMetricsInt" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="contextStart">To be added.</param>
-        <param name="contextCount">To be added.</param>
-        <param name="isRtl">To be added.</param>
-        <param name="outMetrics">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="text">a text to be measured. This value cannot be null.</param>
+        <param name="start">a starting offset in the text. Value is 0 or greater</param>
+        <param name="count">a length of the text to be measured. Value is 0 or greater</param>
+        <param name="contextStart">a context starting offset in the text. Value is 0 or greater</param>
+        <param name="contextCount">a length of the context to be used. Value is 0 or greater</param>
+        <param name="isRtl">true if measuring on RTL context, otherwise false.</param>
+        <param name="outMetrics">the output font metrics. This value cannot be null.</param>
+        <summary>Returns the font metrics value for the given text.</summary>
+        <remarks>
+          <para>Returns the font metrics value for the given text. If the text is rendered with multiple font files, this function returns the large ascent and descent that are enough for drawing all font files. The context range is used for shaping context. Some script, e.g. Arabic or Devanagari, changes letter shape based on its location or surrounding characters.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#getFontMetricsInt(java.lang.CharSequence,%20int,%20int,%20int,%20int,%20boolean,%20android.graphics.Paint.FontMetricsInt)" title="Reference documentation">Android reference for <code>android.graphics.Paint.getFontMetricsInt</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetFontMetricsInt">
@@ -2359,15 +2363,18 @@
         <Parameter Name="outMetrics" Type="Android.Graphics.Paint+FontMetricsInt" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="contextStart">To be added.</param>
-        <param name="contextCount">To be added.</param>
-        <param name="isRtl">To be added.</param>
-        <param name="outMetrics">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="text">a text to be measured. This value cannot be null.</param>
+        <param name="start">a starting offset in the text. Value is 0 or greater</param>
+        <param name="count">a length of the text to be measured. Value is 0 or greater</param>
+        <param name="contextStart">a context starting offset in the text. Value is 0 or greater</param>
+        <param name="contextCount">a length of the context to be used. Value is 0 or greater</param>
+        <param name="isRtl">true if measuring on RTL context, otherwise false.</param>
+        <param name="outMetrics">the output font metrics. This value cannot be null.</param>
+        <summary>Returns the font metrics value for the given text.</summary>
+        <remarks>To be added.
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#getFontMetricsInt(char[],%20int,%20int,%20int,%20int,%20boolean,%20android.graphics.Paint.FontMetricsInt)" title="Reference documentation">Android reference for <code>android.graphics.Paint.getFontMetricsInt</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetFontMetricsInt">
@@ -2445,9 +2452,13 @@
         <Parameter Name="metrics" Type="Android.Graphics.Paint+FontMetricsInt" />
       </Parameters>
       <Docs>
-        <param name="metrics">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="metrics">an output parameter. All members will be set by calling this function. This value cannot be null.</param>
+        <summary>Get the font metrics used for the locale Obtain the metrics of the font that is used for the specified locale by setTextLocales(LocaleList).</summary>
+        <remarks>
+          <para>Get the font metrics used for the locale Obtain the metrics of the font that is used for the specified locale by setTextLocales(LocaleList). If multiple locales are specified, the minimum ascent and maximum descent will be set. This API is useful for determining the default line height of the empty text field, e.g. EditText. Note, if the Typeface is created from the custom font files, its metrics are reserved, i.e. the ascent will be the custom font's ascent or smaller, the descent will be the custom font's descent or larger. Note, if the Typeface is a system fallback, e.g. Typeface.SERIF, the default font's metrics are reserved, i.e. the ascent will be the serif font's ascent or smaller, the descent will be the serif font's descent or larger.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/Paint#getFontMetricsIntForLocale(android.graphics.Paint.FontMetricsInt)" title="Reference documentation">Android reference for <code>android.graphics.Paint.getFontMetricsIntForLocale</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetOffsetForAdvance">
