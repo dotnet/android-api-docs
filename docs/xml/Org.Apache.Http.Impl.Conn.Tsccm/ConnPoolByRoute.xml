@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Manages reusable connections by route and enforces route-specific connection limits.</summary>
     <remarks>
       <para>
         <format type="text/html">
@@ -58,9 +58,9 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="oper">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="oper">The operator used to create connections.</param>
+        <param name="params">The parameters that configure connection limits.</param>
+        <summary>Creates a connection pool managed by route.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -233,7 +233,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Removes entries whose pooled connections are closed.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -349,11 +349,11 @@
         <Parameter Name="timeUnit" Type="Java.Util.Concurrent.TimeUnit" />
       </Parameters>
       <Docs>
-        <param name="entry">To be added.</param>
-        <param name="reusable">To be added.</param>
-        <param name="validDuration">To be added.</param>
-        <param name="timeUnit">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entry">The entry to return to this pool.</param>
+        <param name="reusable"><see langword="true" /> if the connection can be reused; otherwise, <see langword="false" />.</param>
+        <param name="validDuration">The duration that a reusable entry remains valid while free.</param>
+        <param name="timeUnit">The unit for <paramref name="validDuration" />.</param>
+        <summary>Returns a connection entry to its route-specific pool.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -382,9 +382,9 @@
         <Parameter Name="route" Type="Org.Apache.Http.Conn.Routing.HttpRoute" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="route">The route whose entries are counted.</param>
+        <summary>Gets the number of connections in the pool for a route.</summary>
+        <returns>The total number of created entries for the route.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -732,10 +732,10 @@
         <Parameter Name="state" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="state">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="route">The route for which to request a connection.</param>
+        <param name="state">The requested connection state.</param>
+        <summary>Creates an abortable request for an entry in a route-specific pool.</summary>
+        <returns>A request that can acquire or abort acquisition of a pool entry.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
