@@ -117,23 +117,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="lookup">The lookup context with the caller's accessibility privileges.</param>
-        <param name="invocationName">Unused.</param>
-        <param name="invocationType">The call site invocation type with an enum parameter, an <c>int</c> parameter, and an <c>int</c> return type.</param>
-        <param name="labels">The case labels, represented by <see cref="T:System.String" /> constants or <see cref="T:Java.Lang.Class" /> instances.</param>
-        <summary>Links an <c>invokedynamic</c> call site that switches on an enum target.</summary>
-        <returns>A call site that returns <c>-1</c> for a <see langword="null" /> target, the index of the first matching label at or after the restart index, or <c>labels.Length</c> when no label matches.</returns>
+        <param name="lookup">Represents a lookup context with the accessibility privileges of the caller. When used with invokedynamic, this is stacked automatically by the VM.</param>
+        <param name="invocationName">unused</param>
+        <param name="invocationType">The invocation type of the CallSite with two parameters, an enum type, an int, and int as a return type.</param>
+        <param name="labels">case labels - String constants and Class instances, in any combination</param>
+        <summary>Bootstrap method for linking an invokedynamic call site that implements a switch on a target of an enum type.</summary>
+        <returns>a CallSite returning the first matching element as described above</returns>
         <exception cref="T:Java.Lang.IllegalArgumentException">An element of <paramref name="labels" /> is <see langword="null" />; <paramref name="invocationType" /> does not accept an enum and an <c>int</c> and return an <c>int</c>; or a label is neither a <see cref="T:System.String" /> nor a <see cref="T:Java.Lang.Class" /> for the target enum type.</exception>
         <exception cref="T:Java.Lang.NullPointerException">An argument is <see langword="null" />.</exception>
         <remarks>
-          <para>
-            The restart index accepted by the returned call site must be from zero through <c>labels.Length</c>, inclusive; otherwise, invoking the call site throws <see cref="T:Java.Lang.IndexOutOfBoundsException" />.
-          </para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#enumSwitch(java.lang.invoke.MethodHandles.Lookup,%20java.lang.String,%20java.lang.invoke.MethodType,%20java.lang.Object[])" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.enumSwitch</code>.</a>
-            </format>
-          </para>
+          <para>Bootstrap method for linking an invokedynamic call site that implements a switch on a target of an enum type. The static arguments are used to encode the case labels associated to the switch construct, where each label can be encoded in two ways: as a String value, which represents the name of the enum constant associated with the label as a Class value, which represents the enum type associated with a type test pattern The returned CallSite 's method handle will have a return type of int and accepts two parameters: the first argument will be an Enum instance ( target ) and the second will be int ( restart ). If the target is null, then the method of the call site returns -1. If the target is not null, then the method of the call site returns the index of the first element in the labels array starting from the restart index matching one of the following conditions: the element is of type Class that is assignable from the target's class; or the element is of type String and equals to the target enum constant's Enum.name(). If no element in the labels array matches the target, then the method of the call site return the length of the labels array. The value of the restart index must be between 0 (inclusive) and the length of the labels array (inclusive), both or an IndexOutOfBoundsException is thrown.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#enumSwitch(java.lang.invoke.MethodHandles.Lookup,%20java.lang.String,%20java.lang.invoke.MethodType,%20java.lang.Object[])" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.enumSwitch</code>.</a></format></para>
           <para>
             Portions of this page are modifications based on work created and shared by the
             <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -283,7 +277,7 @@
         <exception cref="T:Java.Lang.NullPointerException">An argument is <see langword="null" />.</exception>
         <remarks>
           <para>
-            The restart index accepted by the returned call site must be from zero through <c>labels.Length</c>, inclusive; otherwise, invoking the call site throws <see cref="T:Java.Lang.IndexOutOfBoundsException" />.
+            The returned call site produces <c>-1</c> for a <see langword="null" /> target. For a non-null target, it searches from the restart index and returns the first matching label index, or <c>labels.Length</c> when no label matches. The restart index must be from zero through <c>labels.Length</c>, inclusive; otherwise, invoking the call site throws <see cref="T:Java.Lang.IndexOutOfBoundsException" />.
           </para>
           <para>
             <format type="text/html">
