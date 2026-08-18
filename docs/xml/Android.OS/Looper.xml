@@ -20,6 +20,10 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>Class used to run a message loop for a thread.</summary>
@@ -258,6 +262,10 @@
           <AttributeName Language="C#">[get: Android.Runtime.Register("getMainLooper", "()Landroid/os/Looper;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getMainLooper", "()Landroid/os/Looper;", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Android.OS.Looper</ReturnType>
@@ -295,6 +303,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("myLooper", "()Landroid/os/Looper;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("myLooper", "()Landroid/os/Looper;", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -520,6 +532,8 @@
             more messages in the message queue.</para>
           <para>Any attempt to post messages to the queue after the looper is asked to quit will fail.
             For example, the <c>Handler#sendMessage(Message)</c> method will return false.</para>
+          <para>If <c>#quit</c> or <c>#quitSafely</c> is called multiple times, the first call
+            will have an effect and the subsequent calls will be no-ops.</para>
           <para>Using this method may be unsafe because some messages may not be delivered
             before the looper terminates.  Consider using <c>#quitSafely</c> instead to ensure
             that all pending work is completed in an orderly manner.</para>
@@ -568,6 +582,8 @@
             delivered before the loop terminates.</para>
           <para>Any attempt to post messages to the queue after the looper is asked to quit will fail.
             For example, the <c>Handler#sendMessage(Message)</c> method will return false.</para>
+          <para>If <c>#quit</c> or <c>#quitSafely</c> is called multiple times, the first call
+            will have an effect and the subsequent calls will be no-ops.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Looper#quitSafely()" title="Reference documentation">Java documentation for <code>android.os.Looper.quitSafely()</code>.</a>
@@ -597,6 +613,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("setMessageLogging", "(Landroid/util/Printer;)V", "GetSetMessageLogging_Landroid_util_Printer_Handler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setMessageLogging", "(Landroid/util/Printer;)V", "GetSetMessageLogging_Landroid_util_Printer_Handler")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -612,7 +632,10 @@
           <para>Control logging of messages as they are processed by this Looper.  If
             enabled, a log message will be written to &lt;var&gt;printer&lt;/var&gt;
             at the beginning and ending of each message dispatch, identifying the
-            target Handler and message contents.</para>
+            target Handler and message contents.
+            
+            Message logging introduces a performance penalty, and is disabled by
+            default.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Looper#setMessageLogging(android.util.Printer)" title="Reference documentation">Java documentation for <code>android.os.Looper.setMessageLogging(android.util.Printer)</code>.</a>

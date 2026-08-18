@@ -21,6 +21,10 @@
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
     </Attribute>
@@ -81,6 +85,9 @@
                 &lt;/li&gt;
             &lt;/ul&gt;</para>
       <para>Results are redacted and contain specific information about the requesting process only.</para>
+      <para>Note: Check out <see href="https://developer.android.com/topic/performance/tracing/profiling-manager/overview">Capture
+              Real User Data Using ProfilingManager</see> for a detailed guide on using this API, covering
+              capturing Profiling all they way through interpreting the results.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/os/ProfilingManager" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager</code>.</a>
@@ -94,6 +101,52 @@
     </remarks>
   </Docs>
   <Members>
+    <Member MemberName="AddAllProfilingTriggers">
+      <MemberSignature Language="C#" Value="public void AddAllProfilingTriggers ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void AddAllProfilingTriggers() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.ProfilingManager.AddAllProfilingTriggers" />
+      <MemberSignature Language="F#" Value="member this.AddAllProfilingTriggers : unit -&gt; unit" Usage="profilingManager.AddAllProfilingTriggers " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("addAllProfilingTriggers", "()V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("addAllProfilingTriggers", "()V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Register this process for all triggers.</summary>
+        <remarks>
+          <para>Register this process for all triggers.</para>
+          <para>Registering for all triggers is in addition to any specific triggers registered. Any triggers
+            already registered when this is called, along with their parameters, will not be impacted.
+            Any triggers specifically registered after calling this, along with any parameters set on
+            them, will take precedence over what is set here.</para>
+          <para>See <c>#addProfilingTriggers</c> for more on triggers.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/ProfilingManager#addAllProfilingTriggers()" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.addAllProfilingTriggers()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="AddProfilingTriggers">
       <MemberSignature Language="C#" Value="public void AddProfilingTriggers (System.Collections.Generic.IList&lt;Android.OS.ProfilingTrigger&gt; triggers);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void AddProfilingTriggers(class System.Collections.Generic.IList`1&lt;class Android.OS.ProfilingTrigger&gt; triggers) cil managed" />
@@ -105,11 +158,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("addProfilingTriggers", "(Ljava/util/List;)V", "", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("addProfilingTriggers", "(Ljava/util/List;)V", "", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -118,7 +171,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="triggers" Type="System.Collections.Generic.IList&lt;Android.OS.ProfilingTrigger&gt;" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="triggers" Type="System.Collections.Generic.IList&lt;Android.OS.ProfilingTrigger&gt;" />
       </Parameters>
       <Docs>
         <param name="triggers">To be added.</param>
@@ -136,6 +189,11 @@
             &lt;li&gt;If the provided list contains more than one trigger object for a trigger type then only
                 one will be kept.&lt;/li&gt;
             &lt;/ul&gt;</para>
+          <para>The filename of the file placed in app storage will contain the trigger type for which it was
+            collected in the form: "trigger-type-x", where x is equal to the API value of the trigger
+            type, found in <c>ProfilingTrigger</c>.
+            Example filename for <c>ProfilingTrigger#TRIGGER_TYPE_ANR</c>:
+                profile_trigger-type-2_2025-01-23-04-56-12.perfetto-trace</para>
           <para>Apps can define their own per-trigger rate limiting to help ensure they receive results
             aligned with their needs. More details can be found at
             <c>ProfilingTrigger.Builder#setRateLimitingPeriodHours</c>.</para>
@@ -163,11 +221,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("clearProfilingTriggers", "()V", "", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("clearProfilingTriggers", "()V", "", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -463,11 +521,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("removeProfilingTriggersByType", "([I)V", "", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeProfilingTriggersByType", "([I)V", "", ApiSince=36)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
         </Attribute>
@@ -476,7 +534,7 @@
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="triggers" Type="System.Int32[]" Index="0" FrameworkAlternate="net-android-36.0" />
+        <Parameter Name="triggers" Type="System.Int32[]" />
       </Parameters>
       <Docs>
         <param name="triggers">To be added.</param>
@@ -510,6 +568,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("requestProfiling", "(ILandroid/os/Bundle;Ljava/lang/String;Landroid/os/CancellationSignal;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("requestProfiling", "(ILandroid/os/Bundle;Ljava/lang/String;Landroid/os/CancellationSignal;Ljava/util/concurrent/Executor;Ljava/util/function/Consumer;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
@@ -593,6 +655,57 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="RequestRunningSystemTrace">
+      <MemberSignature Language="C#" Value="public void RequestRunningSystemTrace (string? tag);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void RequestRunningSystemTrace(string tag) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.ProfilingManager.RequestRunningSystemTrace(System.String)" />
+      <MemberSignature Language="F#" Value="member this.RequestRunningSystemTrace : string -&gt; unit" Usage="profilingManager.RequestRunningSystemTrace tag" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("requestRunningSystemTrace", "(Ljava/lang/String;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("requestRunningSystemTrace", "(Ljava/lang/String;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="tag" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="tag">To be added.</param>
+        <summary>Request a snapshot of a background trace, if one is running.</summary>
+        <remarks>
+          <para>Request a snapshot of a background trace, if one is running.</para>
+          <para>This request sends a <c>ProfilingTrigger#TRIGGER_TYPE_APP_REQUEST_RUNNING_TRACE</c> trigger.
+            Apps must register interest in this trigger in order to receive the result using either
+            <c>#addProfilingTriggers</c> or <c>#addAllProfilingTriggers()</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/ProfilingManager#requestRunningSystemTrace(java.lang.String)" title="Reference documentation">Java documentation for <code>android.os.ProfilingManager.requestRunningSystemTrace(java.lang.String)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ThresholdClass">
       <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
@@ -665,6 +778,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("unregisterForAllProfilingResults", "(Ljava/util/function/Consumer;)V", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("unregisterForAllProfilingResults", "(Ljava/util/function/Consumer;)V", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>

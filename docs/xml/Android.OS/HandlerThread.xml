@@ -20,13 +20,27 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>A <c>Thread</c> that has a <c>Looper</c>.</summary>
     <remarks>
-      <para>A <c>Thread</c> that has a <c>Looper</c>.
-            The <c>Looper</c> can then be used to create <c>Handler</c>s.</para>
-      <para>Note that just like with a regular <c>Thread</c>, <c>#start()</c> must still be called.</para>
+      <para>A <c>Thread</c> that has a <c>Looper</c>. The <c>Looper</c> can then be used to create <c>Handler</c>s. Just like with a regular <c>Thread</c>, <c>#start()</c> must still be called.</para>
+      <para>&lt;em&gt;Use this class only if you must work with the <c>Handler</c> API and need a <c>Thread</c> to do the handling on that is not an existing <c>Looper</c> thread, such as <c>Looper#getMainLooper()</c>.&lt;/em&gt; Otherwise, prefer <c>java.util.concurrent.Executor</c> or <c>java.util.concurrent.ExecutorService</c>, or Kotlin <see href="https://developer.android.com/topic/libraries/architecture/coroutines">coroutines</see>.</para>
+      <para>Note that many APIs that required a <c>Handler</c> in older SDK versions offer a newer
+            alternative that accepts an <c>java.util.concurrent.Executor</c> instead. Always prefer to use
+            the newer API if available.
+            
+            &lt;h2&gt;Alternatives to <c>HandlerThread</c>&lt;/h2&gt;</para>
+      <para>
+        <c>java.util.concurrent.Executor</c>s offer more flexibility with regards to threading. Work
+            submitted to an <c>java.util.concurrent.Executor</c> can be set to run on another thread, on one
+            of several threads from a static or dynamic pool, or on the caller's thread, depending on your
+            needs.</para>
+      <para>{link</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/os/HandlerThread" title="Reference documentation">Java documentation for <code>android.os.HandlerThread</code>.</a>
@@ -55,6 +69,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <Parameters>
@@ -116,6 +134,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Ljava/lang/String;I)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Ljava/lang/String;I)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
@@ -123,7 +145,7 @@
       </Parameters>
       <Docs>
         <param name="name">name</param>
-        <param name="priority">The priority to run the thread at. The value supplied must be from 
+        <param name="priority">The priority to run the thread at. The value supplied must be from
             <c>android.os.Process</c> and not from java.lang.Thread.</param>
         <summary>Constructs a HandlerThread.</summary>
         <remarks>
@@ -191,6 +213,10 @@
         <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getLooper", "()Landroid/os/Looper;", "GetGetLooperHandler")]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getLooper", "()Landroid/os/Looper;", "GetGetLooperHandler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -287,6 +313,8 @@
             more messages in the message queue.</para>
           <para>Any attempt to post messages to the queue after the looper is asked to quit will fail.
             For example, the <c>Handler#sendMessage(Message)</c> method will return false.</para>
+          <para>If <c>#quit</c> or <c>#quitSafely</c> is called multiple times, the first call
+            will have an effect and the subsequent calls will be no-ops.</para>
           <para>Using this method may be unsafe because some messages may not be delivered
             before the looper terminates.  Consider using <c>#quitSafely</c> instead to ensure
             that all pending work is completed in an orderly manner.</para>
@@ -339,6 +367,8 @@
           <para>If the thread has not been started or has finished (that is if
             <c>#getLooper</c> returns null), then false is returned.
             Otherwise the looper is asked to quit and true is returned.</para>
+          <para>If <c>#quit</c> or <c>#quitSafely</c> is called multiple times, the first call
+            will have an effect and the subsequent calls will be no-ops.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/HandlerThread#quitSafely()" title="Reference documentation">Java documentation for <code>android.os.HandlerThread.quitSafely()</code>.</a>

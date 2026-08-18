@@ -21,6 +21,10 @@
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android34.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android34.0")&gt;]</AttributeName>
     </Attribute>
@@ -50,6 +54,89 @@
     </remarks>
   </Docs>
   <Members>
+    <Member MemberName="ClearDeviceRestrictions">
+      <MemberSignature Language="C#" Value="public void ClearDeviceRestrictions (Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void ClearDeviceRestrictions(class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.DeviceLock.DeviceLockManager.ClearDeviceRestrictions(Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="member this.ClearDeviceRestrictions : Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit" Usage="deviceLockManager.ClearDeviceRestrictions (executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("clearDeviceRestrictions", "(Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("clearDeviceRestrictions", "(Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_LOCK_STATE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_LOCK_STATE")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
+        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+      </Parameters>
+      <Docs>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="callback">this returns either success or an exception.</param>
+        <summary>Clear device restrictions.</summary>
+        <remarks>
+          <para>Clear device restrictions.</para>
+          <para>After a device determines that it's part of a program (e.g. financing) by checking in with
+            the device lock backend, it will go though a provisioning flow and install a kiosk app.</para>
+          <para>At this point, the device is "restricted" and the creditor kiosk app is able to lock
+            the device. For example, a creditor kiosk app in a financing use case may lock the device
+            (using <c>#lockDevice</c>) if payments are missed and unlock (using <c>#unlockDevice</c>))
+            once they are resumed.</para>
+          <para>The Device Lock solution will also put in place some additional restrictions when a device
+            is enrolled in the program, namely:
+            
+            &lt;ul&gt;
+                &lt;li&gt;Disable debugging features
+                (<c>android.os.UserManager#DISALLOW_DEBUGGING_FEATURES</c>)
+                &lt;li&gt;Disable installing from unknown sources
+                (<c>android.os.UserManager#DISALLOW_INSTALL_UNKNOWN_SOURCES</c>,
+                when configured in the backend)
+                &lt;li&gt;Disable outgoing calls
+                (<c>android.os.UserManager#DISALLOW_OUTGOING_CALLS</c>,
+                when configured in the backend and the device is locked)
+            &lt;/ul&gt;</para>
+          <para>Once the program is completed (e.g. the device has been fully paid off), the kiosk app
+            can use the <c>#clearDeviceRestrictions</c> API to lift the above restrictions.</para>
+          <para>At this point, the kiosk app has relinquished its ability to lock the device.</para>
+          <para>Exceptions that can be returned through the ParcelableException on the callback's
+            <c>onError</c> method:
+            &lt;ul&gt;
+                &lt;li&gt;<c>SecurityException</c> if the caller is missing the
+                <c>android.android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE</c> permission.
+                &lt;li&gt;<c>IllegalStateException</c> if the device has already been cleared or if
+                policies could not be enforced for the clear state.
+                &lt;li&gt;<c>java.util.concurrent.TimeoutException</c> if the response from the
+                underlying binder call is not received within the specified duration
+                (10 seconds).
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#clearDeviceRestrictions(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.clearDeviceRestrictions(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="DeviceLockRoleFinancing">
       <MemberSignature Language="C#" Value="public const Android.DeviceLock.DeviceLockRole DeviceLockRoleFinancing = 0;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Android.DeviceLock.DeviceLockRole DeviceLockRoleFinancing = (0)" />
@@ -95,6 +182,53 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="ExtraDeviceLockVersion">
+      <MemberSignature Language="C#" Value="public const string ExtraDeviceLockVersion;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraDeviceLockVersion" />
+      <MemberSignature Language="DocId" Value="F:Android.DeviceLock.DeviceLockManager.ExtraDeviceLockVersion" />
+      <MemberSignature Language="F#" Value="val mutable ExtraDeviceLockVersion : string" Usage="Android.DeviceLock.DeviceLockManager.ExtraDeviceLockVersion" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_DEVICE_LOCK_VERSION", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_DEVICE_LOCK_VERSION", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Extra passed to the kiosk setup activity containing the version of
+            the Device Lock solution that started the activity.</summary>
+        <remarks>
+          <para>Extra passed to the kiosk setup activity containing the version of
+            the Device Lock solution that started the activity.</para>
+          <para>The kiosk setup activity can retrieve the version by calling
+            getIntent().getIntExtra(DeviceLockManager.EXTRA_DEVICE_LOCK_VERSION, 1)</para>
+          <para>This is meant to be used by kiosk apps sharing the same setup
+            activity between the legacy Device Owner(DO) based DeviceLock
+            solution (version 1) and successive versions.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#EXTRA_DEVICE_LOCK_VERSION" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.EXTRA_DEVICE_LOCK_VERSION</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetDeviceId">
       <MemberSignature Language="C#" Value="public void GetDeviceId (Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver callback);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void GetDeviceId(class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver callback) cil managed" />
@@ -129,9 +263,19 @@
       <Docs>
         <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
         <param name="callback">this returns either the <c>DeviceId</c> or an exception.</param>
-        <summary>Get the device id.</summary>
+        <summary>Gets the device id.</summary>
         <remarks>
-          <para>Get the device id.</para>
+          <para>Gets the device id.</para>
+          <para>Exceptions that can be returned through the ParcelableException on the callback's
+            <c>onError</c> method:
+            &lt;ul&gt;
+                &lt;li&gt;<c>SecurityException</c> if the caller is missing the
+                <c>android.android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE</c> permission.
+                &lt;li&gt;<c>IllegalStateException</c> if no registered Device ID is found.
+                &lt;li&gt;<c>java.util.concurrent.TimeoutException</c> if the response from the
+                underlying binder call is not received within the specified duration
+                (10 seconds).
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#getDeviceId(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Candroid.devicelock.DeviceId,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.getDeviceId(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;android.devicelock.DeviceId, java.lang.Exception&gt;)</code>.</a>
@@ -177,7 +321,7 @@
         <param name="callback">this returns either a <c>Map</c> of device roles/package names,
                             or an exception. The Integer in the map represent the device lock role
                             (at this moment, the only supported role is
-                            <c>#DEVICE_LOCK_ROLE_FINANCING</c>. The String represents tha package
+                            <c>#DEVICE_LOCK_ROLE_FINANCING</c>. The String represents the package
                             name of the kiosk app for that role.</param>
         <summary>Get the kiosk app roles and packages.</summary>
         <remarks>
@@ -229,9 +373,20 @@
       <Docs>
         <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
         <param name="callback">this returns either the lock status or an exception.</param>
-        <summary>Check if the device is locked or not.</summary>
+        <summary>Checks if the device is locked or not.</summary>
         <remarks>
-          <para>Check if the device is locked or not.</para>
+          <para>Checks if the device is locked or not.</para>
+          <para>Exceptions that can be returned through the ParcelableException on the callback's
+            <c>onError</c> method:
+            &lt;ul&gt;
+                &lt;li&gt;<c>SecurityException</c> if the caller is missing the
+                <c>android.android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE</c> permission.
+                &lt;li&gt;<c>IllegalStateException</c> if called before setting the locked state of the device
+                through <c>#lockDevice</c> or <c>#unlockDevice</c>.
+                &lt;li&gt;<c>java.util.concurrent.TimeoutException</c> if the response from the
+                underlying binder call is not received within the specified duration
+                (10 seconds).
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#isDeviceLocked(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Boolean,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.isDeviceLocked(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Boolean, java.lang.Exception&gt;)</code>.</a>
@@ -308,12 +463,93 @@
       <Docs>
         <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
         <param name="callback">this returns either success or an exception.</param>
-        <summary>Lock the device.</summary>
+        <summary>Locks the device.</summary>
         <remarks>
-          <para>Lock the device.</para>
+          <para>Locks the device.</para>
+          <para>Exceptions that can be returned through the ParcelableException on the callback's
+            <c>onError</c> method:
+            &lt;ul&gt;
+                &lt;li&gt;<c>SecurityException</c> if the caller is missing the
+                <c>android.android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE</c> permission.
+                &lt;li&gt;<c>IllegalStateException</c> if the device has already been cleared or if
+                policies could not be enforced for the lock state.
+                &lt;li&gt;<c>java.util.concurrent.TimeoutException</c> if the response from the
+                underlying binder call is not received within the specified duration
+                (10 seconds).
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#lockDevice(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.lockDevice(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NotifyKioskSetupFinished">
+      <MemberSignature Language="C#" Value="public void NotifyKioskSetupFinished (Java.Util.Concurrent.IExecutor executor, Android.OS.IOutcomeReceiver callback);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void NotifyKioskSetupFinished(class Java.Util.Concurrent.IExecutor executor, class Android.OS.IOutcomeReceiver callback) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.DeviceLock.DeviceLockManager.NotifyKioskSetupFinished(Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" />
+      <MemberSignature Language="F#" Value="member this.NotifyKioskSetupFinished : Java.Util.Concurrent.IExecutor * Android.OS.IOutcomeReceiver -&gt; unit" Usage="deviceLockManager.NotifyKioskSetupFinished (executor, callback)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("notifyKioskSetupFinished", "(Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("notifyKioskSetupFinished", "(Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_LOCK_STATE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.RequiresPermission("android.permission.MANAGE_DEVICE_LOCK_STATE")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
+        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+      </Parameters>
+      <Docs>
+        <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
+        <param name="callback">this returns either success or an exception.</param>
+        <summary>Notifies DLC that kiosk set-up has finished and we no longer need to
+            lock to the set-up activity.</summary>
+        <remarks>
+          <para>Notifies DLC that kiosk set-up has finished and we no longer need to
+            lock to the set-up activity.
+            
+            This will close the set-up activity as specified through a callback and
+            then respect the current device lock state. If the device has never been
+            locked or unlocked by the kiosk, it will unlock the device. Invoking
+            <c>#lockDevice</c> or <c>#unlockDevice</c> will also result in the
+            device provision state moving from kiosk_provisioned to
+            provision_success.</para>
+          <para>Exceptions that can be returned through the ParcelableException on the callback's
+            <c>onError</c> method:
+            &lt;ul&gt;
+                &lt;li&gt;<c>SecurityException</c> if the caller is missing the
+                <c>android.android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE</c> permission.
+                &lt;li&gt;<c>IllegalStateException</c> if the device has already been cleared or if
+                policies could not be enforced for the lock or unlock state.
+                &lt;li&gt;<c>java.util.concurrent.TimeoutException</c> if the response from the
+                underlying binder call is not received within the specified duration
+                (10 seconds).
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#notifyKioskSetupFinished(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.notifyKioskSetupFinished(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>
             </format>
           </para>
           <para>
@@ -416,9 +652,20 @@
       <Docs>
         <param name="executor">the <c>Executor</c> on which to invoke the callback.</param>
         <param name="callback">this returns either success or an exception.</param>
-        <summary>Unlock the device.</summary>
+        <summary>Unlocks the device.</summary>
         <remarks>
-          <para>Unlock the device.</para>
+          <para>Unlocks the device.</para>
+          <para>Exceptions that can be returned through the ParcelableException on the callback's
+            <c>onError</c> method:
+            &lt;ul&gt;
+                &lt;li&gt;<c>SecurityException</c> if the caller is missing the
+                <c>android.android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE</c> permission.
+                &lt;li&gt;<c>IllegalStateException</c> if the device has already been cleared or if
+                policies could not be enforced for the unlock state.
+                &lt;li&gt;<c>java.util.concurrent.TimeoutException</c> If the response from the
+                underlying binder call is not received within the specified duration
+                (10 seconds).
+            &lt;/ul&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/devicelock/DeviceLockManager#unlockDevice(java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.devicelock.DeviceLockManager.unlockDevice(java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>

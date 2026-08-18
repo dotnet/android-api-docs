@@ -1,0 +1,303 @@
+<Type Name="ChooserManager" FullName="Android.Service.Chooser.ChooserManager">
+  <TypeSignature Language="C#" Value="public class ChooserManager : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ChooserManager extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Android.Service.Chooser.ChooserManager" />
+  <TypeSignature Language="F#" Value="type ChooserManager = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/service/chooser/ChooserManager", ApiSince=36, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/service/chooser/ChooserManager", ApiSince=36, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>Manages the creation, tracking, and retrieval of chooser sessions.</summary>
+    <remarks>
+      <para>Manages the creation, tracking, and retrieval of chooser sessions.</para>
+      <para>An Interactive Chooser Session allows apps to invoke the system Chooser without entirely
+            covering app UI. Users may interact with both the app and Chooser, while bidirectional
+            communication between the two ensures a consistent state.</para>
+      <para>&lt;h3&gt;Usage Example:&lt;/h3&gt;</para>
+      <code lang="text/java">{@code
+            ChooserManager chooserManager = context.getSystemService(ChooserManager.class);
+            if (chooserManager == null) {
+                // handle the case when the interactive chooser session functionality is not supported.
+            }
+            
+            // Construct the sharing intent
+            Intent targetIntent = new Intent(Intent.ACTION_SEND);
+            targetIntent.setType("text/plain");
+            targetIntent.putExtra(Intent.EXTRA_TEXT, "This is a message that will be shared.");
+            
+            Intent chooserIntent = Intent.createChooser(targetIntent, null);
+            
+            // Start a new chooser session
+            ChooserSession session = chooserManager.startSession(context, chooserIntent);
+            ChooserSessionToken token = session.getToken();
+            // Optionally, store the token int an activity saved state to re-associate with the session later
+            
+            // Later, to retrieve a session using a token:
+            ChooserSessionToken retrievedToken = ... // obtain the stored token
+            ChooserSession existingSession = chooserManager.getSession(retrievedToken);
+            if (existingSession != null) {
+            // Interact with the existing session
+            }
+            }</code>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/service/chooser/ChooserManager" title="Reference documentation">Java documentation for <code>android.service.chooser.ChooserManager</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected ChooserManager (IntPtr javaReference, Android.Runtime.JniHandleOwnership transfer);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(native int javaReference, valuetype Android.Runtime.JniHandleOwnership transfer) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Service.Chooser.ChooserManager.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)" />
+      <MemberSignature Language="F#" Value="new Android.Service.Chooser.ChooserManager : nativeint * Android.Runtime.JniHandleOwnership -&gt; Android.Service.Chooser.ChooserManager" Usage="new Android.Service.Chooser.ChooserManager (javaReference, transfer)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="javaReference" Type="System.IntPtr" />
+        <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
+      </Parameters>
+      <Docs>
+        <param name="javaReference">To be added.</param>
+        <param name="transfer">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetSession">
+      <MemberSignature Language="C#" Value="public virtual Android.Service.Chooser.ChooserSession? GetSession (Android.Service.Chooser.ChooserSessionToken token);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Service.Chooser.ChooserSession GetSession(class Android.Service.Chooser.ChooserSessionToken token) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Service.Chooser.ChooserManager.GetSession(Android.Service.Chooser.ChooserSessionToken)" />
+      <MemberSignature Language="F#" Value="abstract member GetSession : Android.Service.Chooser.ChooserSessionToken -&gt; Android.Service.Chooser.ChooserSession&#xA;override this.GetSession : Android.Service.Chooser.ChooserSessionToken -&gt; Android.Service.Chooser.ChooserSession" Usage="chooserManager.GetSession token" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getSession", "(Landroid/service/chooser/ChooserSessionToken;)Landroid/service/chooser/ChooserSession;", "GetGetSession_Landroid_service_chooser_ChooserSessionToken_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getSession", "(Landroid/service/chooser/ChooserSessionToken;)Landroid/service/chooser/ChooserSession;", "GetGetSession_Landroid_service_chooser_ChooserSessionToken_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Service.Chooser.ChooserSession</ReturnType>
+        <Attributes>
+          <Attribute>
+            <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+            <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+          </Attribute>
+        </Attributes>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="token" Type="Android.Service.Chooser.ChooserSessionToken" />
+      </Parameters>
+      <Docs>
+        <param name="token">
+          <c>ChooserSessionToken</c>.</param>
+        <summary>Returns a <c>ChooserSession</c> associated with this token or <c>null</c> if there is no
+            active session.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Returns a <c>ChooserSession</c> associated with this token or <c>null</c> if there is no
+            active session.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/service/chooser/ChooserManager#getSession(android.service.chooser.ChooserSessionToken)" title="Reference documentation">Java documentation for <code>android.service.chooser.ChooserManager.getSession(android.service.chooser.ChooserSessionToken)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Service.Chooser.ChooserManager.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Service.Chooser.ChooserManager.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="StartSession">
+      <MemberSignature Language="C#" Value="public virtual Android.Service.Chooser.ChooserSession StartSession (Android.Content.Context context, Android.Content.Intent chooserIntent);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class Android.Service.Chooser.ChooserSession StartSession(class Android.Content.Context context, class Android.Content.Intent chooserIntent) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Service.Chooser.ChooserManager.StartSession(Android.Content.Context,Android.Content.Intent)" />
+      <MemberSignature Language="F#" Value="abstract member StartSession : Android.Content.Context * Android.Content.Intent -&gt; Android.Service.Chooser.ChooserSession&#xA;override this.StartSession : Android.Content.Context * Android.Content.Intent -&gt; Android.Service.Chooser.ChooserSession" Usage="chooserManager.StartSession (context, chooserIntent)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("startSession", "(Landroid/content/Context;Landroid/content/Intent;)Landroid/service/chooser/ChooserSession;", "GetStartSession_Landroid_content_Context_Landroid_content_Intent_Handler", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("startSession", "(Landroid/content/Context;Landroid/content/Intent;)Landroid/service/chooser/ChooserSession;", "GetStartSession_Landroid_content_Context_Landroid_content_Intent_Handler", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Service.Chooser.ChooserSession</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="context" Type="Android.Content.Context" />
+        <Parameter Name="chooserIntent" Type="Android.Content.Intent" />
+      </Parameters>
+      <Docs>
+        <param name="context">To be added.</param>
+        <param name="chooserIntent">an <c>Intent#ACTION_CHOOSER</c> intent that will be used as a base
+            for the new Chooser session.
+            &lt;p&gt;An interactive Chooser session also supports the following chooser parameters:
+            &lt;ul&gt;
+            &lt;li&gt;<c>Intent#EXTRA_ALTERNATE_INTENTS</c>&lt;/li&gt;
+            &lt;li&gt;<c>Intent#EXTRA_INITIAL_INTENTS</c>&lt;/li&gt;
+            &lt;li&gt;<c>Intent#EXTRA_EXCLUDE_COMPONENTS</c>&lt;/li&gt;
+            &lt;li&gt;<c>Intent#EXTRA_REPLACEMENT_EXTRAS</c>&lt;/li&gt;
+            &lt;li&gt;<c>Intent#EXTRA_CHOOSER_TARGETS</c>&lt;/li&gt;
+            &lt;li&gt;<c>Intent#EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER</c>&lt;/li&gt;
+            &lt;li&gt;<c>Intent#EXTRA_CHOOSER_RESULT_INTENT_SENDER</c>&lt;/li&gt;
+            &lt;li&gt;<c>Intent#EXTRA_CHOSEN_COMPONENT_INTENT_SENDER</c>&lt;/li&gt;
+            &lt;/ul&gt;
+            &lt;/p&gt;
+            &lt;p&gt;See also <c>Intent#createChooser(Intent, CharSequence) </c>.&lt;/p&gt;</param>
+        <summary>Starts a new interactive Chooser session.</summary>
+        <returns>To be added.</returns>
+        <remarks>
+          <para>Starts a new interactive Chooser session. The method is idempotent and will start Chooser
+            only once.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/service/chooser/ChooserManager#startSession(android.content.Context,%20android.content.Intent)" title="Reference documentation">Java documentation for <code>android.service.chooser.ChooserManager.startSession(android.content.Context, android.content.Intent)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Service.Chooser.ChooserManager.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Service.Chooser.ChooserManager.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Service.Chooser.ChooserManager.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Service.Chooser.ChooserManager.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
