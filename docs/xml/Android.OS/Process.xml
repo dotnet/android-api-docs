@@ -110,6 +110,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("BLUETOOTH_GID")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("BLUETOOTH_GID")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.UnsupportedOSPlatform("android18.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.UnsupportedOSPlatform("android18.0")&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -804,6 +808,40 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="IsPrivateComputeCoreUid">
+      <MemberSignature Language="C#" Value="public static bool IsPrivateComputeCoreUid (int uid);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig bool IsPrivateComputeCoreUid(int32 uid) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.Process.IsPrivateComputeCoreUid(System.Int32)" />
+      <MemberSignature Language="F#" Value="static member IsPrivateComputeCoreUid : int -&gt; bool" Usage="Android.OS.Process.IsPrivateComputeCoreUid uid" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("isPrivateComputeCoreUid", "(I)Z", "", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("isPrivateComputeCoreUid", "(I)Z", "", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="uid" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="uid">To be added.</param>
+        <summary>Returns whether the provided UID belongs to components running in a
+            Private Compute Core sandbox process.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="IsSdkSandbox">
       <MemberSignature Language="C#" Value="public static bool IsSdkSandbox { get; }" />
       <MemberSignature Language="ILAsm" Value=".property bool IsSdkSandbox" />
@@ -1384,7 +1422,7 @@
       <Docs>
         <param name="priority">A Linux priority level, from -20 for highest scheduling
             priority to 19 for lowest scheduling priority.</param>
-        <summary>Set the priority of the calling thread, based on Linux priorities.</summary>
+        <summary>Set the priority of the calling thread, based on Linux niceness priorities.</summary>
         <remarks>
           <para>Set the priority of the calling thread, based on Linux priorities.  See
             <c>#setThreadPriority(int, int)</c> for more information.</para>
@@ -1440,9 +1478,9 @@
       </Parameters>
       <Docs>
         <param name="tid">The identifier of the thread/process to change.</param>
-        <param name="priority">A Linux priority level, from -20 for highest scheduling
+        <param name="priority">A Linux priority a.k.a. "niceness" level, from -20 for highest scheduling
             priority to 19 for lowest scheduling priority.</param>
-        <summary>Set the priority of a thread, based on Linux priorities.</summary>
+        <summary>Set the OS priority of a thread, using Linux niceness priorities.</summary>
         <remarks>
           <para>Set the priority of a thread, based on Linux priorities.</para>
           <para>

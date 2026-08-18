@@ -3204,6 +3204,34 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="DisallowTaskContinuityHandoff">
+      <MemberSignature Language="C#" Value="public const string DisallowTaskContinuityHandoff;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowTaskContinuityHandoff" />
+      <MemberSignature Language="DocId" Value="F:Android.OS.UserManager.DisallowTaskContinuityHandoff" />
+      <MemberSignature Language="F#" Value="val mutable DisallowTaskContinuityHandoff : string" Usage="Android.OS.UserManager.DisallowTaskContinuityHandoff" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("DISALLOW_TASK_CONTINUITY_HANDOFF", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("DISALLOW_TASK_CONTINUITY_HANDOFF", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Specifies if the user is not allowed to handoff tasks to other devices.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="DisallowThreadNetwork">
       <MemberSignature Language="C#" Value="public const string DisallowThreadNetwork;" />
       <MemberSignature Language="ILAsm" Value=".field public static literal string DisallowThreadNetwork" />
@@ -3338,23 +3366,24 @@
             the profile parent.</summary>
         <remarks>
           <para>Specifies that the managed profile is not allowed to have unified lock screen challenge with
-            the profile parent.</para>
+            the primary user.</para>
           <para>To ensure that there is a separate work profile password, IT admins
             have to:
             &lt;ol&gt;
               &lt;li&gt;Enforce <c>UserManager#DISALLOW_UNIFIED_PASSWORD</c>&lt;/li&gt;
               &lt;li&gt;Verify that <c>DevicePolicyManager#isUsingUnifiedPassword(ComponentName)</c>
-                  returns false. This indicates that there is now a separate work
+                  returns true. This indicates that there is now a separate work
                   profile password configured and the set up is completed.&lt;/li&gt;
-              &lt;li&gt;In case <c>DevicePolicyManager#isUsingUnifiedPassword(ComponentName)</c> returns true,
-                  invoke <c>DevicePolicyManager#ACTION_SET_NEW_PASSWORD</c> intent and then verify again
+              &lt;li&gt;In case <c>DevicePolicyManager#isUsingUnifiedPassword(ComponentName)</c>
+                  returns false, invoke <c>DevicePolicyManager#ACTION_SET_NEW_PASSWORD</c>
+                  intent and then verify again
                   <c>DevicePolicyManager#isUsingUnifiedPassword(ComponentName)</c>.&lt;/li&gt;
             &lt;/ol&gt;</para>
           <para>Can be set by profile owners. It only has effect on managed profiles when set by managed
             profile owner. Has no effect on non-managed profiles or users.</para>
           <para>Holders of the permission
             <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_LOCK_CREDENTIALS</c>
-            can set this restriction using the <c>DevicePolicyManager</c> APIs mentioned below.</para>
+            can set this restriction using the DevicePolicyManager APIs mentioned below.</para>
           <para>Key for user restrictions.</para>
           <para>Type: Boolean</para>
           <para>
@@ -3489,7 +3518,8 @@
           <para>This restriction can only be set by a <see href="https://developers.google.com/android/work/terminology#device_owner_do">
             device owner</see> or a <see href="https://developers.google.com/android/work/terminology#profile_owner_po">
             profile owner</see> on the primary user's profile or a profile owner of an organization-owned
-            <see href="https://developers.google.com/android/work/terminology#managed_profile">managed profile</see> on the parent profile.
+            <see href="https://developers.google.com/android/work/terminology#managed_profile">
+            managed profile</see> on the parent profile.
             When it is set by a device owner, it applies globally. When it is set by a profile owner
             on the primary user or by a profile owner of an organization-owned managed profile on
             the parent profile, it disables the primary user from transferring files over USB. No other
@@ -3755,15 +3785,6 @@
             &lt;ul&gt;
             &lt;li&gt;<c>boolean</c>&lt;li&gt;<c>int</c>&lt;li&gt;<c>String</c> or <c>String[]</c>&lt;li&gt;From <c>android.os.Build.VERSION_CODES#M</c>, <c>Bundle</c> or <c>Bundle[]</c>&lt;/ul&gt;</para>
           <para>NOTE: The method performs disk I/O and shouldn't be called on the main thread</para>
-          <para>Starting from Android version <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>,
-            it is possible for there to be multiple managing apps on the device with the ability to set
-            app restrictions, e.g. an Enterprise Device Policy Controller (DPC) and a Supervision admin.
-            This method will always return the app restrictions set by the DPC, if the DPC has set one.
-            Beginning from SDK level 36.1, if the DPC has not set any app restriction while other
-            managing apps have set some, this method will return app restrictions set by one of those
-            managing apps. There is no guarantee on which managing apps app restriction will be returned.
-            To retrieve restrictions set by all managing apps, use
-            <c>android.content.RestrictionsManager#getApplicationRestrictionsPerAdmin</c> instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/UserManager#getApplicationRestrictions(java.lang.String)" title="Reference documentation">Java documentation for <code>android.os.UserManager.getApplicationRestrictions(java.lang.String)</code>.</a>
@@ -4007,8 +4028,8 @@
         <Parameter Name="restrictionKey" Type="System.String">
           <Attributes>
             <Attribute>
-              <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
-              <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
+              <AttributeName Language="C#">[Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowTaskContinuityHandoff", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.StringDef(Fields=new System.String[] { "AllowParentProfileAppLinking", "DisallowAddManagedProfile", "DisallowAddPrivateProfile", "DisallowAddUser", "DisallowAddWifiConfig", "DisallowAdjustVolume", "DisallowAirplaneMode", "DisallowAmbientDisplay", "DisallowAppsControl", "DisallowAssistContent", "DisallowAutofill", "DisallowBluetooth", "DisallowBluetoothSharing", "DisallowCameraToggle", "DisallowCellular2g", "DisallowChangeNearFieldCommunicationRadio", "DisallowChangeWifiState", "DisallowConfigBluetooth", "DisallowConfigBrightness", "DisallowConfigCellBroadcasts", "DisallowConfigCredentials", "DisallowConfigDateTime", "DisallowConfigDefaultApps", "DisallowConfigLocale", "DisallowConfigLocation", "DisallowConfigMobileNetworks", "DisallowConfigPrivateDns", "DisallowConfigScreenTimeout", "DisallowConfigTethering", "DisallowConfigVpn", "DisallowConfigWifi", "DisallowContentCapture", "DisallowContentSuggestions", "DisallowCreateWindows", "DisallowCrossProfileCopyPaste", "DisallowDataRoaming", "DisallowDebuggingFeatures", "DisallowFactoryReset", "DisallowFun", "DisallowGrantAdmin", "DisallowTaskContinuityHandoff", "DisallowInstallApps", "DisallowInstallUnknownSources", "DisallowInstallUnknownSourcesGlobally", "DisallowMicrophoneToggle", "DisallowModifyAccounts", "DisallowMountPhysicalMedia", "DisallowNearFieldCommunicationRadio", "DisallowNetworkReset", "DisallowOutgoingBeam", "DisallowOutgoingCalls", "DisallowPrinting", "DisallowRemoveManagedProfile", "DisallowRemoveUser", "DisallowSafeBoot", "DisallowSetUserIcon", "DisallowSetWallpaper", "DisallowShareIntoManagedProfile", "DisallowShareLocation", "DisallowSharingAdminConfiguredWifi", "DisallowSimGlobally", "DisallowSms", "DisallowSystemErrorDialogs", "DisallowThreadNetwork", "DisallowUltraWidebandRadio", "DisallowUnifiedPassword", "DisallowUninstallApps", "DisallowUnmuteMicrophone", "DisallowUsbFileTransfer", "DisallowUserSwitch", "DisallowWifiDirect", "DisallowWifiTethering", "EnsureVerifyApps", "KeyRestrictionsPending" }, Type="Android.OS.UserManager")&gt;]</AttributeName>
             </Attribute>
           </Attributes>
         </Parameter>
@@ -4068,7 +4089,8 @@
       <Docs>
         <param name="user">to retrieve the unlocked state for.</param>
         <summary>Return whether the given user is running in an "unlocked" state.</summary>
-        <returns><see langword="true" /> if the user is unlocked; otherwise, <see langword="false" />.</returns>
+        <returns>
+          <see langword="true" /> if the user is unlocked; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return whether the given user is running in an "unlocked" state.</para>
           <para>On devices with direct boot, a user is unlocked only after they've
@@ -5087,10 +5109,8 @@
             customizable space.</summary>
         <returns>whether the device supports multiple switchable users.</returns>
         <remarks>
-          <para>Returns whether this device supports multiple switchable users with their own login and
-            customizable space.</para>
-          <para>Note that, even if false, multiple users might still be possible, as long as no login UI
-            is required; e.g., profiles might still be supported, as they do not require a login UI.</para>
+          <para>Returns whether this device supports multiple users with their own login and customizable
+            space.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/UserManager#supportsMultipleUsers()" title="Reference documentation">Java documentation for <code>android.os.UserManager.supportsMultipleUsers()</code>.</a>
@@ -5548,9 +5568,7 @@
       <Docs>
         <summary>Indicates user operation failed because a relevant maximum user limit has been reached.</summary>
         <remarks>
-          <para>Indicates user operation failed because a relevant maximum user limit has been reached.</para>
-          <para>This could include the situation in which limit is 0, such as if a particular type of user
-            is not enabled or is ineligible to be added to the requested parent.</para>
+          <para>Indicates user operation failed because maximum user limit has been reached.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/UserManager#USER_OPERATION_ERROR_MAX_USERS" title="Reference documentation">Java documentation for <code>android.os.UserManager.USER_OPERATION_ERROR_MAX_USERS</code>.</a>

@@ -29,7 +29,11 @@
     <summary>This class provides access to the system alarm services.</summary>
     <remarks>
       <para>This class provides access to the system alarm services. These allow you to schedule your application to be run at some point in the future. When an alarm goes off, the Intent that had been registered for it is broadcast by the system, automatically starting the target application if it is not already running. Registered alarms are retained while the device is asleep (and can optionally wake the device up if they go off during that time), but will be cleared if it is turned off and rebooted. The Alarm Manager holds a CPU wake lock as long as the alarm receiver's onReceive() method is executing. This guarantees that the phone will not sleep until you have finished handling the broadcast. Once onReceive() returns, the Alarm Manager releases this wake lock. This means that the phone will in some cases sleep as soon as your onReceive() method completes. If your alarm receiver called Context.startService(), it is possible that the phone will sleep before the requested service is launched. To prevent this, your BroadcastReceiver and Service will need to implement a separate wake lock policy to ensure that the phone continues running until the service becomes available. Note: The Alarm Manager is intended for cases where you want to have your application code run at a specific time, even if your application is not currently running. For normal timing operations (ticks, timeouts, etc) it is easier and much more efficient to use Handler. Note: Beginning with API 19 (Build.VERSION_CODES.KITKAT) alarm delivery is inexact: the OS will shift alarms in order to minimize wakeups and battery use. There are new APIs to support applications which need strict delivery guarantees; see setWindow(int,long,long,PendingIntent) and setExact(int,long,PendingIntent). Applications whose targetSdkVersion is earlier than API 19 will continue to see the previous behavior in which all alarms are delivered exactly when requested.</para>
-      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager" title="Reference documentation">Android reference for <code>android.app.AlarmManager</code>.</a></format></para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/AlarmManager" title="Reference documentation">Android reference for <code>android.app.AlarmManager</code>.</a>
+        </format>
+      </para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
     <since version="Added in API level 1" />
@@ -79,10 +83,15 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Broadcast Action: Sent after the value returned by getNextAlarmClock() has changed.</summary>
+        <summary>Broadcast Action: Sent after the value returned by
+            <c>#getNextAlarmClock()</c> has changed.</summary>
         <remarks>
           <para>Broadcast Action: Sent after the value returned by getNextAlarmClock() has changed. This is a protected intent that can only be sent by the system. It is only sent to registered receivers.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#ACTION_NEXT_ALARM_CLOCK_CHANGED" title="Reference documentation">Android reference for <code>android.app.AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#ACTION_NEXT_ALARM_CLOCK_CHANGED" title="Reference documentation">Android reference for <code>android.app.AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -111,10 +120,15 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Broadcast Action: An app is granted the Manifest.permission.SCHEDULE_EXACT_ALARM permission.</summary>
+        <summary>Broadcast Action: An app is granted the
+            <c>android.Manifest.permission#SCHEDULE_EXACT_ALARM</c> permission.</summary>
         <remarks>
           <para>Broadcast Action: An app is granted the Manifest.permission.SCHEDULE_EXACT_ALARM permission. When the user revokes the Manifest.permission.SCHEDULE_EXACT_ALARM permission, all alarms scheduled with setExact(int, long, PendingIntent), setExactAndAllowWhileIdle(int, long, PendingIntent) and setAlarmClock(AlarmClockInfo,PendingIntent) will be deleted. When the user grants the Manifest.permission.SCHEDULE_EXACT_ALARM, this broadcast will be sent. Applications can reschedule all the necessary alarms when receiving it. This broadcast will not be sent when the user revokes the permission. Note: Applications are still required to check canScheduleExactAlarms() before using the above APIs after receiving this broadcast, because it's possible that the permission is already revoked again by the time applications receive this broadcast. This broadcast will be sent to both runtime receivers and manifest receivers. This broadcast is sent as a foreground broadcast. See Intent.FLAG_RECEIVER_FOREGROUND. When an application receives this broadcast, it's allowed to start a foreground service.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" title="Reference documentation">Android reference for <code>android.app.AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" title="Reference documentation">Android reference for <code>android.app.AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -150,7 +164,11 @@
         <summary>Remove any alarm scheduled to be delivered to the given OnAlarmListener.</summary>
         <remarks>
           <para>Remove any alarm scheduled to be delivered to the given OnAlarmListener.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#cancel(android.app.AlarmManager.OnAlarmListener)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.cancel</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#cancel(android.app.AlarmManager.OnAlarmListener)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.cancel</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -178,12 +196,17 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="operation">PendingIntent: IntentSender which matches a previously added IntentSender. This parameter must not be null.</param>
-        <summary>Remove any alarms with a matching Intent.</summary>
+        <param name="operation">IntentSender which matches a previously added
+            IntentSender. This parameter must not be <c>null</c>.</param>
+        <summary>Remove any alarms with a matching <c>Intent</c>.</summary>
         <remarks>
           <para>Remove any alarms with a matching Intent. Any alarm, of any type, whose Intent matches this one (as defined by Intent.filterEquals), will be canceled.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#cancel(android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.cancel</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#cancel(android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.cancel</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -217,7 +240,11 @@
         <summary>Remove all alarms previously set by the caller, if any.</summary>
         <remarks>
           <para>Remove all alarms previously set by the caller, if any.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#cancelAll()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.cancelAll</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#cancelAll()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.cancelAll</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -248,11 +275,16 @@
       <Parameters />
       <Docs>
         <summary>Called to check if the caller can schedule exact alarms.</summary>
-        <returns>true if the caller can schedule exact alarms, false otherwise.</returns>
+        <returns>
+          <c>true</c> if the caller can schedule exact alarms, <c>false</c> otherwise.</returns>
         <remarks>
           <para>Called to check if the caller can schedule exact alarms. Your app schedules exact alarms when it calls any of the setExact... or setAlarmClock API methods. Apps targeting Build.VERSION_CODES.S or higher can schedule exact alarms only if they have the Manifest.permission.SCHEDULE_EXACT_ALARM permission or they are on the device's power-save exemption list. These apps can also start Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM to request this permission from the user. Apps targeting lower sdk versions, can always schedule exact alarms.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#canScheduleExactAlarms()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.canScheduleExactAlarms</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#canScheduleExactAlarms()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.canScheduleExactAlarms</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -280,7 +312,10 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <summary></summary>
+        <param name="context">To be added.</param>
+        <summary>
+        </summary>
+        <returns>To be added.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -307,10 +342,16 @@
       </ReturnValue>
       <MemberValue>86400000</MemberValue>
       <Docs>
-        <summary>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</summary>
+        <summary>Available inexact recurrence interval recognized by
+            <c>#setInexactRepeating(int, long, long, PendingIntent)</c>
+            when running on Android prior to API 19.</summary>
         <remarks>
           <para>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_DAY" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_DAY</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_DAY" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_DAY</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
@@ -337,10 +378,16 @@
       </ReturnValue>
       <MemberValue>900000</MemberValue>
       <Docs>
-        <summary>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</summary>
+        <summary>Available inexact recurrence interval recognized by
+            <c>#setInexactRepeating(int, long, long, PendingIntent)</c>
+            when running on Android prior to API 19.</summary>
         <remarks>
           <para>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_FIFTEEN_MINUTES" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_FIFTEEN_MINUTES</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_FIFTEEN_MINUTES" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_FIFTEEN_MINUTES</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
@@ -367,10 +414,16 @@
       </ReturnValue>
       <MemberValue>43200000</MemberValue>
       <Docs>
-        <summary>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</summary>
+        <summary>Available inexact recurrence interval recognized by
+            <c>#setInexactRepeating(int, long, long, PendingIntent)</c>
+            when running on Android prior to API 19.</summary>
         <remarks>
           <para>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_HALF_DAY" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_HALF_DAY</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_HALF_DAY" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_HALF_DAY</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
@@ -397,10 +450,16 @@
       </ReturnValue>
       <MemberValue>1800000</MemberValue>
       <Docs>
-        <summary>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</summary>
+        <summary>Available inexact recurrence interval recognized by
+            <c>#setInexactRepeating(int, long, long, PendingIntent)</c>
+            when running on Android prior to API 19.</summary>
         <remarks>
           <para>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_HALF_HOUR" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_HALF_HOUR</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_HALF_HOUR" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_HALF_HOUR</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
@@ -427,10 +486,16 @@
       </ReturnValue>
       <MemberValue>3600000</MemberValue>
       <Docs>
-        <summary>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</summary>
+        <summary>Available inexact recurrence interval recognized by
+            <c>#setInexactRepeating(int, long, long, PendingIntent)</c>
+            when running on Android prior to API 19.</summary>
         <remarks>
           <para>Available inexact recurrence interval recognized by setInexactRepeating(int,long,long,PendingIntent) when running on Android prior to API 19.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_HOUR" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_HOUR</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#INTERVAL_HOUR" title="Reference documentation">Android reference for <code>android.app.AlarmManager.INTERVAL_HOUR</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
@@ -461,6 +526,7 @@
       </ReturnValue>
       <Docs>
         <summary>Provides JNI binding infrastructure for Android.App.AlarmManager.</summary>
+        <value>To be added.</value>
         <remarks>
           <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -500,7 +566,11 @@
         <remarks>
           <para>Gets information about the next alarm clock currently scheduled. The alarm clocks considered are those scheduled by any application using the setAlarmClock(AlarmClockInfo, PendingIntent) method.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#getNextAlarmClock()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.getNextAlarmClock</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#getNextAlarmClock()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.getNextAlarmClock</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -538,14 +608,21 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="type">int: type of alarm. Value is one of the following: RTC_WAKEUP RTC ELAPSED_REALTIME_WAKEUP ELAPSED_REALTIME</param>
-        <param name="triggerAtMillis">long: time in milliseconds that the alarm should go off, using the appropriate clock (depending on the alarm type).</param>
-        <param name="operation">PendingIntent: Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast(). This value cannot be null.</param>
+        <param name="type">type of alarm.</param>
+        <param name="triggerAtMillis">time in milliseconds that the alarm should go
+            off, using the appropriate clock (depending on the alarm type).</param>
+        <param name="operation">Action to perform when the alarm goes off;
+            typically comes from <c>PendingIntent#getBroadcast
+            IntentSender.getBroadcast()</c>.</param>
         <summary>Schedule an alarm.</summary>
         <remarks>
           <para>Schedule an alarm. Note: for timing operations (ticks, timeouts, etc) it is easier and much more efficient to use Handler. If there is already an alarm scheduled for the same IntentSender, that previous alarm will first be canceled. If the stated trigger time is in the past, the alarm will be triggered immediately. If there is already an alarm for this Intent scheduled (with the equality of two intents being defined by Intent.filterEquals), then it will be removed and replaced by this one. The alarm is an Intent broadcast that goes to a broadcast receiver that you registered with Context.registerReceiver(BroadcastReceiver, IntentFilter) or through the &lt;receiver&gt; tag in an AndroidManifest.xml file. Alarm intents are delivered with a data extra of type int called Intent.EXTRA_ALARM_COUNT that indicates how many past alarm events have been accumulated into this intent broadcast. Recurring alarms that have gone undelivered because the phone was asleep may have a count greater than one when delivered. Note: Beginning in API 19, the trigger time passed to this method is treated as inexact: the alarm will not be delivered before this time, but may be deferred and delivered some time later. The OS will use this policy in order to "batch" alarms together across the entire system, minimizing the number of times the device needs to "wake up" and minimizing battery use. In general, alarms scheduled in the near future will not be deferred as long as alarms scheduled far in the future. With the new batching policy, delivery ordering guarantees are not as strong as they were previously. If the application sets multiple alarms, it is possible that these alarms' actual delivery ordering may not match the order of their requested delivery times. If your application has strong ordering requirements there are other APIs that you can use to get the necessary behavior; see setWindow(int,long,long,PendingIntent) and setExact(int,long,PendingIntent). Applications whose targetSdkVersion is before API 19 will continue to get the previous alarm behavior: all of their scheduled alarms will be treated as exact.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#set(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.set</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#set(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.set</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -608,7 +685,11 @@
         <summary>Direct callback version of set(int,long,PendingIntent).</summary>
         <remarks>
           <para>Direct callback version of set(int,long,PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an OnAlarmListener instance that will be invoked at that time. Listener based alarms may be canceled by the Android system whenever the calling process no longer has any components running, such as Activity, Service, or ContentProvider, so only use these APIs when you do not need to receive alarms after the current component finishes, and also make sure to cancel(OnAlarmListener) them when it does. For example, if you use these APIs from an Activity, make sure to cancel the respective alarms when the activity finishes. If you need to receive the alarm even after that, use the PendingIntent based APIs. The OnAlarmListener's onAlarm() method will be invoked via the specified target Handler, or on the application's main looper if null is passed as the targetHandler parameter.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#set(int,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.set</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#set(int,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.set</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -648,7 +729,11 @@
           <para>Schedule an alarm that represents an alarm clock, which will be used to notify the user when it goes off. The expectation is that when this alarm triggers, the application will further wake up the device to tell the user about the alarm -- turning on the screen, playing a sound, vibrating, etc. As such, the system will typically also use the information supplied here to tell the user about this upcoming alarm if appropriate. Due to the nature of this kind of alarm, similar to setExactAndAllowWhileIdle(int, long, PendingIntent), these alarms will be allowed to trigger even if the system is in a low-power idle (a.k.a. doze) mode. The system may also do some prep-work when it sees that such an alarm coming up, to reduce the amount of background work that could happen if this causes the device to fully wake up -- this is to avoid situations such as a large number of devices having an alarm set at the same time in the morning, all waking up at that time and suddenly swamping the network with pending background work. As such, these types of alarms can be extremely expensive on battery use and should only be used for their intended purpose.</para>
           <para>This method is like setExact(int,long,PendingIntent), but implies RTC_WAKEUP. Note: Starting with Build.VERSION_CODES.S, apps targeting SDK level 31 or higher need to request the SCHEDULE_EXACT_ALARM permission to use this API. The user and the system can revoke this permission via the special app access screen in Settings. Note: Exact alarms should only be used for user-facing features. For more details, see Exact alarm permission. Alarms scheduled via this API will be allowed to start a foreground service even if the app is in the background. Requires Manifest.permission.SCHEDULE_EXACT_ALARM</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setAlarmClock(android.app.AlarmManager.AlarmClockInfo,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setAlarmClock</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setAlarmClock(android.app.AlarmManager.AlarmClockInfo,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setAlarmClock</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -689,17 +774,25 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="type">int: type of alarm. Value is one of the following: RTC_WAKEUP RTC ELAPSED_REALTIME_WAKEUP ELAPSED_REALTIME</param>
-        <param name="triggerAtMillis">long: time in milliseconds that the alarm should go off, using the appropriate clock (depending on the alarm type).</param>
-        <param name="operation">PendingIntent: Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast(). This value cannot be null.</param>
-        <summary>Like set(int,long,PendingIntent), but this alarm will be allowed to execute even when the system is in low-power idle (a.k.a.</summary>
+        <param name="type">type of alarm.</param>
+        <param name="triggerAtMillis">time in milliseconds that the alarm should go
+            off, using the appropriate clock (depending on the alarm type).</param>
+        <param name="operation">Action to perform when the alarm goes off;
+            typically comes from <c>PendingIntent#getBroadcast
+            IntentSender.getBroadcast()</c>.</param>
+        <summary>Like <c>#set(int, long, PendingIntent)</c>, but this alarm will be allowed to execute
+            even when the system is in low-power idle (a.</summary>
         <remarks>
           <para>Like set(int,long,PendingIntent), but this alarm will be allowed to execute even when the system is in low-power idle (a.k.a. doze) modes. This type of alarm must only be used for situations where it is actually required that the alarm go off while in idle -- a reasonable example would be for a calendar notification that should make a sound so the user is aware of it. When the alarm is dispatched, the app will also be added to the system's temporary power exemption list for approximately 10 seconds to allow that application to acquire further wake locks in which to complete its work.</para>
           <para>These alarms can significantly impact the power use of the device when idle (and thus cause significant battery blame to the app scheduling them), so they should be used with care. To reduce abuse, there are restrictions on how frequently these alarms will go off for a particular application. Under normal system operation, it will not dispatch these alarms more than about every minute (at which point every such pending alarm is dispatched); when in low-power idle modes this duration may be significantly longer, such as 15 minutes.</para>
           <para>Unlike other alarms, the system is free to reschedule this type of alarm to happen out of order with any other alarms, even those from the same app. This will clearly happen when the device is idle (since this alarm can go off while idle, when any other alarms from the app will be held until later), but may also happen even when not idle.</para>
           <para>Regardless of the app's target SDK version, this call always allows batching of the alarm.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setAndAllowWhileIdle(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setAndAllowWhileIdle</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setAndAllowWhileIdle(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setAndAllowWhileIdle</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -740,14 +833,21 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="type">int: type of alarm. Value is one of the following: RTC_WAKEUP RTC ELAPSED_REALTIME_WAKEUP ELAPSED_REALTIME</param>
-        <param name="triggerAtMillis">long: time in milliseconds that the alarm should go off, using the appropriate clock (depending on the alarm type).</param>
-        <param name="operation">PendingIntent: Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast(). This value cannot be null.</param>
+        <param name="type">type of alarm.</param>
+        <param name="triggerAtMillis">time in milliseconds that the alarm should go
+                   off, using the appropriate clock (depending on the alarm type).</param>
+        <param name="operation">Action to perform when the alarm goes off;
+                   typically comes from <c>PendingIntent#getBroadcast
+                   IntentSender.getBroadcast()</c>.</param>
         <summary>Schedule an alarm to be delivered precisely at the stated time.</summary>
         <remarks>
           <para>Schedule an alarm to be delivered precisely at the stated time. This method is like set(int,long,PendingIntent), but does not permit the OS to adjust the delivery time. The alarm will be delivered as nearly as possible to the requested trigger time. Note: only alarms for which there is a strong demand for exact-time delivery (such as an alarm clock ringing at the requested time) should be scheduled as exact. Applications are strongly discouraged from using exact alarms unnecessarily as they reduce the OS's ability to minimize battery use. Note: Starting with Build.VERSION_CODES.S, apps targeting SDK level 31 or higher need to request the SCHEDULE_EXACT_ALARM permission to use this API, unless the app is exempt from battery restrictions. The user and the system can revoke this permission via the special app access screen in Settings. Note: Exact alarms should only be used for user-facing features. For more details, see Exact alarm permission.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setExact(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExact</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setExact(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExact</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -809,7 +909,11 @@
         <summary>Direct callback version of setExact(int,long,PendingIntent).</summary>
         <remarks>
           <para>Direct callback version of setExact(int,long,PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an OnAlarmListener instance that will be invoked at that time. Listener based alarms may be canceled by the Android system whenever the calling process no longer has any components running, such as Activity, Service, or ContentProvider, so only use these APIs when you do not need to receive alarms after the current component finishes, and also make sure to cancel(OnAlarmListener) them when it does. For example, if you use these APIs from an Activity, make sure to cancel the respective alarms when the activity finishes. If you need to receive the alarm even after that, use the PendingIntent based APIs. The OnAlarmListener's onAlarm() method will be invoked via the specified target Handler, or on the application's main looper if null is passed as the targetHandler parameter. On previous android versions Build.VERSION_CODES.S and Build.VERSION_CODES.TIRAMISU, apps targeting SDK level 31 or higher needed to hold the SCHEDULE_EXACT_ALARM permission to use this API, unless the app was exempt from battery restrictions. Note: Starting with android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, the system will explicitly drop any alarms set via this API when the calling app goes out of lifecycle.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setExact(int,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExact</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setExact(int,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExact</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -854,19 +958,74 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="type">int: type of alarm. Value is one of the following: RTC_WAKEUP RTC ELAPSED_REALTIME_WAKEUP ELAPSED_REALTIME</param>
-        <param name="triggerAtMillis">long: time in milliseconds that the alarm should go off, using the appropriate clock (depending on the alarm type).</param>
-        <param name="operation">PendingIntent: Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast(). This value cannot be null.</param>
-        <summary>Like setExact(int,long,PendingIntent), but this alarm will be allowed to execute even when the system is in low-power idle modes.</summary>
+        <param name="type">type of alarm.</param>
+        <param name="triggerAtMillis">time in milliseconds that the alarm should go
+                   off, using the appropriate clock (depending on the alarm type).</param>
+        <param name="operation">Action to perform when the alarm goes off;
+                   typically comes from <c>PendingIntent#getBroadcast
+                   IntentSender.getBroadcast()</c>.</param>
+        <summary>Like <c>#setExact(int, long, PendingIntent)</c>, but this alarm will be allowed to execute
+            even when the system is in low-power idle modes.</summary>
         <remarks>
           <para>Like setExact(int,long,PendingIntent), but this alarm will be allowed to execute even when the system is in low-power idle modes. If you don't need exact scheduling of the alarm but still need to execute while idle, consider using setAndAllowWhileIdle(int, long, PendingIntent). This type of alarm must only be used for situations where it is actually required that the alarm go off while in idle -- a reasonable example would be for a calendar notification that should make a sound so the user is aware of it. When the alarm is dispatched, the app will also be added to the system's temporary power exemption list for approximately 10 seconds to allow that application to acquire further wake locks in which to complete its work.</para>
           <para>These alarms can significantly impact the power use of the device when idle (and thus cause significant battery blame to the app scheduling them), so they should be used with care. To reduce abuse, there are restrictions on how frequently these alarms will go off for a particular application. Under normal system operation, it will not dispatch these alarms more than about every minute (at which point every such pending alarm is dispatched); when in low-power idle modes this duration may be significantly longer, such as 15 minutes.</para>
           <para>Unlike other alarms, the system is free to reschedule this type of alarm to happen out of order with any other alarms, even those from the same app. This will clearly happen when the device is idle (since this alarm can go off while idle, when any other alarms from the app will be held until later), but may also happen even when not idle. Note that the OS will allow itself more flexibility for scheduling these alarms than regular exact alarms, since the application has opted into this behavior. When the device is idle it may take even more liberties with scheduling in order to optimize for battery life.</para>
           <para>Note: Starting with Build.VERSION_CODES.S, apps targeting SDK level 31 or higher need to request the SCHEDULE_EXACT_ALARM permission to use this API, unless the app is exempt from battery restrictions. The user and the system can revoke this permission via the special app access screen in Settings. Note: Exact alarms should only be used for user-facing features. For more details, see Exact alarm permission. Alarms scheduled via this API will be allowed to start a foreground service even if the app is in the background.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setExactAndAllowWhileIdle(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExactAndAllowWhileIdle</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setExactAndAllowWhileIdle(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExactAndAllowWhileIdle</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SetExactAndAllowWhileIdle">
+      <MemberSignature Language="C#" Value="public virtual void SetExactAndAllowWhileIdle (Android.App.AlarmType type, long triggerAtMillis, string tag, Java.Util.Concurrent.IExecutor executor, Android.App.AlarmManager.IOnAlarmListener listener);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void SetExactAndAllowWhileIdle(valuetype Android.App.AlarmType type, int64 triggerAtMillis, string tag, class Java.Util.Concurrent.IExecutor executor, class Android.App.AlarmManager/IOnAlarmListener listener) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AlarmManager.SetExactAndAllowWhileIdle(Android.App.AlarmType,System.Int64,System.String,Java.Util.Concurrent.IExecutor,Android.App.AlarmManager.IOnAlarmListener)" />
+      <MemberSignature Language="F#" Value="abstract member SetExactAndAllowWhileIdle : Android.App.AlarmType * int64 * string * Java.Util.Concurrent.IExecutor * Android.App.AlarmManager.IOnAlarmListener -&gt; unit&#xA;override this.SetExactAndAllowWhileIdle : Android.App.AlarmType * int64 * string * Java.Util.Concurrent.IExecutor * Android.App.AlarmManager.IOnAlarmListener -&gt; unit" Usage="alarmManager.SetExactAndAllowWhileIdle (type, triggerAtMillis, tag, executor, listener)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setExactAndAllowWhileIdle", "(IJLjava/lang/String;Ljava/util/concurrent/Executor;Landroid/app/AlarmManager$OnAlarmListener;)V", "GetSetExactAndAllowWhileIdle_IJLjava_lang_String_Ljava_util_concurrent_Executor_Landroid_app_AlarmManager_OnAlarmListener_Handler", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setExactAndAllowWhileIdle", "(IJLjava/lang/String;Ljava/util/concurrent/Executor;Landroid/app/AlarmManager$OnAlarmListener;)V", "GetSetExactAndAllowWhileIdle_IJLjava_lang_String_Ljava_util_concurrent_Executor_Landroid_app_AlarmManager_OnAlarmListener_Handler", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="type" Type="Android.App.AlarmType">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="triggerAtMillis" Type="System.Int64" />
+        <Parameter Name="tag" Type="System.String" />
+        <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
+        <Parameter Name="listener" Type="Android.App.AlarmManager+IOnAlarmListener" />
+      </Parameters>
+      <Docs>
+        <param name="type">To be added.</param>
+        <param name="triggerAtMillis">To be added.</param>
+        <param name="tag">To be added.</param>
+        <param name="executor">To be added.</param>
+        <param name="listener">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetInexactRepeating">
@@ -902,15 +1061,34 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="type">int: type of alarm. Value is one of the following: RTC_WAKEUP RTC ELAPSED_REALTIME_WAKEUP ELAPSED_REALTIME</param>
-        <param name="triggerAtMillis">long: time in milliseconds that the alarm should first go off, using the appropriate clock (depending on the alarm type). This is inexact: the alarm will not fire before this time, but there may be a delay of almost an entire alarm interval before the first invocation of the alarm.</param>
-        <param name="intervalMillis">long: interval in milliseconds between subsequent repeats of the alarm. Prior to API 19, if this is one of INTERVAL_FIFTEEN_MINUTES, INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_HALF_DAY, or INTERVAL_DAY then the alarm will be phase-aligned with other alarms to reduce the number of wakeups. Otherwise, the alarm will be set as though the application had called setRepeating(int, long, long, PendingIntent). As of API 19, all repeating alarms will be inexact and subject to batching with other alarms regardless of their stated repeat interval.</param>
-        <param name="operation">PendingIntent: Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast(). This value cannot be null.</param>
-        <summary>Schedule a repeating alarm that has inexact trigger time requirements; for example, an alarm that repeats every hour, but not necessarily at the top of every hour.</summary>
+        <param name="type">type of alarm.</param>
+        <param name="triggerAtMillis">time in milliseconds that the alarm should first
+            go off, using the appropriate clock (depending on the alarm type).  This
+            is inexact: the alarm will not fire before this time, but there may be a
+            delay of almost an entire alarm interval before the first invocation of
+            the alarm.</param>
+        <param name="intervalMillis">interval in milliseconds between subsequent repeats
+            of the alarm.  Prior to API 19, if this is one of INTERVAL_FIFTEEN_MINUTES,
+            INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_HALF_DAY, or INTERVAL_DAY
+            then the alarm will be phase-aligned with other alarms to reduce the
+            number of wakeups.  Otherwise, the alarm will be set as though the
+            application had called <c>#setRepeating</c>.  As of API 19, all repeating
+            alarms will be inexact and subject to batching with other alarms regardless
+            of their stated repeat interval.</param>
+        <param name="operation">Action to perform when the alarm goes off;
+            typically comes from <c>PendingIntent#getBroadcast
+            IntentSender.getBroadcast()</c>.</param>
+        <summary>Schedule a repeating alarm that has inexact trigger time requirements;
+            for example, an alarm that repeats every hour, but not necessarily at
+            the top of every hour.</summary>
         <remarks>
           <para>Schedule a repeating alarm that has inexact trigger time requirements; for example, an alarm that repeats every hour, but not necessarily at the top of every hour. These alarms are more power-efficient than the strict recurrences traditionally supplied by setRepeating(int, long, long, PendingIntent), since the system can adjust alarms' delivery times to cause them to fire simultaneously, avoiding waking the device from sleep more than necessary. Your alarm's first trigger will not be before the requested time, but it might not occur for almost a full interval after that time. In addition, while the overall period of the repeating alarm will be as requested, the time between any two successive firings of the alarm may vary. If your application demands very low jitter, use one-shot alarms with an appropriate window instead; see setWindow(int,long,long,PendingIntent) and setExact(int,long,PendingIntent). As of API 19, all repeating alarms are inexact. Because this method has been available since API 3, your application can safely call it and be assured that it will get similar behavior on both current and older versions of Android. Apps targeting Build.VERSION_CODES.S will need to set the flag PendingIntent.FLAG_MUTABLE on the PendingIntent being used to set this alarm, if they want the alarm count to be supplied with the key Intent.EXTRA_ALARM_COUNT.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setInexactRepeating(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setInexactRepeating</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setInexactRepeating(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setInexactRepeating</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
@@ -949,15 +1127,23 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="type">int: type of alarm. Value is one of the following: RTC_WAKEUP RTC ELAPSED_REALTIME_WAKEUP ELAPSED_REALTIME</param>
-        <param name="triggerAtMillis">long: time in milliseconds that the alarm should first go off, using the appropriate clock (depending on the alarm type).</param>
-        <param name="intervalMillis">long: interval in milliseconds between subsequent repeats of the alarm.</param>
-        <param name="operation">PendingIntent: Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast(). This value cannot be null.</param>
+        <param name="type">type of alarm.</param>
+        <param name="triggerAtMillis">time in milliseconds that the alarm should first
+            go off, using the appropriate clock (depending on the alarm type).</param>
+        <param name="intervalMillis">interval in milliseconds between subsequent repeats
+            of the alarm.</param>
+        <param name="operation">Action to perform when the alarm goes off;
+            typically comes from <c>PendingIntent#getBroadcast
+            IntentSender.getBroadcast()</c>.</param>
         <summary>Schedule a repeating alarm.</summary>
         <remarks>
           <para>Schedule a repeating alarm. Note: for timing operations (ticks, timeouts, etc) it is easier and much more efficient to use Handler. If there is already an alarm scheduled for the same IntentSender, it will first be canceled. Like set(int, long, PendingIntent), except you can also supply a period at which the alarm will automatically repeat. This alarm continues repeating until explicitly removed with cancel(OnAlarmListener). If the stated trigger time is in the past, the alarm will be triggered immediately, with an alarm count depending on how far in the past the trigger time is relative to the repeat interval. If an alarm is delayed (by system sleep, for example, for non _WAKEUP alarm types), a skipped repeat will be delivered as soon as possible. After that, future alarms will be delivered according to the original schedule; they do not drift over time. For example, if you have set a recurring alarm for the top of every hour but the phone was asleep from 7:45 until 8:45, an alarm will be sent as soon as the phone awakens, then the next alarm will be sent at 9:00. If your application wants to allow the delivery times to drift in order to guarantee that at least a certain time interval always elapses between alarms, then the approach to take is to use one-time alarms, scheduling the next one yourself when handling each alarm delivery. Note: as of API 19, all repeating alarms are inexact. If your application needs precise delivery times then it must use one-time exact alarms, rescheduling each time as described above. Legacy applications whose targetSdkVersion is earlier than API 19 will continue to have all of their alarms, including repeating alarms, treated as exact. Apps targeting Build.VERSION_CODES.S will need to set the flag PendingIntent.FLAG_MUTABLE on the PendingIntent being used to set this alarm, if they want the alarm count to be supplied with the key Intent.EXTRA_ALARM_COUNT.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setRepeating(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setRepeating</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setRepeating(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setRepeating</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -990,11 +1176,15 @@
         <Parameter Name="millis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="millis">long: time in milliseconds since the Epoch</param>
+        <param name="millis">time in milliseconds since the Epoch</param>
         <summary>Set the system wall clock time.</summary>
         <remarks>
           <para>Set the system wall clock time. Requires the permission android.permission.SET_TIME. Requires Manifest.permission.SET_TIME</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setTime(long)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setTime</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setTime(long)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setTime</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 8" />
@@ -1031,11 +1221,16 @@
         <Parameter Name="timeZone" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="timeZone">String: one of the Olson ids from the list returned by TimeZone.getAvailableIDs()</param>
+        <param name="timeZone">one of the Olson ids from the list returned by
+                <c>java.util.TimeZone#getAvailableIDs</c></param>
         <summary>Sets the system's persistent default time zone.</summary>
         <remarks>
           <para>Sets the system's persistent default time zone. This is the time zone for all apps, even after a reboot. Use TimeZone.setDefault(TimeZone) if you just want to change the time zone within your app, and even then prefer to pass an explicit TimeZone to APIs that require it rather than changing the time zone for all threads. On android M and above, it is an error to pass in a non-Olson timezone to this function. Note that this is a bad idea on all Android releases because POSIX and the TimeZone class have opposite interpretations of '+' and '-' in the same non-Olson ID. Requires Manifest.permission.SET_TIME_ZONE</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setTimeZone(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setTimeZone</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setTimeZone(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setTimeZone</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1074,15 +1269,26 @@
         <Parameter Name="operation" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="type">int: type of alarm. Value is one of the following: RTC_WAKEUP RTC ELAPSED_REALTIME_WAKEUP ELAPSED_REALTIME</param>
-        <param name="windowStartMillis">long: The earliest time, in milliseconds, that the alarm should be delivered, expressed in the appropriate clock's units (depending on the alarm type).</param>
-        <param name="windowLengthMillis">long: The length of the requested delivery window, in milliseconds. The alarm will be delivered no later than this many milliseconds after windowStartMillis. Note that this parameter is a duration, not the timestamp of the end of the window.</param>
-        <param name="operation">PendingIntent: Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast(). This value cannot be null.</param>
+        <param name="type">type of alarm.</param>
+        <param name="windowStartMillis">The earliest time, in milliseconds, that the alarm should
+                   be delivered, expressed in the appropriate clock's units (depending on the alarm
+                   type).</param>
+        <param name="windowLengthMillis">The length of the requested delivery window,
+                   in milliseconds.  The alarm will be delivered no later than this many
+                   milliseconds after <c>windowStartMillis</c>.  Note that this parameter
+                   is a <i>duration,</i> not the timestamp of the end of the window.</param>
+        <param name="operation">Action to perform when the alarm goes off;
+                   typically comes from <c>PendingIntent#getBroadcast
+                   IntentSender.getBroadcast()</c>.</param>
         <summary>Schedule an alarm to be delivered within a given window of time.</summary>
         <remarks>
           <para>Schedule an alarm to be delivered within a given window of time. This method is similar to set(int,long,PendingIntent), but allows the application to precisely control the degree to which its delivery might be adjusted by the OS. This method allows an application to take advantage of the battery optimizations that arise from delivery batching even when it has modest timeliness requirements for its alarms. Note: Starting with API Build.VERSION_CODES.S, apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes. This method can also be used to achieve strict ordering guarantees among multiple alarms by ensuring that the windows requested for each alarm do not intersect. When precise delivery is not required, applications should use the standard set(int,long,PendingIntent) method. This will give the OS the most flexibility to minimize wakeups and battery use. For alarms that must be delivered at precisely-specified times with no acceptable variation, applications can use setExact(int,long,PendingIntent).</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1147,7 +1353,11 @@
         <remarks>
           <para>Direct callback version of setWindow(int,long,long,PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an OnAlarmListener instance that will be invoked at that time. Listener based alarms may be canceled by the Android system whenever the calling process no longer has any components running, such as Activity, Service, or ContentProvider, so only use these APIs when you do not need to receive alarms after the current component finishes, and also make sure to cancel(OnAlarmListener) them when it does. For example, if you use these APIs from an Activity, make sure to cancel the respective alarms when the activity finishes. If you need to receive the alarm even after that, use the PendingIntent based APIs. The OnAlarmListener onAlarm() method will be invoked via the specified target Handler, or on the application's main looper if null is passed as the targetHandler parameter. Note: Starting with API Build.VERSION_CODES.S, apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</para>
           <para>See also:</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1210,7 +1420,11 @@
           <para>See also:</para>
           <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
           <para>Last updated 2026-08-03 UTC.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20java.util.concurrent.Executor,%20android.app.AlarmManager.OnAlarmListener)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20java.util.concurrent.Executor,%20android.app.AlarmManager.OnAlarmListener)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1240,6 +1454,7 @@
       </ReturnValue>
       <Docs>
         <summary>Provides JNI binding infrastructure for Android.App.AlarmManager.</summary>
+        <value>To be added.</value>
         <remarks>
           <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1271,6 +1486,7 @@
       </ReturnValue>
       <Docs>
         <summary>Provides JNI binding infrastructure for Android.App.AlarmManager.</summary>
+        <value>To be added.</value>
         <remarks>
           <para>This member is used by the .NET for Android binding runtime and does not represent an Android application contract.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>

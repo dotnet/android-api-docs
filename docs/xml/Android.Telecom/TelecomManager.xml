@@ -293,24 +293,7 @@
       <Docs>
         <summary>Activity action: Triggers the calling UI and initiates a call back to a previous call
             made by the application.</summary>
-        <remarks>
-          <para>Activity action: Triggers the calling UI and initiates a call back to a previous call
-            made by the application. The specific call to be re-called is identified by the UUID,
-            which must be included as an extra in the intent using <c>#EXTRA_UUID</c></para>
-          <para>Note: VoIP apps should register the intent if they need to integrate the call history
-            into the system call logs.</para>
-          <para />
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/telecom/TelecomManager#ACTION_CALL_BACK" title="Reference documentation">Java documentation for <code>android.telecom.TelecomManager.ACTION_CALL_BACK</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionChangeDefaultDialer">
@@ -407,6 +390,34 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionConfigureCallLogIntegration">
+      <MemberSignature Language="C#" Value="public const string ActionConfigureCallLogIntegration;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionConfigureCallLogIntegration" />
+      <MemberSignature Language="DocId" Value="F:Android.Telecom.TelecomManager.ActionConfigureCallLogIntegration" />
+      <MemberSignature Language="F#" Value="val mutable ActionConfigureCallLogIntegration : string" Usage="Android.Telecom.TelecomManager.ActionConfigureCallLogIntegration" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_CONFIGURE_CALL_LOG_INTEGRATION", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_CONFIGURE_CALL_LOG_INTEGRATION", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Activity Action: Show the settings for configuring call log integration.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionConfigurePhoneAccount">
@@ -901,6 +912,35 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ActionVoipCallLogPreference">
+      <MemberSignature Language="C#" Value="public const string ActionVoipCallLogPreference;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionVoipCallLogPreference" />
+      <MemberSignature Language="DocId" Value="F:Android.Telecom.TelecomManager.ActionVoipCallLogPreference" />
+      <MemberSignature Language="F#" Value="val mutable ActionVoipCallLogPreference : string" Usage="Android.Telecom.TelecomManager.ActionVoipCallLogPreference" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_VOIP_CALL_LOG_PREFERENCE", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_VOIP_CALL_LOG_PREFERENCE", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Broadcast intent action indicating that the call log preference is updated
+            by the user.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddCall">
@@ -1666,13 +1706,13 @@
             otherwise.</returns>
         <remarks>
           <para>Ends the foreground call on the device.</para>
-          <para>If there is a single call and it is ringing, calling this method rejects the ringing call.
-            Otherwise, the foreground (active) call is ended preferentially.</para>
+          <para>If there is a ringing call, calling this method rejects the ringing call. Otherwise, the
+            foreground call is ended.</para>
           <para>Note: this method CANNOT be used to end ongoing emergency calls and will return <c>false</c>
             if an attempt is made to end an emergency call.</para>
-          <para>Note: If the foreground call on this device is self-managed or transactional, this method
-            will only end the call if the caller of this method is privileged (i.e. system, shell, or
-            root) or system UI.</para>
+          <para>Note: If the foreground call on this device is self-managed, this method will only end
+            the call if the caller of this method is privileged (i.e. system, shell, or root) or system
+            UI.</para>
           <para>This member is deprecated. Companion apps for wearable devices should use the <c>InCallService</c> API
             instead.  Apps performing call screening should use the <c>CallScreeningService</c> API
             instead.</para>
@@ -1986,6 +2026,35 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraCallType">
+      <MemberSignature Language="C#" Value="public const string ExtraCallType;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraCallType" />
+      <MemberSignature Language="DocId" Value="F:Android.Telecom.TelecomManager.ExtraCallType" />
+      <MemberSignature Language="F#" Value="val mutable ExtraCallType : string" Usage="Android.Telecom.TelecomManager.ExtraCallType" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_CALL_TYPE", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_CALL_TYPE", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>An optional <c>Intent</c> extra used with <c>#ACTION_CALL_BACK</c> to specify
+            the desired call type for the callback.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraChangeDefaultDialerPackageName">
@@ -2940,29 +3009,36 @@
       <Docs>
         <summary>Extra used with <c>#ACTION_CALL_BACK</c> to specify the UUID value representing
             the call ID returned by <c>android.telecom.CallControl#getCallId()</c>.</summary>
-        <remarks>
-          <para>Extra used with <c>#ACTION_CALL_BACK</c> to specify the UUID value representing
-            the call ID returned by <c>android.telecom.CallControl#getCallId()</c>.</para>
-          <para>This extra is required when using <c>#ACTION_CALL_BACK</c> to initiate a callback
-            to a specific call.</para>
-          <para>Type: String</para>
-          <para>Applications that support the <c>#ACTION_CALL_BACK</c> intent should obtain
-            the UUID value by calling <c>android.telecom.CallControl#getCallId()</c> during
-            the initial call and persist this UUID along with other call-related information.
-            When receiving the UUID via the <c>#ACTION_CALL_BACK</c> intent, the application
-            should retrieve the corresponding call information using the provided UUID and
-            initiate a new call using the stored details.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/telecom/TelecomManager#EXTRA_UUID" title="Reference documentation">Java documentation for <code>android.telecom.TelecomManager.EXTRA_UUID</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraVoipCallLogPreferenceStatus">
+      <MemberSignature Language="C#" Value="public const string ExtraVoipCallLogPreferenceStatus;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraVoipCallLogPreferenceStatus" />
+      <MemberSignature Language="DocId" Value="F:Android.Telecom.TelecomManager.ExtraVoipCallLogPreferenceStatus" />
+      <MemberSignature Language="F#" Value="val mutable ExtraVoipCallLogPreferenceStatus : string" Usage="Android.Telecom.TelecomManager.ExtraVoipCallLogPreferenceStatus" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_VOIP_CALL_LOG_PREFERENCE_STATUS", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_VOIP_CALL_LOG_PREFERENCE_STATUS", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Extra used with <c>#ACTION_VOIP_CALL_LOG_PREFERENCE</c> to specify the value of the
+            VoIP call log preference for the app receiving the broadcast.</summary>
+        <remarks>To be added.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GatewayOriginalAddress">
@@ -3663,6 +3739,41 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="IsInExternalCall">
+      <MemberSignature Language="C#" Value="public virtual bool IsInExternalCall { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool IsInExternalCall" />
+      <MemberSignature Language="DocId" Value="P:Android.Telecom.TelecomManager.IsInExternalCall" />
+      <MemberSignature Language="F#" Value="member this.IsInExternalCall : bool" Usage="Android.Telecom.TelecomManager.IsInExternalCall" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("isInExternalCall", "()Z", "GetIsInExternalCallHandler", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("isInExternalCall", "()Z", "GetIsInExternalCallHandler", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.RequiresPermission("android.permission.READ_PHONE_STATE")]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.RequiresPermission("android.permission.READ_PHONE_STATE")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Boolean</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns whether there is an ongoing phone call (can be in dialing, ringing, active or holding
+            states) that is an external call.</summary>
+        <value>
+          <c>true</c> if there is an ongoing call that is external, <c>false</c> otherwise.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="IsInManagedCall">
       <MemberSignature Language="C#" Value="public virtual bool IsInManagedCall { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance bool IsInManagedCall" />
@@ -4273,12 +4384,6 @@
             call forwarding MMI code is placed by an application that is not in one of these roles, the
             dialer will be launched with a UI showing the MMI code already populated so that the user can
             confirm the action before the call is placed.</para>
-          <para>&lt;b&gt;Note&lt;/b&gt;: The dialer application may set the URI parameter of address to specify
-            a call log record. This allows the dialer to launch a related application to initiate
-            a callback for a specific call log entry. The dialer must have the READ_CALL_LOGS permission
-            to access call log records. The ContentUri for a specific call log record can be obtained
-            by <c>android.content.ContentUri#withAppendedId(CallLog.Calls.CONTENT_URI, callLogId)</c>,
-            where callLogId is the <c>android.provider.BaseColumns#_ID</c> of the call log record.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telecom/TelecomManager#placeCall(android.net.Uri,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.telecom.TelecomManager.placeCall(android.net.Uri, android.os.Bundle)</code>.</a>
