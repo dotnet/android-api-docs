@@ -6175,7 +6175,7 @@
       <Docs>
         <param name="slotIndex">logical slot index</param>
         <summary>Returns a constant indicating the state of the device SIM card in a logical slot.</summary>
-        <returns>To be added.</returns>
+        <returns>Value is one of the following: SIM_STATE_UNKNOWN SIM_STATE_ABSENT SIM_STATE_PIN_REQUIRED SIM_STATE_PUK_REQUIRED SIM_STATE_NETWORK_LOCKED SIM_STATE_READY SIM_STATE_NOT_READY SIM_STATE_PERM_DISABLED SIM_STATE_CARD_IO_ERROR SIM_STATE_CARD_RESTRICTED</returns>
         <remarks>
           <para>Returns a constant indicating the state of the device SIM card in a logical slot.</para>
           <para>
@@ -11448,10 +11448,14 @@
         <Parameter Name="callback" Type="Android.Telephony.TelephonyManager+CellInfoCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">the executor on which callback will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">a callback to receive CellInfo. This value cannot be null.</param>
+        <summary>Requests all available cell information from the current subscription for observed camped/registered, serving, and neighboring cells.</summary>
+        <remarks>
+          <para>Requests all available cell information from the current subscription for observed camped/registered, serving, and neighboring cells. Any available results from this request will be provided by calls to onCellInfoChanged() for each active subscription. This method returns valid data for devices with FEATURE_TELEPHONY. On devices that do not implement this feature, the behavior is not reliable. Requires Manifest.permission.ACCESS_FINE_LOCATION Requires the PackageManager#FEATURE_TELEPHONY_RADIO_ACCESS feature which can be detected using PackageManager.hasSystemFeature(String).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/TelephonyManager#requestCellInfoUpdate(java.util.concurrent.Executor,%20android.telephony.TelephonyManager.CellInfoCallback)" title="Reference documentation">Android reference for <code>android.telephony.TelephonyManager.requestCellInfoUpdate</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestNetworkScan">
@@ -11483,12 +11487,16 @@
         <Parameter Name="callback" Type="Android.Telephony.TelephonyScanManager+NetworkScanCallback" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="request">Contains all the RAT with bands/channels that need to be scanned.</param>
+        <param name="executor">The executor through which the callback should be invoked. Since the scan request may trigger multiple callbacks and they must be invoked in the same order as they are received by the platform, the user should provide an executor which executes tasks one at a time in serial order.</param>
+        <param name="callback">Returns network scan results or errors.</param>
+        <summary>Request a network scan.</summary>
+        <returns>A NetworkScan obj which contains a callback which can be used to stop the scan.</returns>
+        <remarks>
+          <para>Request a network scan. This method is asynchronous, so the network scan results will be returned by callback. The returned NetworkScan will contain a callback method which can be used to stop the scan. Requires Permission: MODIFY_PHONE_STATE or that the calling app has carrier privileges (see hasCarrierPrivileges() ) and Manifest.permission.ACCESS_FINE_LOCATION. If the system-wide location switch is off, apps may still call this API, with the following constraints: The app must hold the android.permission.NETWORK_SCAN permission. The app must not supply any specific bands or channels to scan. The app must only specify MCC/MNC pairs that are associated to a SIM in the device. Returned results will have no meaningful info other than signal strength and MCC/MNC info.. Requires Manifest.permission.MODIFY_PHONE_STATE and Manifest.permission.ACCESS_FINE_LOCATION Requires the PackageManager#FEATURE_TELEPHONY_RADIO_ACCESS feature which can be detected using PackageManager.hasSystemFeature(String).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/TelephonyManager#requestNetworkScan(android.telephony.NetworkScanRequest,%20java.util.concurrent.Executor,%20android.telephony.TelephonyScanManager.NetworkScanCallback)" title="Reference documentation">Android reference for <code>android.telephony.TelephonyManager.requestNetworkScan</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestNetworkScan">
@@ -11538,13 +11546,17 @@
         <Parameter Name="callback" Type="Android.Telephony.TelephonyScanManager+NetworkScanCallback" />
       </Parameters>
       <Docs>
-        <param name="includeLocationData">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="includeLocationData">Specifies if the caller would like to receive location related information. If this parameter is set to INCLUDE_LOCATION_DATA_FINE then the application will be checked for Manifest.permission.ACCESS_FINE_LOCATION permission and available location related information received during network scan will be sent to the caller. Value is one of the following: INCLUDE_LOCATION_DATA_NONE INCLUDE_LOCATION_DATA_COARSE INCLUDE_LOCATION_DATA_FINE</param>
+        <param name="request">Contains all the RAT with bands/channels that need to be scanned. This value cannot be null.</param>
+        <param name="executor">The executor through which the callback should be invoked. Since the scan request may trigger multiple callbacks and they must be invoked in the same order as they are received by the platform, the user should provide an executor which executes tasks one at a time in serial order. This value cannot be null.</param>
+        <param name="callback">Returns network scan results or errors. This value cannot be null.</param>
+        <summary>Request a network scan.</summary>
+        <returns>A NetworkScan obj which contains a callback which can be used to stop the scan. This value may be null.</returns>
+        <remarks>
+          <para>Request a network scan. This method is asynchronous, so the network scan results will be returned by callback. The returned NetworkScan will contain a callback method which can be used to stop the scan. Requires Permission: MODIFY_PHONE_STATE or that the calling app has carrier privileges (see hasCarrierPrivileges() ) and Manifest.permission.ACCESS_FINE_LOCATION if includeLocationData is set to INCLUDE_LOCATION_DATA_FINE. If the system-wide location switch is off, apps may still call this API, with the following constraints: The app must hold the android.permission.NETWORK_SCAN permission. The app must not supply any specific bands or channels to scan. The app must only specify MCC/MNC pairs that are associated to a SIM in the device. Returned results will have no meaningful info other than signal strength and MCC/MNC info.. Requires Manifest.permission.MODIFY_PHONE_STATE Requires the PackageManager#FEATURE_TELEPHONY_RADIO_ACCESS feature which can be detected using PackageManager.hasSystemFeature(String).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/TelephonyManager#requestNetworkScan(int,%20android.telephony.NetworkScanRequest,%20java.util.concurrent.Executor,%20android.telephony.TelephonyScanManager.NetworkScanCallback)" title="Reference documentation">Android reference for <code>android.telephony.TelephonyManager.requestNetworkScan</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SendDialerSpecialCode">
@@ -13402,7 +13414,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns a constant indicating the state of the default SIM card.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: SIM_STATE_UNKNOWN SIM_STATE_ABSENT SIM_STATE_PIN_REQUIRED SIM_STATE_PUK_REQUIRED SIM_STATE_NETWORK_LOCKED SIM_STATE_READY SIM_STATE_NOT_READY SIM_STATE_PERM_DISABLED SIM_STATE_CARD_IO_ERROR SIM_STATE_CARD_RESTRICTED</value>
         <remarks>
           <para>Returns a constant indicating the state of the default SIM card.</para>
           <para>
@@ -13603,7 +13615,7 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE.</summary>
         <value>Modem supported radio access family bitmask
             
             &lt;p&gt;Requires permission: android.Manifest.READ_PRIVILEGED_PHONE_STATE or
@@ -14862,7 +14874,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the NETWORK_TYPE_xxxx for voice</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: NETWORK_TYPE_UNKNOWN NETWORK_TYPE_GPRS NETWORK_TYPE_EDGE NETWORK_TYPE_UMTS NETWORK_TYPE_CDMA NETWORK_TYPE_EVDO_0 NETWORK_TYPE_EVDO_A NETWORK_TYPE_1xRTT NETWORK_TYPE_HSDPA NETWORK_TYPE_HSUPA NETWORK_TYPE_HSPA NETWORK_TYPE_IDEN NETWORK_TYPE_EVDO_B NETWORK_TYPE_LTE NETWORK_TYPE_EHRPD NETWORK_TYPE_HSPAP NETWORK_TYPE_GSM NETWORK_TYPE_TD_SCDMA NETWORK_TYPE_IWLAN NETWORK_TYPE_NR</value>
         <remarks>
           <para>Returns the NETWORK_TYPE_xxxx for voice</para>
           <para>Requires Permission: <c>android.Manifest.permission#READ_PHONE_STATE READ_PHONE_STATE</c>
