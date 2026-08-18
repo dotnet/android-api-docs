@@ -365,13 +365,20 @@ static class ImporterProgram
 
         var selected = paths
             .Where(path => path.StartsWith(docsPrefix, comparer))
-            .Where(path => !path.Equals(Path.Combine(docsRoot, "index.xml"), comparer))
+            .Where(path => !IsNonApiDocumentationFile(path, docsRoot, comparer))
             .Where(path => Path.GetExtension(path).Equals(".xml", comparer))
             .ToList();
         if (options.Paths.Count > 0 && selected.Count == 0)
             throw new ArgumentException("No --path selections resolved to XML files under docs/xml.");
         return selected;
     }
+
+    static bool IsNonApiDocumentationFile(
+        string path,
+        string docsRoot,
+        StringComparison comparer) =>
+        path.Equals(Path.Combine(docsRoot, "index.xml"), comparer) ||
+        path.Equals(Path.Combine(docsRoot, "_filter.xml"), comparer);
 
     static bool MatchesNamespace(XElement root, string? filter)
     {
@@ -1198,6 +1205,20 @@ static class ImporterProgram
     static int RunSelfTest(string repositoryRoot)
     {
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
+        var repositoryScope = SelectFiles(
+            repositoryRoot,
+            docsRoot,
+            Options.Parse(["--namespace", "Android.Example"]));
+        Assert(
+            !repositoryScope.Any(path =>
+                Path.GetFileName(path).Equals("index.xml", StringComparison.OrdinalIgnoreCase) ||
+                Path.GetFileName(path).Equals("_filter.xml", StringComparison.OrdinalIgnoreCase)),
+            "repository-wide scope excludes non-API XML");
+        Assert(
+            repositoryScope.Count ==
+                Directory.EnumerateFiles(docsRoot, "*.xml", SearchOption.AllDirectories).Count() - 2,
+            "repository-wide scope excludes exactly index and filter XML");
         var sourcePath = Path.Combine(fixtureRoot, "source.xml");
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
@@ -1651,7 +1672,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 50 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 52 assertions; repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
