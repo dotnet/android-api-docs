@@ -83,11 +83,21 @@
         <summary>Create a Lut entry.</summary>
         <remarks>
           <para>Create a Lut entry.</para>
-          <para>Noted that 1D Lut(s) are treated as gain curves.
-            For 3D Lut(s), 3D Lut(s) are used for direct color manipulations.
-            The values of 3D Lut(s) data should be normalized to the range <c>0.0</c>
-            to <c>1.0</c>, inclusive. And 3D Lut(s) data is organized in the order of
-            R, G, B channels.</para>
+          <para>1D Lut(s) are treated as gain curves.</para>
+          <para>3D Lut(s) are used for direct color manipulations.</para>
+          <para>For 3D Lut(s), the values should be normalized to the range <c>0.0</c>
+            to <c>1.0</c>, inclusive. And <c>1.0</c> is the maximum panel luminance.
+            And If N is the size of each dimension, the data is arranged in RGB order:</para>
+          <code lang="text/java">R(0, 0, 0), R(0, 0, 1), ..., R(0, 0, N - 1),
+            R(0, 1, 0), ..., R(0, 1, N - 1), ..., R(0, N - 1, N - 1),
+            R(1, 0, 0), ..., R(1, 0, N - 1), ..., R(1, N - 1, N - 1), ..., R(N - 1, N - 1, N - 1),
+            G(0, 0, 0), ..., G(N - 1, N - 1, N - 1),
+            B(0, 0, 0), ..., B(N - 1, N - 1, N - 1)</code>
+          <para>When a GPU shader samples 3D Lut data, it's accessed in a flat,
+            one-dimensional arrangement. Assuming that we have a 3D array
+            <c>ORIGINAL[N][N][N]</c>, then</para>
+          <code lang="text/java">FLAT[z + N * (y + N * x)] = ORIGINAL[x][y][z]</code>
+          <para>&lt;/p&gt;</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/hardware/DisplayLuts.Entry#DisplayLuts$Entry(float[],%20int,%20int)" title="Reference documentation">Java documentation for <code>android.hardware.DisplayLuts.Entry.DisplayLuts$Entry(float[], int, int)</code>.</a>

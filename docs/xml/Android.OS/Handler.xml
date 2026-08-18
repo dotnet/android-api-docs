@@ -20,6 +20,10 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>A Handler allows you to send and process <c>Message</c> and Runnable
@@ -57,7 +61,24 @@
             the main application thread through a Handler.  This is done by calling
             the same &lt;em&gt;post&lt;/em&gt; or &lt;em&gt;sendMessage&lt;/em&gt; methods as before, but from
             your new thread.  The given Runnable or Message will then be scheduled
-            in the Handler's message queue and processed when appropriate.</para>
+            in the Handler's message queue and processed when appropriate.
+            
+            &lt;h2&gt;Performance considerations when using <c>Handler</c>&lt;/h2&gt;</para>
+      <para>Beware that the "has" and "remove" methods of <c>Handler</c> can be very
+            slow because these operations scan the entire queue of pending messages.
+            If the underlying <c>Looper</c>'s <c>MessageQueue</c> has many pending
+            messages, this can be expensive.
+            
+            &lt;ul&gt;
+            &lt;li&gt;Instead of removing a message or a callback to cancel a pending
+            operation, consider setting a flag to indicate cancellation and having the
+            operation check the flag before proceeding.
+            &lt;li&gt;Instead of checking if the queue has a message or a callback to find if
+            a pending operation has not yet occurred, consider having that operation set
+            a flag to indicate that it has begun.
+            &lt;/ul&gt;
+            
+            See <c>java.util.concurrent</c> for standard concurrency primitives.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/os/Handler" title="Reference documentation">Java documentation for <code>android.os.Handler</code>.</a>
@@ -137,6 +158,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Landroid/os/Handler$Callback;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Landroid/os/Handler$Callback;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android30.0")]</AttributeName>
@@ -615,6 +640,10 @@
         <remarks>
           <para>Check if there are any pending posts of messages with callback r in
             the message queue.</para>
+          <para>This operation is worst case O(n) in the number of messages in the queue, and should be
+            avoided. Instead consider another mechanism outside of the queue to track if messages were
+            enqueued and dispatched. For instance, maintain a counter, incrementing it when enqueuing a
+            message and decrementing it when handling a message.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#hasCallbacks(java.lang.Runnable)" title="Reference documentation">Java documentation for <code>android.os.Handler.hasCallbacks(java.lang.Runnable)</code>.</a>
@@ -658,6 +687,10 @@
         <remarks>
           <para>Check if there are any pending posts of messages with code 'what' in
             the message queue.</para>
+          <para>This operation is worst case O(n) in the number of messages in the queue, and should be
+            avoided. Instead consider another mechanism outside of the queue to track if messages were
+            enqueued and dispatched. For instance, maintain a counter, incrementing it when enqueuing a
+            message and decrementing it when handling a message.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#hasMessages(int)" title="Reference documentation">Java documentation for <code>android.os.Handler.hasMessages(int)</code>.</a>
@@ -687,6 +720,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("hasMessages", "(ILjava/lang/Object;)Z", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("hasMessages", "(ILjava/lang/Object;)Z", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -704,6 +741,10 @@
         <remarks>
           <para>Check if there are any pending posts of messages with code 'what' and
             whose obj is 'object' in the message queue.</para>
+          <para>This operation is worst case O(n) in the number of messages in the queue, and should be
+            avoided. Instead consider another mechanism outside of the queue to track if messages were
+            enqueued and dispatched. For instance, maintain a counter, incrementing it when enqueuing a
+            message and decrementing it when handling a message.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#hasMessages(int,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>android.os.Handler.hasMessages(int, java.lang.Object)</code>.</a>
@@ -1525,6 +1566,10 @@
         <summary>Remove any pending posts of Runnable r that are in the message queue.</summary>
         <remarks>
           <para>Remove any pending posts of Runnable r that are in the message queue.</para>
+          <para>This operation is worst case O(n) in the number of messages in the queue, and should be
+            avoided. Instead consider another mechanism outside of the queue to cancel a pending
+            operation. For instance, maintain a flag to indicate whether the operation should be
+            performed differently or not at all once it is dispatched.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#removeCallbacks(java.lang.Runnable)" title="Reference documentation">Java documentation for <code>android.os.Handler.removeCallbacks(java.lang.Runnable)</code>.</a>
@@ -1602,6 +1647,10 @@
           <para>Remove any pending posts of Runnable &lt;var&gt;r&lt;/var&gt; with Object
             &lt;var&gt;token&lt;/var&gt; that are in the message queue.  If &lt;var&gt;token&lt;/var&gt; is null,
             all callbacks will be removed.</para>
+          <para>This operation is worst case O(n) in the number of messages in the queue, and should be
+            avoided. Instead consider another mechanism outside of the queue to cancel a pending
+            operation. For instance, maintain a flag to indicate whether the operation should be
+            performed differently or not at all once it is dispatched.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#removeCallbacks(java.lang.Runnable,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>android.os.Handler.removeCallbacks(java.lang.Runnable, java.lang.Object)</code>.</a>
@@ -1656,6 +1705,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("removeCallbacksAndMessages", "(Ljava/lang/Object;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeCallbacksAndMessages", "(Ljava/lang/Object;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1720,6 +1773,10 @@
             the `Runnable` is internally wrapped with a `Message` whose `what` is 0.
             Calling `removeMessages(0)` will remove all messages without a `what`,
             including posted `Runnable`s.</para>
+          <para>This operation is worst case O(n) in the number of messages in the queue, and should be
+            avoided. Instead consider another mechanism outside of the queue to cancel a pending
+            operation. For instance, maintain a flag to indicate whether the operation should be
+            performed differently or not at all once it is dispatched.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#removeMessages(int)" title="Reference documentation">Java documentation for <code>android.os.Handler.removeMessages(int)</code>.</a>
@@ -1749,6 +1806,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("removeMessages", "(ILjava/lang/Object;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("removeMessages", "(ILjava/lang/Object;)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1766,6 +1827,10 @@
           <para>Remove any pending posts of messages with code 'what' and whose obj is
             'object' that are in the message queue.  If &lt;var&gt;object&lt;/var&gt; is null,
             all messages will be removed.</para>
+          <para>This operation is worst case O(n) in the number of messages in the queue, and should be
+            avoided. Instead consider another mechanism outside of the queue to cancel a pending
+            operation. For instance, maintain a flag to indicate whether the operation should be
+            performed differently or not at all once it is dispatched.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Handler#removeMessages(int,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>android.os.Handler.removeMessages(int, java.lang.Object)</code>.</a>

@@ -20,6 +20,10 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="1">
     <summary>Provides various debugging methods for Android applications, including
@@ -61,6 +65,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("attachJvmtiAgent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/ClassLoader;)V", "", ApiSince=28)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("attachJvmtiAgent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/ClassLoader;)V", "", ApiSince=28)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
@@ -363,6 +371,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("dumpHprofData", "(Ljava/lang/String;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("dumpHprofData", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -440,6 +452,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("dumpService", "(Ljava/lang/String;Ljava/io/FileDescriptor;[Ljava/lang/String;)Z", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("dumpService", "(Ljava/lang/String;Ljava/io/FileDescriptor;[Ljava/lang/String;)Z", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -490,10 +506,16 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.Threading.Tasks.Task&lt;System.Boolean&gt;</ReturnType>
         <Attributes>
-          <Attribute FrameworkAlternate="net-android-34.0">
+          <Attribute>
             <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
           </Attribute>
@@ -575,6 +597,236 @@
         <since version="Added in API level 1" />
       </Docs>
     </Member>
+    <Member MemberName="GetInstanceCount">
+      <MemberSignature Language="C#" Value="public static long GetInstanceCount (Java.Lang.Class cls);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 GetInstanceCount(class Java.Lang.Class cls) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.Debug.GetInstanceCount(Java.Lang.Class)" />
+      <MemberSignature Language="F#" Value="static member GetInstanceCount : Java.Lang.Class -&gt; int64" Usage="Android.OS.Debug.GetInstanceCount cls" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstanceCount", "(Ljava/lang/Class;)J", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstanceCount", "(Ljava/lang/Class;)J", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cls" Type="Java.Lang.Class" />
+      </Parameters>
+      <Docs>
+        <param name="cls">
+          <c>Class</c> the class to count instances of.</param>
+        <summary>Counts the number of instances of the specified class.</summary>
+        <returns>the number of matching instances.</returns>
+        <remarks>
+          <para>Counts the number of instances of the specified class.</para>
+          <para>&lt;b&gt;Warning:&lt;/b&gt; This operation can be expensive, as it may involve traversing portions
+            of the Java heap. It is primarily intended for debugging purposes and should not be used in
+            performance-critical code.</para>
+          <para>It's intended to help developers identify object leaks or to validate
+            the number of instances of a specific class during development.</para>
+          <para>It is the caller's responsibility to do GC if they don't want unreachable
+            objects to get counted.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/Debug#getInstanceCount(java.lang.Class)" title="Reference documentation">Java documentation for <code>android.os.Debug.getInstanceCount(java.lang.Class)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetInstanceCount">
+      <MemberSignature Language="C#" Value="public static long GetInstanceCount (Java.Lang.Class cls, bool includeAssignable);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64 GetInstanceCount(class Java.Lang.Class cls, bool includeAssignable) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.Debug.GetInstanceCount(Java.Lang.Class,System.Boolean)" />
+      <MemberSignature Language="F#" Value="static member GetInstanceCount : Java.Lang.Class * bool -&gt; int64" Usage="Android.OS.Debug.GetInstanceCount (cls, includeAssignable)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstanceCount", "(Ljava/lang/Class;Z)J", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstanceCount", "(Ljava/lang/Class;Z)J", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="cls" Type="Java.Lang.Class" />
+        <Parameter Name="includeAssignable" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="cls">
+          <c>Class</c> the class to count instances of.</param>
+        <param name="includeAssignable">if true, any instance whose class is assignable to
+                              <c>cls</c>, as defined by <c>Class#isAssignableFrom</c>,
+                              is counted. If false, only instances whose class is
+                              equal to <c>cls</c> are counted.</param>
+        <summary>Counts the number of instances of the specified class.</summary>
+        <returns>the number of matching instances.</returns>
+        <remarks>
+          <para>Counts the number of instances of the specified class.</para>
+          <para>&lt;b&gt;Warning:&lt;/b&gt; This operation can be expensive, as it may involve traversing portions
+            of the Java heap. It is primarily intended for debugging purposes and should not be used in
+            performance-critical code.</para>
+          <para>It's intended to help developers identify object leaks or to validate
+            the number of instances of a specific class during development.</para>
+          <para>It is the caller's responsibility to do GC if they don't want unreachable
+            objects to get counted.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/Debug#getInstanceCount(java.lang.Class,%20boolean)" title="Reference documentation">Java documentation for <code>android.os.Debug.getInstanceCount(java.lang.Class, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetInstanceCounts">
+      <MemberSignature Language="C#" Value="public static long[] GetInstanceCounts (System.Collections.Generic.IList&lt;Java.Lang.Class&gt; classes);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64[] GetInstanceCounts(class System.Collections.Generic.IList`1&lt;class Java.Lang.Class&gt; classes) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.Debug.GetInstanceCounts(System.Collections.Generic.IList{Java.Lang.Class})" />
+      <MemberSignature Language="F#" Value="static member GetInstanceCounts : System.Collections.Generic.IList&lt;Java.Lang.Class&gt; -&gt; int64[]" Usage="Android.OS.Debug.GetInstanceCounts classes" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstanceCounts", "(Ljava/util/List;)[J", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstanceCounts", "(Ljava/util/List;)[J", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="classes" Type="System.Collections.Generic.IList&lt;Java.Lang.Class&gt;" />
+      </Parameters>
+      <Docs>
+        <param name="classes">An array of <c>Class</c> objects representing the classes to count instances
+                           of. Must not be null.</param>
+        <summary>Counts the number of instances of the specified classes.</summary>
+        <returns>An array of <c>long</c> values, where each element corresponds to the number of
+                    instances of the class at the same index in the <c>classes</c> list.
+                    The returned array will have the same length as the input <c>classes</c> array.
+                    If the system is under memory pressure and unable to allocate the return array a
+                    empty array will be returned.</returns>
+        <remarks>
+          <para>Counts the number of instances of the specified classes.</para>
+          <para>&lt;b&gt;Warning:&lt;/b&gt; This operation can be expensive, as it may involve traversing portions
+            of the Java heap. It is primarily intended for debugging purposes and should not be used in
+            performance-critical code.</para>
+          <para>It's intended to help developers identify object leaks or to validate
+            the number of instances of a specific class during development.</para>
+          <para>It is the caller's responsibility to do GC if they don't want unreachable
+            objects to get counted.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/Debug#getInstanceCounts(java.util.List%3Cjava.lang.Class%3E)" title="Reference documentation">Java documentation for <code>android.os.Debug.getInstanceCounts(java.util.List&lt;java.lang.Class&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetInstanceCounts">
+      <MemberSignature Language="C#" Value="public static long[] GetInstanceCounts (System.Collections.Generic.IList&lt;Java.Lang.Class&gt; classes, bool includeAssignable);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig int64[] GetInstanceCounts(class System.Collections.Generic.IList`1&lt;class Java.Lang.Class&gt; classes, bool includeAssignable) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.OS.Debug.GetInstanceCounts(System.Collections.Generic.IList{Java.Lang.Class},System.Boolean)" />
+      <MemberSignature Language="F#" Value="static member GetInstanceCounts : System.Collections.Generic.IList&lt;Java.Lang.Class&gt; * bool -&gt; int64[]" Usage="Android.OS.Debug.GetInstanceCounts (classes, includeAssignable)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getInstanceCounts", "(Ljava/util/List;Z)[J", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getInstanceCounts", "(Ljava/util/List;Z)[J", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int64[]</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="classes" Type="System.Collections.Generic.IList&lt;Java.Lang.Class&gt;" />
+        <Parameter Name="includeAssignable" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="classes">An array of <c>Class</c> objects representing the classes to count instances
+                           of. Must not be null.</param>
+        <param name="includeAssignable">if true, any instance whose class is assignable to
+                              <c>cls</c>, as defined by <c>Class#isAssignableFrom</c>,
+                              is counted. If false, only instances whose class is
+                              equal to <c>cls</c> are counted.</param>
+        <summary>Counts the number of instances of the specified classes.</summary>
+        <returns>An array of <c>long</c> values, where each element corresponds to the number of
+                    instances of the class at the same index in the <c>classes</c> list.
+                    The returned array will have the same length as the input <c>classes</c> array.
+                    If the system is under memory pressure and unable to allocate the return array a
+                    empty array will be returned.</returns>
+        <remarks>
+          <para>Counts the number of instances of the specified classes.</para>
+          <para>&lt;b&gt;Warning:&lt;/b&gt; This operation can be expensive, as it may involve traversing portions
+            of the Java heap. It is primarily intended for debugging purposes and should not be used in
+            performance-critical code.</para>
+          <para>It's intended to help developers identify object leaks or to validate
+            the number of instances of a specific class during development.</para>
+          <para>It is the caller's responsibility to do GC if they don't want unreachable
+            objects to get counted.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/os/Debug#getInstanceCounts(java.util.List%3Cjava.lang.Class%3E,%20boolean)" title="Reference documentation">Java documentation for <code>android.os.Debug.getInstanceCounts(java.util.List&lt;java.lang.Class&gt;, boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetMemoryInfo">
       <MemberSignature Language="C#" Value="public static void GetMemoryInfo (Android.OS.Debug.MemoryInfo? memoryInfo);" />
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig void GetMemoryInfo(class Android.OS.Debug/MemoryInfo memoryInfo) cil managed" />
@@ -589,6 +841,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("getMemoryInfo", "(Landroid/os/Debug$MemoryInfo;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("getMemoryInfo", "(Landroid/os/Debug$MemoryInfo;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -625,6 +881,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("getRuntimeStat", "(Ljava/lang/String;)Ljava/lang/String;", "", ApiSince=23)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("getRuntimeStat", "(Ljava/lang/String;)Ljava/lang/String;", "", ApiSince=23)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
@@ -1285,10 +1545,6 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
-        </Attribute>
-        <Attribute>
-          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
-          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2295,11 +2551,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getRss", "()J", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRss", "()J", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -2707,6 +2963,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("startMethodTracing", "(Ljava/lang/String;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startMethodTracing", "(Ljava/lang/String;)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -2763,6 +3023,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("startMethodTracing", "(Ljava/lang/String;I)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startMethodTracing", "(Ljava/lang/String;I)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2825,6 +3089,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("startMethodTracing", "(Ljava/lang/String;II)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startMethodTracing", "(Ljava/lang/String;II)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2897,6 +3165,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("startMethodTracingSampling", "(Ljava/lang/String;II)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startMethodTracingSampling", "(Ljava/lang/String;II)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -3435,10 +3707,6 @@
         <Attribute>
           <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
-        </Attribute>
-        <Attribute>
-          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
-          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

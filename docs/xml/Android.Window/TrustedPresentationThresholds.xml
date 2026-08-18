@@ -1,5 +1,5 @@
 <Type Name="TrustedPresentationThresholds" FullName="Android.Window.TrustedPresentationThresholds">
-  <TypeSignature Language="C#" Value="public sealed class TrustedPresentationThresholds : Java.Lang.Object, Android.OS.IParcelable, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public sealed class TrustedPresentationThresholds : Java.Lang.Object, Android.OS.IParcelable, IDisposable" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit TrustedPresentationThresholds extends Java.Lang.Object implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Window.TrustedPresentationThresholds" />
   <TypeSignature Language="F#" Value="type TrustedPresentationThresholds = class&#xA;    inherit Object&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
@@ -32,6 +32,10 @@
     <Attribute>
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
@@ -85,14 +89,14 @@
         <Parameter Name="stabilityRequirementMs" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="minAlpha">The min alpha the Window is required to
-                                          have to be considered inside the
-                                          threshold.</param>
-        <param name="minFractionRendered">The min fraction of the Window that was presented
-                                          to the user to be considered
-                                          inside the threshold.</param>
-        <param name="stabilityRequirementMs">The time in milliseconds required for the
-                                          Window to be in the threshold.</param>
+        <param name="minAlpha">The minimum alpha the Window must have to be considered inside the
+            threshold. Must be greater than 0.0 and no greater than 1.0.</param>
+        <param name="minFractionRendered">The minimum fraction of the Window presented to the
+            user to be considered inside the threshold. Must be greater than 0.0 and no greater
+            than 1.0.</param>
+        <param name="stabilityRequirementMs">The time in milliseconds required for the Window to
+            be in the threshold. Must be at least 1 millisecond; zero or negative values cause
+            this constructor to throw <c>IllegalArgumentException</c>.</param>
         <summary>Creates a new TrustedPresentationThresholds.</summary>
         <remarks>
           <para>Creates a new TrustedPresentationThresholds.</para>
@@ -166,8 +170,30 @@
       </ReturnValue>
       <Parameters />
       <Docs>
+        <summary>Describes the special objects in this threshold object's marshaled representation.</summary>
+        <returns>A bitmask of special object types in the marshaled representation.</returns>
+        <remarks>The bitmask indicates whether the parcel representation contains special objects such as file descriptors.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Window.TrustedPresentationThresholds.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="trustedPresentationThresholds.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
         <summary>To be added.</summary>
-        <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
@@ -229,7 +255,7 @@
       <Docs>
         <summary>The min alpha the Window is required to have to be considered inside the
             threshold.</summary>
-        <value>To be added.</value>
+        <value>A value greater than 0.0 and no greater than 1.0.</value>
         <remarks>
           <para>The min alpha the Window is required to have to be considered inside the
             threshold.</para>
@@ -272,7 +298,7 @@
       <Docs>
         <summary>The min fraction of the Window that was presented to the user to be considered
             inside the threshold.</summary>
-        <value>To be added.</value>
+        <value>A value greater than 0.0 and no greater than 1.0.</value>
         <remarks>
           <para>The min fraction of the Window that was presented to the user to be considered
             inside the threshold.</para>
@@ -314,7 +340,7 @@
       </ReturnValue>
       <Docs>
         <summary>The time in milliseconds required for the Window to be in the threshold.</summary>
-        <value>To be added.</value>
+        <value>A value of at least 1 millisecond.</value>
         <remarks>
           <para>The time in milliseconds required for the Window to be in the threshold.</para>
           <para>
@@ -426,10 +452,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives the threshold values.</param>
+        <param name="flags">Additional flags describing how the threshold values are written.</param>
+        <summary>Flattens these threshold values into a parcel.</summary>
+        <remarks>The parcel representation can be used to transfer threshold values across process boundaries.</remarks>
       </Docs>
     </Member>
   </Members>

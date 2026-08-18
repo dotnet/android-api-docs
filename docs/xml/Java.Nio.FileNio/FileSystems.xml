@@ -21,6 +21,10 @@
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android26.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android26.0")&gt;]</AttributeName>
     </Attribute>
@@ -37,15 +41,14 @@
             that provides access to the file systems accessible to the Java virtual
             machine. If the process of loading or initializing the default provider fails
             then an unspecified error is thrown.</para>
-      <para>The first invocation of the <c>FileSystemProvider#installedProviders
+      <para>The first invocation of the <c>FileSystemProvider#installedProviders()
             installedProviders</c> method, by way of invoking any of the <c>newFileSystem</c> methods defined by this class, locates and loads all
             installed file system providers. Installed providers are loaded using the
             service-provider loading facility defined by the <c>ServiceLoader</c> class.
             Installed providers are loaded using the system class loader. If the
-            system class loader cannot be found then the extension class loader is used;
-            if there is no extension class loader then the bootstrap class loader is used.
+            system class loader cannot be found then the platform class loader is used.
             Providers are typically installed by placing them in a JAR file on the
-            application class path or in the extension directory, the JAR file contains a
+            application class path, the JAR file contains a
             provider-configuration file named <c>java.nio.file.spi.FileSystemProvider</c>
             in the resource directory <c>META-INF/services</c>, and the file lists one or
             more fully-qualified names of concrete subclass of <c>FileSystemProvider</c>
@@ -236,6 +239,10 @@
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
@@ -245,6 +252,62 @@
         <value>To be added.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NewFileSystem">
+      <MemberSignature Language="C#" Value="public static Java.Nio.FileNio.FileSystem? NewFileSystem (Java.Nio.FileNio.IPath? path);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Nio.FileNio.FileSystem NewFileSystem(class Java.Nio.FileNio.IPath path) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.FileNio.FileSystems.NewFileSystem(Java.Nio.FileNio.IPath)" />
+      <MemberSignature Language="F#" Value="static member NewFileSystem : Java.Nio.FileNio.IPath -&gt; Java.Nio.FileNio.FileSystem" Usage="Java.Nio.FileNio.FileSystems.NewFileSystem path" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("newFileSystem", "(Ljava/nio/file/Path;)Ljava/nio/file/FileSystem;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("newFileSystem", "(Ljava/nio/file/Path;)Ljava/nio/file/FileSystem;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.FileNio.FileSystem</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="path" Type="Java.Nio.FileNio.IPath" />
+      </Parameters>
+      <Docs>
+        <param name="path">the path to the file</param>
+        <summary>Constructs a new <c>FileSystem</c> to access the contents of a file as a
+            file system.</summary>
+        <returns>a new file system</returns>
+        <remarks>
+          <para>Constructs a new <c>FileSystem</c> to access the contents of a file as a
+            file system.</para>
+          <para>This method makes use of specialized providers that create pseudo file
+            systems where the contents of one or more files is treated as a file
+            system.</para>
+          <para>This method first attempts to locate an installed provider in exactly
+            the same manner as the <c>#newFileSystem(Path,Map,ClassLoader)
+            newFileSystem(Path, Map, ClassLoader)</c> method. If found, the provider's
+            <c>FileSystemProvider#newFileSystem(Path, Map) newFileSystem(Path, Map)</c>
+            method is invoked with an empty map to construct the new file system.</para>
+          <para>Added in 13.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/file/FileSystems#newFileSystem(java.nio.file.Path)" title="Reference documentation">Java documentation for <code>java.nio.file.FileSystems.newFileSystem(java.nio.file.Path)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -302,10 +365,8 @@
           <para>&lt;b&gt;Usage Example:&lt;/b&gt;
             Suppose there is a provider identified by the scheme <c>"memory"</c>
             installed:</para>
-          <code lang="text/java">Map&amp;lt;String,String&amp;gt; env = new HashMap&amp;lt;&amp;gt;();
-              env.put("capacity", "16G");
-              env.put("blockSize", "4k");
-              FileSystem fs = FileSystems.newFileSystem(URI.create("memory:///?name=logfs"), env);
+          <code lang="text/java">FileSystem fs = FileSystems.newFileSystem(URI.create("memory:///?name=logfs"),
+                                                       Map.of("capacity", "16G", "blockSize", "4k"));
             </code>
           <para>
             <format type="text/html">
@@ -360,16 +421,82 @@
           <para>This method makes use of specialized providers that create pseudo file
             systems where the contents of one or more files is treated as a file
             system.</para>
-          <para>This method iterates over the <c>FileSystemProvider#installedProviders()
-            installed</c> providers. It invokes, in turn, each provider's <c>FileSystemProvider#newFileSystem(Path,Map) newFileSystem(Path,Map)</c> method
-            with an empty map. If a provider returns a file system then the iteration
-            terminates and the file system is returned. If none of the installed
-            providers return a <c>FileSystem</c> then an attempt is made to locate
-            the provider using the given class loader. If a provider returns a file
-            system then the lookup terminates and the file system is returned.</para>
+          <para>This method first attempts to locate an installed provider in exactly
+            the same manner as the <c>#newFileSystem(Path, Map, ClassLoader)
+            newFileSystem(Path, Map, ClassLoader)</c> method with an empty map. If none
+            of the installed providers return a <c>FileSystem</c> then an attempt is
+            made to locate the provider using the given class loader. If a provider
+            returns a file system then the lookup terminates and the file system is
+            returned.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/file/FileSystems#newFileSystem(java.nio.file.Path,%20java.lang.ClassLoader)" title="Reference documentation">Java documentation for <code>java.nio.file.FileSystems.newFileSystem(java.nio.file.Path, java.lang.ClassLoader)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="NewFileSystem">
+      <MemberSignature Language="C#" Value="public static Java.Nio.FileNio.FileSystem? NewFileSystem (Java.Nio.FileNio.IPath? path, System.Collections.Generic.IDictionary&lt;string,object&gt;? env);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Nio.FileNio.FileSystem NewFileSystem(class Java.Nio.FileNio.IPath path, class System.Collections.Generic.IDictionary`2&lt;string, object&gt; env) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.FileNio.FileSystems.NewFileSystem(Java.Nio.FileNio.IPath,System.Collections.Generic.IDictionary{System.String,System.Object})" />
+      <MemberSignature Language="F#" Value="static member NewFileSystem : Java.Nio.FileNio.IPath * System.Collections.Generic.IDictionary&lt;string, obj&gt; -&gt; Java.Nio.FileNio.FileSystem" Usage="Java.Nio.FileNio.FileSystems.NewFileSystem (path, env)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("newFileSystem", "(Ljava/nio/file/Path;Ljava/util/Map;)Ljava/nio/file/FileSystem;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("newFileSystem", "(Ljava/nio/file/Path;Ljava/util/Map;)Ljava/nio/file/FileSystem;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.FileNio.FileSystem</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="path" Type="Java.Nio.FileNio.IPath" />
+        <Parameter Name="env" Type="System.Collections.Generic.IDictionary&lt;System.String,System.Object&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="path">the path to the file</param>
+        <param name="env">a map of provider specific properties to configure the file system;
+                     may be empty</param>
+        <summary>Constructs a new <c>FileSystem</c> to access the contents of a file as a
+            file system.</summary>
+        <returns>a new file system</returns>
+        <remarks>
+          <para>Constructs a new <c>FileSystem</c> to access the contents of a file as a
+            file system.</para>
+          <para>This method makes use of specialized providers that create pseudo file
+            systems where the contents of one or more files is treated as a file
+            system.</para>
+          <para>This method first attempts to locate an installed provider in exactly
+            the same manner as the <c>#newFileSystem(Path,Map,ClassLoader)
+            newFileSystem(Path, Map, ClassLoader)</c> method. If found, the provider's
+            <c>FileSystemProvider#newFileSystem(Path, Map) newFileSystem(Path, Map)</c>
+            method is invoked to construct the new file system.</para>
+          <para>Added in 13.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/file/FileSystems#newFileSystem(java.nio.file.Path,%20java.util.Map%3Cjava.lang.String,%20?%3E)" title="Reference documentation">Java documentation for <code>java.nio.file.FileSystems.newFileSystem(java.nio.file.Path, java.util.Map&lt;java.lang.String, ?&gt;)</code>.</a>
             </format>
           </para>
           <para>
@@ -444,6 +571,78 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="NewFileSystem">
+      <MemberSignature Language="C#" Value="public static Java.Nio.FileNio.FileSystem? NewFileSystem (Java.Nio.FileNio.IPath? path, System.Collections.Generic.IDictionary&lt;string,object&gt;? env, Java.Lang.ClassLoader? loader);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig class Java.Nio.FileNio.FileSystem NewFileSystem(class Java.Nio.FileNio.IPath path, class System.Collections.Generic.IDictionary`2&lt;string, object&gt; env, class Java.Lang.ClassLoader loader) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Java.Nio.FileNio.FileSystems.NewFileSystem(Java.Nio.FileNio.IPath,System.Collections.Generic.IDictionary{System.String,System.Object},Java.Lang.ClassLoader)" />
+      <MemberSignature Language="F#" Value="static member NewFileSystem : Java.Nio.FileNio.IPath * System.Collections.Generic.IDictionary&lt;string, obj&gt; * Java.Lang.ClassLoader -&gt; Java.Nio.FileNio.FileSystem" Usage="Java.Nio.FileNio.FileSystems.NewFileSystem (path, env, loader)" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("newFileSystem", "(Ljava/nio/file/Path;Ljava/util/Map;Ljava/lang/ClassLoader;)Ljava/nio/file/FileSystem;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("newFileSystem", "(Ljava/nio/file/Path;Ljava/util/Map;Ljava/lang/ClassLoader;)Ljava/nio/file/FileSystem;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Nio.FileNio.FileSystem</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="path" Type="Java.Nio.FileNio.IPath" />
+        <Parameter Name="env" Type="System.Collections.Generic.IDictionary&lt;System.String,System.Object&gt;">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })]</AttributeName>
+              <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1, 1 })&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+        <Parameter Name="loader" Type="Java.Lang.ClassLoader" />
+      </Parameters>
+      <Docs>
+        <param name="path">the path to the file</param>
+        <param name="env">a map of provider specific properties to configure the file system;
+                     may be empty</param>
+        <param name="loader">the class loader to locate the provider or <c>null</c> to only
+                     attempt to locate an installed provider</param>
+        <summary>Constructs a new <c>FileSystem</c> to access the contents of a file as a
+            file system.</summary>
+        <returns>a new file system</returns>
+        <remarks>
+          <para>Constructs a new <c>FileSystem</c> to access the contents of a file as a
+            file system.</para>
+          <para>This method makes use of specialized providers that create pseudo file
+            systems where the contents of one or more files is treated as a file
+            system.</para>
+          <para>This method iterates over the <c>FileSystemProvider#installedProviders()
+            installed</c> providers. It invokes, in turn, each provider's <c>FileSystemProvider#newFileSystem(Path,Map) newFileSystem(Path,Map)</c>
+            method. If a provider returns a file system then the iteration
+            terminates and the file system is returned.
+            If none of the installed providers return a <c>FileSystem</c> then
+            an attempt is made to locate the provider using the given class loader.
+            If a provider returns a file
+            system, then the lookup terminates and the file system is returned.</para>
+          <para>Added in 13.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/nio/file/FileSystems#newFileSystem(java.nio.file.Path,%20java.util.Map%3Cjava.lang.String,%20?%3E,%20java.lang.ClassLoader)" title="Reference documentation">Java documentation for <code>java.nio.file.FileSystems.newFileSystem(java.nio.file.Path, java.util.Map&lt;java.lang.String, ?&gt;, java.lang.ClassLoader)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="ThresholdClass">
       <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
@@ -497,6 +696,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

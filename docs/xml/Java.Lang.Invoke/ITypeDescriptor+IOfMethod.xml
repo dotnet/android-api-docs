@@ -30,6 +30,10 @@
       <AttributeName Language="C#">[Java.Interop.JavaTypeParameters(new System.String[] { "F extends java.lang.invoke.TypeDescriptor.OfField&lt;F&gt;", "M extends java.lang.invoke.TypeDescriptor.OfMethod&lt;F, M&gt;" })]</AttributeName>
       <AttributeName Language="F#">[&lt;Java.Interop.JavaTypeParameters(new System.String[] { "F extends java.lang.invoke.TypeDescriptor.OfField&lt;F&gt;", "M extends java.lang.invoke.TypeDescriptor.OfMethod&lt;F, M&gt;" })&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs>
     <param name="&lt;F&gt;&lt;F&gt;">the type representing field type descriptors</param>
@@ -81,11 +85,22 @@
         <Parameter Name="paramType" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="paramType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="index">The zero-based index of the parameter to change.</param>
+        <param name="paramType">The field descriptor for the replacement parameter type.</param>
+        <summary>Creates a method descriptor with one parameter type replaced.</summary>
+        <returns>A method descriptor that differs only at the specified parameter index.</returns>
+        <remarks>
+          <para>The returned descriptor is identical to this descriptor except that the parameter at <paramref name="index" /> uses <paramref name="paramType" />.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/invoke/TypeDescriptor.OfMethod#changeParameterType(int,%20F)" title="Reference documentation">Java documentation for <code>java.lang.invoke.TypeDescriptor.OfMethod.changeParameterType(int, F)</code>.</a>
+            </format>
+          </para>
+          <para>Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ChangeReturnType">
@@ -115,10 +130,21 @@
         <Parameter Name="newReturn" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="newReturn">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="newReturn">The field descriptor for the replacement return type.</param>
+        <summary>Creates a method descriptor with a different return type.</summary>
+        <returns>A method descriptor that differs only in its return type.</returns>
+        <remarks>
+          <para>The returned descriptor has the same parameter types as this descriptor and uses <paramref name="newReturn" /> as its return type.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/invoke/TypeDescriptor.OfMethod#changeReturnType(F)" title="Reference documentation">Java documentation for <code>java.lang.invoke.TypeDescriptor.OfMethod.changeReturnType(F)</code>.</a>
+            </format>
+          </para>
+          <para>Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DropParameterTypes">
@@ -149,11 +175,22 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="start">The zero-based index of the first parameter to remove.</param>
+        <param name="end">The index immediately after the last parameter to remove.</param>
+        <summary>Creates a method descriptor with a range of parameter types removed.</summary>
+        <returns>A method descriptor without the parameter types in the specified range.</returns>
+        <remarks>
+          <para>The removed range starts at <paramref name="start" /> and excludes <paramref name="end" />.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/invoke/TypeDescriptor.OfMethod#dropParameterTypes(int,%20int)" title="Reference documentation">Java documentation for <code>java.lang.invoke.TypeDescriptor.OfMethod.dropParameterTypes(int, int)</code>.</a>
+            </format>
+          </para>
+          <para>Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="InsertParameterTypes">
@@ -195,11 +232,22 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="pos">To be added.</param>
-        <param name="paramTypes">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="pos">The zero-based position at which the first parameter type is inserted.</param>
+        <param name="paramTypes">Field descriptors for the parameter types to insert.</param>
+        <summary>Creates a method descriptor with additional parameter types.</summary>
+        <returns>A method descriptor with the supplied parameter types inserted at the specified position.</returns>
+        <remarks>
+          <para>Insertion starts at <paramref name="pos" />. When <paramref name="pos" /> equals <c>ParameterCount()</c>, the supplied field descriptors are appended because no parameter exists at that position.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/invoke/TypeDescriptor.OfMethod#insertParameterTypes(int,%20F%5B%5D)" title="Reference documentation">Java documentation for <code>java.lang.invoke.TypeDescriptor.OfMethod.insertParameterTypes(int, F[])</code>.</a>
+            </format>
+          </para>
+          <para>Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ParameterArray">
@@ -225,7 +273,7 @@
       <ReturnValue>
         <ReturnType>Java.Lang.Object[]</ReturnType>
         <Attributes>
-          <Attribute FrameworkAlternate="net-android-34.0">
+          <Attribute>
             <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })]</AttributeName>
             <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(new System.Byte[] { 2, 1 })&gt;]</AttributeName>
           </Attribute>
@@ -233,9 +281,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the field descriptors for this descriptor's parameter types.</summary>
+        <returns>An array of field descriptors for the parameter types.</returns>
+        <remarks>
+          <para>The returned array describes the parameter types in declaration order.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/invoke/TypeDescriptor.OfMethod#parameterArray()" title="Reference documentation">Java documentation for <code>java.lang.invoke.TypeDescriptor.OfMethod.parameterArray()</code>.</a>
+            </format>
+          </para>
+          <para>Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ParameterCount">
@@ -351,10 +410,21 @@
         <Parameter Name="i" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="i">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="i">The zero-based index of the parameter.</param>
+        <summary>Returns the field descriptor for a parameter type.</summary>
+        <returns>The field descriptor for the parameter at the specified index.</returns>
+        <remarks>
+          <para>The returned descriptor describes the parameter at <paramref name="i" />.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/invoke/TypeDescriptor.OfMethod#parameterType(int)" title="Reference documentation">Java documentation for <code>java.lang.invoke.TypeDescriptor.OfMethod.parameterType(int)</code>.</a>
+            </format>
+          </para>
+          <para>Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReturnType">
@@ -382,9 +452,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the field descriptor for this descriptor's return type.</summary>
+        <returns>The field descriptor describing the return type.</returns>
+        <remarks>
+          <para>The returned descriptor represents this method descriptor's return type.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/invoke/TypeDescriptor.OfMethod#returnType()" title="Reference documentation">Java documentation for <code>java.lang.invoke.TypeDescriptor.OfMethod.returnType()</code>.</a>
+            </format>
+          </para>
+          <para>Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
