@@ -3031,13 +3031,26 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="message">To be added.</param>
-        <param name="activity">To be added.</param>
-        <param name="activities">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="message">The static NDEF message to push over NFC, or <see langword="null" /> to clear the static message provider.</param>
+        <param name="activity">The non-null activity for which the NDEF message will be pushed.</param>
+        <param name="activities">A non-null array of additional non-null activities. Pass an empty array if there are no additional activities. Register one activity at a time from that activity's <c>OnCreate</c> method.</param>
+        <summary>Sets a static NDEF message to send using Android Beam.</summary>
         <remarks>
+          <para>Android Beam was deprecated in API level 29. On devices that support Android Beam, it remains functional through API level 33. Starting in API level 34, Android Beam is removed and calls to this method have no effect.</para>
+          <para>The message is made available for NDEF push only while a specified activity is resumed. Call this method before <c>Activity.OnDestroy</c>, preferably from <c>Activity.OnCreate</c>. It does not perform I/O or blocking work and is safe to call from the main thread.</para>
+          <para>Only one NDEF message can be pushed by the resumed activity. If a message callback is also set with <c>SetNdefPushMessageCallback</c>, the callback takes priority. Passing <see langword="null" /> clears the static message provider; a registered callback continues to supply the NDEF message.</para>
+          <para>Use <c>SetNdefPushMessageCallback</c> when the message must be generated dynamically. Do not pass an activity that has already reached <c>Activity.OnDestroy</c>.</para>
+          <para>Requires the <c>android.Manifest.permission#NFC</c> permission.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://android.googlesource.com/platform/frameworks/base/+/android-9.0.0_r1/core/java/android/nfc/NfcAdapter.java#1083" title="Android Open Source Project source">Android Open Source Project source documentation for <code>android.nfc.NfcAdapter.setNdefPushMessage</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The device does not support NFC.</exception>
+        <exception cref="T:Java.Lang.IllegalStateException">The specified activity has already been destroyed.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">On Android versions where Android Beam is functional, <paramref name="activity" />, <paramref name="activities" />, or an element of <paramref name="activities" /> is <see langword="null" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetNdefPushMessageCallback">
@@ -3080,13 +3093,26 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
-        <param name="activity">To be added.</param>
-        <param name="activities">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="callback">The callback that creates the NDEF message, or <see langword="null" /> to clear the callback provider.</param>
+        <param name="activity">The non-null activity for which the NDEF message will be pushed.</param>
+        <param name="activities">A non-null array of additional non-null activities. Pass an empty array if there are no additional activities. Register one activity at a time from that activity's <c>OnCreate</c> method.</param>
+        <summary>Sets a callback that dynamically generates NDEF messages to send using Android Beam.</summary>
         <remarks>
+          <para>Android Beam was deprecated in API level 29. On devices that support Android Beam, it remains functional through API level 33. Starting in API level 34, Android Beam is removed and calls to this method have no effect.</para>
+          <para>The callback can run only while a specified activity is resumed. Call this method before <c>Activity.OnDestroy</c>, preferably from <c>Activity.OnCreate</c>. It does not perform I/O or blocking work and is safe to call from the main thread.</para>
+          <para>Only one NDEF message can be pushed by the resumed activity. If a static message is also set with <c>SetNdefPushMessage</c>, this callback takes priority. Passing <see langword="null" /> clears the callback provider; a registered static message continues to be used.</para>
+          <para>Use <c>SetNdefPushMessage</c> when the message does not need to change. Do not pass an activity that has already reached <c>Activity.OnDestroy</c>.</para>
+          <para>Requires the <c>android.Manifest.permission#NFC</c> permission.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://android.googlesource.com/platform/frameworks/base/+/android-9.0.0_r1/core/java/android/nfc/NfcAdapter.java#1196" title="Android Open Source Project source">Android Open Source Project source documentation for <code>android.nfc.NfcAdapter.setNdefPushMessageCallback</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The device does not support NFC.</exception>
+        <exception cref="T:Java.Lang.IllegalStateException">The specified activity has already been destroyed.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">On Android versions where Android Beam is functional, <paramref name="activity" />, <paramref name="activities" />, or an element of <paramref name="activities" /> is <see langword="null" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetObserveModeEnabled">
