@@ -60,10 +60,16 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Creates a builder for a synchronization request.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#Builder()" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.Builder()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -81,9 +87,9 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="javaReference">The JNI reference for the Java instance.</param>
+        <param name="transfer">The ownership transfer mode for the JNI reference.</param>
+        <summary>Initializes a managed wrapper around an existing Java instance.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -162,8 +168,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>SyncRequest.Builder</c>.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -192,12 +198,18 @@
         <Parameter Name="disallow" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disallow">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="disallow">true to disallow this transfer on metered networks. Default false.</param>
+        <summary>Sets whether this transfer is disallowed on metered networks. Throws an IllegalArgumentException if <paramref name="disallow" /> is true after SetIgnoreSettings(true) has been called.</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setDisallowMetered(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setDisallowMetered(boolean)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetExpedited">
@@ -223,12 +235,18 @@
         <Parameter Name="expedited" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="expedited">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="expedited">whether to run expedited. Default false.</param>
+        <summary>An expedited sync runs immediately and can preempt other non-expedited running syncs. Not valid for periodic sync and will throw an IllegalArgumentException in build() .</summary>
+        <returns>An expedited sync runs immediately and can preempt other non-expedited running syncs. Not valid for periodic sync and will throw an IllegalArgumentException in build() .</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setExpedited(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setExpedited(boolean)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetExtras">
@@ -254,12 +272,18 @@
         <Parameter Name="bundle" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="bundle">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="bundle">extras bundle to set.</param>
+        <summary>Developer-provided extras handed back when sync actually occurs. This bundle is copied into the SyncRequest returned by build() . Example: String[] syncItems = {"dog", "cat", "frog", "child"}; SyncRequest.Builder builder = new SyncRequest.Builder() .setSyncAdapter(dummyAccount, dummyProvider) .syncOnce(); for (String syncData : syncItems) { Bundle extras = new Bundle(); extras.setString("data", syncData); builder.setExtras(extras); ContentResolver.sync(builder.build()); // Each sync() request creates a unique sync. } Only values of the following types may be used in the extras bundle: Integer Long Boolean Float Double String Account null If any data is present in the bundle not of this type, build() will throw a runtime exception.</summary>
+        <returns>Developer-provided extras handed back when sync actually occurs. This bundle is copied into the SyncRequest returned by build() . Example: String[] syncItems = {"dog", "cat", "frog", "child"}; SyncRequest.Builder builder = new SyncRequest.Builder() .setSyncAdapter(dummyAccount, dummyProvider) .syncOnce(); for (String syncData : syncItems) { Bundle extras = new Bundle(); extras.setString("data", syncData); builder.setExtras(extras); ContentResolver.sync(builder.build()); // Each sync() request creates a unique sync. } Only values of the following types may be used in the extras bundle: Integer Long Boolean Float Double String Account null If any data is present in the bundle not of this type, build() will throw a runtime exception.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setExtras(android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setExtras(android.os.Bundle)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetIgnoreBackoff">
@@ -285,12 +309,18 @@
         <Parameter Name="ignoreBackoff" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="ignoreBackoff">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ignoreBackoff">ignore back off settings. Default false.</param>
+        <summary>Convenience function for setting ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF . Ignoring back-off will force the sync scheduling process to ignore any back-off that was the result of a failed sync, as well as to invalidate any SyncResult.delayUntil value that may have been set by the adapter. Successive failures will not honor this flag. Not valid for periodic sync and will throw an IllegalArgumentException in build() .</summary>
+        <returns>Convenience function for setting ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF . Ignoring back-off will force the sync scheduling process to ignore any back-off that was the result of a failed sync, as well as to invalidate any SyncResult.delayUntil value that may have been set by the adapter. Successive failures will not honor this flag. Not valid for periodic sync and will throw an IllegalArgumentException in build() .</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setIgnoreBackoff(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setIgnoreBackoff(boolean)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetIgnoreSettings">
@@ -316,12 +346,18 @@
         <Parameter Name="ignoreSettings" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="ignoreSettings">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ignoreSettings">true to ignore the sync automatically settings. Default false.</param>
+        <summary>Convenience function for setting ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS . Not valid for periodic sync and will throw an IllegalArgumentException in build() . Throws IllegalArgumentException if called and setDisallowMetered(boolean) has been set.</summary>
+        <returns>Convenience function for setting ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS . Not valid for periodic sync and will throw an IllegalArgumentException in build() . Throws IllegalArgumentException if called and setDisallowMetered(boolean) has been set.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setIgnoreSettings(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setIgnoreSettings(boolean)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetManual">
@@ -347,12 +383,18 @@
         <Parameter Name="isManual" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isManual">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="isManual">User-initiated sync or not. Default false.</param>
+        <summary>Convenience function for setting ContentResolver.SYNC_EXTRAS_MANUAL . Not valid for periodic sync and will throw an IllegalArgumentException in build() .</summary>
+        <returns>Convenience function for setting ContentResolver.SYNC_EXTRAS_MANUAL . Not valid for periodic sync and will throw an IllegalArgumentException in build() .</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setManual(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setManual(boolean)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetNoRetry">
@@ -378,12 +420,18 @@
         <Parameter Name="noRetry" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="noRetry">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="noRetry">true to not retry a failed sync. Default false.</param>
+        <summary>Convenience function for setting ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY . A one-off sync operation that fails will be retried with exponential back-off unless this is set to true. Not valid for periodic sync and will throw an IllegalArgumentException in build().</summary>
+        <returns>This builder.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setNoRetry(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setNoRetry(boolean)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRequiresCharging">
@@ -413,12 +461,18 @@
         <Parameter Name="requiresCharging" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="requiresCharging">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="requiresCharging">true if sync requires the phone to be plugged in. Default false.</param>
+        <summary>Specify whether the sync requires the phone to be plugged in.</summary>
+        <returns>Specify whether the sync requires the phone to be plugged in.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setRequiresCharging(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setRequiresCharging(boolean)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetScheduleAsExpeditedJob">
@@ -452,10 +506,22 @@
         <Parameter Name="scheduleAsExpeditedJob" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="scheduleAsExpeditedJob">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="scheduleAsExpeditedJob">Whether to schedule the sync as an expedited job.</param>
+        <summary>Convenience function for setting ContentResolver.SYNC_EXTRAS_SCHEDULE_AS_EXPEDITED_JOB . Not to be confused with ContentResolver.SYNC_EXTRAS_EXPEDITED . Not valid for periodic syncs, expedited syncs, and syncs that require charging - an IllegalArgumentException will be thrown in build() . Parameters scheduleAsExpeditedJob boolean : whether to schedule as an expedited job. Default false.</summary>
+        <returns>This value cannot be null .</returns>
+        <remarks>Convenience function for setting ContentResolver.SYNC_EXTRAS_SCHEDULE_AS_EXPEDITED_JOB . Not to be confused with ContentResolver.SYNC_EXTRAS_EXPEDITED . Not valid for periodic syncs, expedited syncs, and syncs that require charging - an IllegalArgumentException will be thrown in build() . Parameters scheduleAsExpeditedJob boolean : whether to schedule as an expedited job. Default false.
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setScheduleAsExpeditedJob(boolean)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setScheduleAsExpeditedJob(boolean)</code>.</a>
+                          </format>
+                        </para>
+            <para>
+                          Portions of this page are modifications based on work created and shared by the
+                          <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                          and used according to terms described in the
+                          <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSyncAdapter">
@@ -482,13 +548,19 @@
         <Parameter Name="authority" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="account">To be added.</param>
-        <param name="authority">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="account">Account to sync. Can be null unless this is a periodic sync, for which verification by the ContentResolver will fail. If a sync is performed without an account, the</param>
+        <param name="authority">A String identifying the content provider to be synced.</param>
+        <summary>Specify an authority and account for this transfer.</summary>
+        <returns>Specify an authority and account for this transfer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#setSyncAdapter(android.accounts.Account,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.setSyncAdapter(android.accounts.Account, java.lang.String)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SyncOnce">
@@ -512,11 +584,17 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Request that a sync occur immediately. Example SyncRequest.Builder builder = (new SyncRequest.Builder()).syncOnce();</summary>
+        <returns>Request that a sync occur immediately. Example SyncRequest.Builder builder = (new SyncRequest.Builder()).syncOnce();</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#syncOnce()" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.syncOnce()</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="SyncPeriodic">
@@ -543,13 +621,19 @@
         <Parameter Name="beforeSeconds" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="pollFrequency">To be added.</param>
-        <param name="beforeSeconds">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="pollFrequency">the amount of time in seconds that you wish to elapse between periodic syncs. A minimum period of 1 hour is enforced.</param>
+        <param name="beforeSeconds">the amount of flex time in seconds before pollFrequency that you permit for the sync to take place. Must be less than pollFrequency and greater than MAX(5% of pollFrequency , 5 minutes)</param>
+        <summary>Build a periodic sync. Either this or syncOnce() must be called for this builder. Syncs are identified by target android.provider and by the contents of the extras bundle. You cannot reuse the same builder for one-time syncs after having specified a periodic sync (by calling this function). If you do, an IllegalArgumentException will be thrown. The bundle for a periodic sync can be queried by applications with the correct permissions using ContentResolver.getPeriodicSyncs(Account,String) , so no sensitive data should be transferred here. Example usage. Request a periodic sync every 5 hours with 20 minutes of flex. SyncRequest.Builder builder = (new SyncRequest.Builder()).syncPeriodic(5 * HOUR_IN_SECS, 20 * MIN_IN_SECS); Schedule a periodic sync every hour at any point in time during that hour. SyncRequest.Builder builder = (new SyncRequest.Builder()).syncPeriodic(1 * HOUR_IN_SECS, 1 * HOUR_IN_SECS); N.B.: Periodic syncs are not allowed to have any of ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY , ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF , ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS , ContentResolver.SYNC_EXTRAS_INITIALIZE , ContentResolver.SYNC_EXTRAS_FORCE , ContentResolver.SYNC_EXTRAS_EXPEDITED , ContentResolver.SYNC_EXTRAS_MANUAL , ContentResolver.SYNC_EXTRAS_SCHEDULE_AS_EXPEDITED_JOB set to true. If any are supplied then an IllegalArgumentException will be thrown.</summary>
+        <returns>Build a periodic sync. Either this or syncOnce() must be called for this builder. Syncs are identified by target android.provider and by the contents of the extras bundle. You cannot reuse the same builder for one-time syncs after having specified a periodic sync (by calling this function). If you do, an IllegalArgumentException will be thrown. The bundle for a periodic sync can be queried by applications with the correct permissions using ContentResolver.getPeriodicSyncs(Account,String) , so no sensitive data should be transferred here. Example usage. Request a periodic sync every 5 hours with 20 minutes of flex. SyncRequest.Builder builder = (new SyncRequest.Builder()).syncPeriodic(5 * HOUR_IN_SECS, 20 * MIN_IN_SECS); Schedule a periodic sync every hour at any point in time during that hour. SyncRequest.Builder builder = (new SyncRequest.Builder()).syncPeriodic(1 * HOUR_IN_SECS, 1 * HOUR_IN_SECS); N.B.: Periodic syncs are not allowed to have any of ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY , ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF , ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS , ContentResolver.SYNC_EXTRAS_INITIALIZE , ContentResolver.SYNC_EXTRAS_FORCE , ContentResolver.SYNC_EXTRAS_EXPEDITED , ContentResolver.SYNC_EXTRAS_MANUAL , ContentResolver.SYNC_EXTRAS_SCHEDULE_AS_EXPEDITED_JOB set to true. If any are supplied then an IllegalArgumentException will be thrown.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+
+            <para>
+                          <format type="text/html">
+                            <a href="https://developer.android.com/reference/android/content/SyncRequest.Builder#syncPeriodic(long,%20long)" title="Reference documentation">Java documentation for <code>android.content.SyncRequest.Builder.syncPeriodic(long, long)</code>.</a>
+                          </format>
+                        </para>
+          </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -576,8 +660,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI class used as the dispatch threshold for this Java peer.</summary>
+        <value>The JNI class handle used for dispatch.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -615,8 +699,8 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI type used as the dispatch threshold for this Java peer.</summary>
+        <value>The JNI type used for dispatch.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

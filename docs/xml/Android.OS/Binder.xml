@@ -219,8 +219,8 @@
         <Parameter Name="descriptor" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="owner">To be added.</param>
-        <param name="descriptor">To be added.</param>
+        <param name="owner">The value may be null.</param>
+        <param name="descriptor">The value may be null.</param>
         <summary>Convenience method for associating a specific interface with the Binder.</summary>
         <remarks>
           <para>Convenience method for associating a specific interface with the Binder.
@@ -263,7 +263,7 @@
       <Docs>
         <summary>Return the ID of the process that sent you the current transaction
             that is being processed.</summary>
-        <value>To be added.</value>
+        <value>The calling pid value.</value>
         <remarks>
           <para>Return the ID of the process that sent you the current transaction
             that is being processed. This PID can be used with higher-level
@@ -313,7 +313,7 @@
       <Docs>
         <summary>Return the Linux UID assigned to the process that sent you the
             current transaction that is being processed.</summary>
-        <value>To be added.</value>
+        <value>The calling uid value.</value>
         <remarks>
           <para>Return the Linux UID assigned to the process that sent you the
             current transaction that is being processed. This UID can be used with
@@ -360,7 +360,7 @@
       <Docs>
         <summary>Return the Linux UID assigned to the process that sent the transaction
             currently being processed.</summary>
-        <value>To be added.</value>
+        <value>The calling uid or throw value.</value>
         <remarks>
           <para>Return the Linux UID assigned to the process that sent the transaction
             currently being processed.</para>
@@ -399,7 +399,7 @@
       <Docs>
         <summary>Return the UserHandle assigned to the process that sent you the
             current transaction that is being processed.</summary>
-        <value>To be added.</value>
+        <value>The calling user handle value.</value>
         <remarks>
           <para>Return the UserHandle assigned to the process that sent you the
             current transaction that is being processed. This is the user
@@ -809,7 +809,7 @@
       </ReturnValue>
       <Docs>
         <summary>Default implementation returns an empty interface name.</summary>
-        <value>To be added.</value>
+        <value>The interface descriptor value.</value>
         <remarks>
           <para>Default implementation returns an empty interface name.</para>
           <para>
@@ -853,7 +853,7 @@
             
             Note that if you're calling on a local binder, this always returns true
             because your process is alive if you're calling it.</summary>
-        <value>To be added.</value>
+        <value>The is binder alive value.</value>
         <remarks>
           <para>To be added
             
@@ -922,8 +922,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Provides JNI peer-member metadata for this type.</summary>
+        <value>JNI peer-member metadata for this type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -995,13 +995,13 @@
         <Parameter Name="flags" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="recipient">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="recipient">The value cannot be null.</param>
+        <param name="flags">Flags that control the operation.</param>
         <summary>Local implementation is a no-op.</summary>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/os/Binder#linkToDeath(android.os.DeathRecipient,%20int)" title="Reference documentation">Java documentation for <code>android.os.Binder.linkToDeath(android.os.DeathRecipient, int)</code>.</a>
+              <a href="https://developer.android.com/reference/android/os/Binder#linkToDeath(android.os.IBinder.DeathRecipient,%20int)" title="Reference documentation">Java documentation for <code>android.os.Binder.linkToDeath(android.os.DeathRecipient, int)</code>.</a>
             </format>
           </para>
           <para>
@@ -1105,7 +1105,7 @@
       <Docs>
         <summary>Default implementation always returns true -- if you got here,
             the object is alive.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns false if the hosting process is gone, otherwise the result (always by default true) returned by the pingBinder() implementation on the other side.</returns>
         <remarks>
           <para>Default implementation always returns true -- if you got here,
             the object is alive.</para>
@@ -1155,11 +1155,11 @@
         <Parameter Name="descriptor" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="descriptor">To be added.</param>
+        <param name="descriptor">The value cannot be null.</param>
         <summary>Use information supplied to <c>#attachInterface attachInterface()</c>
             to return the associated <c>IInterface</c> if it matches the requested
             descriptor.</summary>
-        <returns>To be added.</returns>
+        <returns>The returned value may be null.</returns>
         <remarks>
           <para>Use information supplied to <c>#attachInterface attachInterface()</c>
             to return the associated <c>IInterface</c> if it matches the requested
@@ -1250,7 +1250,7 @@
         <Parameter Name="token" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="token">To be added.</param>
+        <param name="token">The token associated with the operation.</param>
         <summary>Restores the work source on this thread using a token returned by
             <c>#setCallingWorkSourceUid(int)</c> or <c>#clearCallingWorkSource()</c>.</summary>
         <remarks>
@@ -1458,7 +1458,7 @@
  RPC, or <see cref="F:Android.OS.BinderConsts.FlagOneway" /> for a one-way RPC.
 </param>
         <summary>Default implementation rewinds the parcels and calls onTransact.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns the result from Binder.onTransact . A successful call generally returns true; false generally means the transaction code was not understood. For a oneway call to a different process false should never be returned. If a oneway call is made to code in the same process (usually to a C++ or Rust implementation), then there are no oneway semantics, and false can still be returned.</returns>
         <remarks>
           <para>Default implementation rewinds the parcels and calls onTransact. On
             the remote side, transact calls into the binder to do the IPC.</para>
@@ -1504,14 +1504,14 @@
         <Parameter Name="flags" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="recipient">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="recipient">The value cannot be null.</param>
+        <param name="flags">Flags that control the operation.</param>
         <summary>Local implementation is a no-op.</summary>
-        <returns>To be added.</returns>
+        <returns>true if the recipient is successfully unlinked, assuring you that its DeathRecipient.binderDied() method will not be called; false if the target IBinder has already died, meaning the method has been (or soon will be) called.</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/os/Binder#unlinkToDeath(android.os.DeathRecipient,%20int)" title="Reference documentation">Java documentation for <code>android.os.Binder.unlinkToDeath(android.os.DeathRecipient, int)</code>.</a>
+              <a href="https://developer.android.com/reference/android/os/Binder#unlinkToDeath(android.os.IBinder.DeathRecipient,%20int)" title="Reference documentation">Java documentation for <code>android.os.Binder.unlinkToDeath(android.os.DeathRecipient, int)</code>.</a>
             </format>
           </para>
           <para>
