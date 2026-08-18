@@ -381,12 +381,15 @@
         <Parameter Name="mode" Type="Android.Icu.Text.Normalizer2+Mode" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="mode">To be added.</param>
+        <param name="data">the binary, big-endian normalization (.nrm file) data, or null for ICU data</param>
+        <param name="name">"nfc" or "nfkc" or "nfkc_cf" or "nfkc_scf" or name of custom data file</param>
+        <param name="mode">normalization mode (compose or decompose etc.)</param>
         <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <returns>the requested Normalizer2, if successful</returns>
         <remarks>
+          <para>This method was deprecated in API level 31. Don't use because the binary data format is not stable across API levels.</para>
+          <para>Returns a Normalizer2 instance which uses the specified data file (an ICU data file if data=null, or else custom binary data) and which composes or decomposes text according to the specified mode. Returns an unmodifiable singleton instance. Use data=null for data files that are part of ICU's own data. Use name="nfc" and COMPOSE/DECOMPOSE for Unicode standard NFC/NFD. Use name="nfkc" and COMPOSE/DECOMPOSE for Unicode standard NFKC/NFKD. Use name="nfkc_cf" and COMPOSE for Unicode standard NFKC_CF=NFKC_Casefold. If data!=null, then the binary data is read once and cached using the provided name as the key. If you know or expect the data to be cached already, you can use data!=null for non-ICU data as well. Any IOException is wrapped into a ICUUncheckedIOException.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/Normalizer2#getInstance(java.io.InputStream,%20java.lang.String,%20android.icu.text.Normalizer2.Mode)" title="Reference documentation">Android reference for <code>android.icu.text.Normalizer2.getInstance</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1409,10 +1412,12 @@
         <Parameter Name="s" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">input string</param>
+        <summary>Tests if the string is normalized.</summary>
+        <returns>the quick check result</returns>
         <remarks>
+          <para>Tests if the string is normalized. For the two COMPOSE modes, the result could be "maybe" in cases that would take a little more work to resolve definitively. Use spanQuickCheckYes() and normalizeSecondAndAppend() for a faster combination of quick check + normalization, to avoid re-checking the "yes" prefix.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/Normalizer2#quickCheck(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.icu.text.Normalizer2.quickCheck</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
