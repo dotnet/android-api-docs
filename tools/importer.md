@@ -38,9 +38,10 @@ both its caution and subsequent semantic value prose. The importer never creates
 generic prose or falls back to AOSP. Existing non-placeholder documentation is
 retained, except that an exact prior importer-generated caution-only enum summary
 can be completed from the same authoritative source. Repair eligibility is
-evaluated against the untouched summary, requires the expected source link and
-attribution, and otherwise preserves the summary verbatim. Repair-only mapping
-or source failures are reported against the `summary` target.
+evaluated against the untouched summary and requires exactly three importer-owned
+paragraphs: plain deprecation prose, the exact field source reference, and exact
+Android attribution. Additional nodes or markup preserve the summary verbatim.
+Repair-only mapping or source failures are reported against the `summary` target.
 Existing self-closing `<remarks />` elements are expanded in place rather than
 duplicated.
 

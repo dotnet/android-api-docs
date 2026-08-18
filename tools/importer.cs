@@ -560,28 +560,59 @@ static class ImporterProgram
         };
     }
 
-    static bool IsEnumSummaryRepairCandidate(DocsOwner owner) =>
-        owner.IsEnumField &&
-        owner.Docs.Element("summary") is XElement summary &&
-        IsEnumSummaryRepairCandidate(summary);
-
-    static bool IsEnumSummaryRepairCandidate(XElement summary)
+    static bool IsEnumSummaryRepairCandidate(DocsOwner owner)
     {
-        var hasReference = summary.Descendants("a").Any(link =>
-            (string?)link.Attribute("title") == "Reference documentation");
-        var hasAttribution = summary.Descendants("a").Any(link =>
-            ((string?)link.Attribute("href"))?.Equals(
-                "https://developers.google.com/terms/site-policies",
-                StringComparison.Ordinal) == true);
-        var prose = summary.Elements("para")
-            .Where(paragraph => !paragraph.Descendants("a").Any())
-            .ToList();
-        return hasReference &&
-            hasAttribution &&
-            prose.Count == 1 &&
-            !prose[0].HasAttributes &&
-            !prose[0].HasElements &&
-            IsDeprecationParagraph(prose[0].Value);
+        if (!owner.IsEnumField ||
+            owner.Docs.Element("summary") is not XElement summary ||
+            owner.Member is null ||
+            owner.SourceRequest is null ||
+            Registration.Member(owner.Member) is not MemberRegistration registration ||
+            !registration.IsField)
+        {
+            return false;
+        }
+        return IsEnumSummaryRepairCandidate(
+            summary,
+            owner.SourceRequest.Url + "#" + registration.Name,
+            $"{owner.SourceRequest.JavaPath.Replace('/', '.').Replace('$', '.')}.{registration.Name}",
+            owner.SourceRequest.Kind);
+    }
+
+    static bool IsEnumSummaryRepairCandidate(
+        XElement summary,
+        string sourceUrl,
+        string sourceLabel,
+        string sourceKind)
+    {
+        if (summary.HasAttributes ||
+            summary.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }))
+        {
+            return false;
+        }
+
+        var paragraphs = summary.Elements().ToList();
+        if (paragraphs.Count != 3 ||
+            paragraphs.Any(paragraph =>
+                paragraph.Name.LocalName != "para" || paragraph.HasAttributes))
+        {
+            return false;
+        }
+
+        var sourceName = sourceKind == "android" ? "Android" : "Java";
+        var expectedSource = XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(sourceUrl)}\" " +
+            $"title=\"Reference documentation\">{sourceName} reference for <code>{XmlEscape(sourceLabel)}</code>." +
+            "</a></format></para>");
+        var expectedAttribution = XElement.Parse($"<para>{AndroidAttribution}</para>");
+        return !paragraphs[0].HasElements &&
+            IsDeprecationParagraph(paragraphs[0].Value) &&
+            XNode.DeepEquals(paragraphs[1], expectedSource) &&
+            XNode.DeepEquals(paragraphs[2], expectedAttribution);
     }
 
     static Replacement ChannelValueOrSkip(string? value, string channel, string missingReason)
@@ -922,7 +953,11 @@ static class ImporterProgram
                 "https://developers.google.com/terms/site-policies",
                 StringComparison.Ordinal) == true);
         var hasCorrectSource = ContainsSourceUrl(summary.Value, docs.SourceUrl);
-        var repairEligible = IsEnumSummaryRepairCandidate(summaryElement) &&
+        var repairEligible = IsEnumSummaryRepairCandidate(
+                summaryElement,
+                docs.SourceUrl,
+                docs.SourceLabel,
+                docs.SourceKind) &&
             hasCorrectSource &&
             sourceParagraphs.Count > 0 &&
             existingProse.Count == 1 &&
@@ -1442,6 +1477,26 @@ static class ImporterProgram
                     StringComparison.Ordinal),
             "non-qualifying enum summary preserved verbatim");
 
+        var linkedEnumText = legacyEnumText.Replace(
+            "        </summary>",
+            "          <para><format type=\"text/html\"><a href=\"https://example.invalid/unrelated\">Keep this linked content.</a></format></para>\r\n" +
+                "        </summary>",
+            StringComparison.Ordinal);
+        Assert(
+            !linkedEnumText.Equals(legacyEnumText, StringComparison.Ordinal),
+            "unrelated linked enum fixture");
+        enumFile.UpdateBlockOffsets(enumDeprecated.Order, linkedEnumText);
+        Assert(
+            AddSourceDocumentationIfSafe(
+                linkedEnumText,
+                enumFile,
+                enumDeprecated,
+                deprecatedMapped.Docs!,
+                allowEnumCreation: false).Equals(
+                    linkedEnumText,
+                    StringComparison.Ordinal),
+            "enum summary with unrelated linked content preserved verbatim");
+
         var emptyRemarks = file.Owners.Single(
             owner => owner.Id.Contains("EmptyRemarks", StringComparison.Ordinal));
         var emptyRemarksMapping = MapOwner(emptyRemarks, pages);
@@ -1596,7 +1651,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 48 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, conservative deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 50 assertions; exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
