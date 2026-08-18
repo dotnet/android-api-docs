@@ -1,5 +1,5 @@
 <Type Name="PhoneAccount" FullName="Android.Telecom.PhoneAccount">
-  <TypeSignature Language="C#" Value="public sealed class PhoneAccount : Java.Lang.Object, Android.OS.IParcelable, IDisposable, Java.Interop.IJavaPeerable" />
+  <TypeSignature Language="C#" Value="public sealed class PhoneAccount : Java.Lang.Object, Android.OS.IParcelable, IDisposable" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit PhoneAccount extends Java.Lang.Object implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
   <TypeSignature Language="DocId" Value="T:Android.Telecom.PhoneAccount" />
   <TypeSignature Language="F#" Value="type PhoneAccount = class&#xA;    inherit Object&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
@@ -32,6 +32,10 @@
     <Attribute>
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
@@ -376,19 +380,21 @@
       </ReturnValue>
       <MemberValue>262144</MemberValue>
       <Docs>
-        <summary>Flag indicating that this <c>PhoneAccount</c> supports the use TelecomManager APIs that
-            utilize <c>android.os.OutcomeReceiver</c>s or <c>java.util.function.Consumer</c>s.</summary>
+        <summary>Flag indicating that this <c>PhoneAccount</c> supports the transactional
+            <c>TelecomManager#addCall</c> API for adding calls.</summary>
         <remarks>
-          <para>Flag indicating that this <c>PhoneAccount</c> supports the use TelecomManager APIs that
-            utilize <c>android.os.OutcomeReceiver</c>s or <c>java.util.function.Consumer</c>s.
-            Be aware, if this capability is set, <c>#CAPABILITY_SELF_MANAGED</c> will be amended by
-            Telecom when this <c>PhoneAccount</c> is registered via
-            <c>TelecomManager#registerPhoneAccount(PhoneAccount)</c>.</para>
-          <para>
-            <c>android.os.OutcomeReceiver</c>s and <c>java.util.function.Consumer</c>s represent
-            transactional operations because the operation can succeed or fail.  An app wishing to use
-            transactional operations should define behavior for a successful and failed TelecomManager
-            API call.</para>
+          <para>Flag indicating that this <c>PhoneAccount</c> supports the transactional
+            <c>TelecomManager#addCall</c> API for adding calls.</para>
+          <para>An app that declares this capability is indicating its support for a newer,
+            more flexible call registration mechanism. When this capability is set on a
+            <c>PhoneAccount</c>, the Telecom framework will amend its capabilities to
+            include <c>#CAPABILITY_SELF_MANAGED</c>. This allows the app to manage its
+            own call UI and lifecycle, while still integrating with the Android system for
+            audio routing and call management.</para>
+          <para>This capability should &lt;strong&gt;only&lt;/strong&gt; be added if your application is using the
+            <c>TelecomManager#addCall</c> method to report new incoming and outgoing
+            calls. If your app uses the legacy methods <c>TelecomManager#addNewIncomingCall</c> or
+            <c>TelecomManager#placeCall</c>, this capability &lt;strong&gt;must not&lt;/strong&gt; be used.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telecom/PhoneAccount#CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS" title="Reference documentation">Java documentation for <code>android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS</code>.</a>
@@ -822,6 +828,10 @@
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android28.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android28.0")&gt;]</AttributeName>
         </Attribute>
@@ -841,6 +851,7 @@
             Setting this extra to <c>true</c> provides a means for them to log their calls.</para>
           <para>Note: Only calls where the <c>Call.Details#getHandle()</c><c>Uri#getScheme()</c> is
             <c>#SCHEME_SIP</c> or <c>#SCHEME_TEL</c> will be logged at the current time.</para>
+          <para>This member is deprecated. Register <c>TelecomManager#ACTION_CALL_BACK</c> instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telecom/PhoneAccount#EXTRA_LOG_SELF_MANAGED_CALLS" title="Reference documentation">Java documentation for <code>android.telecom.PhoneAccount.EXTRA_LOG_SELF_MANAGED_CALLS</code>.</a>
@@ -1073,11 +1084,11 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("hasSimultaneousCallingRestriction", "()Z", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("hasSimultaneousCallingRestriction", "()Z", "", ApiSince=35)&gt;]</AttributeName>
         </Attribute>
@@ -1301,6 +1312,28 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Telecom.PhoneAccount.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="phoneAccount.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="JniPeerMembers">
       <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
@@ -1326,6 +1359,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1715,17 +1752,21 @@
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Attributes>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android35.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android35.0")&gt;]</AttributeName>
         </Attribute>
-        <Attribute FrameworkAlternate="net-android-35.0;net-android-36.0">
+        <Attribute>
           <AttributeName Language="C#">[get: Android.Runtime.Register("getSimultaneousCallingRestriction", "()Ljava/util/Set;", "", ApiSince=35)]</AttributeName>
           <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSimultaneousCallingRestriction", "()Ljava/util/Set;", "", ApiSince=35)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1955,6 +1996,10 @@
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(1)]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(1)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

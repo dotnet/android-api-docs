@@ -20,6 +20,10 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>Top-level service of the current global voice interactor, which is providing
@@ -109,6 +113,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("createAlwaysOnHotwordDetector", "(Ljava/lang/String;Ljava/util/Locale;Landroid/service/voice/AlwaysOnHotwordDetector$Callback;)Landroid/service/voice/AlwaysOnHotwordDetector;", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("createAlwaysOnHotwordDetector", "(Ljava/lang/String;Ljava/util/Locale;Landroid/service/voice/AlwaysOnHotwordDetector$Callback;)Landroid/service/voice/AlwaysOnHotwordDetector;", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -207,6 +215,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("isActiveService", "(Landroid/content/Context;Landroid/content/ComponentName;)Z", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("isActiveService", "(Landroid/content/Context;Landroid/content/ComponentName;)Z", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -282,6 +294,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("onBind", "(Landroid/content/Intent;)Landroid/os/IBinder;", "GetOnBind_Landroid_content_Intent_Handler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("onBind", "(Landroid/content/Intent;)Landroid/os/IBinder;", "GetOnBind_Landroid_content_Intent_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -656,6 +672,85 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="SetInvocationEffectEnabled">
+      <MemberSignature Language="C#" Value="public void SetInvocationEffectEnabled (bool enabled);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetInvocationEffectEnabled(bool enabled) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Service.Voice.VoiceInteractionService.SetInvocationEffectEnabled(System.Boolean)" />
+      <MemberSignature Language="F#" Value="member this.SetInvocationEffectEnabled : bool -&gt; unit" Usage="voiceInteractionService.SetInvocationEffectEnabled enabled" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("setInvocationEffectEnabled", "(Z)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("setInvocationEffectEnabled", "(Z)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="enabled" Type="System.Boolean" />
+      </Parameters>
+      <Docs>
+        <param name="enabled">
+          <c>true</c> to enable the invocation effect for the current user and
+                                       assistant,
+            <c>false</c> to disable it. This state is persisted by SystemUI.</param>
+        <summary>Sets the enabled state for the invocation effect, a graphical indication displayed when a
+            voice session is launched by the system.</summary>
+        <remarks>
+          <para>Sets the enabled state for the invocation effect, a graphical indication displayed when a
+            voice session is launched by the system.</para>
+          <para>This effect is specifically triggered when a voice session is initiated via a dedicated
+            system entry point, e.g. by long-pressing the power button to activate the current
+            <c>android.service.voice.VoiceInteractionService</c>. It does not apply to voice sessions
+            started by general <c>Intent#ACTION_ASSIST</c> intents from arbitrary applications.</para>
+          <para>&lt;b&gt;Controlling the Effect and Persistence:&lt;/b&gt;
+            The <c>android.service.voice.VoiceInteractionService</c> (the API caller) controls this
+            setting. The choice (enabled or disabled) made through this method is persisted by SystemUI
+            for the current user and their selected assistant. This allows the setting to be remembered
+            across device reboots or if the same <c>android.service.voice.VoiceInteractionService</c>
+            is restarted for that specific user and assistant combination.</para>
+          <para>&lt;b&gt;Default State and Behavior on Context Change:&lt;/b&gt;
+            &lt;ul&gt;
+            &lt;li&gt;The invocation effect is &lt;b&gt;disabled by default&lt;/b&gt;.&lt;/li&gt;
+            &lt;li&gt;If the current user changes, or if the selected assistant for that user changes, any
+            previously persisted setting for a different user/assistant combination will not
+            automatically apply to the new context.&lt;/li&gt;
+            &lt;li&gt;In such new contexts (e.g., a new user or a change in the selected assistant), or if
+            this method has not been explicitly called to enable the effect for the current
+            context, the effect will remain &lt;b&gt;disabled&lt;/b&gt; (its default state).&lt;/li&gt;
+            &lt;li&gt;To enable the effect, or to ensure a specific state (enabled or disabled) is applied,
+            the <c>android.service.voice.VoiceInteractionService</c>&lt;b&gt;must call this method&lt;/b&gt;.
+            It is strongly recommended to do so every time the service becomes active to
+            assert the intended state for the current operational context.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+          <para>&lt;b&gt;System Conditions:&lt;/b&gt;
+            SystemUI will honor the state set by this method for the invocation effect, provided other
+            system-level conditions are met, such as the correct hardware gesture for invocation
+            (e.g., power button long-press) being detected. Note that the actual visualization of this
+            effect is contingent on the specific SystemUI implementation; some variants, such as those on
+            automotive or television platforms, may not have a visual representation for this effect.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/service/voice/VoiceInteractionService#setInvocationEffectEnabled(boolean)" title="Reference documentation">Java documentation for <code>android.service.voice.VoiceInteractionService.setInvocationEffectEnabled(boolean)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="SetUiHints">
       <MemberSignature Language="C#" Value="public void SetUiHints (Android.OS.Bundle hints);" />
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SetUiHints(class Android.OS.Bundle hints) cil managed" />
@@ -714,6 +809,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("showSession", "(Landroid/os/Bundle;I)V", "GetShowSession_Landroid_os_Bundle_IHandler", ApiSince=23)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("showSession", "(Landroid/os/Bundle;I)V", "GetShowSession_Landroid_os_Bundle_IHandler", ApiSince=23)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android23.0")]</AttributeName>
@@ -775,6 +874,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("startSession", "(Landroid/os/Bundle;)V", "GetStartSession_Landroid_os_Bundle_Handler")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("startSession", "(Landroid/os/Bundle;)V", "GetStartSession_Landroid_os_Bundle_Handler")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>

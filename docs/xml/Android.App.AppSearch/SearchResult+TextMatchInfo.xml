@@ -1,0 +1,731 @@
+<Type Name="SearchResult+TextMatchInfo" FullName="Android.App.AppSearch.SearchResult+TextMatchInfo">
+  <TypeSignature Language="C#" Value="public sealed class SearchResult.TextMatchInfo : Java.Lang.Object, Android.OS.IParcelable, IDisposable" />
+  <TypeSignature Language="ILAsm" Value=".class nested public auto ansi sealed beforefieldinit SearchResult/TextMatchInfo extends Java.Lang.Object implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Android.App.AppSearch.SearchResult.TextMatchInfo" />
+  <TypeSignature Language="F#" Value="type SearchResult.TextMatchInfo = class&#xA;    inherit Object&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.OS.IParcelable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/app/appsearch/SearchResult$TextMatchInfo", ApiSince=36, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/app/appsearch/SearchResult$TextMatchInfo", ApiSince=36, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>This class represents match objects for any text match snippets that might be present in
+            <c>SearchResults</c> from a string query.</summary>
+    <remarks>
+      <para>This class represents match objects for any text match snippets that might be present in
+            <c>SearchResults</c> from a string query. Using this class, you can get:
+            
+            &lt;ul&gt;
+              &lt;li&gt;the full text - all of the text in that String property
+              &lt;li&gt;the exact term match - the 'term' (full word) that matched the query
+              &lt;li&gt;the subterm match - the portion of the matched term that appears in the query
+              &lt;li&gt;a suggested text snippet - a portion of the full text surrounding the exact term match,
+                  set to term boundaries. The size of the snippet is specified in <c>SearchSpec.Builder#setMaxSnippetSize</c>&lt;/ul&gt;
+            
+            for each text match in the document.</para>
+      <para>Class Example 1:</para>
+      <para>A document contains the following text in property "subject":</para>
+      <para>"A commonly used fake word is foo. Another nonsense word that’s used a lot is bar."</para>
+      <para>If the queryExpression is "foo" and <c>SearchSpec#getMaxSnippetSize</c> is 10,
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>TextMatchInfo#getFullText()</c> returns "A commonly used fake word is foo. Another
+                  nonsense word that’s used a lot is bar."
+              &lt;li&gt;<c>TextMatchInfo#getExactMatchRange()</c> returns [29, 32]
+              &lt;li&gt;<c>TextMatchInfo#getExactMatch()</c> returns "foo"
+              &lt;li&gt;<c>TextMatchInfo#getSubmatchRange()</c> returns [29, 32]
+              &lt;li&gt;<c>TextMatchInfo#getSubmatch()</c> returns "foo"
+              &lt;li&gt;<c>TextMatchInfo#getSnippetRange()</c> returns [26, 33]
+              &lt;li&gt;<c>TextMatchInfo#getSnippet()</c> returns "is foo."
+            &lt;/ul&gt;</para>
+      <para />
+      <para>Class Example 2:</para>
+      <para>A document contains one property named "subject" and one property named "sender" which
+            contains a "name" property.</para>
+      <para>In this case, we will have 2 property paths: <c>sender.name</c> and <c>subject</c>.</para>
+      <para>Let <c>sender.name = "Test Name Jr."</c> and <c>subject = "Testing 1 2 3"</c></para>
+      <para>If the queryExpression is "Test" with <c>SearchSpec#TERM_MATCH_PREFIX</c> and <c>SearchSpec#getMaxSnippetSize</c> is 10. We will have 2 matches:</para>
+      <para>Match-1
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>TextMatchInfo#getFullText()</c> returns "Test Name Jr."
+              &lt;li&gt;<c>TextMatchInfo#getExactMatchRange()</c> returns [0, 4]
+              &lt;li&gt;<c>TextMatchInfo#getExactMatch()</c> returns "Test"
+              &lt;li&gt;<c>TextMatchInfo#getSubmatchRange()</c> returns [0, 4]
+              &lt;li&gt;<c>TextMatchInfo#getSubmatch()</c> returns "Test"
+              &lt;li&gt;<c>TextMatchInfo#getSnippetRange()</c> returns [0, 9]
+              &lt;li&gt;<c>TextMatchInfo#getSnippet()</c> returns "Test Name"
+            &lt;/ul&gt;</para>
+      <para>Match-2
+            
+            &lt;ul&gt;
+              &lt;li&gt;<c>TextMatchInfo#getFullText()</c> returns "Testing 1 2 3"
+              &lt;li&gt;<c>TextMatchInfo#getExactMatchRange()</c> returns [0, 7]
+              &lt;li&gt;<c>TextMatchInfo#getExactMatch()</c> returns "Testing"
+              &lt;li&gt;<c>TextMatchInfo#getSubmatchRange()</c> returns [0, 4]
+              &lt;li&gt;<c>TextMatchInfo#getSubmatch()</c> returns "Test"
+              &lt;li&gt;<c>TextMatchInfo#getSnippetRange()</c> returns [0, 9]
+              &lt;li&gt;<c>TextMatchInfo#getSnippet()</c> returns "Testing 1"
+            &lt;/ul&gt;</para>
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.TextMatchInfo" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.TextMatchInfo</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public TextMatchInfo (Android.App.AppSearch.SearchResult.MatchRange exactMatchRange, Android.App.AppSearch.SearchResult.MatchRange submatchRange, Android.App.AppSearch.SearchResult.MatchRange snippetRange);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(class Android.App.AppSearch.SearchResult/MatchRange exactMatchRange, class Android.App.AppSearch.SearchResult/MatchRange submatchRange, class Android.App.AppSearch.SearchResult/MatchRange snippetRange) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.SearchResult.TextMatchInfo.#ctor(Android.App.AppSearch.SearchResult.MatchRange,Android.App.AppSearch.SearchResult.MatchRange,Android.App.AppSearch.SearchResult.MatchRange)" />
+      <MemberSignature Language="F#" Value="new Android.App.AppSearch.SearchResult.TextMatchInfo : Android.App.AppSearch.SearchResult.MatchRange * Android.App.AppSearch.SearchResult.MatchRange * Android.App.AppSearch.SearchResult.MatchRange -&gt; Android.App.AppSearch.SearchResult.TextMatchInfo" Usage="new Android.App.AppSearch.SearchResult.TextMatchInfo (exactMatchRange, submatchRange, snippetRange)" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register(".ctor", "(Landroid/app/appsearch/SearchResult$MatchRange;Landroid/app/appsearch/SearchResult$MatchRange;Landroid/app/appsearch/SearchResult$MatchRange;)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register(".ctor", "(Landroid/app/appsearch/SearchResult$MatchRange;Landroid/app/appsearch/SearchResult$MatchRange;Landroid/app/appsearch/SearchResult$MatchRange;)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <Parameters>
+        <Parameter Name="exactMatchRange" Type="Android.App.AppSearch.SearchResult+MatchRange" />
+        <Parameter Name="submatchRange" Type="Android.App.AppSearch.SearchResult+MatchRange" />
+        <Parameter Name="snippetRange" Type="Android.App.AppSearch.SearchResult+MatchRange" />
+      </Parameters>
+      <Docs>
+        <param name="exactMatchRange">To be added.</param>
+        <param name="submatchRange">To be added.</param>
+        <param name="snippetRange">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Creator">
+      <MemberSignature Language="C#" Value="public static Android.OS.IParcelableCreator Creator { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Android.OS.IParcelableCreator Creator" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.Creator" />
+      <MemberSignature Language="F#" Value="static member Creator : Android.OS.IParcelableCreator" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.Creator" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("CREATOR", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.IParcelableCreator</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DescribeContents">
+      <MemberSignature Language="C#" Value="public int DescribeContents ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 DescribeContents() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.SearchResult.TextMatchInfo.DescribeContents" />
+      <MemberSignature Language="F#" Value="abstract member DescribeContents : unit -&gt; int&#xA;override this.DescribeContents : unit -&gt; int" Usage="textMatchInfo.DescribeContents " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Android.OS.IParcelable.DescribeContents</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("describeContents", "()I", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("describeContents", "()I", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExactMatch">
+      <MemberSignature Language="C#" Value="public string? ExactMatch { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string ExactMatch" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.ExactMatch" />
+      <MemberSignature Language="F#" Value="member this.ExactMatch : string" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.ExactMatch" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExactMatchFormatted">
+      <MemberSignature Language="C#" Value="public Java.Lang.ICharSequence ExactMatchFormatted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.ICharSequence ExactMatchFormatted" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.ExactMatchFormatted" />
+      <MemberSignature Language="F#" Value="member this.ExactMatchFormatted : Java.Lang.ICharSequence" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.ExactMatchFormatted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getExactMatch", "()Ljava/lang/CharSequence;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getExactMatch", "()Ljava/lang/CharSequence;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.ICharSequence</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the exact term of the given entry that matched the query.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the exact term of the given entry that matched the query.</para>
+          <para>Class example 1: this returns "foo".</para>
+          <para>Class example 2: for the first <c>TextMatchInfo</c>, this returns "Test" and, for the
+            second <c>TextMatchInfo</c>, this returns "Testing".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.TextMatchInfo#getExactMatch()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.TextMatchInfo.getExactMatch()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExactMatchRange">
+      <MemberSignature Language="C#" Value="public Android.App.AppSearch.SearchResult.MatchRange ExactMatchRange { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.App.AppSearch.SearchResult/MatchRange ExactMatchRange" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.ExactMatchRange" />
+      <MemberSignature Language="F#" Value="member this.ExactMatchRange : Android.App.AppSearch.SearchResult.MatchRange" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.ExactMatchRange" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getExactMatchRange", "()Landroid/app/appsearch/SearchResult$MatchRange;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getExactMatchRange", "()Landroid/app/appsearch/SearchResult$MatchRange;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppSearch.SearchResult+MatchRange</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="FullText">
+      <MemberSignature Language="C#" Value="public string FullText { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string FullText" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.FullText" />
+      <MemberSignature Language="F#" Value="member this.FullText : string" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.FullText" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getFullText", "()Ljava/lang/String;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getFullText", "()Ljava/lang/String;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the full text corresponding to the given entry.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the full text corresponding to the given entry.</para>
+          <para>Class example 1: this returns "A commonly used fake word is foo. Another nonsense word
+            that's used a lot is bar."</para>
+          <para>Class example 2: for the first <c>TextMatchInfo</c>, this returns "Test Name Jr."
+            and, for the second <c>TextMatchInfo</c>, this returns "Testing 1 2 3".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.TextMatchInfo#getFullText()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.TextMatchInfo.getFullText()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.SearchResult.TextMatchInfo.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="textMatchInfo.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Snippet">
+      <MemberSignature Language="C#" Value="public string? Snippet { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Snippet" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.Snippet" />
+      <MemberSignature Language="F#" Value="member this.Snippet : string" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.Snippet" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SnippetFormatted">
+      <MemberSignature Language="C#" Value="public Java.Lang.ICharSequence SnippetFormatted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.ICharSequence SnippetFormatted" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.SnippetFormatted" />
+      <MemberSignature Language="F#" Value="member this.SnippetFormatted : Java.Lang.ICharSequence" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.SnippetFormatted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSnippet", "()Ljava/lang/CharSequence;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSnippet", "()Ljava/lang/CharSequence;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.ICharSequence</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the snippet corresponding to the given entry.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the snippet corresponding to the given entry.</para>
+          <para>Snippet - Provides a subset of the content to display. Only populated when requested
+            maxSnippetSize &gt; 0. The size of this content can be changed by <c>SearchSpec.Builder#setMaxSnippetSize</c>. Windowing is centered around the middle of the
+            matched token with content on either side clipped to token boundaries.</para>
+          <para>Class example 1: this returns "foo. Another".</para>
+          <para>Class example 2: for the first <c>TextMatchInfo</c>, this returns "Test Name" and,
+            for the second <c>TextMatchInfo</c>, this returns "Testing 1 2 3".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.TextMatchInfo#getSnippet()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.TextMatchInfo.getSnippet()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SnippetRange">
+      <MemberSignature Language="C#" Value="public Android.App.AppSearch.SearchResult.MatchRange SnippetRange { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.App.AppSearch.SearchResult/MatchRange SnippetRange" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.SnippetRange" />
+      <MemberSignature Language="F#" Value="member this.SnippetRange : Android.App.AppSearch.SearchResult.MatchRange" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.SnippetRange" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSnippetRange", "()Landroid/app/appsearch/SearchResult$MatchRange;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSnippetRange", "()Landroid/app/appsearch/SearchResult$MatchRange;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppSearch.SearchResult+MatchRange</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Submatch">
+      <MemberSignature Language="C#" Value="public string? Submatch { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Submatch" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.Submatch" />
+      <MemberSignature Language="F#" Value="member this.Submatch : string" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.Submatch" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SubmatchFormatted">
+      <MemberSignature Language="C#" Value="public Java.Lang.ICharSequence SubmatchFormatted { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Lang.ICharSequence SubmatchFormatted" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.SubmatchFormatted" />
+      <MemberSignature Language="F#" Value="member this.SubmatchFormatted : Java.Lang.ICharSequence" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.SubmatchFormatted" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSubmatch", "()Ljava/lang/CharSequence;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSubmatch", "()Ljava/lang/CharSequence;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Lang.ICharSequence</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Gets the exact term subsequence of the given entry that matched the query.</summary>
+        <value>To be added.</value>
+        <remarks>
+          <para>Gets the exact term subsequence of the given entry that matched the query.</para>
+          <para>Class example 1: this returns "foo".</para>
+          <para>Class example 2: for the first <c>TextMatchInfo</c>, this returns "Test" and, for the
+            second <c>TextMatchInfo</c>, this returns "Test".</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appsearch/SearchResult.TextMatchInfo#getSubmatch()" title="Reference documentation">Java documentation for <code>android.app.appsearch.SearchResult.TextMatchInfo.getSubmatch()</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="SubmatchRange">
+      <MemberSignature Language="C#" Value="public Android.App.AppSearch.SearchResult.MatchRange SubmatchRange { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Android.App.AppSearch.SearchResult/MatchRange SubmatchRange" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.SubmatchRange" />
+      <MemberSignature Language="F#" Value="member this.SubmatchRange : Android.App.AppSearch.SearchResult.MatchRange" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.SubmatchRange" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getSubmatchRange", "()Landroid/app/appsearch/SearchResult$MatchRange;", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getSubmatchRange", "()Landroid/app/appsearch/SearchResult$MatchRange;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.App.AppSearch.SearchResult+MatchRange</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.App.AppSearch.SearchResult.TextMatchInfo.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.App.AppSearch.SearchResult.TextMatchInfo.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteToParcel">
+      <MemberSignature Language="C#" Value="public void WriteToParcel (Android.OS.Parcel dest, Android.OS.ParcelableWriteFlags flags);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void WriteToParcel(class Android.OS.Parcel dest, valuetype Android.OS.ParcelableWriteFlags flags) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.App.AppSearch.SearchResult.TextMatchInfo.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />
+      <MemberSignature Language="F#" Value="abstract member WriteToParcel : Android.OS.Parcel * Android.OS.ParcelableWriteFlags -&gt; unit&#xA;override this.WriteToParcel : Android.OS.Parcel * Android.OS.ParcelableWriteFlags -&gt; unit" Usage="textMatchInfo.WriteToParcel (dest, flags)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Android.OS.IParcelable.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "", ApiSince=36)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.1")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.1")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dest" Type="Android.OS.Parcel" />
+        <Parameter Name="flags" Type="Android.OS.ParcelableWriteFlags">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="dest">To be added.</param>
+        <param name="flags">To be added.</param>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
