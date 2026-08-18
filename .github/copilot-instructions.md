@@ -22,4 +22,5 @@ The importer must preserve existing non-placeholder documentation, apply only
 exact structural matches, and report ambiguous or missing source documentation
 instead of guessing. Never update generated `docs\xml\index.xml`. After an
 apply run, parse every changed XML file and run `git diff --check`. The importer
-also excludes non-API `docs\xml\_filter.xml`.
+also excludes non-API `docs\xml\_filter.xml` and generated
+`docs\xml\FrameworksIndex` files.

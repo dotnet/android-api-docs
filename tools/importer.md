@@ -16,8 +16,8 @@ dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace An
 
 Dry-run is the default. An unscoped scan is rejected, and `--apply` requires a
 path or namespace write scope. Generated `docs/xml/index.xml` and non-API
-`docs/xml/_filter.xml` are always excluded. The default limit is 25 placeholder
-elements.
+`docs/xml/_filter.xml` and `docs/xml/FrameworksIndex` files are always excluded.
+The default limit is 25 placeholder elements.
 
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It skips members with
