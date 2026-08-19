@@ -936,7 +936,7 @@ static class ImporterProgram
         var block = file.DocsBlocks[owner.Order];
         return Regex.IsMatch(
             file.Text[block.Start..block.End],
-            @"<remarks\b[^>]*>[ \t]*To be added\.?[ \t]*(?:\r?\n[ \t]*)?<para\b",
+            @"<remarks\b[^>]*>[ \t\r\n]*To be added\.?[ \t\r\n]*(?=<para\b)",
             RegexOptions.CultureInvariant);
     }
 
@@ -959,11 +959,8 @@ static class ImporterProgram
     static string RemoveAugmentedRemarksPlaceholder(string blockText) =>
         Regex.Replace(
             blockText,
-            @"(?<open><remarks\b[^>]*>)[ \t]*To be added\.?[ \t]*(?:(?<linebreak>\r?\n)(?<indent>[ \t]*))?(?=<para\b)",
-            match => match.Groups["open"].Value +
-                (match.Groups["linebreak"].Success
-                    ? match.Groups["linebreak"].Value + match.Groups["indent"].Value
-                    : ""),
+            @"(?<open><remarks\b[^>]*>)[ \t\r\n]*To be added\.?(?<separator>[ \t\r\n]*)(?=<para\b)",
+            match => match.Groups["open"].Value + match.Groups["separator"].Value,
             RegexOptions.CultureInvariant);
 
     static string ReplaceTruncatedSummary(
@@ -1368,20 +1365,25 @@ static class ImporterProgram
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
+        var originalRemarks = $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>";
+        var augmentedRemarks = $"<remarks>{file.Newline}          To be added.{file.Newline}          <para>Keep this existing prose.</para>";
         var augmentedRemarksText = file.Text.Replace(
-            "<remarks>\n          <para>Keep this existing prose.</para>",
-            "<remarks>\n          To be added.\n          <para>Keep this existing prose.</para>",
+            originalRemarks,
+            augmentedRemarks,
             StringComparison.Ordinal);
+        Assert(
+            !augmentedRemarksText.Equals(file.Text, StringComparison.Ordinal),
+            "augmented remarks fixture setup");
+        file.UpdateBlockOffsets(setTitle.Order, augmentedRemarksText);
         var cleanedRemarksText = AddSourceDocumentationIfSafe(
             augmentedRemarksText,
             file,
             setTitle,
             mappedDocs);
         Assert(
-            !cleanedRemarksText.Contains(
-                "<remarks>\n          To be added.\n          <para>Keep this existing prose.</para>",
-                StringComparison.Ordinal),
+            !cleanedRemarksText.Contains(augmentedRemarks, StringComparison.Ordinal),
             "augmented remarks placeholder is removed");
+        file.UpdateBlockOffsets(setTitle.Order, file.Text);
         var truncatedSummaryText = file.Text.Replace(
             "<summary>To be added.</summary>",
             "<summary>Distinguishes fixtures vs.</summary>",
