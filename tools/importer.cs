@@ -90,7 +90,8 @@ static class ImporterProgram
                 .SelectMany(file => file.Owners)
                 .Where(owner =>
                     owner.Placeholders.Count > 0 ||
-                    IsEnumSummaryRepairCandidate(owner))
+                    IsEnumSummaryRepairCandidate(owner) ||
+                    IsRemarksRepairCandidate(owner))
                 .Select(owner => owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
@@ -242,6 +243,44 @@ static class ImporterProgram
                                     file.RelativePath,
                                     owner.Id,
                                     "summary",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                    }
+
+                    if (!ownerChanged &&
+                        mapping.Docs is not null &&
+                        IsRemarksRepairCandidate(owner))
+                    {
+                        var repaired = RepairImporterRemarksPlaceholder(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs);
+                        if (!repaired.Equals(text, StringComparison.Ordinal))
+                        {
+                            if (remaining == 0)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "remarks",
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                            else
+                            {
+                                text = repaired;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "remarks",
                                     mapping.SourceUrl));
                             }
                         }
@@ -588,6 +627,71 @@ static class ImporterProgram
             owner.SourceRequest.Url + "#" + registration.Name,
             $"{owner.SourceRequest.JavaPath.Replace('/', '.').Replace('$', '.')}.{registration.Name}",
             owner.SourceRequest.Kind);
+    }
+
+    static bool IsRemarksRepairCandidate(DocsOwner owner)
+    {
+        if (owner.IsEnumField ||
+            owner.Docs.Element("remarks") is not XElement remarks ||
+            owner.SourceRequest is null)
+        {
+            return false;
+        }
+
+        var hasPlaceholder = remarks.Nodes().OfType<XText>()
+            .Any(text => NormalizeText(text.Value).Equals("To be added.", StringComparison.Ordinal));
+        var hasReference = remarks.Descendants("a").Any(link =>
+            (string?)link.Attribute("title") == "Reference documentation");
+        var hasAndroidAttribution = owner.SourceRequest.Kind == "android" &&
+            remarks.Descendants("a").Any(link =>
+                ((string?)link.Attribute("href"))?.Equals(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal) == true);
+        return hasPlaceholder && hasReference && hasAndroidAttribution;
+    }
+
+    static string RepairImporterRemarksPlaceholder(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var paragraphs = docs.Paragraphs
+            .Select(CleanSourceText)
+            .Where(paragraph => IsMeaningfulChannel(paragraph, "remarks"))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        if (paragraphs.Count == 0)
+            return text;
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!ContainsSourceUrl(blockText, docs.SourceUrl))
+            return text;
+
+        var paragraph = Regex.Match(
+            blockText,
+            @"(?m)^(?<indent>[ \t]*)<para\b[^>]*>",
+            RegexOptions.CultureInvariant);
+        if (!paragraph.Success)
+            return text;
+
+        var placeholder = Regex.Match(
+            blockText,
+            @"(?<open><remarks\b[^>]*>)\s*To be added\.\s*(?=<para\b)",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        if (!placeholder.Success)
+            return text;
+
+        var replacement = placeholder.Groups["open"].Value + file.Newline +
+            string.Join(
+                file.Newline,
+                paragraphs.Select(value =>
+                    $"{paragraph.Groups["indent"].Value}<para>{XmlEscape(value)}</para>")) +
+            file.Newline + paragraph.Groups["indent"].Value;
+        var repairedBlock = blockText[..placeholder.Index] + replacement +
+            blockText[(placeholder.Index + placeholder.Length)..];
+        return text[..block.Start] + repairedBlock + text[block.End..];
     }
 
     static bool IsEnumSummaryRepairCandidate(
@@ -1373,6 +1477,27 @@ static class ImporterProgram
             favoriteDocument.Root is not null,
             "inline remarks source-link insertion produced valid XML");
 
+        var favoriteProse = XmlEscape(favoriteResult.Docs.Paragraphs[0]);
+        var legacyRemarksText = Regex.Replace(
+            favoriteText,
+            $@"(?<open><remarks>\s*)<para>{Regex.Escape(favoriteProse)}</para>",
+            "${open}To be added.",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        file.UpdateBlockOffsets(favorite.Order, legacyRemarksText);
+        var repairedRemarksText = RepairImporterRemarksPlaceholder(
+            legacyRemarksText,
+            file,
+            favorite,
+            favoriteResult.Docs);
+        Assert(
+            !repairedRemarksText.Contains("<remarks>To be added.", StringComparison.Ordinal) &&
+                repairedRemarksText.Contains(
+                    $"<para>{favoriteProse}</para>",
+                    StringComparison.Ordinal),
+            "importer-generated remarks placeholder is repaired with source prose");
+        _ = XDocument.Parse(repairedRemarksText, LoadOptions.PreserveWhitespace);
+        Assert(true, "remarks placeholder repair produced valid XML");
+
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
         Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
         var networkScan = androidPage.Members.Single(member => member.Name == "requestNetworkScan");
@@ -1680,7 +1805,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 52 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 54 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum and importer-generated remarks repair, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
