@@ -143,6 +143,37 @@ static class ImporterProgram
                 foreach (var owner in file.Owners.OrderBy(item => item.Order))
                 {
                     var ownerChanged = false;
+                    var cleaned = RemoveStaleNestedConstructorLinks(
+                        text,
+                        file.DocsBlocks[owner.Order]);
+                    if (!cleaned.Equals(text, StringComparison.Ordinal))
+                    {
+                        if (remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                owner.SourceRequest?.Url ?? ""));
+                        }
+                        else
+                        {
+                            text = cleaned;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                owner.SourceRequest?.Url ?? ""));
+                        }
+                    }
+
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
@@ -951,6 +982,21 @@ static class ImporterProgram
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
     }
 
+    static string RemoveStaleNestedConstructorLinks(
+        string text,
+        DocsBlock block)
+    {
+        var blockText = text[block.Start..block.End];
+        var cleanedBlock = Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?\bhref=""[^""]*#[^""()]*\$[A-Za-z_]\w*\([^""]*""(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            "",
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+        return cleanedBlock.Equals(blockText, StringComparison.Ordinal)
+            ? text
+            : text[..block.Start] + cleanedBlock + text[block.End..];
+    }
+
     static string RemoveEnumDiscardedMetadata(string blockText) =>
         Regex.Replace(
             blockText,
@@ -1405,6 +1451,22 @@ static class ImporterProgram
                 builderAnchor,
                 removeAll: false).Contains(nestedBuilderAnchor, StringComparison.Ordinal),
             "stale nested builder constructor link was removed");
+        var nestedConstructorText =
+            $"<Docs><remarks>{Environment.NewLine}<para><format type=\"text/html\"><a href=\"{nestedBuilderAnchor}\" " +
+            $"title=\"Reference documentation\">Stale builder reference.</a></format></para>{Environment.NewLine}" +
+            "<para><format type=\"text/html\"><a href=\"" + builderAnchor +
+            $"\" title=\"Reference documentation\">Current builder reference.</a></format></para>{Environment.NewLine}</remarks></Docs>";
+        var staleNestedConstructor = new DocsBlock(
+            0,
+            0,
+            nestedConstructorText.Length);
+        var cleanedNestedConstructorText = RemoveStaleNestedConstructorLinks(
+            nestedConstructorText,
+            staleNestedConstructor);
+        Assert(
+            !cleanedNestedConstructorText.Contains(nestedBuilderAnchor, StringComparison.Ordinal) &&
+                cleanedNestedConstructorText.Contains(builderAnchor, StringComparison.Ordinal),
+            "independent stale nested constructor cleanup preserves current link");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
 
         file.UpdateBlockOffsets(setTitle.Order, withRemarks);
@@ -1802,7 +1864,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 60 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including nested builder constructor anchors, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 61 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including independent nested builder constructor cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
