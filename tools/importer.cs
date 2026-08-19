@@ -542,7 +542,10 @@ static class ImporterProgram
         bool isEnumField = false)
     {
         if (placeholder.IsImporterMetadataRepair)
-            return Replacement.Use("");
+            return ChannelValueOrSkip(
+                docs.Paragraphs.FirstOrDefault(),
+                "remarks",
+                "source_remarks_missing");
 
         if (isEnumField && placeholder.Name is "remarks" or "para")
             return Replacement.Skip(
@@ -741,7 +744,11 @@ static class ImporterProgram
             if (directPlaceholder.Success)
             {
                 var value = directPlaceholder.Groups["value"];
-                var repairedBlock = blockText[..value.Index] + blockText[(value.Index + value.Length)..];
+                var prose = string.IsNullOrWhiteSpace(replacement)
+                    ? ""
+                    : $"<para>{XmlEscape(replacement)}</para>";
+                var repairedBlock = blockText[..value.Index] + prose +
+                    blockText[(value.Index + value.Length)..];
                 updated = text[..block.Start] + repairedBlock + text[block.End..];
                 error = "";
                 return true;
@@ -1431,18 +1438,27 @@ static class ImporterProgram
             "Creative Commons 2.5 Attribution License.</a></format></para></remarks></Docs>";
         var metadataRepairRemarks = XDocument.Parse(metadataRepairText).Root!.Element("remarks")!;
         var metadataRepair = Placeholder.Create(metadataRepairRemarks, 0);
+        var metadataReplacement = ReplacementFor(metadataRepair, favoriteResult.Docs!).Text!;
         Assert(metadataRepair.IsImporterMetadataRepair, "importer metadata remarks repair detection");
+        Assert(TryReplacePlaceholder(
+            metadataRepairText,
+            new DocsBlock(0, 0, metadataRepairText.Length),
+            metadataRepair,
+            metadataReplacement,
+            out var repairedMetadataText,
+            out _), "importer metadata remarks placeholder is replaced");
         Assert(
-            TryReplacePlaceholder(
-                metadataRepairText,
-                new DocsBlock(0, 0, metadataRepairText.Length),
-                metadataRepair,
-                ReplacementFor(metadataRepair, favoriteResult.Docs!).Text!,
-                out var repairedMetadataText,
-                out _) &&
-                !repairedMetadataText.Contains("To be added.", StringComparison.Ordinal) &&
-                repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
-            "importer metadata remarks placeholder repair");
+            !repairedMetadataText.Contains("To be added.", StringComparison.Ordinal),
+            "importer metadata remarks placeholder is removed");
+        var repairedMetadataProse = NormalizeText(
+            XDocument.Parse(repairedMetadataText).Root!.Element("remarks")!
+                .Elements("para").First().Value);
+        Assert(
+            repairedMetadataProse == NormalizeText(metadataReplacement),
+            "importer metadata remarks placeholder retains source prose");
+        Assert(
+            repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
+            "importer metadata remarks preserves reference metadata");
         const string emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
             "    <para><format type=\"text/html\"><a " +
@@ -1771,7 +1787,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 56 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 59 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
