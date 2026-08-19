@@ -21,6 +21,10 @@
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
     <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
       <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android36.0")&gt;]</AttributeName>
     </Attribute>
@@ -62,10 +66,10 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="javaReference">A <see cref="T:System.IntPtr" /> containing a Java Native Interface (JNI) object reference.</param>
+        <param name="transfer">A <see cref="T:Android.Runtime.JniHandleOwnership" /> indicating how to handle <paramref name="javaReference" />.</param>
+        <summary>A constructor used when creating managed representations of JNI objects; called by the runtime.</summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="EnumSwitch">
@@ -82,6 +86,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("enumSwitch", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", "", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("enumSwitch", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
@@ -109,13 +117,24 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="lookup">To be added.</param>
-        <param name="invocationName">To be added.</param>
-        <param name="invocationType">To be added.</param>
-        <param name="labels">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="lookup">Represents a lookup context with the accessibility privileges of the caller. When used with invokedynamic, this is stacked automatically by the VM.</param>
+        <param name="invocationName">unused</param>
+        <param name="invocationType">The invocation type of the CallSite with two parameters, an enum type, an int, and int as a return type.</param>
+        <param name="labels">case labels - String constants and Class instances, in any combination</param>
+        <summary>Bootstrap method for linking an invokedynamic call site that implements a switch on a target of an enum type.</summary>
+        <returns>a CallSite returning the first matching element as described above</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">An element of <paramref name="labels" /> is <see langword="null" />; <paramref name="invocationType" /> does not accept an enum and an <c>int</c> and return an <c>int</c>; or a label is neither a <see cref="T:System.String" /> nor a <see cref="T:Java.Lang.Class" /> for the target enum type.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">An argument is <see langword="null" />.</exception>
+        <remarks>
+          <para>Bootstrap method for linking an invokedynamic call site that implements a switch on a target of an enum type. The static arguments are used to encode the case labels associated to the switch construct, where each label can be encoded in two ways: as a String value, which represents the name of the enum constant associated with the label as a Class value, which represents the enum type associated with a type test pattern The returned CallSite 's method handle will have a return type of int and accepts two parameters: the first argument will be an Enum instance ( target ) and the second will be int ( restart ). If the target is null, then the method of the call site returns -1. If the target is not null, then the method of the call site returns the index of the first element in the labels array starting from the restart index matching one of the following conditions: the element is of type Class that is assignable from the target's class; or the element is of type String and equals to the target enum constant's Enum.name(). If no element in the labels array matches the target, then the method of the call site return the length of the labels array. The value of the restart index must be between 0 (inclusive) and the length of the labels array (inclusive), both or an IndexOutOfBoundsException is thrown.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#enumSwitch(java.lang.invoke.MethodHandles.Lookup,%20java.lang.String,%20java.lang.invoke.MethodType,%20java.lang.Object[])" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.enumSwitch</code>.</a></format></para>
+          <para>
+            Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+          </para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -142,9 +161,9 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the JNI metadata used to invoke members of this Java peer.</summary>
+        <value>The JNI peer members for <c>SwitchBootstraps</c>.</value>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -171,9 +190,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -200,9 +218,8 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>This API supports the Mono for Android infrastructure and is not intended to be used directly from your code.</summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="TypeSwitch">
@@ -219,6 +236,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("typeSwitch", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", "", ApiSince=36)]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("typeSwitch", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", "", ApiSince=36)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android36.0")]</AttributeName>
@@ -246,13 +267,30 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="lookup">To be added.</param>
-        <param name="invocationName">To be added.</param>
-        <param name="invocationType">To be added.</param>
-        <param name="labels">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="lookup">The lookup context with the caller's accessibility privileges.</param>
+        <param name="invocationName">Unused.</param>
+        <param name="invocationType">The call site invocation type with a reference-type parameter, an <c>int</c> parameter, and an <c>int</c> return type.</param>
+        <param name="labels">The case labels, represented by <see cref="T:System.String" />, <see cref="T:System.Int32" />, <see cref="T:Java.Lang.Class" />, or enum-description values.</param>
+        <summary>Links an <c>invokedynamic</c> call site that switches on a reference-type target.</summary>
+        <returns>A call site that returns <c>-1</c> for a <see langword="null" /> target, the index of the first matching label at or after the restart index, or <c>labels.Length</c> when no label matches.</returns>
+        <exception cref="T:Java.Lang.IllegalArgumentException">An element of <paramref name="labels" /> is <see langword="null" />; <paramref name="invocationType" /> does not accept a reference type and an <c>int</c> and return an <c>int</c>; or a label is not a <see cref="T:System.String" />, <see cref="T:System.Int32" />, <see cref="T:Java.Lang.Class" />, or enum-description value.</exception>
+        <exception cref="T:Java.Lang.NullPointerException">An argument is <see langword="null" />.</exception>
+        <remarks>
+          <para>
+            The returned call site produces <c>-1</c> for a <see langword="null" /> target. For a non-null target, it searches from the restart index and returns the first matching label index, or <c>labels.Length</c> when no label matches. The restart index must be from zero through <c>labels.Length</c>, inclusive; otherwise, invoking the call site throws <see cref="T:Java.Lang.IndexOutOfBoundsException" />.
+          </para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/java/lang/runtime/SwitchBootstraps#typeSwitch(java.lang.invoke.MethodHandles.Lookup,%20java.lang.String,%20java.lang.invoke.MethodType,%20java.lang.Object[])" title="Reference documentation">Java documentation for <code>java.lang.runtime.SwitchBootstraps.typeSwitch</code>.</a>
+            </format>
+          </para>
+          <para>
+            Portions of this page are modifications based on work created and shared by the
+            <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+            and used according to terms described in the
+            <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format>
+          </para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

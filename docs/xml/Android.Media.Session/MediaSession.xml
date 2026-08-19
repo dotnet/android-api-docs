@@ -20,6 +20,10 @@
       <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
       <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
     </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
   </Attributes>
   <Docs since="21">
     <summary>Allows interaction with media controllers, volume keys, media buttons, and
@@ -35,7 +39,8 @@
             <c>#getSessionToken() session token</c> to other processes to allow them to
             create a <c>MediaController</c> to interact with the session.</para>
       <para>To receive commands, media keys, and other events a <c>Callback</c> must be
-            set with <c>#setCallback(Callback)</c> and <c>#setActive(boolean)
+            set with <c>#setCallback(Callback)</c>. To make the session discoverable by
+            other apps, including system apps, <c>#setActive(boolean)
             setActive(true)</c> must be called.</para>
       <para>When an app is finished performing playback it must call <c>#release()</c>
             to clean up the session and notify any controllers.</para>
@@ -183,25 +188,16 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="active">Whether this session is active or not.</param>
-        <summary>Get the current active state of this session. -or- Set if this session is currently active and ready to receive commands.</summary>
+        <summary>Get the current active state of this session.</summary>
         <value>True if the session is active, false otherwise.</value>
         <remarks>
-          <para>Property getter documentation:</para>
           <para>Get the current active state of this session.</para>
+          <para>If false then your session's controller will not be discoverable via
+            <c>MediaSessionManager#getActiveSessions(ComponentName)</c> by other apps,
+            including system apps.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/session/MediaSession#isActive()" title="Reference documentation">Java documentation for <code>android.media.session.MediaSession.isActive()</code>.</a>
-            </format>
-          </para>
-          <para>Property setter documentation:</para>
-          <para>Set if this session is currently active and ready to receive commands. If
-            set to false your session's controller may not be discoverable. You must
-            set the session to active before it can start receiving media button
-            events or transport commands.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/media/session/MediaSession#setActive(boolean)" title="Reference documentation">Java documentation for <code>android.media.session.MediaSession.setActive(boolean)</code>.</a>
             </format>
           </para>
           <para>
@@ -482,7 +478,6 @@
       </Parameters>
       <Docs>
         <param name="e">The name of the event to send</param>
-        <param name="event">The name of the event to send</param>
         <param name="extras">Any extras included with the event</param>
         <summary>Send a proprietary event to all MediaControllers listening to this
             Session.</summary>
@@ -556,6 +551,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("setCallback", "(Landroid/media/session/MediaSession$Callback;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setCallback", "(Landroid/media/session/MediaSession$Callback;)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -594,6 +593,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("setCallback", "(Landroid/media/session/MediaSession$Callback;Landroid/os/Handler;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setCallback", "(Landroid/media/session/MediaSession$Callback;Landroid/os/Handler;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -636,6 +639,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("setExtras", "(Landroid/os/Bundle;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setExtras", "(Landroid/os/Bundle;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -727,6 +734,10 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setMediaButtonBroadcastReceiver", "(Landroid/content/ComponentName;)V", "", ApiSince=31)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android31.0")]</AttributeName>
           <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android31.0")&gt;]</AttributeName>
         </Attribute>
@@ -777,6 +788,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("setMediaButtonReceiver", "(Landroid/app/PendingIntent;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setMediaButtonReceiver", "(Landroid/app/PendingIntent;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android31.0")]</AttributeName>
@@ -833,6 +848,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("setMetadata", "(Landroid/media/MediaMetadata;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setMetadata", "(Landroid/media/MediaMetadata;)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -875,6 +894,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("setPlaybackState", "(Landroid/media/session/PlaybackState;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setPlaybackState", "(Landroid/media/session/PlaybackState;)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -914,6 +937,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("setPlaybackToLocal", "(Landroid/media/AudioAttributes;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setPlaybackToLocal", "(Landroid/media/AudioAttributes;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -1058,6 +1085,10 @@
           <AttributeName Language="C#">[Android.Runtime.Register("setQueueTitle", "(Ljava/lang/CharSequence;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setQueueTitle", "(Ljava/lang/CharSequence;)V", "")&gt;]</AttributeName>
         </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
       </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1095,6 +1126,12 @@
         <AssemblyName>Mono.Android</AssemblyName>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
       </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
@@ -1196,6 +1233,10 @@
         <Attribute>
           <AttributeName Language="C#">[Android.Runtime.Register("setSessionActivity", "(Landroid/app/PendingIntent;)V", "")]</AttributeName>
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("setSessionActivity", "(Landroid/app/PendingIntent;)V", "")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(2)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(2)&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
