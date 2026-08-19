@@ -153,13 +153,17 @@
         <Parameter Name="result" Type="Android.Media.Session2Command+Result" />
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <param name="controller">To be added.</param>
-        <param name="token">To be added.</param>
-        <param name="command">To be added.</param>
-        <param name="result">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="session">the session for this event. This value cannot be null.</param>
+        <param name="controller">controller information. This value cannot be null.</param>
+        <param name="token">the token got from MediaSession2.sendSessionCommand This value cannot be null.</param>
+        <param name="command">the session command. This value cannot be null.</param>
+        <param name="result">the result of the session command. This value cannot be null.</param>
+        <summary>Called when the command sent to the controller is finished.</summary>
+        <remarks>
+          <para>Called when the command sent to the controller is finished.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaSession2.SessionCallback#onCommandResult(android.media.MediaSession2,%20android.media.MediaSession2.ControllerInfo,%20java.lang.Object,%20android.media.Session2Command,%20android.media.Session2Command.Result)" title="Reference documentation">Android reference for <code>android.media.MediaSession2.SessionCallback.onCommandResult</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnConnect">
@@ -196,11 +200,15 @@
         <Parameter Name="controller" Type="Android.Media.MediaSession2+ControllerInfo" />
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <param name="controller">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="session">the session for this event. This value cannot be null.</param>
+        <param name="controller">controller information. This value cannot be null.</param>
+        <summary>Called when a controller is created for this session.</summary>
+        <returns>allowed commands. Can be null to reject connection.</returns>
+        <remarks>
+          <para>Called when a controller is created for this session. Return allowed commands for controller. By default it returns null. You can reject the connection by returning null. In that case, controller receives MediaController2.ControllerCallback.onDisconnected(MediaController2) and cannot be used. The controller hasn't connected yet in this method, so calls to the controller (e.g. MediaSession2.sendSessionCommand(ControllerInfo, Session2Command, Bundle) ) would be ignored. Override onPostConnect(MediaSession2, ControllerInfo) for the custom initialization for the controller instead.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaSession2.SessionCallback#onConnect(android.media.MediaSession2,%20android.media.MediaSession2.ControllerInfo)" title="Reference documentation">Android reference for <code>android.media.MediaSession2.SessionCallback.onConnect</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnDisconnected">
@@ -231,10 +239,14 @@
         <Parameter Name="controller" Type="Android.Media.MediaSession2+ControllerInfo" />
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <param name="controller">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="session">the session for this event. This value cannot be null.</param>
+        <param name="controller">controller information. This value cannot be null.</param>
+        <summary>Called when a controller is disconnected</summary>
+        <remarks>
+          <para>Called when a controller is disconnected</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaSession2.SessionCallback#onDisconnected(android.media.MediaSession2,%20android.media.MediaSession2.ControllerInfo)" title="Reference documentation">Android reference for <code>android.media.MediaSession2.SessionCallback.onDisconnected</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnPostConnect">
@@ -265,10 +277,14 @@
         <Parameter Name="controller" Type="Android.Media.MediaSession2+ControllerInfo" />
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <param name="controller">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="session">the session for this event. This value cannot be null.</param>
+        <param name="controller">controller information. This value cannot be null.</param>
+        <summary>Called immediately after a controller is connected.</summary>
+        <remarks>
+          <para>Called immediately after a controller is connected. This is a convenient method to add custom initialization between the session and a controller. Note that calls to the controller (e.g. MediaSession2.sendSessionCommand(ControllerInfo, Session2Command, Bundle) ) work here but don't work in onConnect(MediaSession2, ControllerInfo) because the controller hasn't connected yet in onConnect(MediaSession2, ControllerInfo).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaSession2.SessionCallback#onPostConnect(android.media.MediaSession2,%20android.media.MediaSession2.ControllerInfo)" title="Reference documentation">Android reference for <code>android.media.MediaSession2.SessionCallback.onPostConnect</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSessionCommand">
@@ -314,13 +330,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <param name="controller">To be added.</param>
-        <param name="command">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="session">the session for this event. This value cannot be null.</param>
+        <param name="controller">controller information. This value cannot be null.</param>
+        <param name="command">the session command. This value cannot be null.</param>
+        <param name="args">optional arguments. This value may be null.</param>
+        <summary>Called when a controller sent a session command.</summary>
+        <returns>the result for the session command. If null, RESULT_INFO_SKIPPED will be sent to the session.</returns>
+        <remarks>
+          <para>Called when a controller sent a session command.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaSession2.SessionCallback#onSessionCommand(android.media.MediaSession2,%20android.media.MediaSession2.ControllerInfo,%20android.media.Session2Command,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.media.MediaSession2.SessionCallback.onSessionCommand</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

@@ -555,6 +555,9 @@ static class ImporterProgram
         SourceDocs docs,
         bool isEnumField = false)
     {
+        if (placeholder.IsImporterMetadataRepair)
+            return Replacement.Use("");
+
         if (isEnumField && placeholder.Name is "remarks" or "para")
             return Replacement.Skip(
                 "enum_field_remarks_not_rendered",
@@ -743,6 +746,40 @@ static class ImporterProgram
         out string error)
     {
         var blockText = text[block.Start..block.End];
+        if (placeholder.IsImporterMetadataRepair)
+        {
+            var directPlaceholder = Regex.Match(
+                blockText,
+                @"(<remarks\b[^>]*>\s*)(?<value>To be added\.?)",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            if (directPlaceholder.Success)
+            {
+                var value = directPlaceholder.Groups["value"];
+                var repairedBlock = blockText[..value.Index] + blockText[(value.Index + value.Length)..];
+                updated = text[..block.Start] + repairedBlock + text[block.End..];
+                error = "";
+                return true;
+            }
+
+            var emptyParagraph = Regex.Match(
+                blockText,
+                @"^[ \t]*<para>\s*</para>[ \t]*\r?\n(?:^[ \t]*\r?\n)*",
+                RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            if (emptyParagraph.Success)
+            {
+                var repairedBlock =
+                    blockText[..emptyParagraph.Index] +
+                    blockText[(emptyParagraph.Index + emptyParagraph.Length)..];
+                updated = text[..block.Start] + repairedBlock + text[block.End..];
+                error = "";
+                return true;
+            }
+
+            updated = text;
+            error = "Could not locate the structurally identified importer metadata remarks repair.";
+            return false;
+        }
+
         var attributeLookahead = placeholder.Name switch
         {
             "param" => $@"(?=[^>]*\bname\s*=\s*""{Regex.Escape(placeholder.Key)}"")",
@@ -1486,6 +1523,50 @@ static class ImporterProgram
             favoriteDocument.Root is not null,
             "inline remarks source-link insertion produced valid XML");
 
+        const string metadataRepairText =
+            "<Docs><remarks>To be added.<para><format type=\"text/html\">" +
+            "<a href=\"https://developer.android.com/reference/android/example/Widget#favorite\" " +
+            "title=\"Reference documentation\">Android reference.</a></format></para>" +
+            "<para>Portions of this page are modifications based on work created and shared by the " +
+            "<format type=\"text/html\"><a href=\"https://developers.google.com/terms/site-policies\">" +
+            "Android Open Source Project</a></format> and used according to terms described in the " +
+            "<format type=\"text/html\"><a href=\"https://creativecommons.org/licenses/by/2.5/\">" +
+            "Creative Commons 2.5 Attribution License.</a></format></para></remarks></Docs>";
+        var metadataRepairRemarks = XDocument.Parse(metadataRepairText).Root!.Element("remarks")!;
+        var metadataRepair = Placeholder.Create(metadataRepairRemarks, 0);
+        Assert(metadataRepair.IsImporterMetadataRepair, "importer metadata remarks repair detection");
+        Assert(
+            TryReplacePlaceholder(
+                metadataRepairText,
+                new DocsBlock(0, 0, metadataRepairText.Length),
+                metadataRepair,
+                ReplacementFor(metadataRepair, favoriteResult.Docs!).Text!,
+                out var repairedMetadataText,
+                out _) &&
+                !repairedMetadataText.Contains("To be added.", StringComparison.Ordinal) &&
+                repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
+            "importer metadata remarks placeholder repair");
+        const string emptyMetadataRepairText =
+            "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
+            "    <para><format type=\"text/html\"><a " +
+            "href=\"https://developer.android.com/reference/android/example/Widget#favorite\" " +
+            "title=\"Reference documentation\">Android reference.</a></format></para>\n" +
+            "  </remarks>\n</Docs>";
+        var emptyMetadataRepairRemarks =
+            XDocument.Parse(emptyMetadataRepairText).Root!.Element("remarks")!;
+        Assert(
+            LoadedFile.IsImporterAugmentedRemarksPlaceholder(emptyMetadataRepairRemarks) &&
+                TryReplacePlaceholder(
+                    emptyMetadataRepairText,
+                    new DocsBlock(0, 0, emptyMetadataRepairText.Length),
+                    Placeholder.Create(emptyMetadataRepairRemarks, 0),
+                    "",
+                    out var repairedEmptyMetadataText,
+                    out _) &&
+                !repairedEmptyMetadataText.Contains("<para></para>", StringComparison.Ordinal) &&
+                !Regex.IsMatch(repairedEmptyMetadataText, @"(?m)^[ \t]+$"),
+            "importer empty metadata paragraph repair");
+
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
         Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
         var networkScan = androidPage.Members.Single(member => member.Name == "requestNetworkScan");
@@ -1793,7 +1874,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, abbreviation-aware summaries, augmented-placeholder cleanup, truncated-summary repair, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, abbreviation-aware summaries, augmented-placeholder cleanup, truncated-summary repair, importer metadata remarks repair, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -1995,7 +2076,9 @@ static class ImporterProgram
 
                 var placeholders = docs
                     .Descendants()
-                    .Where(element => !element.HasElements && IsPlaceholder(element.Value))
+                    .Where(element =>
+                        (!element.HasElements && IsPlaceholder(element.Value)) ||
+                        IsImporterAugmentedRemarksPlaceholder(element))
                     .Select((element, index) => Placeholder.Create(element, index))
                     .ToList();
                 var memberField = member is null ? null : Registration.JniField(member);
@@ -2026,6 +2109,42 @@ static class ImporterProgram
             var normalized = NormalizeText(value);
             return normalized.Equals("To be added", StringComparison.Ordinal) ||
                 normalized.Equals("To be added.", StringComparison.Ordinal);
+        }
+
+        public static bool IsImporterAugmentedRemarksPlaceholder(XElement element)
+        {
+            if (element.Name.LocalName != "remarks")
+            {
+                return false;
+            }
+
+            var paragraphs = element.Elements().ToList();
+            var hasDirectPlaceholder = IsPlaceholder(
+                string.Concat(element.Nodes().OfType<XText>().Select(node => node.Value)));
+            var emptyParagraphs = paragraphs
+                .Where(paragraph => !paragraph.HasElements && NormalizeText(paragraph.Value).Length == 0)
+                .ToList();
+            if (!hasDirectPlaceholder && emptyParagraphs.Count != 1)
+                return false;
+
+            var metadataParagraphs = paragraphs.Except(emptyParagraphs).ToList();
+            return metadataParagraphs.Count > 0 &&
+                metadataParagraphs.All(paragraph =>
+                    paragraph.Name.LocalName == "para" &&
+                    (paragraph.Descendants("a").Any(link =>
+                        (string?)link.Attribute("title") == "Reference documentation" &&
+                        (((string?)link.Attribute("href"))?.StartsWith(
+                            "https://developer.android.com/reference/",
+                            StringComparison.Ordinal) == true ||
+                        ((string?)link.Attribute("href"))?.StartsWith(
+                            "https://docs.oracle.com/en/java/javase/21/docs/api/",
+                            StringComparison.Ordinal) == true)) ||
+                    (paragraph.Value.StartsWith(
+                        "Portions of this page are modifications based on work created and shared by",
+                        StringComparison.Ordinal) &&
+                        paragraph.Descendants("a").Any(link =>
+                            (string?)link.Attribute("href") ==
+                                "https://developers.google.com/terms/site-policies"))));
         }
 
         public void UpdateBlockOffsets(int changedOrder, string text)
@@ -2076,7 +2195,12 @@ static class ImporterProgram
         List<Placeholder> Placeholders,
         bool IsEnumField);
 
-    sealed record Placeholder(int Order, string Name, string Key, string Target)
+    sealed record Placeholder(
+        int Order,
+        string Name,
+        string Key,
+        string Target,
+        bool IsImporterMetadataRepair = false)
     {
         public static Placeholder Create(XElement element, int order)
         {
@@ -2088,7 +2212,12 @@ static class ImporterProgram
                 _ => "",
             };
             var target = key.Length == 0 ? name : $"{name}:{key}";
-            return new Placeholder(order, name, key, target);
+            return new Placeholder(
+                order,
+                name,
+                key,
+                target,
+                LoadedFile.IsImporterAugmentedRemarksPlaceholder(element));
         }
     }
 
