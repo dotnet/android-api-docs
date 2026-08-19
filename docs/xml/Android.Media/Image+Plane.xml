@@ -93,9 +93,13 @@
         <ReturnType>Java.Nio.ByteBuffer</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Get a direct ByteBuffer containing the frame data.</summary>
+        <value>the byte buffer containing the image data for this plane.</value>
         <remarks>
+          <para>Get a direct ByteBuffer containing the frame data.</para>
+          <para>In particular, the buffer returned will always have isDirect return true, so the underlying data could be mapped as a pointer in JNI without doing any copies with GetDirectBufferAddress.</para>
+          <para>For raw formats, each plane is only guaranteed to contain data up to the last pixel in the last row. In other words, the stride after the last row may not be mapped into the buffer. This is a necessary requirement for any interleaved format.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/Image.Plane#getBuffer()" title="Reference documentation">Android reference for <code>android.media.Image.Plane.getBuffer</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -151,9 +155,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The distance between adjacent pixel samples, in bytes.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>The distance between adjacent pixel samples, in bytes.</para>
+          <para>This is the distance between two consecutive pixel values in a row of pixels. It may be larger than the size of a single pixel to account for interleaved image data or padded formats. Note that pixel stride is undefined for some formats such as RAW_PRIVATE, and calling getPixelStride on images of these formats will cause an UnsupportedOperationException being thrown. For formats where pixel stride is well defined, the pixel stride is always greater than 0.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/Image.Plane#getPixelStride()" title="Reference documentation">Android reference for <code>android.media.Image.Plane.getPixelStride</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -178,9 +185,12 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The row stride for this color plane, in bytes.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>The row stride for this color plane, in bytes.</para>
+          <para>This is the distance between the start of two consecutive rows of pixels in the image. Note that row stride is undefined for some formats such as RAW_PRIVATE, and calling getRowStride on images of these formats will cause an UnsupportedOperationException being thrown. For formats where row stride is well defined, the row stride is always greater than 0.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/Image.Plane#getRowStride()" title="Reference documentation">Android reference for <code>android.media.Image.Plane.getRowStride</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
