@@ -81,14 +81,18 @@
         <Parameter Name="cryptoInfo" Type="Android.Media.MediaCodec+CryptoInfo" />
       </Parameters>
       <Docs>
-        <param name="trackIndex">To be added.</param>
-        <param name="timeMicros">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="size">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="cryptoInfo">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="trackIndex">The index of the track to which the sample corresponds.</param>
+        <param name="timeMicros">The media timestamp associated with the sample, in microseconds.</param>
+        <param name="flags">Flags associated with the sample. See the SAMPLE_FLAG_* constants. Value is either 0 or a combination of the following: MediaParser.SAMPLE_FLAG_KEY_FRAME MediaParser.SAMPLE_FLAG_HAS_SUPPLEMENTAL_DATA MediaParser.SAMPLE_FLAG_LAST_SAMPLE MediaParser.SAMPLE_FLAG_ENCRYPTED MediaParser.SAMPLE_FLAG_DECODE_ONLY</param>
+        <param name="size">The size of the sample data, in bytes.</param>
+        <param name="offset">The number of bytes that have been consumed by onSampleDataFound(int, MediaParser.InputReader) for the specified track, since the last byte belonging to the sample whose metadata is being passed.</param>
+        <param name="cryptoInfo">Encryption data required to decrypt the sample. May be null for unencrypted samples. Implementors should treat any output CryptoInfo instances as immutable. MediaParser will not modify any output cryptoInfos and implementors should not modify them either.</param>
+        <summary>Called once all the data of a sample has been passed to onSampleDataFound(int, InputReader).</summary>
+        <remarks>
+          <para>Called once all the data of a sample has been passed to onSampleDataFound(int, InputReader). Includes sample metadata, like presentation timestamp and flags.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer#onSampleCompleted(int,%20long,%20int,%20int,%20int,%20android.media.MediaCodec.CryptoInfo)" title="Reference documentation">Android reference for <code>android.media.MediaParser.OutputConsumer.onSampleCompleted</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSampleDataFound">
@@ -123,10 +127,14 @@
         <Parameter Name="inputReader" Type="Android.Media.MediaParser+IInputReader" />
       </Parameters>
       <Docs>
-        <param name="trackIndex">To be added.</param>
-        <param name="inputReader">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="trackIndex">The index of the track to which the sample data corresponds.</param>
+        <param name="inputReader">The InputReader from which to read the data. This value cannot be null.</param>
+        <summary>Called when sample data is found in the stream.</summary>
+        <remarks>
+          <para>Called when sample data is found in the stream. If the invocation of this method returns before the entire inputReader length is consumed, the method will be called again for the implementer to read the remaining data. Implementers should surface any thrown IOException caused by reading from input.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer#onSampleDataFound(int,%20android.media.MediaParser.InputReader)" title="Reference documentation">Android reference for <code>android.media.MediaParser.OutputConsumer.onSampleDataFound</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSeekMapFound">
@@ -160,9 +168,13 @@
         <Parameter Name="seekMap" Type="Android.Media.MediaParser+SeekMap" />
       </Parameters>
       <Docs>
-        <param name="seekMap">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="seekMap">The extracted SeekMap. This value cannot be null.</param>
+        <summary>Called when a SeekMap has been extracted from the stream.</summary>
+        <remarks>
+          <para>Called when a SeekMap has been extracted from the stream. This method is called at least once before any samples are complete. May be called multiple times after that in order to add SeekPoints.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer#onSeekMapFound(android.media.MediaParser.SeekMap)" title="Reference documentation">Android reference for <code>android.media.MediaParser.OutputConsumer.onSeekMapFound</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnTrackCountFound">
@@ -241,10 +253,14 @@
         <Parameter Name="trackData" Type="Android.Media.MediaParser+TrackData" />
       </Parameters>
       <Docs>
-        <param name="trackIndex">To be added.</param>
-        <param name="trackData">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="trackIndex">The index of the track for which the TrackData was extracted.</param>
+        <param name="trackData">The extracted TrackData. This value cannot be null.</param>
+        <summary>Called when new TrackData is found in the stream.</summary>
+        <remarks>
+          <para>Called when new TrackData is found in the stream.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer#onTrackDataFound(int,%20android.media.MediaParser.TrackData)" title="Reference documentation">Android reference for <code>android.media.MediaParser.OutputConsumer.onTrackDataFound</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

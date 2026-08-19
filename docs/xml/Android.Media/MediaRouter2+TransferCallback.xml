@@ -144,9 +144,13 @@
         <Parameter Name="controller" Type="Android.Media.MediaRouter2+RoutingController" />
       </Parameters>
       <Docs>
-        <param name="controller">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="controller">the controller that controlled the stopped media routing. This value cannot be null.</param>
+        <summary>Called when a media routing stops.</summary>
+        <remarks>
+          <para>Called when a media routing stops. It can be stopped by a user or a provider. App should not continue playing media locally when this method is called. The controller is released before this method is called.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRouter2.TransferCallback#onStop(android.media.MediaRouter2.RoutingController)" title="Reference documentation">Android reference for <code>android.media.MediaRouter2.TransferCallback.onStop</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnTransfer">
@@ -177,10 +181,14 @@
         <Parameter Name="newController" Type="Android.Media.MediaRouter2+RoutingController" />
       </Parameters>
       <Docs>
-        <param name="oldController">To be added.</param>
-        <param name="newController">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="oldController">the previous controller that controlled routing. This value cannot be null.</param>
+        <param name="newController">the new controller to control routing. This value cannot be null.</param>
+        <summary>Called when a media is transferred between two different routing controllers.</summary>
+        <remarks>
+          <para>Called when a media is transferred between two different routing controllers. This can happen by calling transferTo(MediaRoute2Info). Override this to start playback with newController. You may want to get the status of the media that is being played with oldController and resume it continuously with newController. After this is called, any callbacks with oldController will not be invoked unless oldController is the system controller. You need to release oldController before playing the media with newController.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRouter2.TransferCallback#onTransfer(android.media.MediaRouter2.RoutingController,%20android.media.MediaRouter2.RoutingController)" title="Reference documentation">Android reference for <code>android.media.MediaRouter2.TransferCallback.onTransfer</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnTransferFailure">
