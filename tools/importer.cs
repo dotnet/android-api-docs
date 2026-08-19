@@ -692,6 +692,11 @@ static class ImporterProgram
                 @"^Constant Value:\s*\S+(?:\s+\(\S+\))?$",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
+        if (Regex.IsMatch(
+            normalized,
+            @"^\[[A-Za-z][A-Za-z0-9_-]*\]$",
+            RegexOptions.CultureInvariant))
+            return false;
         if (channel is "returns" or "value" or "param")
         {
             if (Regex.IsMatch(
@@ -1428,6 +1433,10 @@ static class ImporterProgram
                 },
             });
         Assert(simpleTypeOnly.Reason == "source_channel_not_meaningful", "simple type-only parameter skip");
+        var annotationOnly = ChannelValueOrSkip("[icu]", "summary", "source_summary_missing");
+        Assert(
+            annotationOnly.Reason == "source_channel_not_meaningful",
+            "standalone source annotation skip");
         Assert(
             CleanSourceText(@"the user\u2019s \u201cvalue\u201d") == "the user\u2019s \u201cvalue\u201d",
             "literal Unicode escape decoding");
@@ -1876,7 +1885,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, abbreviation-aware summaries, augmented-placeholder cleanup, truncated-summary repair, importer metadata remarks repair, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 56 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, abbreviation-aware summaries, augmented-placeholder cleanup, truncated-summary repair, importer metadata remarks repair, standalone annotation skipping, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
