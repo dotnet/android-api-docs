@@ -87,11 +87,13 @@ static class ImporterProgram
             }
 
             var sourceRequests = loadedFiles
-                .SelectMany(file => file.Owners)
-                .Where(owner =>
-                    owner.Placeholders.Count > 0 ||
-                    IsEnumSummaryRepairCandidate(owner))
-                .Select(owner => owner.SourceRequest)
+                .SelectMany(file => file.Owners.Select(owner => (File: file, Owner: owner)))
+                .Where(item =>
+                    item.Owner.Placeholders.Count > 0 ||
+                    IsEnumSummaryRepairCandidate(item.Owner) ||
+                    HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
+                    HasTruncatedImporterSummary(item.File, item.Owner))
+                .Select(item => item.Owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
                 .DistinctBy(request => request.Url, StringComparer.Ordinal)
@@ -208,24 +210,36 @@ static class ImporterProgram
                             mapping.SourceUrl));
                     }
 
+                    var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
+                    var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
+                    var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
-                        IsEnumSummaryRepairCandidate(owner))
+                        (enumSummaryRepair || augmentedRemarksRepair || truncatedSummaryRepair))
                     {
-                        var refreshed = AddSourceDocumentationIfSafe(
-                            text,
-                            file,
-                            owner,
-                            mapping.Docs,
-                            allowEnumCreation: false);
+                        var refreshed = truncatedSummaryRepair
+                            ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
+                            : text;
+                        if (enumSummaryRepair || augmentedRemarksRepair)
+                        {
+                            refreshed = AddSourceDocumentationIfSafe(
+                                refreshed,
+                                file,
+                                owner,
+                                mapping.Docs,
+                                allowEnumCreation: false);
+                        }
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
+                            var repairTarget = enumSummaryRepair || truncatedSummaryRepair
+                                ? "summary"
+                                : "remarks";
                             if (remaining == 0)
                             {
                                 report.Entries.Add(ReportEntry.Skipped(
                                     file.RelativePath,
                                     owner.Id,
-                                    "summary",
+                                    repairTarget,
                                     "max_changes_reached",
                                     $"The --max-changes limit of {options.MaxChanges} was reached.",
                                     mapping.SourceUrl));
@@ -241,7 +255,7 @@ static class ImporterProgram
                                     "would_apply",
                                     file.RelativePath,
                                     owner.Id,
-                                    "summary",
+                                    repairTarget,
                                     mapping.SourceUrl));
                             }
                         }
@@ -794,6 +808,7 @@ static class ImporterProgram
         }
 
         blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
+        blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         if (ContainsSourceUrl(blockText, docs.SourceUrl))
             return text[..block.Start] + blockText + text[block.End..];
 
@@ -877,6 +892,66 @@ static class ImporterProgram
                 blockText[docsClose..];
         }
         return text[..block.Start] + replacementBlock + text[block.End..];
+    }
+
+    static bool HasAugmentedRemarksPlaceholder(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return Regex.IsMatch(
+            file.Text[block.Start..block.End],
+            @"<remarks\b[^>]*>[ \t]*To be added\.?[ \t]*(?:\r?\n[ \t]*)?<para\b",
+            RegexOptions.CultureInvariant);
+    }
+
+    static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
+    {
+        var summary = owner.Docs.Element("summary")?.Value.Trim();
+        if (summary is null ||
+            (!summary.EndsWith("e.g.", StringComparison.OrdinalIgnoreCase) &&
+             !summary.EndsWith("vs.", StringComparison.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        return file.Text[block.Start..block.End].Contains(
+            "title=\"Reference documentation\"",
+            StringComparison.Ordinal);
+    }
+
+    static string RemoveAugmentedRemarksPlaceholder(string blockText) =>
+        Regex.Replace(
+            blockText,
+            @"(?<open><remarks\b[^>]*>)[ \t]*To be added\.?[ \t]*(?:(?<linebreak>\r?\n)(?<indent>[ \t]*))?(?=<para\b)",
+            match => match.Groups["open"].Value +
+                (match.Groups["linebreak"].Success
+                    ? match.Groups["linebreak"].Value + match.Groups["indent"].Value
+                    : ""),
+            RegexOptions.CultureInvariant);
+
+    static string ReplaceTruncatedSummary(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var summary = Regex.Match(
+            blockText,
+            @"<summary\b[^>]*>(?<value>[^<]*)</summary>",
+            RegexOptions.CultureInvariant);
+        if (!summary.Success ||
+            (!summary.Groups["value"].Value.TrimEnd().EndsWith("e.g.", StringComparison.OrdinalIgnoreCase) &&
+             !summary.Groups["value"].Value.TrimEnd().EndsWith("vs.", StringComparison.OrdinalIgnoreCase)))
+        {
+            return text;
+        }
+
+        var valueStart = summary.Groups["value"].Index;
+        var valueEnd = valueStart + summary.Groups["value"].Length;
+        var updatedBlock = blockText[..valueStart] + XmlEscape(docs.Summary) + blockText[valueEnd..];
+        return text[..block.Start] + updatedBlock + text[block.End..];
     }
 
     static string RemoveStaleSourceLinks(
@@ -1237,6 +1312,16 @@ static class ImporterProgram
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var abbreviationPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "Represents a fixture widget. The widget is used only by local importer tests.",
+                "Distinguishes contained vs. not contained, e.g. in fixture input. The widget is used only by local importer tests.",
+                StringComparison.Ordinal));
+        Assert(
+            abbreviationPage.TypeDocs?.Summary ==
+                "Distinguishes contained vs. not contained, e.g. in fixture input.",
+            "abbreviations do not truncate summaries");
 
         var setTitle = file.Owners.Single(owner => owner.Id.Contains("SetTitle", StringComparison.Ordinal));
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
@@ -1246,6 +1331,34 @@ static class ImporterProgram
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
+        var augmentedRemarksText = file.Text.Replace(
+            "<remarks>\n          <para>Keep this existing prose.</para>",
+            "<remarks>\n          To be added.\n          <para>Keep this existing prose.</para>",
+            StringComparison.Ordinal);
+        var cleanedRemarksText = AddSourceDocumentationIfSafe(
+            augmentedRemarksText,
+            file,
+            setTitle,
+            mappedDocs);
+        Assert(
+            !cleanedRemarksText.Contains(
+                "<remarks>\n          To be added.\n          <para>Keep this existing prose.</para>",
+                StringComparison.Ordinal),
+            "augmented remarks placeholder is removed");
+        var truncatedSummaryText = file.Text.Replace(
+            "<summary>To be added.</summary>",
+            "<summary>Distinguishes fixtures vs.</summary>",
+            StringComparison.Ordinal);
+        var repairedSummaryText = ReplaceTruncatedSummary(
+            truncatedSummaryText,
+            file,
+            setTitle,
+            mappedDocs);
+        Assert(
+            repairedSummaryText.Contains(
+                "<summary>Sets the widget title.</summary>",
+                StringComparison.Ordinal),
+            "truncated importer summary is replaced from source");
         var titleParameter = setTitle.Placeholders.Single(item => item.Name == "param");
         Assert(
             ReplacementFor(titleParameter, mappedDocs).Text == "the title to display",
@@ -1680,7 +1793,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 52 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, abbreviation-aware summaries, augmented-placeholder cleanup, truncated-summary repair, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -2684,8 +2797,35 @@ static class ImporterProgram
 
         static string FirstSentence(string text)
         {
-            var match = Regex.Match(text, @"^(.+?[.!?])(?:\s|$)", RegexOptions.CultureInvariant);
-            return match.Success ? match.Groups[1].Value : text;
+            for (var index = 0; index < text.Length; index++)
+            {
+                if (text[index] is not ('.' or '!' or '?') ||
+                    (index + 1 < text.Length && !char.IsWhiteSpace(text[index + 1])) ||
+                    (text[index] == '.' && IsAbbreviation(text, index)))
+                {
+                    continue;
+                }
+
+                return text[..(index + 1)];
+            }
+
+            return text;
+        }
+
+        static bool IsAbbreviation(string text, int periodIndex)
+        {
+            var tokenStart = periodIndex;
+            while (tokenStart > 0 && !char.IsWhiteSpace(text[tokenStart - 1]))
+                tokenStart--;
+            var token = text[tokenStart..(periodIndex + 1)];
+            return token.Equals("e.g.", StringComparison.OrdinalIgnoreCase) ||
+                token.Equals("i.e.", StringComparison.OrdinalIgnoreCase) ||
+                token.Equals("vs.", StringComparison.OrdinalIgnoreCase) ||
+                token.Equals("etc.", StringComparison.OrdinalIgnoreCase) ||
+                Regex.IsMatch(
+                    token,
+                    @"^(?:[A-Za-z]\.){2,}$",
+                    RegexOptions.CultureInvariant);
         }
     }
 
