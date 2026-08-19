@@ -1315,6 +1315,16 @@ static class ImporterProgram
     {
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
+        var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
+        Assert(
+            !Directory.EnumerateFiles(healthConnectDocs, "*.xml")
+                .SelectMany(path => Regex.Matches(
+                    File.ReadAllText(path),
+                    @"<remarks>To be added\.\s*<para><format type=""text/html""><a href=""https://developer\.android\.com/reference/android/health/connect/datatypes",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                    .Cast<Match>())
+                .Any(),
+            "Health Connect documentation has no importer-generated remarks placeholders");
         var repositoryScope = SelectFiles(
             repositoryRoot,
             docsRoot,
@@ -1805,7 +1815,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 54 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum and importer-generated remarks repair, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum and importer-generated remarks repair, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
