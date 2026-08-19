@@ -1098,7 +1098,11 @@ static class ImporterProgram
     static string SourceAnchorMember(string url)
     {
         var anchor = WebUtility.HtmlDecode(url).Split('#', 2).ElementAtOrDefault(1) ?? "";
-        return Uri.UnescapeDataString(anchor).Split('(', 2)[0];
+        var member = Uri.UnescapeDataString(anchor).Split('(', 2)[0];
+        var nestedConstructor = member.LastIndexOf('$');
+        return nestedConstructor >= 0
+            ? member[(nestedConstructor + 1)..]
+            : member;
     }
 
     static void ApplyChangedFiles(
@@ -1390,6 +1394,17 @@ static class ImporterProgram
                     "https://developers.google.com/terms/site-policies",
                     StringComparison.Ordinal),
             "source link precedes existing attribution");
+        const string nestedBuilderAnchor =
+            "https://developer.android.com/reference/android/example/Widget.Builder#Widget$Builder()";
+        const string builderAnchor =
+            "https://developer.android.com/reference/android/example/Widget.Builder#Builder()";
+        Assert(
+            !RemoveStaleSourceLinks(
+                $"<para><format type=\"text/html\"><a href=\"{nestedBuilderAnchor}\" " +
+                "title=\"Reference documentation\">Stale builder reference.</a></format></para>\n",
+                builderAnchor,
+                removeAll: false).Contains(nestedBuilderAnchor, StringComparison.Ordinal),
+            "stale nested builder constructor link was removed");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
 
         file.UpdateBlockOffsets(setTitle.Order, withRemarks);
@@ -1787,7 +1802,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 59 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 60 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including nested builder constructor anchors, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
