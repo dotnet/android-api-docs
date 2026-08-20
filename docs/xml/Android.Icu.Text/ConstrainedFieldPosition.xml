@@ -139,30 +139,15 @@
         <param name="classConstraint">The field class to fix when iterating.</param>
         <summary>Sets a constraint on the field class.</summary>
         <remarks>
-          <para>Sets a constraint on the field class.
-            
-            When this instance of ConstrainedFieldPosition is passed to <c>FormattedValue#nextPosition</c>, positions are
-            skipped unless the field is an instance of the class constraint, including subclasses.
-            
-            Any previously set constraints are cleared.
-            
-            For example, to loop over only the number-related fields:</para>
+          <code lang="text/java">public void constrainClass (Class&lt;?&gt; classConstraint)</code>
+          <para>Sets a constraint on the field class. When this instance of ConstrainedFieldPosition is passed to FormattedValue.nextPosition, positions are skipped unless the field is an instance of the class constraint, including subclasses. Any previously set constraints are cleared. For example, to loop over only the number-related fields:</para>
           <code lang="text/java">ConstrainedFieldPosition cfpos;
-            cfpos.constrainClass(NumberFormat.Field.class);
-            while (fmtval.nextPosition(cfpos)) {
-              // handle the number-related field position
-            }
-            </code>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#constrainClass(java.lang.Class%3C?%3E)" title="Reference documentation">Java documentation for <code>android.icu.text.ConstrainedFieldPosition.constrainClass(java.lang.Class&lt;?&gt;)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+cfpos.constrainClass(NumberFormat.Field.class);
+while (fmtval.nextPosition(cfpos)) {
+  // handle the number-related field position
+}</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#constrainClass(java.lang.Class&lt;?&gt;)" title="Reference documentation">Android reference for <code>android.icu.text.ConstrainedFieldPosition.constrainClass</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -193,9 +178,19 @@
         <Parameter Name="field" Type="Java.Text._Format+Field" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="field">The field to fix when iterating.</param>
+        <summary>Sets a constraint on the field.</summary>
+        <remarks>
+          <code lang="text/java">public void constrainField (Format.Field field)</code>
+          <para>Sets a constraint on the field. When this instance of ConstrainedFieldPosition is passed to FormattedValue.nextPosition, positions are skipped unless they have the given field. Any previously set constraints are cleared. For example, to loop over all grouping separators: Changing the constraint while in the middle of iterating over a FormattedValue does not generally have well-defined behavior.</para>
+          <code lang="text/java">ConstrainedFieldPosition cfpos;
+cfpos.constrainField(NumberFormat.Field.GROUPING_SEPARATOR);
+while (fmtval.nextPosition(cfpos)) {
+  // handle the grouping separator position
+}</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#constrainField(java.text.Format.Field)" title="Reference documentation">Android reference for <code>android.icu.text.ConstrainedFieldPosition.constrainField</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Field">
@@ -222,9 +217,13 @@
         <ReturnType>Java.Text._Format+Field</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the field for the current position.</summary>
+        <value>The field saved in the instance. See above for null conditions.</value>
+        <remarks>
+          <para>Gets the field for the current position. The return value is well-defined and non-null only after FormattedValue#nextPosition returns true.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#getField()" title="Reference documentation">Android reference for <code>android.icu.text.ConstrainedFieldPosition.getField</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FieldValue">
@@ -437,11 +436,15 @@
         <Parameter Name="fieldValue" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <param name="fieldValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="field">The field to test.</param>
+        <param name="fieldValue">The field value to test. Should be null if there is no value.</param>
+        <summary>Determines whether a given field and value should be included given the constraints.</summary>
+        <returns>Whether the field should be included given the constraints.</returns>
+        <remarks>
+          <para>Determines whether a given field and value should be included given the constraints. Intended to be used by FormattedValue implementations.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#matchesField(java.text.Format.Field,%20java.lang.Object)" title="Reference documentation">Android reference for <code>android.icu.text.ConstrainedFieldPosition.matchesField</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -517,12 +520,16 @@
         <Parameter Name="limit" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="limit">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="field">The new field.</param>
+        <param name="value">The new field value. Should be null if there is no value.</param>
+        <param name="start">The new inclusive start index.</param>
+        <param name="limit">The new exclusive end index.</param>
+        <summary>Sets new values for the primary public getters.</summary>
+        <remarks>
+          <para>Sets new values for the primary public getters. Intended to be used by FormattedValue implementations. It is up to the implementation to ensure that the user-requested constraints are satisfied. This method does not check!</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/ConstrainedFieldPosition#setState(java.text.Format.Field,%20java.lang.Object,%20int,%20int)" title="Reference documentation">Android reference for <code>android.icu.text.ConstrainedFieldPosition.setState</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Start">
