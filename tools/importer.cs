@@ -143,10 +143,10 @@ static class ImporterProgram
                 foreach (var owner in file.Owners.OrderBy(item => item.Order))
                 {
                     var ownerChanged = false;
-                    var cleaned = RemoveStaleNestedConstructorLinks(
+                    var normalized = NormalizeStaleNestedConstructorLinks(
                         text,
                         file.DocsBlocks[owner.Order]);
-                    if (!cleaned.Equals(text, StringComparison.Ordinal))
+                    if (!normalized.Equals(text, StringComparison.Ordinal))
                     {
                         if (remaining == 0)
                         {
@@ -160,7 +160,7 @@ static class ImporterProgram
                         }
                         else
                         {
-                            text = cleaned;
+                            text = normalized;
                             file.UpdateBlockOffsets(owner.Order, text);
                             fileChanged = true;
                             ownerChanged = true;
@@ -982,19 +982,23 @@ static class ImporterProgram
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
     }
 
-    static string RemoveStaleNestedConstructorLinks(
+    static string NormalizeStaleNestedConstructorLinks(
         string text,
         DocsBlock block)
     {
         var blockText = text[block.Start..block.End];
-        var cleanedBlock = Regex.Replace(
+        var normalizedBlock = Regex.Replace(
             blockText,
             @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?\bhref=""[^""]*#[^""()]*\$[A-Za-z_]\w*\([^""]*""(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
-            "",
+            match => Regex.Replace(
+                match.Value,
+                @"[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
+                "${constructor}",
+                RegexOptions.CultureInvariant),
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
-        return cleanedBlock.Equals(blockText, StringComparison.Ordinal)
+        return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
             ? text
-            : text[..block.Start] + cleanedBlock + text[block.End..];
+            : text[..block.Start] + normalizedBlock + text[block.End..];
     }
 
     static string RemoveEnumDiscardedMetadata(string blockText) =>
@@ -1453,20 +1457,17 @@ static class ImporterProgram
             "stale nested builder constructor link was removed");
         var nestedConstructorText =
             $"<Docs><remarks>{Environment.NewLine}<para><format type=\"text/html\"><a href=\"{nestedBuilderAnchor}\" " +
-            $"title=\"Reference documentation\">Stale builder reference.</a></format></para>{Environment.NewLine}" +
-            "<para><format type=\"text/html\"><a href=\"" + builderAnchor +
-            $"\" title=\"Reference documentation\">Current builder reference.</a></format></para>{Environment.NewLine}</remarks></Docs>";
-        var staleNestedConstructor = new DocsBlock(
-            0,
-            0,
-            nestedConstructorText.Length);
-        var cleanedNestedConstructorText = RemoveStaleNestedConstructorLinks(
+            $"title=\"Reference documentation\">Stale <code>Widget.Builder.Widget$Builder()</code> reference.</a></format></para>{Environment.NewLine}</remarks></Docs>";
+        var normalizedNestedConstructorText = NormalizeStaleNestedConstructorLinks(
             nestedConstructorText,
-            staleNestedConstructor);
+            new DocsBlock(0, 0, nestedConstructorText.Length));
         Assert(
-            !cleanedNestedConstructorText.Contains(nestedBuilderAnchor, StringComparison.Ordinal) &&
-                cleanedNestedConstructorText.Contains(builderAnchor, StringComparison.Ordinal),
-            "independent stale nested constructor cleanup preserves current link");
+            !normalizedNestedConstructorText.Contains("$Builder(", StringComparison.Ordinal) &&
+                normalizedNestedConstructorText.Contains(builderAnchor, StringComparison.Ordinal) &&
+                normalizedNestedConstructorText.Contains(
+                    "<code>Widget.Builder.Builder()</code>",
+                    StringComparison.Ordinal),
+            "independent nested constructor normalization preserves the reference paragraph");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
 
         file.UpdateBlockOffsets(setTitle.Order, withRemarks);
@@ -1864,7 +1865,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 61 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including independent nested builder constructor cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 61 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including independent nested builder constructor normalization, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
