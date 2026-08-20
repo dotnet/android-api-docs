@@ -143,6 +143,37 @@ static class ImporterProgram
                 foreach (var owner in file.Owners.OrderBy(item => item.Order))
                 {
                     var ownerChanged = false;
+                    var normalized = NormalizeStaleNestedConstructorLinks(
+                        text,
+                        file.DocsBlocks[owner.Order]);
+                    if (!normalized.Equals(text, StringComparison.Ordinal))
+                    {
+                        if (remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                owner.SourceRequest?.Url ?? ""));
+                        }
+                        else
+                        {
+                            text = normalized;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                owner.SourceRequest?.Url ?? ""));
+                        }
+                    }
+
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
@@ -542,7 +573,10 @@ static class ImporterProgram
         bool isEnumField = false)
     {
         if (placeholder.IsImporterMetadataRepair)
-            return Replacement.Use("");
+            return ChannelValueOrSkip(
+                docs.Paragraphs.FirstOrDefault(),
+                "remarks",
+                "source_remarks_missing");
 
         if (isEnumField && placeholder.Name is "remarks" or "para")
             return Replacement.Skip(
@@ -734,36 +768,59 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (placeholder.IsImporterMetadataRepair)
         {
-            var directPlaceholder = Regex.Match(
-                blockText,
-                @"(<remarks\b[^>]*>\s*)(?<value>To be added\.?)",
-                RegexOptions.Singleline | RegexOptions.CultureInvariant);
-            if (directPlaceholder.Success)
+            var remarks = Regex.Matches(
+                    blockText,
+                    @"<remarks\b[^>]*>.*?</remarks>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                .Cast<Match>()
+                .FirstOrDefault(match =>
+                {
+                    var parsed = XElement.Parse(match.Value, LoadOptions.PreserveWhitespace);
+                    return LoadedFile.IsImporterAugmentedRemarksPlaceholder(parsed);
+                });
+            if (remarks is null)
             {
-                var value = directPlaceholder.Groups["value"];
-                var repairedBlock = blockText[..value.Index] + blockText[(value.Index + value.Length)..];
-                updated = text[..block.Start] + repairedBlock + text[block.End..];
-                error = "";
-                return true;
+                updated = text;
+                error = "Could not locate the structurally identified importer metadata remarks repair.";
+                return false;
             }
 
-            var emptyParagraph = Regex.Match(
-                blockText,
-                @"^[ \t]*<para>\s*</para>[ \t]*\r?\n(?:^[ \t]*\r?\n)*",
-                RegexOptions.Multiline | RegexOptions.CultureInvariant);
-            if (emptyParagraph.Success)
+            var remarksElement = XElement.Parse(remarks.Value, LoadOptions.PreserveWhitespace);
+            var directPlaceholder = remarksElement.Nodes()
+                .OfType<XText>()
+                .FirstOrDefault(node => node is not XCData &&
+                    NormalizeText(node.Value) is "To be added" or "To be added.");
+            var emptyParagraph = remarksElement.Elements("para")
+                .SingleOrDefault(paragraph => !paragraph.HasElements &&
+                    NormalizeText(paragraph.Value).Length == 0);
+            if (directPlaceholder is null && emptyParagraph is null)
             {
-                var repairedBlock =
-                    blockText[..emptyParagraph.Index] +
-                    blockText[(emptyParagraph.Index + emptyParagraph.Length)..];
-                updated = text[..block.Start] + repairedBlock + text[block.End..];
-                error = "";
-                return true;
+                updated = text;
+                error = "Could not locate the structurally identified importer metadata remarks repair.";
+                return false;
             }
 
-            updated = text;
-            error = "Could not locate the structurally identified importer metadata remarks repair.";
-            return false;
+            if (directPlaceholder is not null)
+                directPlaceholder.ReplaceWith(new XElement("para", replacement));
+            else
+                emptyParagraph!.Value = replacement;
+            var repairedRemarks = remarksElement.ToString(SaveOptions.DisableFormatting);
+            if (remarks.Value.Contains("\r\n", StringComparison.Ordinal))
+                repairedRemarks = repairedRemarks.Replace("\n", "\r\n", StringComparison.Ordinal);
+            var repairedBlock = blockText[..remarks.Index] + repairedRemarks +
+                blockText[(remarks.Index + remarks.Length)..];
+            updated = text[..block.Start] + repairedBlock + text[block.End..];
+            var reparsed = XDocument.Parse(updated, LoadOptions.PreserveWhitespace)
+                .Descendants("remarks")
+                .Any(LoadedFile.IsImporterAugmentedRemarksPlaceholder);
+            if (reparsed)
+            {
+                updated = text;
+                error = "Importer metadata remarks repair remained a candidate after replacement.";
+                return false;
+            }
+            error = "";
+            return true;
         }
 
         var attributeLookahead = placeholder.Name switch
@@ -944,6 +1001,42 @@ static class ImporterProgram
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
     }
 
+    static string NormalizeStaleNestedConstructorLinks(
+        string text,
+        DocsBlock block)
+    {
+        var blockText = text[block.Start..block.End];
+        var normalizedBlock = Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?\bhref=""[^""]*#[^""()]*\$[A-Za-z_]\w*\([^""]*""(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                var paragraph = match.Value;
+                var anchor = Regex.Match(
+                    paragraph,
+                    @"<a\b(?<attrs>[^>]*\btitle=""Reference documentation""[^>]*)>(?<label>.*?)</a>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
+                if (!anchor.Success)
+                    return paragraph;
+                var normalizedAnchor = Regex.Replace(
+                    anchor.Value,
+                    @"(?<=href=""[^""]*#)[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
+                    "${constructor}",
+                    RegexOptions.CultureInvariant);
+                normalizedAnchor = Regex.Replace(
+                    normalizedAnchor,
+                    @"(?<=>)(?<prefix>.*?)[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
+                    labelMatch => labelMatch.Groups["prefix"].Value + labelMatch.Groups["constructor"].Value,
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
+                return paragraph[..anchor.Index] + normalizedAnchor +
+                    paragraph[(anchor.Index + anchor.Length)..];
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+        return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
+            ? text
+            : text[..block.Start] + normalizedBlock + text[block.End..];
+    }
+
     static string RemoveEnumDiscardedMetadata(string blockText) =>
         Regex.Replace(
             blockText,
@@ -1091,7 +1184,11 @@ static class ImporterProgram
     static string SourceAnchorMember(string url)
     {
         var anchor = WebUtility.HtmlDecode(url).Split('#', 2).ElementAtOrDefault(1) ?? "";
-        return Uri.UnescapeDataString(anchor).Split('(', 2)[0];
+        var member = Uri.UnescapeDataString(anchor).Split('(', 2)[0];
+        var nestedConstructor = member.LastIndexOf('$');
+        return nestedConstructor >= 0
+            ? member[(nestedConstructor + 1)..]
+            : member;
     }
 
     static void ApplyChangedFiles(
@@ -1248,6 +1345,16 @@ static class ImporterProgram
     {
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
+        var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
+        Assert(
+            !Directory.EnumerateFiles(healthConnectDocs, "*.xml")
+                .SelectMany(path => Regex.Matches(
+                    File.ReadAllText(path),
+                    @"<remarks>To be added\.\s*<para><format type=""text/html""><a href=""https://developer\.android\.com/reference/android/health/connect/datatypes",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                    .Cast<Match>())
+                .Any(),
+            "Health Connect documentation has no importer-generated remarks placeholders");
         var repositoryScope = SelectFiles(
             repositoryRoot,
             docsRoot,
@@ -1373,6 +1480,40 @@ static class ImporterProgram
                     "https://developers.google.com/terms/site-policies",
                     StringComparison.Ordinal),
             "source link precedes existing attribution");
+        const string nestedBuilderAnchor =
+            "https://developer.android.com/reference/android/example/Widget.Builder#Widget$Builder()";
+        const string builderAnchor =
+            "https://developer.android.com/reference/android/example/Widget.Builder#Builder()";
+        Assert(
+            !RemoveStaleSourceLinks(
+                $"<para><format type=\"text/html\"><a href=\"{nestedBuilderAnchor}\" " +
+                "title=\"Reference documentation\">Stale builder reference.</a></format></para>\n",
+                builderAnchor,
+                removeAll: false).Contains(nestedBuilderAnchor, StringComparison.Ordinal),
+            "stale nested builder constructor link was removed");
+        var nestedConstructorText =
+            $"<Docs><remarks>{Environment.NewLine}<para><format type=\"text/html\"><a href=\"{nestedBuilderAnchor}\" " +
+            $"title=\"Reference documentation\">Stale <code>Widget.Builder.Widget$Builder()</code> reference.</a></format></para>{Environment.NewLine}</remarks></Docs>";
+        var normalizedNestedConstructorText = NormalizeStaleNestedConstructorLinks(
+            nestedConstructorText,
+            new DocsBlock(0, 0, nestedConstructorText.Length));
+        Assert(
+            !normalizedNestedConstructorText.Contains("$Builder(", StringComparison.Ordinal) &&
+                normalizedNestedConstructorText.Contains(builderAnchor, StringComparison.Ordinal) &&
+                normalizedNestedConstructorText.Contains(
+                    "<code>Widget.Builder.Builder()</code>",
+                    StringComparison.Ordinal),
+            "independent nested constructor normalization preserves the reference paragraph");
+        var nestedConstructorWithUnrelatedDollar = nestedConstructorText.Replace(
+            " reference.</a>",
+            " and <code>unrelated$code</code> reference.</a>",
+            StringComparison.Ordinal);
+        Assert(
+            NormalizeStaleNestedConstructorLinks(
+                nestedConstructorWithUnrelatedDollar,
+                new DocsBlock(0, 0, nestedConstructorWithUnrelatedDollar.Length))
+                .Contains("<code>unrelated$code</code>", StringComparison.Ordinal),
+            "nested constructor normalization preserves unrelated dollar text");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
 
         file.UpdateBlockOffsets(setTitle.Order, withRemarks);
@@ -1421,38 +1562,90 @@ static class ImporterProgram
             "Creative Commons 2.5 Attribution License.</a></format></para></remarks></Docs>";
         var metadataRepairRemarks = XDocument.Parse(metadataRepairText).Root!.Element("remarks")!;
         var metadataRepair = Placeholder.Create(metadataRepairRemarks, 0);
+        var metadataReplacement = ReplacementFor(metadataRepair, favoriteResult.Docs!).Text!;
         Assert(metadataRepair.IsImporterMetadataRepair, "importer metadata remarks repair detection");
+        Assert(TryReplacePlaceholder(
+            metadataRepairText,
+            new DocsBlock(0, 0, metadataRepairText.Length),
+            metadataRepair,
+            metadataReplacement,
+            out var repairedMetadataText,
+            out _), "importer metadata remarks placeholder is replaced");
         Assert(
-            TryReplacePlaceholder(
-                metadataRepairText,
-                new DocsBlock(0, 0, metadataRepairText.Length),
-                metadataRepair,
-                ReplacementFor(metadataRepair, favoriteResult.Docs!).Text!,
-                out var repairedMetadataText,
-                out _) &&
-                !repairedMetadataText.Contains("To be added.", StringComparison.Ordinal) &&
-                repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
-            "importer metadata remarks placeholder repair");
+            !repairedMetadataText.Contains("To be added.", StringComparison.Ordinal),
+            "importer metadata remarks placeholder is removed");
+        var repairedMetadataProse = NormalizeText(
+            XDocument.Parse(repairedMetadataText).Root!.Element("remarks")!
+                .Elements("para").First().Value);
+        Assert(
+            repairedMetadataProse == NormalizeText(metadataReplacement),
+            "importer metadata remarks placeholder retains source prose");
+        Assert(
+            repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
+            "importer metadata remarks preserves reference metadata");
         const string emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
             "    <para><format type=\"text/html\"><a " +
             "href=\"https://developer.android.com/reference/android/example/Widget#favorite\" " +
             "title=\"Reference documentation\">Android reference.</a></format></para>\n" +
+            "    <para>Portions of this page are modifications based on work created and shared by the " +
+            "<format type=\"text/html\"><a href=\"https://developers.google.com/terms/site-policies\">" +
+            "Android Open Source Project</a></format> and used according to terms described in the " +
+            "<format type=\"text/html\"><a href=\"https://creativecommons.org/licenses/by/2.5/\">" +
+            "Creative Commons 2.5 Attribution License.</a></format></para>\n" +
             "  </remarks>\n</Docs>";
         var emptyMetadataRepairRemarks =
             XDocument.Parse(emptyMetadataRepairText).Root!.Element("remarks")!;
+        var emptyMetadataRepairVariants = new[]
+        {
+            emptyMetadataRepairText,
+            emptyMetadataRepairText.Replace("\n", "\r\n", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<para />", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<para> \t </para>", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<para data-source=\"importer\">&#x20;</para>", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<!-- retained --><para></para>", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace(
+                "<remarks>\n    <para></para>\n    \n",
+                "<remarks><para></para>",
+                StringComparison.Ordinal),
+        };
         Assert(
             LoadedFile.IsImporterAugmentedRemarksPlaceholder(emptyMetadataRepairRemarks) &&
                 TryReplacePlaceholder(
                     emptyMetadataRepairText,
                     new DocsBlock(0, 0, emptyMetadataRepairText.Length),
                     Placeholder.Create(emptyMetadataRepairRemarks, 0),
-                    "",
+                    metadataReplacement,
                     out var repairedEmptyMetadataText,
                     out _) &&
                 !repairedEmptyMetadataText.Contains("<para></para>", StringComparison.Ordinal) &&
-                !Regex.IsMatch(repairedEmptyMetadataText, @"(?m)^[ \t]+$"),
-            "importer empty metadata paragraph repair");
+                NormalizeText(XDocument.Parse(repairedEmptyMetadataText).Root!.Element("remarks")!
+                    .Elements("para").First().Value) == NormalizeText(metadataReplacement) &&
+                repairedEmptyMetadataText.Contains("Reference documentation", StringComparison.Ordinal) &&
+                repairedEmptyMetadataText.Contains(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal),
+            "importer empty metadata paragraph repair retains prose and metadata");
+        foreach (var emptyMetadataRepairVariant in emptyMetadataRepairVariants)
+        {
+            var variantRemarks = XDocument.Parse(emptyMetadataRepairVariant).Root!.Element("remarks")!;
+            var variantPlaceholder = Placeholder.Create(variantRemarks, 0);
+            Assert(
+                LoadedFile.IsImporterAugmentedRemarksPlaceholder(variantRemarks) &&
+                    TryReplacePlaceholder(
+                        emptyMetadataRepairVariant,
+                        new DocsBlock(0, 0, emptyMetadataRepairVariant.Length),
+                        variantPlaceholder,
+                        metadataReplacement,
+                        out var repairedVariantText,
+                        out _) &&
+                    XDocument.Parse(repairedVariantText).Root is not null &&
+                    !LoadedFile.IsImporterAugmentedRemarksPlaceholder(
+                        XDocument.Parse(repairedVariantText).Root!.Element("remarks")!) &&
+                    NormalizeText(XDocument.Parse(repairedVariantText).Root!.Element("remarks")!
+                        .Elements("para").First().Value) == NormalizeText(metadataReplacement),
+                "importer empty metadata paragraph repair supports LF, CRLF, self-closing, whitespace, and inline layouts");
+        }
 
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
         Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
@@ -1761,7 +1954,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose across LF, CRLF, self-closing, whitespace, and inline layouts, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including independent nested builder constructor normalization, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
