@@ -1,4 +1,4 @@
-<Type Name="ConnectionService" FullName="Android.Telecom.ConnectionService">
+﻿<Type Name="ConnectionService" FullName="Android.Telecom.ConnectionService">
   <TypeSignature Language="C#" Value="public abstract class ConnectionService : Android.App.Service" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract beforefieldinit ConnectionService extends Android.App.Service" />
   <TypeSignature Language="DocId" Value="T:Android.Telecom.ConnectionService" />
@@ -111,7 +111,7 @@
             reboot.  You can use <c>TelecomManager#getOwnSelfManagedPhoneAccounts()</c> to confirm the
             <c>PhoneAccount</c> you registered.  Your app should generally only register a single
             <c>PhoneAccount</c>.
-            
+
             &lt;h2&gt;Implementing ConnectionService&lt;/h2&gt;
             Your app uses <c>TelecomManager#placeCall(Uri, Bundle)</c> to start new outgoing calls and
             <c>TelecomManager#addNewIncomingCall(PhoneAccountHandle, Bundle)</c> to report new incoming
@@ -120,7 +120,7 @@
             handle a call request at the current time (i.e. there could be an ongoing emergency call, which
             means your app is not allowed to handle calls at the current time), or it will ask your app to
             create a new instance of <c>Connection</c> to represent a call in your app.
-            
+
             Your app should implement the following <c>ConnectionService</c> methods:
             &lt;ul&gt;
                 &lt;li&gt;<c>ConnectionService#onCreateOutgoingConnection(PhoneAccountHandle,
@@ -141,7 +141,7 @@
                 at this time.  Your app should NOT post a new incoming call notification and should silently
                 reject the call.&lt;/li&gt;
             &lt;/ul&gt;
-            
+
             &lt;h2&gt;Implementing a Connection&lt;/h2&gt;
             Your app should extend the <c>Connection</c> class to represent calls in your app.  When you
             create new instances of your <c>Connection</c>, you should ensure the following properties are
@@ -171,7 +171,7 @@
                 <c>ConnectionService#onCreateIncomingConnection(PhoneAccountHandle, ConnectionRequest)</c>).
                 &lt;/li&gt;
             &lt;/ul&gt;
-            
+
             &lt;h2&gt;How to Place Outgoing Calls&lt;/h2&gt;
             When your app wants to place an outgoing call it calls
             <c>TelecomManager#placeCall(Uri, Bundle)</c>.  You should specify a <c>Uri</c> to identify
@@ -192,7 +192,7 @@
             that your app is in the process of connecting the call to the other party.</para>
       <para>Once the other party answers the call (or it is set up successfully), your app should call
             <c>Connection#setActive()</c> to inform Telecom that the call is now active.
-            
+
             &lt;h2&gt;How to Add Incoming Calls&lt;/h2&gt;
             When your app receives an incoming call, it should call
             <c>TelecomManager#addNewIncomingCall(PhoneAccountHandle, Bundle)</c>.  Set the
@@ -231,7 +231,7 @@
             reject the call which are raised via Bluetooth or other calling surfaces.  Your app should call
             <c>Connection#setDisconnected(DisconnectCause)</c> and supply an instance of
             <c>DisconnectCause</c> with <c>DisconnectCause#REJECTED</c> in this case.
-            
+
             &lt;h2&gt;Ending Calls&lt;/h2&gt;
             When an ongoing active call (incoming or outgoing) has ended, your app is responsible for
             informing Telecom that the call ended.</para>
@@ -251,7 +251,7 @@
             should call <c>Connection#setDisconnected(DisconnectCause)</c> with an instance of
             <c>DisconnectCause</c> and reason <c>DisconnectCause#LOCAL</c> to indicate to Telecom that your
             app has disconnected the call as requested based on the user's request.
-            
+
             &lt;h2&gt;Holding and Unholding Calls&lt;/h2&gt;
             When your app specifies <c>Connection#CAPABILITY_SUPPORT_HOLD</c> and
             <c>Connection#CAPABILITY_HOLD</c> on your <c>Connection</c> instance, it is telling Telecom
@@ -278,9 +278,9 @@
         </format>
       </para>
       <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
@@ -379,9 +379,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -418,7 +418,22 @@
         <param name="originalConnection">The original connection object.</param>
         <summary>This is used to make a <c>Connection</c> become a <c>Conference</c> when the remote party
             merges calls together.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>This is used to make a <c>Connection</c> become a <c>Conference</c> when the remote party
+            merges calls together. In prior API revisions, the <c>Connection</c> would be disconnected
+            and re-added as a <c>Conference</c>; this method accomplishes that in a single step and
+            maintains attributes such as the call duration associated with the <c>Connection</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telecom/ConnectionService#addConferenceFromConnection(android.telecom.Conference,%20android.telecom.Connection)" title="Reference documentation">Java documentation for <code>android.telecom.ConnectionService.addConferenceFromConnection(android.telecom.Conference, android.telecom.Connection)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddExistingConnection">
@@ -466,9 +481,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -513,9 +528,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -560,9 +575,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -614,9 +629,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -658,9 +673,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -714,9 +729,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -773,9 +788,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -829,9 +844,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -888,9 +903,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -968,9 +983,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1020,9 +1035,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1190,9 +1205,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1234,9 +1249,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1273,7 +1288,22 @@
             <c>#onCreateIncomingConference(PhoneAccountHandle, ConnectionRequest)</c>
             or <c>#onCreateOutgoingConference(PhoneAccountHandle, ConnectionRequest)</c> has been
             added to the <c>ConnectionService</c> and sent to Telecom.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by Telecom after the <c>Conference</c> returned by
+            <c>#onCreateIncomingConference(PhoneAccountHandle, ConnectionRequest)</c>
+            or <c>#onCreateOutgoingConference(PhoneAccountHandle, ConnectionRequest)</c> has been
+            added to the <c>ConnectionService</c> and sent to Telecom.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telecom/ConnectionService#onCreateConferenceComplete(android.telecom.Conference)" title="Reference documentation">Java documentation for <code>android.telecom.ConnectionService.onCreateConferenceComplete(android.telecom.Conference)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnCreateConnectionComplete">
@@ -1308,7 +1338,22 @@
             <c>#onCreateIncomingConnection(PhoneAccountHandle, ConnectionRequest)</c>
             or <c>#onCreateOutgoingConnection(PhoneAccountHandle, ConnectionRequest)</c> has been
             added to the <c>ConnectionService</c> and sent to Telecom.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by Telecom after the <c>Connection</c> returned by
+            <c>#onCreateIncomingConnection(PhoneAccountHandle, ConnectionRequest)</c>
+            or <c>#onCreateOutgoingConnection(PhoneAccountHandle, ConnectionRequest)</c> has been
+            added to the <c>ConnectionService</c> and sent to Telecom.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telecom/ConnectionService#onCreateConnectionComplete(android.telecom.Connection)" title="Reference documentation">Java documentation for <code>android.telecom.ConnectionService.onCreateConnectionComplete(android.telecom.Connection)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnCreateIncomingConference">
@@ -1363,9 +1408,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1421,9 +1466,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1475,9 +1520,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1533,9 +1578,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1616,9 +1661,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1688,9 +1733,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1742,9 +1787,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1809,9 +1854,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1867,9 +1912,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1954,9 +1999,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -2015,9 +2060,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -2067,9 +2112,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -2115,9 +2160,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -2155,9 +2200,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
