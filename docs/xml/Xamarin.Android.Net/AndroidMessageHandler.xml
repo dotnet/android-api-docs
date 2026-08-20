@@ -1,4 +1,4 @@
-<Type Name="AndroidMessageHandler" FullName="Xamarin.Android.Net.AndroidMessageHandler">
+﻿<Type Name="AndroidMessageHandler" FullName="Xamarin.Android.Net.AndroidMessageHandler">
   <TypeSignature Language="C#" Value="public class AndroidMessageHandler : System.Net.Http.HttpMessageHandler" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit AndroidMessageHandler extends System.Net.Http.HttpMessageHandler" />
   <TypeSignature Language="DocId" Value="T:Xamarin.Android.Net.AndroidMessageHandler" />
@@ -29,13 +29,13 @@
     <remarks>
       <para>Instance of this class is used to configure <see cref="T:System.Net.Http.HttpClient" /> instance
              in the following way:
-            
+
              <example>
              var handler = new AndroidMessageHandler {
                 UseCookies = true,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
              };
-            
+
              var httpClient = new HttpClient (handler);
              var response = httpClient.GetAsync ("http://example.com")?.Result as AndroidHttpResponseMessage;
              </example></para>
@@ -93,8 +93,11 @@
             Gets or sets a value that indicates whether the handler should follow redirection responses.
             The default value is <see langword="true" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><c>true</c> to follow redirect responses; otherwise, <c>false</c>.</value>
+        <remarks>
+          <para>The handler disables automatic redirect following for each underlying
+          <see cref="T:Java.Net.HttpURLConnection" /> and processes redirect responses itself.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AssertSelf">
@@ -1070,8 +1073,11 @@
             <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.AllowAutoRedirect" /> and <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.MaxAutomaticRedirections" /> properties.
             Always returns <see langword="true" /> for <see cref="T:Xamarin.Android.Net.AndroidMessageHandler" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><c>true</c>.</value>
+        <remarks>
+          <para>Redirect configuration applies to the handler's managed redirect processing rather than to automatic
+          redirect handling by the underlying <see cref="T:Java.Net.HttpURLConnection" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="TrustedCerts">
