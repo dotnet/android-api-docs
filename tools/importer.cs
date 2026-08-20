@@ -787,14 +787,13 @@ static class ImporterProgram
 
             var emptyParagraph = Regex.Match(
                 blockText,
-                @"(?<indent>^[ \t]*)<para>\s*</para>[ \t]*\r?\n(?:^[ \t]*\r?\n)*",
-                RegexOptions.Multiline | RegexOptions.CultureInvariant);
+                @"<para\s*/>|<para>\s*</para>",
+                RegexOptions.CultureInvariant);
             if (emptyParagraph.Success)
             {
-                var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
                 var prose = string.IsNullOrWhiteSpace(replacement)
                     ? ""
-                    : $"{emptyParagraph.Groups["indent"].Value}<para>{XmlEscape(replacement)}</para>{newline}";
+                    : $"<para>{XmlEscape(replacement)}</para>";
                 var repairedBlock = blockText[..emptyParagraph.Index] + prose +
                     blockText[(emptyParagraph.Index + emptyParagraph.Length)..];
                 updated = text[..block.Start] + repairedBlock + text[block.End..];
@@ -1553,6 +1552,17 @@ static class ImporterProgram
             "  </remarks>\n</Docs>";
         var emptyMetadataRepairRemarks =
             XDocument.Parse(emptyMetadataRepairText).Root!.Element("remarks")!;
+        var emptyMetadataRepairVariants = new[]
+        {
+            emptyMetadataRepairText,
+            emptyMetadataRepairText.Replace("\n", "\r\n", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<para />", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<para> \t </para>", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace(
+                "<remarks>\n    <para></para>\n    \n",
+                "<remarks><para></para>",
+                StringComparison.Ordinal),
+        };
         Assert(
             LoadedFile.IsImporterAugmentedRemarksPlaceholder(emptyMetadataRepairRemarks) &&
                 TryReplacePlaceholder(
@@ -1563,7 +1573,6 @@ static class ImporterProgram
                     out var repairedEmptyMetadataText,
                     out _) &&
                 !repairedEmptyMetadataText.Contains("<para></para>", StringComparison.Ordinal) &&
-                !Regex.IsMatch(repairedEmptyMetadataText, @"(?m)^[ \t]+$") &&
                 NormalizeText(XDocument.Parse(repairedEmptyMetadataText).Root!.Element("remarks")!
                     .Elements("para").First().Value) == NormalizeText(metadataReplacement) &&
                 repairedEmptyMetadataText.Contains("Reference documentation", StringComparison.Ordinal) &&
@@ -1571,6 +1580,33 @@ static class ImporterProgram
                     "https://developers.google.com/terms/site-policies",
                     StringComparison.Ordinal),
             "importer empty metadata paragraph repair retains prose and metadata");
+        foreach (var emptyMetadataRepairVariant in emptyMetadataRepairVariants)
+        {
+            var variantRemarks = XDocument.Parse(emptyMetadataRepairVariant).Root!.Element("remarks")!;
+            var variantPlaceholder = Placeholder.Create(variantRemarks, 0);
+            Assert(
+                LoadedFile.IsImporterAugmentedRemarksPlaceholder(variantRemarks) &&
+                    TryReplacePlaceholder(
+                        emptyMetadataRepairVariant,
+                        new DocsBlock(0, 0, emptyMetadataRepairVariant.Length),
+                        variantPlaceholder,
+                        metadataReplacement,
+                        out var repairedVariantText,
+                        out _) &&
+                    XDocument.Parse(repairedVariantText).Root is not null &&
+                    !LoadedFile.IsImporterAugmentedRemarksPlaceholder(
+                        XDocument.Parse(repairedVariantText).Root!.Element("remarks")!) &&
+                    repairedVariantText.Contains(
+                        $"<para>{XmlEscape(metadataReplacement)}</para>",
+                        StringComparison.Ordinal) &&
+                    repairedVariantText.Contains("Reference documentation", StringComparison.Ordinal) &&
+                    repairedVariantText.Contains(
+                        "https://developers.google.com/terms/site-policies",
+                        StringComparison.Ordinal) &&
+                    (emptyMetadataRepairVariant.Contains("\r\n", StringComparison.Ordinal) ==
+                        repairedVariantText.Contains("\r\n", StringComparison.Ordinal)),
+                "importer empty metadata paragraph repair supports LF, CRLF, self-closing, whitespace, and inline layouts");
+        }
 
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
         Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
@@ -1879,7 +1915,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 61 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including independent nested builder constructor normalization, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair that retains source prose across LF, CRLF, self-closing, whitespace, and inline layouts, full-pattern Health Connect regression detection, self-closing remarks expansion, table alignment, quote-aware HTML cleanup including independent nested builder constructor normalization, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
