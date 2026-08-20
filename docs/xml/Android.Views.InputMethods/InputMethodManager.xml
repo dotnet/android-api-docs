@@ -322,7 +322,8 @@
         <param name="callback">Consumer callback that provides <c>true</c> if view belongs to allowed
                            delegate package declared in
                            <c>#prepareStylusHandwritingDelegation(View, String)</c> and handwriting
-                           session can start.</param>
+                           session can start. Note: The caller should hold a reference to the callback.
+                           The framework only holds a weak reference.</param>
         <summary>Accepts and starts a stylus handwriting session on the delegate view, if handwriting
             initiation delegation was previously requested using
             <c>#prepareStylusHandwritingDelegation(View, String)</c> from the delegator and the view
@@ -393,7 +394,8 @@
           <c>#HANDWRITING_DELEGATE_FLAG_HOME_DELEGATOR_ALLOWED</c> or <c>0</c></param>
         <param name="executor">The executor to run the callback on.</param>
         <param name="callback">
-          <c>true&gt;</c> would be received if delegation was accepted.</param>
+          <c>true</c> would be received if delegation was accepted. The caller should
+                            hold a reference to the callback. The framework only holds a weak reference.</param>
         <summary>Accepts and starts a stylus handwriting session on the delegate view, if handwriting
             initiation delegation was previously requested using <c>#prepareStylusHandwritingDelegation(View, String)</c> from the delegator and the view belongs to
             a specified delegate package.</summary>
@@ -538,9 +540,10 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
+        <param name="e">To be added.</param>
         <param name="targetView">the default target view. If <c>null</c> is specified, then this method
             tries to find a good event target based on the current focus state.</param>
-        <param name="e">To be added.</param>
+        <param name="event">the key event to be dispatched.</param>
         <summary>Provides the default implementation of <c>InputConnection#sendKeyEvent(KeyEvent)</c>, which
             is expected to dispatch an keyboard event sent from the IME to an appropriate event target
             depending on the given <c>View</c> and the current focus state.</summary>
@@ -899,7 +902,7 @@
             as returned by <c>View#getWindowToken() View.getWindowToken()</c>.</param>
         <summary>Request to hide the soft input window from the context of the window
             that is currently accepting input.</summary>
-        <returns>&lt;p&gt;For apps targeting Android <c>Build.VERSION_CODES.BAKLAVA</c>, onwards, it
+        <returns>&lt;p&gt;For apps targeting Android <c>Build.VERSION_CODES#BAKLAVA</c>, onwards, it
             will always return <c>true</c>. To see when the IME is hidden, use
             <c>View.OnApplyWindowInsetsListener</c> and verify the provided <c>WindowInsets</c> for
             the visibility of IME.
@@ -911,10 +914,9 @@
             <c>View.OnApplyWindowInsetsListener</c> and verify the provided <c>WindowInsets</c> for
             the visibility of IME.</returns>
         <remarks>
-          <para>Request to hide the soft input window from the context of the window
-            that is currently accepting input.  This should be called as a result
-            of the user doing some actually than fairly explicitly requests to
-            have the input window hidden.</para>
+          <para>Synonym for <c>#hideSoftInputFromWindow(IBinder, int, ResultReceiver)</c>
+            without a result: request to hide the soft input window from the
+            context of the window that is currently accepting input.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#hideSoftInputFromWindow(android.os.IBinder,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputMethodManager.hideSoftInputFromWindow(android.os.IBinder, int)</code>.</a>
@@ -979,7 +981,7 @@
         <returns>
           <c>true</c> if a request was sent to system_server, <c>false</c> otherwise. Note:
             This does not return the result of that request (i.e. whether the IME was actually hidden).
-            For result use <paramref>resultReceiver</paramref> instead.</returns>
+            For result use <c>resultReceiver</c> instead.</returns>
         <remarks>
           <para>Request to hide the soft input window from the context of the window
             that is currently accepting input.  This should be called as a result
@@ -2281,8 +2283,7 @@
             to the soft input remaining visible even when the calling application is closed. The
             use of this flag can make the soft input remain visible globally. Starting in
             <c>Build.VERSION_CODES#TIRAMISU Android T</c>, this flag only has an effect while the
-            caller is currently focused. Starting in <c>Build.VERSION_CODES#BAKLAVA Android B</c>,
-            this flag has no effect anymore.</para>
+            caller is currently focused.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#SHOW_FORCED" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputMethodManager.SHOW_FORCED</code>.</a>
@@ -2313,8 +2314,8 @@
           <AttributeName Language="F#">[&lt;Android.Runtime.Register("SHOW_IMPLICIT")&gt;]</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName Language="C#">[System.Obsolete("This constant will be removed in the future version. Use Android.Views.InputMethods.ShowFlags enum directly instead of this field.", true)]</AttributeName>
-          <AttributeName Language="F#">[&lt;System.Obsolete("This constant will be removed in the future version. Use Android.Views.InputMethods.ShowFlags enum directly instead of this field.", true)&gt;]</AttributeName>
+          <AttributeName Language="C#">[System.Runtime.Versioning.ObsoletedOSPlatform("android37.0", "This constant will be removed in the future version. Use Android.Views.InputMethods.ShowFlags enum directly instead of this field.")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.ObsoletedOSPlatform("android37.0", "This constant will be removed in the future version. Use Android.Views.InputMethods.ShowFlags enum directly instead of this field.")&gt;]</AttributeName>
         </Attribute>
       </Attributes>
       <ReturnValue>
@@ -2329,8 +2330,6 @@
           <para>Flag for <c>#showSoftInput</c> to indicate that this is an implicit
             request to show the input window, not as the result of a direct request
             by the user.  The window may not be shown in this case.</para>
-          <para>This member is deprecated. Use <c>#showSoftInput</c> without this flag instead. Starting in
-            <c>Build.VERSION_CODES#BAKLAVA Android B</c>, this flag has no effect anymore.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#SHOW_IMPLICIT" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT</code>.</a>
@@ -2458,17 +2457,21 @@
         </Parameter>
       </Parameters>
       <Docs>
+        <param name="flags">Provides additional operating flags.  Currently may be
+            0 or have the <c>#SHOW_IMPLICIT</c> bit set.</param>
         <param name="view">The currently focused view, which would like to receive soft keyboard input.
                         Note that this view is only considered focused here if both it itself has
                         <c>View#isFocused view focus</c>, and its containing window has
                         <c>View#hasWindowFocus window focus</c>. Otherwise the call fails and
                         returns <c>false</c>.</param>
-        <param name="flags">Provides additional operating flags.  Currently may be
-            0 or have the <c>#SHOW_IMPLICIT</c> bit set.</param>
-        <summary>Synonym for <c>#showSoftInput(View, int, ResultReceiver)</c> without
-            a result receiver: explicitly request that the current input method's
-            soft input area be shown to the user, if needed.</summary>
-        <returns>To be added.</returns>
+        <summary>Explicitly request that the current input method's soft input area be
+            shown to the user, if needed.</summary>
+        <returns>
+          <c>true</c> if a request was sent to system_server, <c>false</c> otherwise. Note:
+            this does not return result of the request. If result is needed, use
+            <c>android.view.WindowInsetsController#show</c> instead and set a
+            <c>View.OnApplyWindowInsetsListener</c> and verify the provided <c>WindowInsets</c> for
+            the visibility of IME.</returns>
         <remarks>
           <para>Synonym for <c>#showSoftInput(View, int, ResultReceiver)</c> without
             a result receiver: explicitly request that the current input method's
@@ -2523,13 +2526,13 @@
         <Parameter Name="resultReceiver" Type="Android.OS.ResultReceiver" />
       </Parameters>
       <Docs>
+        <param name="flags">Provides additional operating flags.  Currently may be
+            0 or have the <c>#SHOW_IMPLICIT</c> bit set.</param>
         <param name="view">The currently focused view, which would like to receive soft keyboard input.
                         Note that this view is only considered focused here if both it itself has
                         <c>View#isFocused view focus</c>, and its containing window has
                         <c>View#hasWindowFocus window focus</c>. Otherwise the call fails and
                         returns <c>false</c>.</param>
-        <param name="flags">Provides additional operating flags.  Currently may be
-            0 or have the <c>#SHOW_IMPLICIT</c> bit set.</param>
         <param name="resultReceiver">If non-null, this will be called by the IME when
             it has processed your request to tell you what it has done.  The result
             code you receive may be either <c>#RESULT_UNCHANGED_SHOWN</c>,
@@ -2537,7 +2540,9 @@
             <c>#RESULT_HIDDEN</c>.</param>
         <summary>Explicitly request that the current input method's soft input area be
             shown to the user, if needed.</summary>
-        <returns>To be added.</returns>
+        <returns>
+          <c>true</c> if a request was sent to system_server, <c>false</c> otherwise. Note:
+            this does not return result of the request. For result use <c>resultReceiver</c> instead.</returns>
         <remarks>
           <para>Explicitly request that the current input method's soft input area be
             shown to the user, if needed.  Call this if the user interacts with
