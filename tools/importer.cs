@@ -1517,18 +1517,29 @@ static class ImporterProgram
                 StringComparison.Ordinal));
         var nestedExampleDocs = nestedCodeExamplePage.Members.Single(member => member.Name == "setTitle").Docs!;
         Assert(
-            nestedExampleDocs.Paragraphs.Count == 2 &&
+            nestedExampleDocs.Paragraphs.Count == 3 &&
                 nestedExampleDocs.Paragraphs[0].Text ==
-                    "Sets the widget title. The exact JNI overload is required." &&
+                    "Sets the widget title." &&
                 nestedExampleDocs.Paragraphs[1] == new SourceParagraph(
                     "widget.setTitle(title);",
-                    IsCode: true),
-            "nested Android code blocks are extracted without consuming prose");
+                    IsCode: true) &&
+                nestedExampleDocs.Paragraphs[2].Text == "The exact JNI overload is required.",
+            "nested Android code blocks preserve surrounding prose order");
         Assert(
             RenderDocumentationParagraph(
                 nestedExampleDocs.Paragraphs[1],
                 "  ") == "  <code lang=\"text/java\">widget.setTitle(title);</code>",
             "code examples render as ECMA code blocks");
+        var signaturePage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "<p>Sets the widget title. The exact JNI overload is required.</p>",
+                "<pre class=\"api-signature\">public int setTitle (CharSequence title)</pre><p>Sets the widget title. The exact JNI overload is required.</p>",
+                StringComparison.Ordinal));
+        Assert(
+            signaturePage.Members.Single(member => member.Name == "setTitle").Docs?.Summary ==
+                "Sets the widget title.",
+            "Android API signatures are excluded from prose extraction");
         var terminalAbbreviationPage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -2124,7 +2135,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 70 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, parenthesized abbreviation, ellipsis, and closing-delimiter handling, structural nested-code extraction, ECMA code rendering, Javadoc-code cleanup, augmented and metadata-only remarks repair, truncated-summary repair, repair-only failure reporting, importer metadata remarks repair, standalone annotation skipping, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 71 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, parenthesized abbreviation, ellipsis, and closing-delimiter handling, Android signature exclusion, structural nested-code extraction, ECMA code rendering, Javadoc-code cleanup, augmented and metadata-only remarks repair, truncated-summary repair, repair-only failure reporting, importer metadata remarks repair, standalone annotation skipping, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -2847,6 +2858,11 @@ static class ImporterProgram
                 @"<table\b[^>]*>.*?</table>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            prose = Regex.Replace(
+                prose,
+                @"<pre\b(?=[^>]*\bclass=[""'][^""']*\bapi-signature\b[^""']*[""'])[^>]*>.*?</pre>",
+                " ",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = ExtractParagraphs(prose);
             if (paragraphs.Count == 0)
                 return null;
@@ -3079,7 +3095,8 @@ static class ImporterProgram
         static List<SourceParagraph> ExtractParagraphs(string html)
         {
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
-            var stack = new Stack<(string Tag, int ContentStart)>();
+            var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
+            var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
             foreach (Match tag in Regex.Matches(
                 html,
                 @"<(?<close>/)?(?<tag>p|pre|devsite-code)\b[^>]*>",
@@ -3095,7 +3112,7 @@ static class ImporterProgram
                     {
                         stack.Pop();
                     }
-                    stack.Push((name, tag.Index + tag.Length));
+                    stack.Push((name, tag.Index, tag.Index + tag.Length));
                     continue;
                 }
 
@@ -3107,25 +3124,52 @@ static class ImporterProgram
 
                 var isCode = name.Equals("pre", StringComparison.OrdinalIgnoreCase) ||
                     name.Equals("devsite-code", StringComparison.OrdinalIgnoreCase);
-                var value = isCode
-                    ? HtmlCodeText(html[open.ContentStart..tag.Index])
-                    : CleanSourceParagraph(HtmlText(html[open.ContentStart..tag.Index]));
-                if (value.Length == 0)
-                    continue;
                 if (isCode)
                 {
-                    paragraphs.Add((open.ContentStart, new SourceParagraph(value, IsCode: true)));
+                    var value = HtmlCodeText(html[open.ContentStart..tag.Index]);
+                    if (value.Length > 0)
+                        codeRanges.Add((open.TagStart, tag.Index + tag.Length, new SourceParagraph(value, IsCode: true)));
                 }
-                else if (IsMeaningfulChannel(value, "remarks"))
+                else
                 {
-                    paragraphs.Add((open.ContentStart, new SourceParagraph(value, IsCode: false)));
+                    var nestedCode = codeRanges
+                        .Where(code => code.Start >= open.ContentStart && code.End <= tag.Index)
+                        .OrderBy(code => code.Start)
+                        .ToList();
+                    var textStart = open.ContentStart;
+                    foreach (var code in nestedCode)
+                    {
+                        if (code.Start < textStart)
+                            continue;
+                        AddSourceTextParagraph(html[textStart..code.Start], textStart, paragraphs);
+                        paragraphs.Add((code.Start, code.Paragraph));
+                        textStart = code.End;
+                    }
+                    if (textStart <= tag.Index)
+                        AddSourceTextParagraph(html[textStart..tag.Index], textStart, paragraphs);
                 }
+            }
+            foreach (var code in codeRanges.Where(code =>
+                !paragraphs.Any(paragraph => paragraph.Position == code.Start &&
+                    paragraph.Paragraph == code.Paragraph)))
+            {
+                paragraphs.Add((code.Start, code.Paragraph));
             }
             return paragraphs
                 .OrderBy(paragraph => paragraph.Position)
                 .Select(paragraph => paragraph.Paragraph)
                 .Distinct()
                 .ToList();
+        }
+
+        static void AddSourceTextParagraph(
+            string html,
+            int position,
+            List<(int Position, SourceParagraph Paragraph)> paragraphs)
+        {
+            var value = CleanSourceParagraph(HtmlText(html));
+            if (IsMeaningfulChannel(value, "remarks"))
+                paragraphs.Add((position, new SourceParagraph(value, IsCode: false)));
         }
 
         static List<SourceParagraph> ExtractBlocks(string html) =>
