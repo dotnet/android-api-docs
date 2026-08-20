@@ -148,11 +148,15 @@
         <Parameter Name="permissions" Type="System.Collections.Generic.ICollection&lt;Java.Lang.Integer&gt;" />
       </Parameters>
       <Docs>
-        <param name="schemaType">To be added.</param>
-        <param name="permissions">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schemaType">The schema type to set visibility on. This value cannot be null.</param>
+        <param name="permissions">A set of required Android permissions the caller need to hold to access GenericDocument objects that under the given schema. Value is one of the following: SetSchemaRequest.READ_SMS SetSchemaRequest.READ_CALENDAR SetSchemaRequest.READ_CONTACTS SetSchemaRequest.READ_EXTERNAL_STORAGE SetSchemaRequest.READ_HOME_APP_SEARCH_DATA SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA SetSchemaRequest.PRIVATE_COMPUTE_CORE_UID_ACCESS. This value cannot be null.</param>
+        <summary>Adds a set of required Android Manifest.permission combination to the given schema type.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Adds a set of required Android Manifest.permission combination to the given schema type. If the querier holds ALL of the required permissions in this combination, they will have access to read GenericDocument objects of the given schema type. You can call this method to add multiple permission combinations, and the querier will have access if they holds ANY of the combinations. The supported Permissions are SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR, SetSchemaRequest.READ_CONTACTS, SetSchemaRequest.READ_EXTERNAL_STORAGE, SetSchemaRequest.READ_HOME_APP_SEARCH_DATA and SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA. The relationship between permissions added in this method and package visibility setting setSchemaTypeVisibilityForPackage(String, boolean, PackageIdentifier) is "OR". The caller could access the schema if they match ANY requirements. If you want to set "AND" requirements like a caller must hold required permissions AND it is a specified package, please use addSchemaTypeVisibleToConfig(String, SchemaVisibilityConfig).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility(java.lang.String,%20java.util.Set&lt;java.lang.Integer&gt;)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.addRequiredPermissionsForSchemaTypeVisibility</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddSchemas">
@@ -190,9 +194,13 @@
       </Parameters>
       <Docs>
         <param name="schemas">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Adds one or more AppSearchSchema types to the schema.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Adds one or more AppSearchSchema types to the schema. An AppSearchSchema object represents one type of structured data. Any documents of these types will be displayed on system UI surfaces by default.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#addSchemas(android.app.appsearch.AppSearchSchema[])" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.addSchemas</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddSchemas">
@@ -223,9 +231,13 @@
       </Parameters>
       <Docs>
         <param name="schemas">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Adds a collection of AppSearchSchema objects to the schema.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Adds a collection of AppSearchSchema objects to the schema. An AppSearchSchema object represents one type of structured data.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#addSchemas(java.util.Collection&lt;android.app.appsearch.AppSearchSchema&gt;)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.addSchemas</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddSchemaTypeVisibleToConfig">
@@ -256,11 +268,15 @@
         <Parameter Name="schemaVisibilityConfig" Type="Android.App.AppSearch.SchemaVisibilityConfig" />
       </Parameters>
       <Docs>
-        <param name="schemaType">To be added.</param>
-        <param name="schemaVisibilityConfig">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schemaType">The schema type to set visibility on. This value cannot be null.</param>
+        <param name="schemaVisibilityConfig">The SchemaVisibilityConfig holds all requirements that a call must to match to access the schema. This value cannot be null.</param>
+        <summary>Sets the documents from the provided schemaType can be read by the caller if they match the ALL visibility requirements set in SchemaVisibilityConfig.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the documents from the provided schemaType can be read by the caller if they match the ALL visibility requirements set in SchemaVisibilityConfig. The requirements in a SchemaVisibilityConfig is "AND" relationship. A caller must match ALL requirements to access the schema. For example, a caller must hold required permissions AND it is a specified package. You can call this method repeatedly to add multiple SchemaVisibilityConfig s, and the querier will have access if they match ANY of the SchemaVisibilityConfig.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#addSchemaTypeVisibleToConfig(java.lang.String,%20android.app.appsearch.SchemaVisibilityConfig)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.addSchemaTypeVisibleToConfig</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -330,9 +346,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clears all Migrator s.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Clears all Migrator s.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#clearMigrators()" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.clearMigrators</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ClearRequiredPermissionsForSchemaTypeVisibility">
@@ -363,9 +383,13 @@
       </Parameters>
       <Docs>
         <param name="schemaType">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Clears all required permissions combinations for the given schema type.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Clears all required permissions combinations for the given schema type.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#clearRequiredPermissionsForSchemaTypeVisibility(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.clearRequiredPermissionsForSchemaTypeVisibility</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ClearSchemas">
@@ -393,9 +417,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clears all AppSearchSchema s from the list of schemas.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Clears all AppSearchSchema s from the list of schemas.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#clearSchemas()" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.clearSchemas</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ClearSchemaTypeVisibleToConfigs">
@@ -426,9 +454,13 @@
       </Parameters>
       <Docs>
         <param name="schemaType">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Clears all visible to SchemaVisibilityConfig for the given schema type.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Clears all visible to SchemaVisibilityConfig for the given schema type.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#clearSchemaTypeVisibleToConfigs(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.clearSchemaTypeVisibleToConfigs</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -488,9 +520,13 @@
       </Parameters>
       <Docs>
         <param name="forceOverride">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether or not to override the current schema in the AppSearchSession database.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets whether or not to override the current schema in the AppSearchSession database. Call this method whenever backward incompatible changes need to be made by setting forceOverride to true. As a result, during execution of the setSchema operation, all documents that are incompatible with the new schema will be deleted and the new schema will be saved and persisted. By default, this is false.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#setForceOverride(boolean)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.setForceOverride</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetMigrator">
@@ -521,11 +557,15 @@
         <Parameter Name="migrator" Type="Android.App.AppSearch.Migrator" />
       </Parameters>
       <Docs>
-        <param name="schemaType">To be added.</param>
-        <param name="migrator">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schemaType">The schema type to set migrator on. This value cannot be null.</param>
+        <param name="migrator">The migrator translates a document from its current version to the final version set via setVersion(int). This value cannot be null.</param>
+        <summary>Sets the Migrator associated with the given SchemaType.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the Migrator associated with the given SchemaType. The Migrator migrates all GenericDocument s under given schema type from the current version number stored in AppSearch to the final version set via setVersion(int). A Migrator will be invoked if the current version number stored in AppSearch is different from the final version set via setVersion(int) and Migrator.shouldMigrate returns true. The target schema type of the output GenericDocument of Migrator.onUpgrade or Migrator.onDowngrade must exist in this SetSchemaRequest.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#setMigrator(java.lang.String,%20android.app.appsearch.Migrator)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.setMigrator</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetMigrators">
@@ -555,10 +595,14 @@
         <Parameter Name="migrators" Type="System.Collections.Generic.IDictionary&lt;System.String,Android.App.AppSearch.Migrator&gt;" />
       </Parameters>
       <Docs>
-        <param name="migrators">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="migrators">A Map of migrators that translate a document from its current version to the final version set via setVersion(int). The key of the map is the schema type that the Migrator value applies to. This value cannot be null.</param>
+        <summary>Sets a Map of Migrator s.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets a Map of Migrator s. The key of the map is the schema type that the Migrator value applies to. The Migrator migrates all GenericDocument s under given schema type from the current version number stored in AppSearch to the final version set via setVersion(int). A Migrator will be invoked if the current version number stored in AppSearch is different from the final version set via setVersion(int) and Migrator.shouldMigrate returns true. The target schema type of the output GenericDocument of Migrator.onUpgrade or Migrator.onDowngrade must exist in this SetSchemaRequest.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#setMigrators(java.util.Map&lt;java.lang.String,android.app.appsearch.Migrator&gt;)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.setMigrators</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPubliclyVisibleSchema">
@@ -596,11 +640,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="schema">To be added.</param>
-        <param name="packageIdentifier">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schema">the schema to make publicly accessible. This value cannot be null.</param>
+        <param name="packageIdentifier">if an app can see this package via PackageManager#canPackageQuery, it will be able to see the documents of type schema. This value may be null.</param>
+        <summary>Specify that the schema should be publicly available, to packages which already have visibility to packageIdentifier.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Specify that the schema should be publicly available, to packages which already have visibility to packageIdentifier. This visibility is determined by the result of PackageManager.canPackageQuery(String, String). It is possible for the packageIdentifier parameter to be different from the package performing the indexing. This might happen in the case of an on-device indexer processing information about various packages. The visibility will be the same regardless of which package indexes the document, as the visibility is based on the packageIdentifier parameter. If this is called repeatedly with the same schema, the PackageIdentifier in the last call will be used as the "from" package for that schema. Calling this with packageIdentifier set to null is valid, and will remove public visibility for the schema.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#setPubliclyVisibleSchema(java.lang.String,%20android.app.appsearch.PackageIdentifier)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.setPubliclyVisibleSchema</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSchemaTypeDisplayedBySystem">
@@ -631,11 +679,15 @@
         <Parameter Name="displayed" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="schemaType">To be added.</param>
-        <param name="displayed">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schemaType">The name of an AppSearchSchema within the same SetSchemaRequest, which will be configured. This value cannot be null.</param>
+        <param name="displayed">Whether documents of this type will be displayed on system UI surfaces.</param>
+        <summary>Sets whether or not documents from the provided schemaType will be displayed and visible on any system UI surface.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets whether or not documents from the provided schemaType will be displayed and visible on any system UI surface. This setting applies to the provided schemaType only, and does not persist across AppSearchSession.setSchema calls. The default behavior, if this method is not called, is to allow types to be displayed on system UI surfaces.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#setSchemaTypeDisplayedBySystem(java.lang.String,%20boolean)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.setSchemaTypeDisplayedBySystem</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSchemaTypeVisibilityForPackage">
@@ -667,12 +719,16 @@
         <Parameter Name="packageIdentifier" Type="Android.App.AppSearch.PackageIdentifier" />
       </Parameters>
       <Docs>
-        <param name="schemaType">To be added.</param>
-        <param name="visible">To be added.</param>
-        <param name="packageIdentifier">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schemaType">The schema type to set visibility on. This value cannot be null.</param>
+        <param name="visible">Whether the schemaType will be visible or not.</param>
+        <param name="packageIdentifier">Represents the package that will be granted visibility. This value cannot be null.</param>
+        <summary>Sets whether or not documents from the provided schemaType can be read by the specified package.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets whether or not documents from the provided schemaType can be read by the specified package. Each package is represented by a PackageIdentifier, containing a package name and a byte array of type PackageManager.CERT_INPUT_SHA256. To opt into one-way data sharing with another application, the developer will need to explicitly grant the other application’s package name and certificate Read access to its data. For two-way data sharing, both applications need to explicitly grant Read access to one another. By default, data sharing between applications is disabled. The relationship between permissions added in this method and package visibility setting setSchemaTypeVisibilityForPackage(String, boolean, PackageIdentifier) is "OR". The caller could access the schema if they match ANY requirements. If you want to set "AND" requirements like a caller must hold required permissions AND it is a specified package, please use addSchemaTypeVisibleToConfig(String, SchemaVisibilityConfig).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage(java.lang.String,%20boolean,%20android.app.appsearch.PackageIdentifier)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.setSchemaTypeVisibilityForPackage</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetVersion">
@@ -702,10 +758,14 @@
         <Parameter Name="version" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="version">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="version">A positive integer representing the version of the entire set of schemas represents the version of the whole schema in the AppSearchSession database, default version is 1. Value is 1 or greater</param>
+        <summary>Sets the version number of the overall AppSearchSchema in the database.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the version number of the overall AppSearchSchema in the database. The AppSearchSession database can only ever hold documents for one version at a time. Setting a version number that is different from the version number currently stored in AppSearch will result in AppSearch calling the Migrator s provided to AppSearchSession.setSchema to migrate the documents already in AppSearch from the previous version to the one set in this request. The version number can be updated without any other changes to the set of schemas. The version number can stay the same, increase, or decrease relative to the current version number that is already stored in the AppSearchSession database. The version of an empty database will always be 0. You cannot set version to the SetSchemaRequest, if it doesn't contains any AppSearchSchema.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/SetSchemaRequest.Builder#setVersion(int)" title="Reference documentation">Android reference for <code>android.app.appsearch.SetSchemaRequest.Builder.setVersion</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

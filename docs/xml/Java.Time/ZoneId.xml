@@ -172,9 +172,12 @@
         <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the set of available zone IDs.</summary>
+        <value>a modifiable copy of the set of zone IDs, not null</value>
+        <remarks>
+          <para>Gets the set of available zone IDs. This set includes the string form of all available region-based IDs. Offset-based zone IDs are not included in the returned set. The ID can be passed to of(String) to create a ZoneId. The set of zone IDs can increase over time, although in a typical application the set of IDs is fixed. Each call to this method is thread-safe.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#getAvailableZoneIds()" title="Reference documentation">Java reference for <code>java.time.ZoneId.getAvailableZoneIds</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="From">
@@ -204,10 +207,12 @@
         <Parameter Name="temporal" Type="Java.Time.Temporal.ITemporalAccessor" />
       </Parameters>
       <Docs>
-        <param name="temporal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="temporal">the temporal object to convert, not null</param>
+        <summary>Obtains an instance of ZoneId from a temporal object.</summary>
+        <returns>the zone ID, not null</returns>
+        <remarks>To be added.
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#from(java.time.temporal.TemporalAccessor)" title="Reference documentation">Java reference for <code>java.time.ZoneId.from</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetDisplayName">
@@ -238,11 +243,14 @@
         <Parameter Name="locale" Type="Java.Util.Locale" />
       </Parameters>
       <Docs>
-        <param name="style">To be added.</param>
-        <param name="locale">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="style">the length of the text required, not null</param>
+        <param name="locale">the locale to use, not null</param>
+        <summary>Gets the textual representation of the zone, such as 'British Time' or '+02:00'.</summary>
+        <returns>the text value of the zone, not null</returns>
+        <remarks>
+          <para>Gets the textual representation of the zone, such as 'British Time' or '+02:00'. This returns the textual name used to identify the time-zone ID, suitable for presentation to the user. The parameters control the style of the returned text and the locale. If no textual mapping is found then the full ID is returned.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#getDisplayName(java.time.format.TextStyle,java.util.Locale)" title="Reference documentation">Java reference for <code>java.time.ZoneId.getDisplayName</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Id">
@@ -269,9 +277,12 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the unique time-zone ID.</summary>
+        <value>the time-zone unique ID, not null</value>
+        <remarks>
+          <para>Gets the unique time-zone ID. This ID uniquely defines this object. The format of an offset based ID is defined by ZoneOffset.getId().</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#getId()" title="Reference documentation">Java reference for <code>java.time.ZoneId.getId</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -361,9 +372,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Normalizes the time-zone ID, returning a ZoneOffset where possible.</summary>
+        <returns>the normalized ZoneId, not null</returns>
+        <remarks>
+          <para>Normalizes the time-zone ID, returning a ZoneOffset where possible. This returns a normalized ZoneId that can be used in place of this ID. The result will have ZoneRules equivalent to those returned by this object, however the ID returned by getId() may be different. The normalization checks if the rules of this ZoneId have a fixed offset. If they do, then the ZoneOffset equal to that offset is returned. Otherwise this is returned.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#normalized()" title="Reference documentation">Java reference for <code>java.time.ZoneId.normalized</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -393,10 +407,13 @@
         <Parameter Name="zoneId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="zoneId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="zoneId">the time-zone ID, not null</param>
+        <summary>Obtains an instance of ZoneId from an ID ensuring that the ID is valid and available for use.</summary>
+        <returns>the zone ID, not null</returns>
+        <remarks>
+          <para>Obtains an instance of ZoneId from an ID ensuring that the ID is valid and available for use. This method parses the ID producing a ZoneId or ZoneOffset. A ZoneOffset is returned if the ID is 'Z', or starts with '+' or '-'. The result will always be a valid ID for which ZoneRules can be obtained. Parsing matches the zone ID step by step as follows. If the zone ID equals 'Z', the result is ZoneOffset.UTC. If the zone ID consists of a single letter, the zone ID is invalid and DateTimeException is thrown. If the zone ID starts with '+' or '-', the ID is parsed as a ZoneOffset using ZoneOffset.of(String). If the zone ID equals 'GMT', 'UTC' or 'UT' then the result is a ZoneId with the same ID and rules equivalent to ZoneOffset.UTC. If the zone ID starts with 'UTC+', 'UTC-', 'GMT+', 'GMT-', 'UT+' or 'UT-' then the ID is a prefixed offset-based ID. The ID is split in two, with a two or three letter prefix and a suffix starting with the sign. The suffix is parsed as a ZoneOffset. The result will be a ZoneId with the specified UTC/GMT/UT prefix and the normalized offset ID as per ZoneOffset.getId(). The rules of the returned ZoneId will be equivalent to the parsed ZoneOffset. All other IDs are parsed as region-based zone IDs. Region IDs must match the regular expression [A-Za-z][A-Za-z0-9~/._+-]+ otherwise a DateTimeException is thrown. If the zone ID is not in the configured set of IDs, ZoneRulesException is thrown. The detailed format of the region ID depends on the group supplying the data. The default set of data is supplied by the IANA Time Zone Database (TZDB). This has region IDs of the form '{area}/{city}', such as 'Europe/Paris' or 'America/New_York'. This is compatible with most IDs from TimeZone.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#of(java.lang.String)" title="Reference documentation">Java reference for <code>java.time.ZoneId.of</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -434,11 +451,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="zoneId">To be added.</param>
-        <param name="aliasMap">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="zoneId">the time-zone ID, not null</param>
+        <param name="aliasMap">a map of alias zone IDs (typically abbreviations) to real zone IDs, not null</param>
+        <summary>Obtains an instance of ZoneId using its ID using a map of aliases to supplement the standard zone IDs.</summary>
+        <returns>the zone ID, not null</returns>
+        <remarks>To be added.
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#of(java.lang.String,java.util.Map)" title="Reference documentation">Java reference for <code>java.time.ZoneId.of</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OfOffset">
@@ -469,11 +488,14 @@
         <Parameter Name="offset" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="prefix">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="prefix">the time-zone ID, not null</param>
+        <param name="offset">the offset, not null</param>
+        <summary>Obtains an instance of ZoneId wrapping an offset.</summary>
+        <returns>the zone ID, not null</returns>
+        <remarks>
+          <para>Obtains an instance of ZoneId wrapping an offset. If the prefix is "GMT", "UTC", or "UT" a ZoneId with the prefix and the non-zero offset is returned. If the prefix is empty "" the ZoneOffset is returned.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#ofOffset(java.lang.String,java.time.ZoneOffset)" title="Reference documentation">Java reference for <code>java.time.ZoneId.ofOffset</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Rules">
@@ -500,9 +522,12 @@
         <ReturnType>Java.Time.Zone.ZoneRules</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the time-zone rules for this ID allowing calculations to be performed.</summary>
+        <value>the rules, not null</value>
+        <remarks>
+          <para>Gets the time-zone rules for this ID allowing calculations to be performed. The rules provide the functionality associated with a time-zone, such as finding the offset for a given instant or local date-time. A time-zone can be invalid if it is deserialized in a Java Runtime which does not have the same rules loaded as the Java Runtime that stored it. In this case, calling this method will throw a ZoneRulesException. The rules are supplied by ZoneRulesProvider. An advanced provider may support dynamic updates to the rules without restarting the Java Runtime. If so, then the result of this method may change over time. Each individual call will be still remain thread-safe. ZoneOffset will always return a set of rules where the offset never changes.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/ZoneId.html#getRules()" title="Reference documentation">Java reference for <code>java.time.ZoneId.getRules</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ShortIds">
