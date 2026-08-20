@@ -787,12 +787,15 @@ static class ImporterProgram
 
             var emptyParagraph = Regex.Match(
                 blockText,
-                @"^[ \t]*<para>\s*</para>[ \t]*\r?\n(?:^[ \t]*\r?\n)*",
+                @"(?<indent>^[ \t]*)<para>\s*</para>[ \t]*\r?\n(?:^[ \t]*\r?\n)*",
                 RegexOptions.Multiline | RegexOptions.CultureInvariant);
             if (emptyParagraph.Success)
             {
-                var repairedBlock =
-                    blockText[..emptyParagraph.Index] +
+                var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+                var prose = string.IsNullOrWhiteSpace(replacement)
+                    ? ""
+                    : $"{emptyParagraph.Groups["indent"].Value}<para>{XmlEscape(replacement)}</para>{newline}";
+                var repairedBlock = blockText[..emptyParagraph.Index] + prose +
                     blockText[(emptyParagraph.Index + emptyParagraph.Length)..];
                 updated = text[..block.Start] + repairedBlock + text[block.End..];
                 error = "";
@@ -1542,6 +1545,11 @@ static class ImporterProgram
             "    <para><format type=\"text/html\"><a " +
             "href=\"https://developer.android.com/reference/android/example/Widget#favorite\" " +
             "title=\"Reference documentation\">Android reference.</a></format></para>\n" +
+            "    <para>Portions of this page are modifications based on work created and shared by the " +
+            "<format type=\"text/html\"><a href=\"https://developers.google.com/terms/site-policies\">" +
+            "Android Open Source Project</a></format> and used according to terms described in the " +
+            "<format type=\"text/html\"><a href=\"https://creativecommons.org/licenses/by/2.5/\">" +
+            "Creative Commons 2.5 Attribution License.</a></format></para>\n" +
             "  </remarks>\n</Docs>";
         var emptyMetadataRepairRemarks =
             XDocument.Parse(emptyMetadataRepairText).Root!.Element("remarks")!;
@@ -1551,12 +1559,18 @@ static class ImporterProgram
                     emptyMetadataRepairText,
                     new DocsBlock(0, 0, emptyMetadataRepairText.Length),
                     Placeholder.Create(emptyMetadataRepairRemarks, 0),
-                    "",
+                    metadataReplacement,
                     out var repairedEmptyMetadataText,
                     out _) &&
                 !repairedEmptyMetadataText.Contains("<para></para>", StringComparison.Ordinal) &&
-                !Regex.IsMatch(repairedEmptyMetadataText, @"(?m)^[ \t]+$"),
-            "importer empty metadata paragraph repair");
+                !Regex.IsMatch(repairedEmptyMetadataText, @"(?m)^[ \t]+$") &&
+                NormalizeText(XDocument.Parse(repairedEmptyMetadataText).Root!.Element("remarks")!
+                    .Elements("para").First().Value) == NormalizeText(metadataReplacement) &&
+                repairedEmptyMetadataText.Contains("Reference documentation", StringComparison.Ordinal) &&
+                repairedEmptyMetadataText.Contains(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal),
+            "importer empty metadata paragraph repair retains prose and metadata");
 
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
         Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
