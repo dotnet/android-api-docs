@@ -768,42 +768,59 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (placeholder.IsImporterMetadataRepair)
         {
-            var directPlaceholder = Regex.Match(
-                blockText,
-                @"(<remarks\b[^>]*>\s*)(?<value>To be added\.?)",
-                RegexOptions.Singleline | RegexOptions.CultureInvariant);
-            if (directPlaceholder.Success)
+            var remarks = Regex.Matches(
+                    blockText,
+                    @"<remarks\b[^>]*>.*?</remarks>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                .Cast<Match>()
+                .FirstOrDefault(match =>
+                {
+                    var parsed = XElement.Parse(match.Value, LoadOptions.PreserveWhitespace);
+                    return LoadedFile.IsImporterAugmentedRemarksPlaceholder(parsed);
+                });
+            if (remarks is null)
             {
-                var value = directPlaceholder.Groups["value"];
-                var prose = string.IsNullOrWhiteSpace(replacement)
-                    ? ""
-                    : $"<para>{XmlEscape(replacement)}</para>";
-                var repairedBlock = blockText[..value.Index] + prose +
-                    blockText[(value.Index + value.Length)..];
-                updated = text[..block.Start] + repairedBlock + text[block.End..];
-                error = "";
-                return true;
+                updated = text;
+                error = "Could not locate the structurally identified importer metadata remarks repair.";
+                return false;
             }
 
-            var emptyParagraph = Regex.Match(
-                blockText,
-                @"<para\s*/>|<para>\s*</para>",
-                RegexOptions.CultureInvariant);
-            if (emptyParagraph.Success)
+            var remarksElement = XElement.Parse(remarks.Value, LoadOptions.PreserveWhitespace);
+            var directPlaceholder = remarksElement.Nodes()
+                .OfType<XText>()
+                .FirstOrDefault(node => node is not XCData &&
+                    NormalizeText(node.Value) is "To be added" or "To be added.");
+            var emptyParagraph = remarksElement.Elements("para")
+                .SingleOrDefault(paragraph => !paragraph.HasElements &&
+                    NormalizeText(paragraph.Value).Length == 0);
+            if (directPlaceholder is null && emptyParagraph is null)
             {
-                var prose = string.IsNullOrWhiteSpace(replacement)
-                    ? ""
-                    : $"<para>{XmlEscape(replacement)}</para>";
-                var repairedBlock = blockText[..emptyParagraph.Index] + prose +
-                    blockText[(emptyParagraph.Index + emptyParagraph.Length)..];
-                updated = text[..block.Start] + repairedBlock + text[block.End..];
-                error = "";
-                return true;
+                updated = text;
+                error = "Could not locate the structurally identified importer metadata remarks repair.";
+                return false;
             }
 
-            updated = text;
-            error = "Could not locate the structurally identified importer metadata remarks repair.";
-            return false;
+            if (directPlaceholder is not null)
+                directPlaceholder.ReplaceWith(new XElement("para", replacement));
+            else
+                emptyParagraph!.Value = replacement;
+            var repairedRemarks = remarksElement.ToString(SaveOptions.DisableFormatting);
+            if (remarks.Value.Contains("\r\n", StringComparison.Ordinal))
+                repairedRemarks = repairedRemarks.Replace("\n", "\r\n", StringComparison.Ordinal);
+            var repairedBlock = blockText[..remarks.Index] + repairedRemarks +
+                blockText[(remarks.Index + remarks.Length)..];
+            updated = text[..block.Start] + repairedBlock + text[block.End..];
+            var reparsed = XDocument.Parse(updated, LoadOptions.PreserveWhitespace)
+                .Descendants("remarks")
+                .Any(LoadedFile.IsImporterAugmentedRemarksPlaceholder);
+            if (reparsed)
+            {
+                updated = text;
+                error = "Importer metadata remarks repair remained a candidate after replacement.";
+                return false;
+            }
+            error = "";
+            return true;
         }
 
         var attributeLookahead = placeholder.Name switch
@@ -992,11 +1009,28 @@ static class ImporterProgram
         var normalizedBlock = Regex.Replace(
             blockText,
             @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?\bhref=""[^""]*#[^""()]*\$[A-Za-z_]\w*\([^""]*""(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
-            match => Regex.Replace(
-                match.Value,
-                @"[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
-                "${constructor}",
-                RegexOptions.CultureInvariant),
+            match =>
+            {
+                var paragraph = match.Value;
+                var anchor = Regex.Match(
+                    paragraph,
+                    @"<a\b(?<attrs>[^>]*\btitle=""Reference documentation""[^>]*)>(?<label>.*?)</a>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
+                if (!anchor.Success)
+                    return paragraph;
+                var normalizedAnchor = Regex.Replace(
+                    anchor.Value,
+                    @"(?<=href=""[^""]*#)[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
+                    "${constructor}",
+                    RegexOptions.CultureInvariant);
+                normalizedAnchor = Regex.Replace(
+                    normalizedAnchor,
+                    @"(?<=>)(?<prefix>.*?)[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
+                    labelMatch => labelMatch.Groups["prefix"].Value + labelMatch.Groups["constructor"].Value,
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
+                return paragraph[..anchor.Index] + normalizedAnchor +
+                    paragraph[(anchor.Index + anchor.Length)..];
+            },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
         return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
             ? text
@@ -1470,6 +1504,16 @@ static class ImporterProgram
                     "<code>Widget.Builder.Builder()</code>",
                     StringComparison.Ordinal),
             "independent nested constructor normalization preserves the reference paragraph");
+        var nestedConstructorWithUnrelatedDollar = nestedConstructorText.Replace(
+            " reference.</a>",
+            " and <code>unrelated$code</code> reference.</a>",
+            StringComparison.Ordinal);
+        Assert(
+            NormalizeStaleNestedConstructorLinks(
+                nestedConstructorWithUnrelatedDollar,
+                new DocsBlock(0, 0, nestedConstructorWithUnrelatedDollar.Length))
+                .Contains("<code>unrelated$code</code>", StringComparison.Ordinal),
+            "nested constructor normalization preserves unrelated dollar text");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
 
         file.UpdateBlockOffsets(setTitle.Order, withRemarks);
@@ -1558,6 +1602,8 @@ static class ImporterProgram
             emptyMetadataRepairText.Replace("\n", "\r\n", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<para />", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<para> \t </para>", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<para data-source=\"importer\">&#x20;</para>", StringComparison.Ordinal),
+            emptyMetadataRepairText.Replace("<para></para>", "<!-- retained --><para></para>", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace(
                 "<remarks>\n    <para></para>\n    \n",
                 "<remarks><para></para>",
@@ -1596,15 +1642,8 @@ static class ImporterProgram
                     XDocument.Parse(repairedVariantText).Root is not null &&
                     !LoadedFile.IsImporterAugmentedRemarksPlaceholder(
                         XDocument.Parse(repairedVariantText).Root!.Element("remarks")!) &&
-                    repairedVariantText.Contains(
-                        $"<para>{XmlEscape(metadataReplacement)}</para>",
-                        StringComparison.Ordinal) &&
-                    repairedVariantText.Contains("Reference documentation", StringComparison.Ordinal) &&
-                    repairedVariantText.Contains(
-                        "https://developers.google.com/terms/site-policies",
-                        StringComparison.Ordinal) &&
-                    (emptyMetadataRepairVariant.Contains("\r\n", StringComparison.Ordinal) ==
-                        repairedVariantText.Contains("\r\n", StringComparison.Ordinal)),
+                    NormalizeText(XDocument.Parse(repairedVariantText).Root!.Element("remarks")!
+                        .Elements("para").First().Value) == NormalizeText(metadataReplacement),
                 "importer empty metadata paragraph repair supports LF, CRLF, self-closing, whitespace, and inline layouts");
         }
 
