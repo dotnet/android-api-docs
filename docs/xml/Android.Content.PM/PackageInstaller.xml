@@ -437,12 +437,16 @@
         <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="packageNames">To be added.</param>
-        <param name="constraints">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="packageNames">a list of package names to check the constraints for installation. This value cannot be null.</param>
+        <param name="constraints">the constraints for installation. This value cannot be null.</param>
+        <param name="executor">the Executor on which to invoke the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">called when the InstallConstraintsResult is ready. This value cannot be null.</param>
+        <summary>Check if install constraints are satisfied for the given packages.</summary>
+        <remarks>
+          <para>Check if install constraints are satisfied for the given packages. Note this query result is just a hint and subject to race because system states could change anytime in-between this query and committing the session. The result is returned by a callback because some constraints might take a long time to evaluate.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageInstaller#checkInstallConstraints(java.util.List&lt;java.lang.String&gt;,%20android.content.pm.PackageInstaller.InstallConstraints,%20java.util.concurrent.Executor,%20java.util.function.Consumer&lt;android.content.pm.PackageInstaller.InstallConstraintsResult&gt;)" title="Reference documentation">Android reference for <code>android.content.pm.PackageInstaller.checkInstallConstraints</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CommitSessionAfterInstallConstraintsAreMet">
@@ -475,12 +479,16 @@
         <Parameter Name="timeoutMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="sessionId">To be added.</param>
-        <param name="statusReceiver">To be added.</param>
-        <param name="constraints">To be added.</param>
-        <param name="timeoutMillis">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="sessionId">the session ID to commit when all constraints are satisfied.</param>
+        <param name="statusReceiver">Called when the state of the session changes. Intents sent to this receiver contain EXTRA_STATUS. Refer to the individual status codes on how to handle them. This value cannot be null.</param>
+        <param name="constraints">The requirements to satisfy before committing the session. This value cannot be null.</param>
+        <param name="timeoutMillis">The maximum time to wait, in milliseconds until the constraints are satisfied. The caller will be notified via statusReceiver if timeout happens before commit. Value is a non-negative duration in milliseconds.</param>
+        <summary>Commit the session when all constraints are satisfied.</summary>
+        <remarks>
+          <para>Commit the session when all constraints are satisfied. This is a convenient method to combine waitForInstallConstraints(List,InstallConstraints,IntentSender,long) and Session.commit(IntentSender). Once this method is called, the session is sealed and no additional mutations may be performed on the session. In the case of timeout, you may commit the session again using this method or Session.commit(IntentSender) for retries.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageInstaller#commitSessionAfterInstallConstraintsAreMet(int,%20android.content.IntentSender,%20android.content.pm.PackageInstaller.InstallConstraints,%20long)" title="Reference documentation">Android reference for <code>android.content.pm.PackageInstaller.commitSessionAfterInstallConstraintsAreMet</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateSession">
@@ -1641,11 +1649,15 @@
         <Parameter Name="statusReceiver" Type="Android.Content.IntentSender" />
       </Parameters>
       <Docs>
-        <param name="archivedPackageInfo">To be added.</param>
-        <param name="sessionParams">To be added.</param>
-        <param name="statusReceiver">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="archivedPackageInfo">archived package data such as package name, signature etc. This value cannot be null.</param>
+        <param name="sessionParams">used to create an underlying installation session. This value cannot be null.</param>
+        <param name="statusReceiver">Called when the state of the session changes. Intents sent to this receiver contain EXTRA_STATUS. Refer to the individual status codes on how to handle them. This value cannot be null.</param>
+        <summary>Install package in an archived state.</summary>
+        <remarks>
+          <para>Install package in an archived state. Requires Manifest.permission.INSTALL_PACKAGES</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageInstaller#installPackageArchived(android.content.pm.ArchivedPackageInfo,%20android.content.pm.PackageInstaller.SessionParams,%20android.content.IntentSender)" title="Reference documentation">Android reference for <code>android.content.pm.PackageInstaller.installPackageArchived</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -2105,8 +2117,12 @@
       </Parameters>
       <Docs>
         <param name="unarchivalState">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Reports the state of an unarchival to the system.</summary>
+        <remarks>
+          <para>Reports the state of an unarchival to the system. Requires Manifest.permission.INSTALL_PACKAGES or Manifest.permission.REQUEST_INSTALL_PACKAGES</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageInstaller#reportUnarchivalState(android.content.pm.PackageInstaller.UnarchivalState)" title="Reference documentation">Android reference for <code>android.content.pm.PackageInstaller.reportUnarchivalState</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReportUnarchivalStatus">
@@ -3207,12 +3223,16 @@
         <Parameter Name="timeoutMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="packageNames">To be added.</param>
-        <param name="constraints">To be added.</param>
-        <param name="callback">To be added.</param>
-        <param name="timeoutMillis">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="packageNames">a list of package names to check the constraints for installation. This value cannot be null.</param>
+        <param name="constraints">the constraints for installation. This value cannot be null.</param>
+        <param name="callback">Called when the constraints are satisfied or after timeout. Intents sent to this callback contain: Intent.EXTRA_PACKAGES for the input package names, EXTRA_INSTALL_CONSTRAINTS for the input constraints, EXTRA_INSTALL_CONSTRAINTS_RESULT for the result. This value cannot be null.</param>
+        <param name="timeoutMillis">The maximum time to wait, in milliseconds until the constraints are satisfied. Valid range is from 0 to one week. 0 means the callback will be invoked immediately no matter constraints are satisfied or not. Value is a non-negative duration in milliseconds.</param>
+        <summary>Similar to checkInstallConstraints(List,InstallConstraints,Executor,Consumer), but the callback is invoked only when the constraints are satisfied or after timeout.</summary>
+        <remarks>
+          <para>Similar to checkInstallConstraints(List,InstallConstraints,Executor,Consumer), but the callback is invoked only when the constraints are satisfied or after timeout. Note: the device idle constraint might take a long time to evaluate. The system will ensure the constraint is evaluated completely before handling timeout.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageInstaller#waitForInstallConstraints(java.util.List&lt;java.lang.String&gt;,%20android.content.pm.PackageInstaller.InstallConstraints,%20android.content.IntentSender,%20long)" title="Reference documentation">Android reference for <code>android.content.pm.PackageInstaller.waitForInstallConstraints</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
