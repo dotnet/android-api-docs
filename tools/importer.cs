@@ -1279,7 +1279,7 @@ static class ImporterProgram
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         file.SelectOwners(null);
-        Assert(file.Owners.Count == 6, "fixture owner count");
+        Assert(file.Owners.Count == 7, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1304,11 +1304,18 @@ static class ImporterProgram
         var mismatchResult = MapOwner(mismatch, pages);
         Assert(mismatchResult.ErrorReason == "overload_signature_mismatch", "overload mismatch skip");
 
-        var favorite = file.Owners.Single(owner => owner.Id.Contains("Favorite", StringComparison.Ordinal));
+        var favorite = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".Favorite", StringComparison.Ordinal));
         var favoriteResult = MapOwner(favorite, pages);
         Assert(
             favoriteResult.Docs?.Summary == "Identifies the favorite fixture value for the user\u2019s selection.",
             "exact field match");
+        var favoriteProperty = file.Owners.Single(owner =>
+            owner.Id.Contains("FavoriteProperty", StringComparison.Ordinal));
+        var favoritePropertyResult = MapOwner(favoriteProperty, pages);
+        Assert(
+            favoritePropertyResult.Docs?.Summary == favoriteResult.Docs?.Summary,
+            "descriptor-less property registration maps to an exact source field");
         var typeOnly = ReplacementFor(
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
@@ -2168,7 +2175,8 @@ static class ImporterProgram
                         match.Groups["descriptor"].Value,
                         false);
             }
-            if (member.Element("MemberType")?.Value == "Field")
+            var memberType = member.Element("MemberType")?.Value;
+            if (memberType is "Field" or "Property")
             {
                 var jniField = JniField(member);
                 if (jniField is not null)
