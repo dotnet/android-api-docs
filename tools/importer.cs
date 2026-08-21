@@ -669,6 +669,7 @@ static class ImporterProgram
             normalized.StartsWith(
                 "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
                 StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("ERROR(", StringComparison.Ordinal) ||
             Regex.IsMatch(
                 normalized,
                 @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
@@ -720,7 +721,10 @@ static class ImporterProgram
             .ToList();
         return matches.Count switch
         {
-            1 => Replacement.Use(matches[0]),
+            1 => ChannelValueOrSkip(
+                matches[0],
+                "exception",
+                "source_exception_not_meaningful"),
             > 1 => Replacement.Skip(
                 "ambiguous_source_exception",
                 $"Multiple source exceptions matched '{placeholder.Key}'."),
@@ -849,7 +853,6 @@ static class ImporterProgram
             remarksText.StartsWith(
                 "Portions of this page are modifications based on work created and shared by",
                 StringComparison.Ordinal);
-
         var newline = file.Newline;
         var docsIndent = file.IndentAt(block.Start);
         var childIndent = docsIndent + "  ";
