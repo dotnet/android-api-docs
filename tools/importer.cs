@@ -1819,7 +1819,7 @@ static class ImporterProgram
             "channel-only Android documentation maps to the exact member");
         Assert(
             tableOnlyResult.Docs!.Summary.Length == 0 &&
-                tableOnlyResult.Docs.Returns == "Value is one of the following: FIRST; SECOND" &&
+                tableOnlyResult.Docs.Returns == "Value is either 0 or FIRST; SECOND" &&
                 ReplacementFor(
                     tableOnly.Placeholders.Single(placeholder => placeholder.Target == "param:value"),
                     tableOnlyResult.Docs).Text == "the fixture value",
