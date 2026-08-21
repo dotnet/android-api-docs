@@ -696,6 +696,13 @@ static class ImporterProgram
             @"^This (?:constant|method|field|class|interface) (?:is|was) deprecated(?: in API level \d+)?$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
+        if (normalized.EndsWith(":", StringComparison.Ordinal) ||
+            normalized.EndsWith("i.e.", StringComparison.OrdinalIgnoreCase) ||
+            Regex.IsMatch(
+                normalized,
+                @"\b(?:and|or)$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            return false;
         return true;
     }
 
@@ -1770,7 +1777,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine(                "SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -2772,6 +2779,12 @@ static class ImporterProgram
 
         static string HtmlText(string html)
         {
+            var structuredContent = Regex.Match(
+                html,
+                @"<(?:ul|ol|li)\b",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (structuredContent.Success)
+                html = html[..structuredContent.Index];
             var repairedMalformedHref = Regex.Replace(
                 html,
                 @"(?<prefix>\bhref\s*=\s*"")(?<url>[^""\s>]+)>(?=\s*[A-Za-z])",
@@ -2831,7 +2844,10 @@ static class ImporterProgram
 
         static string FirstSentence(string text)
         {
-            var match = Regex.Match(text, @"^(.+?[.!?])(?:\s|$)", RegexOptions.CultureInvariant);
+            var match = Regex.Match(
+                text,
+                @"^(.+?(?<!\bi\.e)[.!?])(?:\s|$)",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
             return match.Success ? match.Groups[1].Value : text;
         }
     }
