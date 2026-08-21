@@ -2066,6 +2066,14 @@ static class ImporterProgram
                 !favoriteResult.Docs.Paragraphs[0].Text.Contains(")\"&gt;", StringComparison.Ordinal) &&
                 favoriteResult.Docs.Paragraphs[0].Text.Contains("consume(List)", StringComparison.Ordinal),
             "quoted generic link stripped without corrupt fragments");
+        var codeSample = androidPage.Members.Single(member => member.Name == "CODE_SAMPLE");
+        Assert(
+            codeSample.Docs?.Summary == "Requires the special permission.",
+            "code-sample paragraphs skipped and malformed Android link recovered");
+        var inlineSample = androidPage.Members.Single(member => member.Name == "INLINE_SAMPLE");
+        Assert(
+            inlineSample.Docs?.Summary == "Combines |s and marks FOO.",
+            "inline markup preserves adjacent punctuation");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
