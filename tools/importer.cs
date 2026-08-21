@@ -67,6 +67,7 @@ static class ImporterProgram
             var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
             var files = SelectFiles(repositoryRoot, docsRoot, options);
             report.FilesScanned = files.Count;
+            var interfaceMemberResolver = new InterfaceMemberResolver(docsRoot);
 
             var loadedFiles = new List<LoadedFile>();
             foreach (var path in files)
@@ -76,7 +77,7 @@ static class ImporterProgram
                     var file = LoadedFile.Load(repositoryRoot, path);
                     if (!MatchesNamespace(file.Root, options.Namespace))
                         continue;
-                    file.SelectOwners(options.Member);
+                    file.SelectOwners(options.Member, interfaceMemberResolver);
                     loadedFiles.Add(file);
                 }
                 catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
@@ -421,7 +422,7 @@ static class ImporterProgram
             return MappingResult.Success(page.TypeDocs);
         }
 
-        var registration = Registration.Member(owner.Member);
+        var registration = owner.MemberRegistration ?? Registration.Member(owner.Member);
         if (registration is null)
             return MappingResult.Skip(
                 "missing_member_registration",
@@ -1288,8 +1289,8 @@ static class ImporterProgram
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
-        file.SelectOwners(null);
-        Assert(file.Owners.Count == 9, "fixture owner count");
+        file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+        Assert(file.Owners.Count == 10, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1300,6 +1301,17 @@ static class ImporterProgram
         {
             [request.Url] = SourceLoadResult.Success(androidPage),
         };
+        var implementedComparator = file.Owners.Single(owner =>
+            owner.Id.Contains("IComparator#Compare", StringComparison.Ordinal));
+        var comparatorRequest = implementedComparator.SourceRequest ??
+            throw new InvalidOperationException("SELF-TEST FAIL: implemented interface source request");
+        pages[comparatorRequest.Url] = SourceLoadResult.Success(
+            SourcePage.Parse(comparatorRequest, javaHtml));
+        Assert(
+            comparatorRequest.JavaPath == "java/util/Comparator" &&
+                MapOwner(implementedComparator, pages).Docs?.Summary ==
+                    "Compares two fixture objects.",
+            "implemented interface resolves through the exact canonical registration");
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -1994,7 +2006,9 @@ static class ImporterProgram
             };
         }
 
-        public void SelectOwners(string? memberFilter)
+        public void SelectOwners(
+            string? memberFilter,
+            InterfaceMemberResolver? interfaceMemberResolver = null)
         {
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
@@ -2037,14 +2051,22 @@ static class ImporterProgram
                     .Select((element, index) => Placeholder.Create(element, index))
                     .ToList();
                 var memberField = member is null ? null : Registration.JniField(member);
+                var memberRegistration = member is null ? null : Registration.Member(member);
+                var interfaceMember = memberRegistration is null && member is not null
+                    ? interfaceMemberResolver?.Resolve(member)
+                    : null;
+                memberRegistration ??= interfaceMember?.Registration;
                 var request = member is null
                     ? typeRequest
-                    : SourceRequest.Create(memberField?.Owner) ?? typeRequest;
+                    : SourceRequest.Create(memberField?.Owner) ??
+                        interfaceMember?.SourceRequest ??
+                        typeRequest;
                 Owners.Add(new DocsOwner(
                     order,
                     id,
                     docs,
                     member,
+                    memberRegistration,
                     request,
                     placeholders,
                     isEnum && (string?)member?.Element("MemberType") == "Field"));
@@ -2146,6 +2168,7 @@ static class ImporterProgram
         string Id,
         XElement Docs,
         XElement? Member,
+        MemberRegistration? MemberRegistration,
         SourceRequest? SourceRequest,
         List<Placeholder> Placeholders,
         bool IsEnumField);
@@ -2248,6 +2271,91 @@ static class ImporterProgram
                         match.Groups["name"].Value);
             }
             return null;
+        }
+    }
+
+    sealed record InterfaceMemberMapping(
+        MemberRegistration Registration,
+        SourceRequest SourceRequest);
+
+    sealed class InterfaceMemberResolver
+    {
+        readonly string docsRoot;
+        readonly Dictionary<string, InterfaceMemberMapping?> cache =
+            new(StringComparer.Ordinal);
+
+        public InterfaceMemberResolver(string docsRoot) => this.docsRoot = docsRoot;
+
+        public InterfaceMemberMapping? Resolve(XElement member)
+        {
+            foreach (var reference in member
+                .Element("Implements")?
+                .Elements("InterfaceMember")
+                .Select(item => item.Value)
+                .Where(value => value.Length > 0) ?? [])
+            {
+                if (!cache.TryGetValue(reference, out var mapping))
+                {
+                    mapping = ResolveReference(reference);
+                    cache[reference] = mapping;
+                }
+                if (mapping is not null)
+                    return mapping;
+            }
+            return null;
+        }
+
+        InterfaceMemberMapping? ResolveReference(string reference)
+        {
+            var signatureEnd = reference.IndexOf('(');
+            var memberReference = signatureEnd >= 0
+                ? reference[..signatureEnd]
+                : reference;
+            var separator = memberReference.LastIndexOf('.');
+            if (reference.Length < 3 || separator <= 2)
+                return null;
+
+            var typeName = memberReference[2..separator];
+            var typeSeparator = typeName.LastIndexOf('.');
+            if (typeSeparator <= 0)
+                return null;
+
+            var path = Path.Combine(
+                docsRoot,
+                typeName[..typeSeparator],
+                typeName[(typeSeparator + 1)..] + ".xml");
+            if (!File.Exists(path))
+                return null;
+
+            try
+            {
+                var document = XDocument.Load(path);
+                var root = document.Root;
+                if (root is null || !string.Equals(
+                    (string?)root.Attribute("FullName"),
+                    typeName,
+                    StringComparison.Ordinal))
+                    return null;
+
+                var interfaceMember = root
+                    .Element("Members")?
+                    .Elements("Member")
+                    .SingleOrDefault(item => item.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == reference));
+                if (interfaceMember is null)
+                    return null;
+
+                var registration = Registration.Member(interfaceMember);
+                var request = SourceRequest.Create(Registration.Type(root));
+                return registration is null || request is null
+                    ? null
+                    : new InterfaceMemberMapping(registration, request);
+            }
+            catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
+            {
+                return null;
+            }
         }
     }
 
@@ -2642,7 +2750,7 @@ static class ImporterProgram
             var members = new List<SourceMember>();
             foreach (Match section in Regex.Matches(
                 html,
-                @"<section\b(?<attrs>[^>]*)>(?<body>.*?)</section>",
+                @"<section\b(?=[^>]*\bclass=""[^""]*\bdetail\b[^""]*"")(?<attrs>[^>]*)>(?<body>.*?)</section>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             {
                 var attributes = ParseAttributes(section.Groups["attrs"].Value);
@@ -2652,14 +2760,23 @@ static class ImporterProgram
                     continue;
                 var anchor = WebUtility.HtmlDecode(encodedAnchor);
                 var isField = !anchor.Contains('(', StringComparison.Ordinal);
-                var arguments = isField ? null : Descriptor.FromAnchor(anchor, request.JavaPath);
-                if (!isField && arguments is null)
-                    continue;
                 var body = section.Groups["body"].Value;
                 var heading = Regex.Match(
                     body,
-                    @"<h3\b[^>]*>(?<name>.*?)</h3>",
+                    @"<h3\b(?<attrs>[^>]*)>(?<name>.*?)</h3>",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                var detailAnchor = anchor;
+                if (heading.Success)
+                {
+                    var headingAttributes = ParseAttributes(heading.Groups["attrs"].Value);
+                    if (headingAttributes.TryGetValue("id", out var headingAnchor))
+                        detailAnchor = headingAnchor;
+                }
+                var arguments = isField
+                    ? null
+                    : Descriptor.FromAnchor(detailAnchor, request.JavaPath);
+                if (!isField && arguments is null)
+                    continue;
                 var displayName = heading.Success ? HtmlText(heading.Groups["name"].Value) : anchor.Split('(', 2)[0];
                 var anchorName = anchor.Split('(', 2)[0];
                 var isConstructor = anchorName is "<init>" or "%3Cinit%3E" ||
