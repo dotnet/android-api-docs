@@ -446,7 +446,7 @@ static class ImporterProgram
                     "No declared field detail section matched the registered Java field name.",
                     owner.SourceRequest.Url);
             var fieldDocs = fields[0].Docs;
-            if (fieldDocs is null || string.IsNullOrWhiteSpace(fieldDocs.Summary))
+            if (fieldDocs is null)
                 return MappingResult.Skip(
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
@@ -489,7 +489,7 @@ static class ImporterProgram
         }
 
         var docs = exact[0].Docs;
-        if (docs is null || string.IsNullOrWhiteSpace(docs.Summary))
+        if (docs is null)
             return MappingResult.Skip(
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
@@ -1290,7 +1290,7 @@ static class ImporterProgram
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
-        Assert(file.Owners.Count == 10, "fixture owner count");
+        Assert(file.Owners.Count == 11, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1338,6 +1338,19 @@ static class ImporterProgram
         Assert(
             favoritePropertyResult.Docs?.Summary == favoriteResult.Docs?.Summary,
             "descriptor-less property registration maps to an exact source field");
+        var tableOnly = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".TableOnly(System.Int32)", StringComparison.Ordinal));
+        var tableOnlyResult = MapOwner(tableOnly, pages);
+        Assert(
+            tableOnlyResult.Docs is not null,
+            "channel-only Android documentation maps to the exact member");
+        Assert(
+            tableOnlyResult.Docs!.Summary.Length == 0 &&
+                tableOnlyResult.Docs.Returns == "Value is one of the following: FIRST; SECOND" &&
+                ReplacementFor(
+                    tableOnly.Placeholders.Single(placeholder => placeholder.Target == "param:value"),
+                    tableOnlyResult.Docs).Text == "the fixture value",
+            "channel-only Android documentation is imported without a guessed summary");
         var listField = file.Owners.Single(owner =>
             owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
         var listFieldResult = MapOwner(listField, pages);
@@ -2649,7 +2662,7 @@ static class ImporterProgram
                     row.Groups["row"].Value,
                     @"<td\b[^>]*>(?<cell>.*?)</td>",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                    .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                    .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                     .ToList();
                 if (cells.Count >= 2 && Regex.IsMatch(cells[0], @"^[A-Za-z_]\w*$"))
                     parameters.TryAdd(cells[0], cells[1]);
@@ -2663,10 +2676,13 @@ static class ImporterProgram
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = ExtractParagraphs(prose);
-            if (paragraphs.Count == 0)
+            if (paragraphs.Count == 0 &&
+                parameters.Count == 0 &&
+                returns.Length == 0 &&
+                exceptions.Count == 0)
                 return null;
             return new SourceDocs(
-                FirstSentence(paragraphs[0]),
+                paragraphs.Count > 0 ? FirstSentence(paragraphs[0]) : "",
                 paragraphs,
                 parameters,
                 returns,
@@ -2693,13 +2709,13 @@ static class ImporterProgram
                             row.Groups["row"].Value,
                             @"<t[dh]\b[^>]*>(?<cell>.*?)</t[dh]>",
                             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                             .ToList(),
                         Headings = Regex.Matches(
                             row.Groups["row"].Value,
                             @"<th\b[^>]*>(?<cell>.*?)</th>",
                             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                             .ToList(),
                     })
                     .ToList();
@@ -2827,8 +2843,6 @@ static class ImporterProgram
             string url)
         {
             var paragraphs = ExtractBlocks(body);
-            if (paragraphs.Count == 0)
-                return null;
             var notes = Regex.Match(
                 body,
                 @"<dl\b[^>]*class=""[^""]*\bnotes\b[^""]*""[^>]*>(?<notes>.*?)</dl>",
@@ -2837,8 +2851,13 @@ static class ImporterProgram
             var parameters = ExtractJavaParameters(noteBody);
             var returns = ExtractJavaNoteValue(noteBody, "Returns:");
             var exceptions = ExtractJavaExceptions(noteBody);
+            if (paragraphs.Count == 0 &&
+                parameters.Count == 0 &&
+                returns.Length == 0 &&
+                exceptions.Count == 0)
+                return null;
             return new SourceDocs(
-                FirstSentence(paragraphs[0]),
+                paragraphs.Count > 0 ? FirstSentence(paragraphs[0]) : "",
                 paragraphs,
                 parameters,
                 returns,
@@ -2957,6 +2976,35 @@ static class ImporterProgram
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             if (structuredContent.Success)
                 html = html[..structuredContent.Index];
+            return HtmlTextCore(html);
+        }
+
+        static string HtmlTableCellText(string html)
+        {
+            var listItems = Regex.Matches(
+                html,
+                @"<li\b[^>]*>(?<body>.*?)</li>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Select(match => HtmlTextCore(match.Groups["body"].Value))
+                .Where(item => item.Length > 0)
+                .ToList();
+            if (listItems.Count > 0)
+            {
+                var withoutListItems = Regex.Replace(
+                    html,
+                    @"<li\b[^>]*>.*?</li>",
+                    " ",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                var listIntroduction = HtmlTextCore(withoutListItems);
+                if (listIntroduction.EndsWith(':', StringComparison.Ordinal))
+                    return CleanSourceText(
+                        $"{listIntroduction} {string.Join("; ", listItems)}");
+            }
+            return HtmlText(html);
+        }
+
+        static string HtmlTextCore(string html)
+        {
             var repairedMalformedHref = Regex.Replace(
                 html,
                 @"(?<prefix>\bhref\s*=\s*"")(?<url>[^""\s>]+)>(?=\s*[A-Za-z])",
