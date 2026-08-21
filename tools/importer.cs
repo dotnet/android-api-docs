@@ -1175,6 +1175,16 @@ static class ImporterProgram
             if (markerIndex >= 0)
                 text = text[..markerIndex].Trim();
         }
+        if (text.EndsWith(':', StringComparison.Ordinal))
+        {
+            var completeSentences = Regex.Matches(
+                text,
+                @"[.!?](?=\s|$)",
+                RegexOptions.CultureInvariant);
+            text = completeSentences.Count == 0
+                ? ""
+                : text[..(completeSentences[^1].Index + 1)].Trim();
+        }
         return text;
     }
 
@@ -1279,7 +1289,7 @@ static class ImporterProgram
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         file.SelectOwners(null);
-        Assert(file.Owners.Count == 7, "fixture owner count");
+        Assert(file.Owners.Count == 9, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1316,6 +1326,33 @@ static class ImporterProgram
         Assert(
             favoritePropertyResult.Docs?.Summary == favoriteResult.Docs?.Summary,
             "descriptor-less property registration maps to an exact source field");
+        var listField = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
+        var listFieldResult = MapOwner(listField, pages);
+        Assert(
+            listFieldResult.Docs?.Summary == "Retains this exact sentence.",
+            "list introduction retains only complete leading source sentences");
+        var emptyConstructor = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".#ctor", StringComparison.Ordinal));
+        var emptyConstructorResult = MapOwner(emptyConstructor, pages);
+        var emptyConstructorReport = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        Assert(
+            ReportMappingFailure(
+                emptyConstructorReport,
+                file,
+                emptyConstructor,
+                emptyConstructorResult) &&
+                emptyConstructorReport.Entries.Count == 1 &&
+                emptyConstructorReport.Entries[0].Reason == "source_documentation_empty" &&
+                emptyConstructorReport.Entries[0].SourceUrl.EndsWith(
+                    "#Widget()",
+                    StringComparison.Ordinal),
+            "empty source documentation report retains the exact Android member URL");
         var typeOnly = ReplacementFor(
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
@@ -1336,6 +1373,11 @@ static class ImporterProgram
         Assert(
             androidPage.Members.Single(member => member.Name == "Widget").Docs is null,
             "boilerplate-only member documentation skip");
+        Assert(
+            androidPage.Members.Single(member => member.Name == "Widget").Url.EndsWith(
+                "#Widget()",
+                StringComparison.Ordinal),
+            "empty Android member documentation retains its exact source URL");
         Assert(
             !favoriteResult.Docs.Paragraphs.Any(
                 paragraph => paragraph.Contains("Content and code samples", StringComparison.Ordinal) ||
@@ -2446,7 +2488,8 @@ static class ImporterProgram
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractAndroidDocs(fragment, request, heading.Title, url)));
+                    ExtractAndroidDocs(fragment, request, heading.Title, url),
+                    url));
             }
 
             return new SourcePage
@@ -2628,7 +2671,8 @@ static class ImporterProgram
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractJavaDocs(body, request, displayName, url)));
+                    ExtractJavaDocs(body, request, displayName, url),
+                    url));
             }
             return new SourcePage
             {
@@ -2868,10 +2912,8 @@ static class ImporterProgram
         bool IsConstructor,
         bool IsField,
         List<string>? ArgumentDescriptors,
-        SourceDocs? Docs)
-    {
-        public string Url => Docs?.SourceUrl ?? "";
-    }
+        SourceDocs? Docs,
+        string Url);
 
     sealed record SourceDocs(
         string Summary,
