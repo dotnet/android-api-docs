@@ -1464,8 +1464,17 @@ static class ImporterProgram
         Assert(
             !favoriteResult.Docs!.Paragraphs[0].Contains(")&quot;&gt;", StringComparison.Ordinal) &&
                 !favoriteResult.Docs.Paragraphs[0].Contains(")\"&gt;", StringComparison.Ordinal) &&
-                favoriteResult.Docs.Paragraphs[0].Contains("consume(List)", StringComparison.Ordinal),
+                favoriteResult.Docs.Paragraphs[0] ==
+                    "Identifies the favorite fixture value for the user\u2019s selection. See consume(List) for details.",
             "quoted generic link stripped without corrupt fragments");
+        var codeSample = androidPage.Members.Single(member => member.Name == "CODE_SAMPLE");
+        Assert(
+            codeSample.Docs?.Summary == "Requires the special permission.",
+            "code-sample paragraphs skipped and malformed Android link recovered");
+        var inlineSample = androidPage.Members.Single(member => member.Name == "INLINE_SAMPLE");
+        Assert(
+            inlineSample.Docs?.Summary == "Combines |s and marks FOO.",
+            "inline markup preserves adjacent punctuation");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
@@ -2481,7 +2490,7 @@ static class ImporterProgram
             var exceptions = ExtractAndroidExceptions(fragment);
             var prose = Regex.Replace(
                 fragment,
-                @"<(?:table|pre|devsite-code)\b[^>]*>.*?</(?:table|pre|devsite-code)>",
+                @"<table\b[^>]*>.*?</table>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = ExtractParagraphs(prose);
@@ -2718,6 +2727,10 @@ static class ImporterProgram
                 html,
                 @"<p\b[^>]*>(?<body>.*?)</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Where(match => !Regex.IsMatch(
+                    match.Groups["body"].Value,
+                    @"<(?:pre|devsite-code)\b",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
                 .Select(match => CleanSourceParagraph(HtmlText(match.Groups["body"].Value)))
                 .Where(value => IsMeaningfulChannel(value, "remarks"))
                 .Distinct(StringComparer.Ordinal)
@@ -2759,8 +2772,14 @@ static class ImporterProgram
 
         static string HtmlText(string html)
         {
-            var withoutIgnored = Regex.Replace(
+            var repairedMalformedHref = Regex.Replace(
                 html,
+                @"(?<prefix>\bhref\s*=\s*"")(?<url>[^""\s>]+)>(?=\s*[A-Za-z])",
+                match =>
+                    $"{match.Groups["prefix"].Value}{match.Groups["url"].Value}\">",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var withoutIgnored = Regex.Replace(
+                repairedMalformedHref,
                 @"<(?:script|style|svg|pre|devsite-code)\b[^>]*>.*?</(?:script|style|svg|pre|devsite-code)>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -2785,7 +2804,6 @@ static class ImporterProgram
                     {
                         inTag = true;
                         quote = '\0';
-                        text.Append(' ');
                     }
                     else
                     {
