@@ -67,6 +67,7 @@ static class ImporterProgram
             var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
             var files = SelectFiles(repositoryRoot, docsRoot, options);
             report.FilesScanned = files.Count;
+            var interfaceMemberResolver = new InterfaceMemberResolver(docsRoot);
 
             var loadedFiles = new List<LoadedFile>();
             foreach (var path in files)
@@ -76,7 +77,7 @@ static class ImporterProgram
                     var file = LoadedFile.Load(repositoryRoot, path);
                     if (!MatchesNamespace(file.Root, options.Namespace))
                         continue;
-                    file.SelectOwners(options.Member);
+                    file.SelectOwners(options.Member, interfaceMemberResolver);
                     loadedFiles.Add(file);
                 }
                 catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
@@ -421,7 +422,7 @@ static class ImporterProgram
             return MappingResult.Success(page.TypeDocs);
         }
 
-        var registration = Registration.Member(owner.Member);
+        var registration = owner.MemberRegistration ?? Registration.Member(owner.Member);
         if (registration is null)
             return MappingResult.Skip(
                 "missing_member_registration",
@@ -445,7 +446,7 @@ static class ImporterProgram
                     "No declared field detail section matched the registered Java field name.",
                     owner.SourceRequest.Url);
             var fieldDocs = fields[0].Docs;
-            if (fieldDocs is null || string.IsNullOrWhiteSpace(fieldDocs.Summary))
+            if (fieldDocs is null)
                 return MappingResult.Skip(
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
@@ -488,7 +489,7 @@ static class ImporterProgram
         }
 
         var docs = exact[0].Docs;
-        if (docs is null || string.IsNullOrWhiteSpace(docs.Summary))
+        if (docs is null)
             return MappingResult.Skip(
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
@@ -669,6 +670,7 @@ static class ImporterProgram
             normalized.StartsWith(
                 "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
                 StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("ERROR(", StringComparison.Ordinal) ||
             Regex.IsMatch(
                 normalized,
                 @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
@@ -696,6 +698,13 @@ static class ImporterProgram
             @"^This (?:constant|method|field|class|interface) (?:is|was) deprecated(?: in API level \d+)?$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
+        if (normalized.EndsWith(":", StringComparison.Ordinal) ||
+            normalized.EndsWith("i.e.", StringComparison.OrdinalIgnoreCase) ||
+            Regex.IsMatch(
+                normalized,
+                @"\b(?:and|or)$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            return false;
         return true;
     }
 
@@ -713,7 +722,10 @@ static class ImporterProgram
             .ToList();
         return matches.Count switch
         {
-            1 => Replacement.Use(matches[0]),
+            1 => ChannelValueOrSkip(
+                matches[0],
+                "exception",
+                "source_exception_not_meaningful"),
             > 1 => Replacement.Skip(
                 "ambiguous_source_exception",
                 $"Multiple source exceptions matched '{placeholder.Key}'."),
@@ -842,7 +854,6 @@ static class ImporterProgram
             remarksText.StartsWith(
                 "Portions of this page are modifications based on work created and shared by",
                 StringComparison.Ordinal);
-
         var newline = file.Newline;
         var docsIndent = file.IndentAt(block.Start);
         var childIndent = docsIndent + "  ";
@@ -1145,6 +1156,15 @@ static class ImporterProgram
         text = Regex.Replace(text, @"\{@(?:link|linkplain|code|literal|value)\s+([^}]+)\}", "$1");
         text = Regex.Replace(text, @"\{@\w+(?:\s+[^}]*)?\}", "");
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
+        text = Regex.Replace(
+            text,
+            @"^ff the error is (?<error>UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE) this field\b",
+            "If the error is ${error}, this field",
+            RegexOptions.CultureInvariant);
+        text = text.Replace(
+            "optional intent to start a follow up action required to facilitate the unarchival flow",
+            "intent to start a follow up action required to facilitate the unarchival flow",
+            StringComparison.Ordinal);
         text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
     }
@@ -1164,6 +1184,16 @@ static class ImporterProgram
             var markerIndex = text.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
             if (markerIndex >= 0)
                 text = text[..markerIndex].Trim();
+        }
+        if (text.EndsWith(':', StringComparison.Ordinal))
+        {
+            var completeSentences = Regex.Matches(
+                text,
+                @"[.!?](?=\s|$)",
+                RegexOptions.CultureInvariant);
+            text = completeSentences.Count == 0
+                ? ""
+                : text[..(completeSentences[^1].Index + 1)].Trim();
         }
         return text;
     }
@@ -1268,8 +1298,8 @@ static class ImporterProgram
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
-        file.SelectOwners(null);
-        Assert(file.Owners.Count == 6, "fixture owner count");
+        file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+        Assert(file.Owners.Count == 11, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1280,6 +1310,17 @@ static class ImporterProgram
         {
             [request.Url] = SourceLoadResult.Success(androidPage),
         };
+        var implementedComparator = file.Owners.Single(owner =>
+            owner.Id.Contains("IComparator#Compare", StringComparison.Ordinal));
+        var comparatorRequest = implementedComparator.SourceRequest ??
+            throw new InvalidOperationException("SELF-TEST FAIL: implemented interface source request");
+        pages[comparatorRequest.Url] = SourceLoadResult.Success(
+            SourcePage.Parse(comparatorRequest, javaHtml));
+        Assert(
+            comparatorRequest.JavaPath == "java/util/Comparator" &&
+                MapOwner(implementedComparator, pages).Docs?.Summary ==
+                    "Compares two fixture objects.",
+            "implemented interface resolves through the exact canonical registration");
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -1294,11 +1335,58 @@ static class ImporterProgram
         var mismatchResult = MapOwner(mismatch, pages);
         Assert(mismatchResult.ErrorReason == "overload_signature_mismatch", "overload mismatch skip");
 
-        var favorite = file.Owners.Single(owner => owner.Id.Contains("Favorite", StringComparison.Ordinal));
+        var favorite = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".Favorite", StringComparison.Ordinal));
         var favoriteResult = MapOwner(favorite, pages);
         Assert(
             favoriteResult.Docs?.Summary == "Identifies the favorite fixture value for the user\u2019s selection.",
             "exact field match");
+        var favoriteProperty = file.Owners.Single(owner =>
+            owner.Id.Contains("FavoriteProperty", StringComparison.Ordinal));
+        var favoritePropertyResult = MapOwner(favoriteProperty, pages);
+        Assert(
+            favoritePropertyResult.Docs?.Summary == favoriteResult.Docs?.Summary,
+            "descriptor-less property registration maps to an exact source field");
+        var tableOnly = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".TableOnly(System.Int32)", StringComparison.Ordinal));
+        var tableOnlyResult = MapOwner(tableOnly, pages);
+        Assert(
+            tableOnlyResult.Docs is not null,
+            "channel-only Android documentation maps to the exact member");
+        Assert(
+            tableOnlyResult.Docs!.Summary.Length == 0 &&
+                tableOnlyResult.Docs.Returns == "Value is either 0 or FIRST; SECOND" &&
+                ReplacementFor(
+                    tableOnly.Placeholders.Single(placeholder => placeholder.Target == "param:value"),
+                    tableOnlyResult.Docs).Text == "the fixture value",
+            "channel-only Android documentation is imported without a guessed summary");
+        var listField = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
+        var listFieldResult = MapOwner(listField, pages);
+        Assert(
+            listFieldResult.Docs?.Summary == "Retains this exact sentence.",
+            "list introduction retains only complete leading source sentences");
+        var emptyConstructor = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".#ctor", StringComparison.Ordinal));
+        var emptyConstructorResult = MapOwner(emptyConstructor, pages);
+        var emptyConstructorReport = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        Assert(
+            ReportMappingFailure(
+                emptyConstructorReport,
+                file,
+                emptyConstructor,
+                emptyConstructorResult) &&
+                emptyConstructorReport.Entries.Count == 1 &&
+                emptyConstructorReport.Entries[0].Reason == "source_documentation_empty" &&
+                emptyConstructorReport.Entries[0].SourceUrl.EndsWith(
+                    "#Widget()",
+                    StringComparison.Ordinal),
+            "empty source documentation report retains the exact Android member URL");
         var typeOnly = ReplacementFor(
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
@@ -1317,8 +1405,23 @@ static class ImporterProgram
             CleanSourceText(@"the user\u2019s \u201cvalue\u201d") == "the user\u2019s \u201cvalue\u201d",
             "literal Unicode escape decoding");
         Assert(
+            CleanSourceText(
+                "ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
+                    "If the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE, this field should be set.",
+            "known Android parameter typo cleanup");
+        Assert(
+            CleanSourceText(
+                "optional intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.") ==
+                    "intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.",
+            "contradictory optional unarchival intent cleanup");
+        Assert(
             androidPage.Members.Single(member => member.Name == "Widget").Docs is null,
             "boilerplate-only member documentation skip");
+        Assert(
+            androidPage.Members.Single(member => member.Name == "Widget").Url.EndsWith(
+                "#Widget()",
+                StringComparison.Ordinal),
+            "empty Android member documentation retains its exact source URL");
         Assert(
             !favoriteResult.Docs.Paragraphs.Any(
                 paragraph => paragraph.Contains("Content and code samples", StringComparison.Ordinal) ||
@@ -1464,8 +1567,17 @@ static class ImporterProgram
         Assert(
             !favoriteResult.Docs!.Paragraphs[0].Contains(")&quot;&gt;", StringComparison.Ordinal) &&
                 !favoriteResult.Docs.Paragraphs[0].Contains(")\"&gt;", StringComparison.Ordinal) &&
-                favoriteResult.Docs.Paragraphs[0].Contains("consume(List)", StringComparison.Ordinal),
+                favoriteResult.Docs.Paragraphs[0] ==
+                    "Identifies the favorite fixture value for the user\u2019s selection. See consume(List) for details.",
             "quoted generic link stripped without corrupt fragments");
+        var codeSample = androidPage.Members.Single(member => member.Name == "CODE_SAMPLE");
+        Assert(
+            codeSample.Docs?.Summary == "Requires the special permission.",
+            "code-sample paragraphs skipped and malformed Android link recovered");
+        var inlineSample = androidPage.Members.Single(member => member.Name == "INLINE_SAMPLE");
+        Assert(
+            inlineSample.Docs?.Summary == "Combines |s and marks FOO.",
+            "inline markup preserves adjacent punctuation");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
@@ -1761,7 +1873,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine(                "SELF-TEST PASS: 55 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, importer metadata remarks repair, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -1926,7 +2038,9 @@ static class ImporterProgram
             };
         }
 
-        public void SelectOwners(string? memberFilter)
+        public void SelectOwners(
+            string? memberFilter,
+            InterfaceMemberResolver? interfaceMemberResolver = null)
         {
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
@@ -1969,14 +2083,22 @@ static class ImporterProgram
                     .Select((element, index) => Placeholder.Create(element, index))
                     .ToList();
                 var memberField = member is null ? null : Registration.JniField(member);
+                var memberRegistration = member is null ? null : Registration.Member(member);
+                var interfaceMember = memberRegistration is null && member is not null
+                    ? interfaceMemberResolver?.Resolve(member)
+                    : null;
+                memberRegistration ??= interfaceMember?.Registration;
                 var request = member is null
                     ? typeRequest
-                    : SourceRequest.Create(memberField?.Owner) ?? typeRequest;
+                    : SourceRequest.Create(memberField?.Owner) ??
+                        interfaceMember?.SourceRequest ??
+                        typeRequest;
                 Owners.Add(new DocsOwner(
                     order,
                     id,
                     docs,
                     member,
+                    memberRegistration,
                     request,
                     placeholders,
                     isEnum && (string?)member?.Element("MemberType") == "Field"));
@@ -2078,6 +2200,7 @@ static class ImporterProgram
         string Id,
         XElement Docs,
         XElement? Member,
+        MemberRegistration? MemberRegistration,
         SourceRequest? SourceRequest,
         List<Placeholder> Placeholders,
         bool IsEnumField);
@@ -2149,7 +2272,8 @@ static class ImporterProgram
                         match.Groups["descriptor"].Value,
                         false);
             }
-            if (member.Element("MemberType")?.Value == "Field")
+            var memberType = member.Element("MemberType")?.Value;
+            if (memberType is "Field" or "Property")
             {
                 var jniField = JniField(member);
                 if (jniField is not null)
@@ -2179,6 +2303,91 @@ static class ImporterProgram
                         match.Groups["name"].Value);
             }
             return null;
+        }
+    }
+
+    sealed record InterfaceMemberMapping(
+        MemberRegistration Registration,
+        SourceRequest SourceRequest);
+
+    sealed class InterfaceMemberResolver
+    {
+        readonly string docsRoot;
+        readonly Dictionary<string, InterfaceMemberMapping?> cache =
+            new(StringComparer.Ordinal);
+
+        public InterfaceMemberResolver(string docsRoot) => this.docsRoot = docsRoot;
+
+        public InterfaceMemberMapping? Resolve(XElement member)
+        {
+            foreach (var reference in member
+                .Element("Implements")?
+                .Elements("InterfaceMember")
+                .Select(item => item.Value)
+                .Where(value => value.Length > 0) ?? [])
+            {
+                if (!cache.TryGetValue(reference, out var mapping))
+                {
+                    mapping = ResolveReference(reference);
+                    cache[reference] = mapping;
+                }
+                if (mapping is not null)
+                    return mapping;
+            }
+            return null;
+        }
+
+        InterfaceMemberMapping? ResolveReference(string reference)
+        {
+            var signatureEnd = reference.IndexOf('(');
+            var memberReference = signatureEnd >= 0
+                ? reference[..signatureEnd]
+                : reference;
+            var separator = memberReference.LastIndexOf('.');
+            if (reference.Length < 3 || separator <= 2)
+                return null;
+
+            var typeName = memberReference[2..separator];
+            var typeSeparator = typeName.LastIndexOf('.');
+            if (typeSeparator <= 0)
+                return null;
+
+            var path = Path.Combine(
+                docsRoot,
+                typeName[..typeSeparator],
+                typeName[(typeSeparator + 1)..] + ".xml");
+            if (!File.Exists(path))
+                return null;
+
+            try
+            {
+                var document = XDocument.Load(path);
+                var root = document.Root;
+                if (root is null || !string.Equals(
+                    (string?)root.Attribute("FullName"),
+                    typeName,
+                    StringComparison.Ordinal))
+                    return null;
+
+                var interfaceMember = root
+                    .Element("Members")?
+                    .Elements("Member")
+                    .SingleOrDefault(item => item.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == reference));
+                if (interfaceMember is null)
+                    return null;
+
+                var registration = Registration.Member(interfaceMember);
+                var request = SourceRequest.Create(Registration.Type(root));
+                return registration is null || request is null
+                    ? null
+                    : new InterfaceMemberMapping(registration, request);
+            }
+            catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
+            {
+                return null;
+            }
         }
     }
 
@@ -2419,7 +2628,8 @@ static class ImporterProgram
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractAndroidDocs(fragment, request, heading.Title, url)));
+                    ExtractAndroidDocs(fragment, request, heading.Title, url),
+                    url));
             }
 
             return new SourcePage
@@ -2471,7 +2681,7 @@ static class ImporterProgram
                     row.Groups["row"].Value,
                     @"<td\b[^>]*>(?<cell>.*?)</td>",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                    .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                    .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                     .ToList();
                 if (cells.Count >= 2 && Regex.IsMatch(cells[0], @"^[A-Za-z_]\w*$"))
                     parameters.TryAdd(cells[0], cells[1]);
@@ -2481,14 +2691,17 @@ static class ImporterProgram
             var exceptions = ExtractAndroidExceptions(fragment);
             var prose = Regex.Replace(
                 fragment,
-                @"<(?:table|pre|devsite-code)\b[^>]*>.*?</(?:table|pre|devsite-code)>",
+                @"<table\b[^>]*>.*?</table>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = ExtractParagraphs(prose);
-            if (paragraphs.Count == 0)
+            if (paragraphs.Count == 0 &&
+                parameters.Count == 0 &&
+                returns.Length == 0 &&
+                exceptions.Count == 0)
                 return null;
             return new SourceDocs(
-                FirstSentence(paragraphs[0]),
+                paragraphs.Count > 0 ? FirstSentence(paragraphs[0]) : "",
                 paragraphs,
                 parameters,
                 returns,
@@ -2515,13 +2728,13 @@ static class ImporterProgram
                             row.Groups["row"].Value,
                             @"<t[dh]\b[^>]*>(?<cell>.*?)</t[dh]>",
                             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                             .ToList(),
                         Headings = Regex.Matches(
                             row.Groups["row"].Value,
                             @"<th\b[^>]*>(?<cell>.*?)</th>",
                             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                             .ToList(),
                     })
                     .ToList();
@@ -2572,7 +2785,7 @@ static class ImporterProgram
             var members = new List<SourceMember>();
             foreach (Match section in Regex.Matches(
                 html,
-                @"<section\b(?<attrs>[^>]*)>(?<body>.*?)</section>",
+                @"<section\b(?=[^>]*\bclass=""[^""]*\bdetail\b[^""]*"")(?<attrs>[^>]*)>(?<body>.*?)</section>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             {
                 var attributes = ParseAttributes(section.Groups["attrs"].Value);
@@ -2582,14 +2795,23 @@ static class ImporterProgram
                     continue;
                 var anchor = WebUtility.HtmlDecode(encodedAnchor);
                 var isField = !anchor.Contains('(', StringComparison.Ordinal);
-                var arguments = isField ? null : Descriptor.FromAnchor(anchor, request.JavaPath);
-                if (!isField && arguments is null)
-                    continue;
                 var body = section.Groups["body"].Value;
                 var heading = Regex.Match(
                     body,
-                    @"<h3\b[^>]*>(?<name>.*?)</h3>",
+                    @"<h3\b(?<attrs>[^>]*)>(?<name>.*?)</h3>",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                var detailAnchor = anchor;
+                if (heading.Success)
+                {
+                    var headingAttributes = ParseAttributes(heading.Groups["attrs"].Value);
+                    if (headingAttributes.TryGetValue("id", out var headingAnchor))
+                        detailAnchor = headingAnchor;
+                }
+                var arguments = isField
+                    ? null
+                    : Descriptor.FromAnchor(detailAnchor, request.JavaPath);
+                if (!isField && arguments is null)
+                    continue;
                 var displayName = heading.Success ? HtmlText(heading.Groups["name"].Value) : anchor.Split('(', 2)[0];
                 var anchorName = anchor.Split('(', 2)[0];
                 var isConstructor = anchorName is "<init>" or "%3Cinit%3E" ||
@@ -2601,7 +2823,8 @@ static class ImporterProgram
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractJavaDocs(body, request, displayName, url)));
+                    ExtractJavaDocs(body, request, displayName, url),
+                    url));
             }
             return new SourcePage
             {
@@ -2639,8 +2862,6 @@ static class ImporterProgram
             string url)
         {
             var paragraphs = ExtractBlocks(body);
-            if (paragraphs.Count == 0)
-                return null;
             var notes = Regex.Match(
                 body,
                 @"<dl\b[^>]*class=""[^""]*\bnotes\b[^""]*""[^>]*>(?<notes>.*?)</dl>",
@@ -2649,8 +2870,13 @@ static class ImporterProgram
             var parameters = ExtractJavaParameters(noteBody);
             var returns = ExtractJavaNoteValue(noteBody, "Returns:");
             var exceptions = ExtractJavaExceptions(noteBody);
+            if (paragraphs.Count == 0 &&
+                parameters.Count == 0 &&
+                returns.Length == 0 &&
+                exceptions.Count == 0)
+                return null;
             return new SourceDocs(
-                FirstSentence(paragraphs[0]),
+                paragraphs.Count > 0 ? FirstSentence(paragraphs[0]) : "",
                 paragraphs,
                 parameters,
                 returns,
@@ -2718,6 +2944,10 @@ static class ImporterProgram
                 html,
                 @"<p\b[^>]*>(?<body>.*?)</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Where(match => !Regex.IsMatch(
+                    match.Groups["body"].Value,
+                    @"<(?:pre|devsite-code)\b",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
                 .Select(match => CleanSourceParagraph(HtmlText(match.Groups["body"].Value)))
                 .Where(value => IsMeaningfulChannel(value, "remarks"))
                 .Distinct(StringComparer.Ordinal)
@@ -2759,8 +2989,53 @@ static class ImporterProgram
 
         static string HtmlText(string html)
         {
-            var withoutIgnored = Regex.Replace(
+            var structuredContent = Regex.Match(
                 html,
+                @"<(?:ul|ol|li)\b",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (structuredContent.Success)
+                html = html[..structuredContent.Index];
+            return HtmlTextCore(html);
+        }
+
+        static string HtmlTableCellText(string html)
+        {
+            var listItems = Regex.Matches(
+                html,
+                @"<li\b[^>]*>(?<body>.*?)</li>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Select(match => HtmlTextCore(match.Groups["body"].Value))
+                .Where(item => item.Length > 0)
+                .ToList();
+            if (listItems.Count > 0)
+            {
+                var withoutListItems = Regex.Replace(
+                    html,
+                    @"<li\b[^>]*>.*?</li>",
+                    " ",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                var listIntroduction = HtmlTextCore(withoutListItems);
+                if (listIntroduction.EndsWith(':', StringComparison.Ordinal) ||
+                    Regex.IsMatch(
+                        listIntroduction,
+                        @"\bor$",
+                        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                    return CleanSourceText(
+                        $"{listIntroduction} {string.Join("; ", listItems)}");
+            }
+            return HtmlText(html);
+        }
+
+        static string HtmlTextCore(string html)
+        {
+            var repairedMalformedHref = Regex.Replace(
+                html,
+                @"(?<prefix>\bhref\s*=\s*"")(?<url>[^""\s>]+)>(?=\s*[A-Za-z])",
+                match =>
+                    $"{match.Groups["prefix"].Value}{match.Groups["url"].Value}\">",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var withoutIgnored = Regex.Replace(
+                repairedMalformedHref,
                 @"<(?:script|style|svg|pre|devsite-code)\b[^>]*>.*?</(?:script|style|svg|pre|devsite-code)>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -2785,7 +3060,6 @@ static class ImporterProgram
                     {
                         inTag = true;
                         quote = '\0';
-                        text.Append(' ');
                     }
                     else
                     {
@@ -2813,7 +3087,10 @@ static class ImporterProgram
 
         static string FirstSentence(string text)
         {
-            var match = Regex.Match(text, @"^(.+?[.!?])(?:\s|$)", RegexOptions.CultureInvariant);
+            var match = Regex.Match(
+                text,
+                @"^(.+?(?<!\bi\.e)[.!?])(?:\s|$)",
+                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
             return match.Success ? match.Groups[1].Value : text;
         }
     }
@@ -2823,10 +3100,8 @@ static class ImporterProgram
         bool IsConstructor,
         bool IsField,
         List<string>? ArgumentDescriptors,
-        SourceDocs? Docs)
-    {
-        public string Url => Docs?.SourceUrl ?? "";
-    }
+        SourceDocs? Docs,
+        string Url);
 
     sealed record SourceDocs(
         string Summary,
