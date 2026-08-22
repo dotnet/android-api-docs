@@ -1451,6 +1451,15 @@ static class ImporterProgram
             "CharSequence.subSequence()",
             StringComparison.Ordinal);
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
+        text = Regex.Replace(
+            text,
+            @"^ff the error is (?<error>UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE) this field\b",
+            "If the error is ${error}, this field",
+            RegexOptions.CultureInvariant);
+        text = text.Replace(
+            "optional intent to start a follow up action required to facilitate the unarchival flow",
+            "intent to start a follow up action required to facilitate the unarchival flow",
+            StringComparison.Ordinal);
         text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
     }
@@ -1875,6 +1884,16 @@ static class ImporterProgram
         Assert(
             CleanSourceText("CharSequence.subsequence()") == "CharSequence.subSequence()",
             "canonical CharSequence method casing");
+        Assert(
+            CleanSourceText(
+                "ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
+                    "If the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE, this field should be set.",
+            "known Android parameter typo cleanup");
+        Assert(
+            CleanSourceText(
+                "optional intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.") ==
+                    "intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.",
+            "contradictory optional unarchival intent cleanup");
         Assert(
             androidPage.Members.Single(member => member.Name == "Widget").Docs is null,
             "boilerplate-only member documentation skip");
