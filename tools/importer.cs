@@ -986,7 +986,7 @@ static class ImporterProgram
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) ||
                 Regex.IsMatch(
                     blockText,
-                    @"(?:\{@code|CharSequence\.subsequence\(\)|<code\b[^>]*\blang=""text/java""[^>]*>.*?[ \t]+(?:\r?\n))",
+                    @"(?:\{@code|CharSequence\.subsequence\(\))",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant));
     }
 
