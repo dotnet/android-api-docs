@@ -986,6 +986,10 @@ static class ImporterProgram
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) ||
                 Regex.IsMatch(
                     blockText,
+                    @"<code\b[^>]*\blang=""text/java""[^>]*>\s*(?:public|protected|private)\s+(?:(?:static|final|abstract|synchronized|native)\s+)*(?:[\w.$<>\[\]?]+\s+)?\w+\s*\([^<]*\)\s*(?:throws\s+[^<;]+)?;?\s*</code>",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) ||
+                Regex.IsMatch(
+                    blockText,
                     @"(?:\{@code|CharSequence\.subsequence\(\))",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant));
     }
@@ -1509,6 +1513,17 @@ static class ImporterProgram
             codeExamplePage.Members.Single(member => member.Name == "setTitle").Docs?.Paragraphs[1].Text ==
                 "// preserve comments\nwidget.setTitle(title);\n/* done */",
             "Android code examples preserve line breaks and syntax tokens");
+        var implicitParagraphPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "<p>Sets the widget title. The exact JNI overload is required.</p>",
+                "<p>Sets the widget title.<p>The exact JNI overload is required.</p>",
+                StringComparison.Ordinal));
+        Assert(
+            implicitParagraphPage.Members.Single(member => member.Name == "setTitle").Docs?.Paragraphs
+                .Select(paragraph => paragraph.Text)
+                .SequenceEqual(["Sets the widget title.", "The exact JNI overload is required."]) == true,
+            "implicitly closed Android paragraphs preserve preceding prose");
         var nestedCodeExamplePage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -1558,6 +1573,27 @@ static class ImporterProgram
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
+        var rawSignatureText = file.Text.Replace(
+            $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
+            $"<remarks>{file.Newline}          <code lang=\"text/java\">public int setTitle (CharSequence title)</code>{file.Newline}          <para>Keep this existing prose.</para>",
+            StringComparison.Ordinal);
+        Assert(!rawSignatureText.Equals(file.Text, StringComparison.Ordinal), "raw signature fixture setup");
+        file.UpdateBlockOffsets(setTitle.Order, rawSignatureText);
+        var refreshedSignatureText = ReplaceIncompleteCodeExampleRemarks(
+            rawSignatureText,
+            file,
+            setTitle,
+            mappedDocs);
+        Assert(
+            HasIncompleteCodeExampleRemarks(file, setTitle) &&
+                !refreshedSignatureText.Contains(
+                    "<code lang=\"text/java\">public int setTitle (CharSequence title)</code>",
+                    StringComparison.Ordinal) &&
+                refreshedSignatureText.Contains(
+                    "<para>Sets the widget title. The exact JNI overload is required.</para>",
+                    StringComparison.Ordinal),
+            "raw Android signature blocks are regenerated from source");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var originalRemarks = $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>";
         var augmentedRemarks = $"<remarks>{file.Newline}          To be added.{file.Newline}          <para>Keep this existing prose.</para>";
         var augmentedRemarksText = file.Text.Replace(
@@ -2135,7 +2171,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: 71 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, parenthesized abbreviation, ellipsis, and closing-delimiter handling, Android signature exclusion, structural nested-code extraction, ECMA code rendering, Javadoc-code cleanup, augmented and metadata-only remarks repair, truncated-summary repair, repair-only failure reporting, importer metadata remarks repair, standalone annotation skipping, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
+        Console.WriteLine("SELF-TEST PASS: 73 assertions; path-only repository-wide non-API XML exclusion, exact Android/Java method and field matching, parenthesized abbreviation, ellipsis, and closing-delimiter handling, Android signature exclusion, structural nested-code extraction, implicit paragraph preservation, ECMA code rendering, Javadoc-code cleanup, bounded raw-signature repair, augmented and metadata-only remarks repair, truncated-summary repair, repair-only failure reporting, importer metadata remarks repair, standalone annotation skipping, exact Android table headings, deprecated Java block exclusion, exact-structure deprecated enum repair and failure reporting, self-closing remarks expansion, table alignment, quote-aware HTML cleanup, stale-link replacement, partial-write reporting, mismatch and low-value channel skipping, source cleanup, channel extraction, preservation, paragraph remarks, source-link ordering, CRLF atomic writes, and XML parsing.");
         return 0;
     }
 
@@ -3097,6 +3133,39 @@ static class ImporterProgram
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
+
+            void CompleteElement(
+                (string Tag, int TagStart, int ContentStart) open,
+                int contentEnd,
+                int elementEnd)
+            {
+                var isCode = open.Tag.Equals("pre", StringComparison.OrdinalIgnoreCase) ||
+                    open.Tag.Equals("devsite-code", StringComparison.OrdinalIgnoreCase);
+                if (isCode)
+                {
+                    var value = HtmlCodeText(html[open.ContentStart..contentEnd]);
+                    if (value.Length > 0)
+                        codeRanges.Add((open.TagStart, elementEnd, new SourceParagraph(value, IsCode: true)));
+                    return;
+                }
+
+                var nestedCode = codeRanges
+                    .Where(code => code.Start >= open.ContentStart && code.End <= contentEnd)
+                    .OrderBy(code => code.Start)
+                    .ToList();
+                var textStart = open.ContentStart;
+                foreach (var code in nestedCode)
+                {
+                    if (code.Start < textStart)
+                        continue;
+                    AddSourceTextParagraph(html[textStart..code.Start], textStart, paragraphs);
+                    paragraphs.Add((code.Start, code.Paragraph));
+                    textStart = code.End;
+                }
+                if (textStart <= contentEnd)
+                    AddSourceTextParagraph(html[textStart..contentEnd], textStart, paragraphs);
+            }
+
             foreach (Match tag in Regex.Matches(
                 html,
                 @"<(?<close>/)?(?<tag>p|pre|devsite-code)\b[^>]*>",
@@ -3110,7 +3179,7 @@ static class ImporterProgram
                         stack.Count > 0 &&
                         stack.Peek().Tag.Equals("p", StringComparison.OrdinalIgnoreCase))
                     {
-                        stack.Pop();
+                        CompleteElement(stack.Pop(), tag.Index, tag.Index);
                     }
                     stack.Push((name, tag.Index, tag.Index + tag.Length));
                     continue;
@@ -3121,33 +3190,7 @@ static class ImporterProgram
                 var open = stack.Pop();
                 if (!open.Tag.Equals(name, StringComparison.OrdinalIgnoreCase))
                     continue;
-
-                var isCode = name.Equals("pre", StringComparison.OrdinalIgnoreCase) ||
-                    name.Equals("devsite-code", StringComparison.OrdinalIgnoreCase);
-                if (isCode)
-                {
-                    var value = HtmlCodeText(html[open.ContentStart..tag.Index]);
-                    if (value.Length > 0)
-                        codeRanges.Add((open.TagStart, tag.Index + tag.Length, new SourceParagraph(value, IsCode: true)));
-                }
-                else
-                {
-                    var nestedCode = codeRanges
-                        .Where(code => code.Start >= open.ContentStart && code.End <= tag.Index)
-                        .OrderBy(code => code.Start)
-                        .ToList();
-                    var textStart = open.ContentStart;
-                    foreach (var code in nestedCode)
-                    {
-                        if (code.Start < textStart)
-                            continue;
-                        AddSourceTextParagraph(html[textStart..code.Start], textStart, paragraphs);
-                        paragraphs.Add((code.Start, code.Paragraph));
-                        textStart = code.End;
-                    }
-                    if (textStart <= tag.Index)
-                        AddSourceTextParagraph(html[textStart..tag.Index], textStart, paragraphs);
-                }
+                CompleteElement(open, tag.Index, tag.Index + tag.Length);
             }
             foreach (var code in codeRanges.Where(code =>
                 !paragraphs.Any(paragraph => paragraph.Position == code.Start &&

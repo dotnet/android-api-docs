@@ -165,9 +165,8 @@
         <summary>Adds a pattern to the generator.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <code lang="text/java">public DateTimePatternGenerator addPattern (String pattern,
-                boolean override,
-                DateTimePatternGenerator.PatternInfo returnInfo)</code>
+          <para>Adds a pattern to the generator. If the pattern has the same skeleton as an existing pattern, and the override parameter is set, then the previous value is overridden. Otherwise, the previous value is retained. In either case, the conflicting information is returned in PatternInfo.</para>
+          <para>Note that single-field patterns (like "MMM") are automatically added, and don't need to be added explicitly!</para>
           <para>Example code:</para>
           <code lang="text/java">Date date= new GregorianCalendar(1999,9,13,23,58,59).getTime();
 ULocale locale = ULocale.FRANCE;
@@ -1040,7 +1039,7 @@ System.out.println("Date Time in new Pattern: "+format.format(date));
         <summary>Return the best pattern matching the input skeleton.</summary>
         <returns>Best pattern matching the input skeleton.</returns>
         <remarks>
-          <code lang="text/java">public String getBestPattern (String skeleton)</code>
+          <para>Return the best pattern matching the input skeleton. It is guaranteed to have all of the fields in the skeleton.</para>
           <para>Example code:</para>
           <code lang="text/java">import java.util.Date;
 
@@ -1925,8 +1924,9 @@ for (String skeleton:dtfskeleton) {
             in a skeleton.</summary>
         <returns>pattern adjusted to match the skeleton fields widths and subtypes.</returns>
         <remarks>
-          <para>Adjusts the field types (width and subtype) of a pattern to match what is in a skeleton. That is, if you supply a pattern like "d-M H:m", and a skeleton of "MMMMddhhmm", then the input pattern is adjusted to be "dd-MMMM hh:mm". This is used internally to get the best match for the input skeleton, but can also be used externally. Example code:</para>
-          <para>Date date= new GregorianCalendar(1999,9,13,23,58,59).getTime();
+          <para>Adjusts the field types (width and subtype) of a pattern to match what is in a skeleton. That is, if you supply a pattern like "d-M H:m", and a skeleton of "MMMMddhhmm", then the input pattern is adjusted to be "dd-MMMM hh:mm". This is used internally to get the best match for the input skeleton, but can also be used externally.</para>
+          <para>Example code:</para>
+          <code lang="text/java">Date date= new GregorianCalendar(1999,9,13,23,58,59).getTime();
 TimeZone zone = TimeZone.getTimeZone("Europe/Paris");
 ULocale locale = ULocale.FRANCE;
 DateTimePatternGenerator gen = DateTimePatternGenerator.getInstance(locale);
@@ -1957,7 +1957,7 @@ System.out.println(format.format(date));
  Date/Time format in fr_FR:
  jeudi 14 octobre 1999 05:58:59 heure de l\u2019Europe centrale
 
-**************************************************************************************************/</para>
+**************************************************************************************************/</code>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateTimePatternGenerator#replaceFieldTypes(java.lang.String,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.icu.text.DateTimePatternGenerator.replaceFieldTypes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
