@@ -790,9 +790,11 @@ static class ImporterProgram
                 .OfType<XText>()
                 .FirstOrDefault(node => node is not XCData &&
                     NormalizeText(node.Value) is "To be added" or "To be added.");
-            var emptyParagraph = remarksElement.Elements("para")
-                .SingleOrDefault(paragraph => !paragraph.HasElements &&
-                    NormalizeText(paragraph.Value).Length == 0);
+            var emptyParagraph = directPlaceholder is null
+                ? remarksElement.Elements("para")
+                    .SingleOrDefault(paragraph => !paragraph.HasElements &&
+                        NormalizeText(paragraph.Value).Length == 0)
+                : null;
             if (directPlaceholder is null && emptyParagraph is null)
             {
                 updated = text;
@@ -807,18 +809,16 @@ static class ImporterProgram
             var repairedRemarks = remarksElement.ToString(SaveOptions.DisableFormatting);
             if (remarks.Value.Contains("\r\n", StringComparison.Ordinal))
                 repairedRemarks = repairedRemarks.Replace("\n", "\r\n", StringComparison.Ordinal);
-            var repairedBlock = blockText[..remarks.Index] + repairedRemarks +
-                blockText[(remarks.Index + remarks.Length)..];
-            updated = text[..block.Start] + repairedBlock + text[block.End..];
-            var reparsed = XDocument.Parse(updated, LoadOptions.PreserveWhitespace)
-                .Descendants("remarks")
-                .Any(LoadedFile.IsImporterAugmentedRemarksPlaceholder);
-            if (reparsed)
+            if (LoadedFile.IsImporterAugmentedRemarksPlaceholder(
+                    XElement.Parse(repairedRemarks, LoadOptions.PreserveWhitespace)))
             {
                 updated = text;
                 error = "Importer metadata remarks repair remained a candidate after replacement.";
                 return false;
             }
+            var repairedBlock = blockText[..remarks.Index] + repairedRemarks +
+                blockText[(remarks.Index + remarks.Length)..];
+            updated = text[..block.Start] + repairedBlock + text[block.End..];
             error = "";
             return true;
         }
@@ -1646,6 +1646,40 @@ static class ImporterProgram
                         .Elements("para").First().Value) == NormalizeText(metadataReplacement),
                 "importer empty metadata paragraph repair supports LF, CRLF, self-closing, whitespace, and inline layouts");
         }
+        var firstRemarksStart = emptyMetadataRepairText.IndexOf("<remarks>", StringComparison.Ordinal);
+        var firstRemarksEnd = emptyMetadataRepairText.IndexOf("</remarks>", StringComparison.Ordinal) +
+            "</remarks>".Length;
+        var candidateRemarksText = emptyMetadataRepairText[firstRemarksStart..firstRemarksEnd];
+        var twoCandidateMetadataText = $"<Docs>{candidateRemarksText}{candidateRemarksText}</Docs>";
+        var twoCandidateRemarks = XDocument.Parse(twoCandidateMetadataText).Root!.Element("remarks")!;
+        Assert(
+            TryReplacePlaceholder(
+                twoCandidateMetadataText,
+                new DocsBlock(0, 0, twoCandidateMetadataText.Length),
+                Placeholder.Create(twoCandidateRemarks, 0),
+                metadataReplacement,
+                out var repairedTwoCandidateText,
+                out _) &&
+            XDocument.Parse(repairedTwoCandidateText).Root!.Elements("remarks")
+                .Count(LoadedFile.IsImporterAugmentedRemarksPlaceholder) == 1,
+            "importer metadata repair validates only its targeted remarks candidate");
+        var directPlaceholderWithTwoEmptyParagraphs = emptyMetadataRepairText.Replace(
+            "<para></para>",
+            "To be added.<para></para><para></para>",
+            StringComparison.Ordinal);
+        var directPlaceholderWithTwoEmptyRemarks =
+            XDocument.Parse(directPlaceholderWithTwoEmptyParagraphs).Root!.Element("remarks")!;
+        Assert(
+            LoadedFile.IsImporterAugmentedRemarksPlaceholder(directPlaceholderWithTwoEmptyRemarks) &&
+                TryReplacePlaceholder(
+                    directPlaceholderWithTwoEmptyParagraphs,
+                    new DocsBlock(0, 0, directPlaceholderWithTwoEmptyParagraphs.Length),
+                    Placeholder.Create(directPlaceholderWithTwoEmptyRemarks, 0),
+                    metadataReplacement,
+                    out var repairedDirectPlaceholderText,
+                    out _) &&
+                repairedDirectPlaceholderText.Contains(metadataReplacement, StringComparison.Ordinal),
+            "direct metadata placeholder ignores coexisting empty paragraphs");
 
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
         Assert(emptyReturn.Docs?.Returns.Length == 0, "empty return description preserved");
