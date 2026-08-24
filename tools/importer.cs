@@ -921,9 +921,9 @@ static class ImporterProgram
                 file,
                 docs,
                 allowEnumCreation);
+            updatedBlock = RemoveEnumDiscardedMetadata(updatedBlock, docs);
             if (updatedBlock.Equals(blockText, StringComparison.Ordinal))
                 return text;
-            updatedBlock = RemoveEnumDiscardedMetadata(updatedBlock);
             return text[..block.Start] + updatedBlock + text[block.End..];
         }
 
@@ -1236,20 +1236,54 @@ static class ImporterProgram
             : text[..block.Start] + normalizedBlock + text[block.End..];
     }
 
-    static string RemoveEnumDiscardedMetadata(string blockText) =>
-        Regex.Replace(
+    static string RemoveEnumDiscardedMetadata(string blockText, SourceDocs docs)
+    {
+        var document = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
+        var summary = document.Element("summary");
+        if (summary is null)
+            return blockText;
+
+        var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
+        var expectedSource = XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
+            $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
+            "</a></format></para>");
+        var expectedAttribution = docs.SourceKind == "android"
+            ? XElement.Parse($"<para>{AndroidAttribution}</para>")
+            : null;
+        var hasSource = summary.Elements("para").Any(paragraph =>
+            XNode.DeepEquals(paragraph, expectedSource));
+        var hasAttribution = expectedAttribution is null ||
+            summary.Elements("para").Any(paragraph =>
+                XNode.DeepEquals(paragraph, expectedAttribution));
+        if (!hasSource || !hasAttribution)
+            return blockText;
+
+        return Regex.Replace(
             blockText,
             @"<remarks\b(?<attrs>[^>]*)>(?<body>.*?)</remarks>",
             match =>
             {
                 var body = Regex.Replace(
                     match.Groups["body"].Value,
-                    @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>\r?\n?",
-                    "",
+                    @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?</para>\r?\n?",
+                    paragraph =>
+                    {
+                        var element = XElement.Parse(paragraph.Value.Trim());
+                        var isTransferredSource = XNode.DeepEquals(element, expectedSource);
+                        var isTransferredAttribution = expectedAttribution is not null &&
+                            XNode.DeepEquals(element, expectedAttribution);
+                        return isTransferredSource || isTransferredAttribution
+                            ? ""
+                            : paragraph.Value;
+                    },
                     RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
-                return $"<remarks{match.Groups["attrs"].Value}>{body}</remarks>";
+                return string.IsNullOrWhiteSpace(body)
+                    ? $"<remarks{match.Groups["attrs"].Value} />"
+                    : $"<remarks{match.Groups["attrs"].Value}>{body}</remarks>";
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
 
     static string AddEnumSummaryMetadata(
         string blockText,
@@ -2215,6 +2249,89 @@ static class ImporterProgram
                 NormalizeText(enumDocs.Element("remarks")!.Value)
                     .Equals("To be added.", StringComparison.Ordinal),
             "enum discarded remarks retain only placeholder");
+        var enumMetadataSourceUrl = XmlAttributeEscape(enumMapped.Docs!.SourceUrl);
+        var enumSourceLabel = enumMapped.Docs.SourceKind == "android" ? "Android" : "Java";
+        var enumExpectedSource =
+            $"<para><format type=\"text/html\"><a href=\"{enumMetadataSourceUrl}\" " +
+            $"title=\"Reference documentation\">{enumSourceLabel} reference for <code>{XmlEscape(enumMapped.Docs.SourceLabel)}</code>.</a></format></para>";
+        var enumMetadataWithoutTransfer =
+            "<Docs><summary><para>Keep semantic prose.</para></summary><remarks>\n" +
+            $"  {enumExpectedSource}\n" +
+            $"  <para>{AndroidAttribution}</para>\n" +
+            "</remarks></Docs>";
+        Assert(
+            RemoveEnumDiscardedMetadata(enumMetadataWithoutTransfer, enumMapped.Docs!) ==
+                enumMetadataWithoutTransfer,
+            "enum remarks metadata is preserved until summary transfer is confirmed");
+        var enumMetadataWithTransfer = enumMetadataWithoutTransfer.Replace(
+            "<summary><para>Keep semantic prose.</para></summary>",
+            "<summary>" +
+            enumExpectedSource +
+            $"<para>{AndroidAttribution}</para>" +
+            "</summary>",
+            StringComparison.Ordinal);
+        var prunedEnumMetadata = RemoveEnumDiscardedMetadata(
+            enumMetadataWithTransfer,
+            enumMapped.Docs!);
+        Assert(
+            prunedEnumMetadata.Contains("<remarks />", StringComparison.Ordinal) &&
+                !XElement.Parse(prunedEnumMetadata)
+                    .Element("remarks")!
+                    .Descendants("a")
+                    .Any(),
+            "enum remarks metadata self-closes after verified summary transfer");
+        var favoriteRemarksClose = enumText.IndexOf("</remarks>", StringComparison.Ordinal);
+        var enumTextWithDuplicateMetadata =
+            enumText[..favoriteRemarksClose] +
+            "\n" +
+            $"          {enumExpectedSource}\n" +
+            $"          <para>{AndroidAttribution}</para>\n" +
+            "          <para><format type=\"text/html\"><a href=\"https://example.invalid/unrelated\" title=\"Reference documentation\">Keep unrelated content.</a></format></para>\n" +
+            enumText[favoriteRemarksClose..];
+        enumFile.UpdateBlockOffsets(enumFavorite.Order, enumTextWithDuplicateMetadata);
+        var prunedEnumText = AddSourceDocumentationIfSafe(
+            enumTextWithDuplicateMetadata,
+            enumFile,
+            enumFavorite,
+            enumMapped.Docs!);
+        var prunedEnumRemarks = XDocument.Parse(prunedEnumText)
+            .Root!
+            .Element("Members")!
+            .Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "Favorite")
+            .Element("Docs")!
+            .Element("remarks")!;
+        Assert(
+            !prunedEnumRemarks.Descendants("a").Any(link =>
+                UrlsEqual(
+                    WebUtility.HtmlDecode((string?)link.Attribute("href") ?? ""),
+                    enumMapped.Docs!.SourceUrl) ||
+                ((string?)link.Attribute("href"))?.Equals(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal) == true) &&
+                prunedEnumRemarks.Descendants("a").Any(link =>
+                    ((string?)link.Attribute("href"))?.Equals(
+                        "https://example.invalid/unrelated",
+                        StringComparison.Ordinal) == true) &&
+                NormalizeText(prunedEnumRemarks.Value).Contains(
+                    "To be added.",
+                    StringComparison.Ordinal) &&
+                NormalizeText(prunedEnumRemarks.Value).Contains(
+                    "Keep unrelated content.",
+                    StringComparison.Ordinal),
+            "already-complete enum summary prunes only duplicate remarks metadata");
+        var enumMetadataWithUnrelatedPolicyLink = enumMetadataWithoutTransfer.Replace(
+            "<summary><para>Keep semantic prose.</para></summary>",
+            "<summary>" +
+            enumExpectedSource +
+            "<para><format type=\"text/html\"><a href=\"https://developers.google.com/terms/site-policies\">Unrelated policy link.</a></format></para>" +
+            "</summary>",
+            StringComparison.Ordinal);
+        Assert(
+            RemoveEnumDiscardedMetadata(
+                enumMetadataWithUnrelatedPolicyLink,
+                enumMapped.Docs!) == enumMetadataWithUnrelatedPolicyLink,
+            "enum remarks attribution is preserved until the exact attribution paragraph transfers");
 
         enumFile.UpdateBlockOffsets(enumFavorite.Order, enumText);
         var enumDeprecated = enumFile.Owners.Single(
@@ -3744,7 +3861,12 @@ static class ImporterProgram
             var listIntroduction = HtmlText(withoutListItems);
             return listIntroduction.EndsWith(":", StringComparison.Ordinal)
                 ? CleanSourceText($"{listIntroduction} {string.Join("; ", listItems)}")
-                : HtmlText(html);
+                : Regex.IsMatch(
+                    listIntroduction,
+                    @"\bor$",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                    ? CleanSourceText($"{listIntroduction} {string.Join("; ", listItems)}")
+                    : HtmlText(html);
         }
 
         static string HtmlCodeText(string html)
