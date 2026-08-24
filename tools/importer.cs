@@ -708,11 +708,12 @@ static class ImporterProgram
     static string RemoveLeadingJavaType(string value)
     {
         var cleaned = CleanSourceText(value);
-        return Regex.Replace(
+        cleaned = Regex.Replace(
             cleaned,
             @"^(?:[\w.$]+(?:<[^>]+>)?(?:\[\])?)\s*:\s*(?=\S)",
             "",
             RegexOptions.CultureInvariant).Trim();
+        return CleanSourceText(cleaned);
     }
 
     static bool IsMeaningfulChannel(string value, string channel)
@@ -1639,7 +1640,7 @@ static class ImporterProgram
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
-        Assert(file.Owners.Count == 11, "fixture owner count");
+        Assert(file.Owners.Count == 12, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1867,6 +1868,17 @@ static class ImporterProgram
                     tableOnly.Placeholders.Single(placeholder => placeholder.Target == "param:value"),
                     tableOnlyResult.Docs).Text == "the fixture value",
             "channel-only Android documentation is imported without a guessed summary");
+        var structuredList = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".StructuredList", StringComparison.Ordinal));
+        var structuredListResult = MapOwner(structuredList, pages);
+        Assert(
+            structuredListResult.Docs?.Summary.Contains(
+                "First case.; Second case.",
+                StringComparison.Ordinal) == true &&
+                !structuredListResult.Docs.Summary.Contains(
+                    "Ignore this item.",
+                    StringComparison.Ordinal),
+            "Android prose lists retain visible item separators and exclude nolist content");
         var listField = file.Owners.Single(owner =>
             owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
         var listFieldResult = MapOwner(listField, pages);
@@ -1928,6 +1940,11 @@ static class ImporterProgram
                 "optional intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.") ==
                     "intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.",
             "contradictory optional unarchival intent cleanup");
+        Assert(
+            RemoveLeadingJavaType(
+                "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
+                    "If the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE, this field should be set.",
+            "typed Android parameter typo cleanup");
         Assert(
             androidPage.Members.Single(member => member.Name == "Widget").Docs is null,
             "boilerplate-only member documentation skip");
