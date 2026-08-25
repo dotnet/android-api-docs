@@ -501,7 +501,30 @@
         <summary>
           <para>Constant corresponding to specialUse in the R.attr.foregroundServiceType attribute. Use cases that can't be categorized into any other foreground service types, but also can't use JobInfo.Builder APIs.</para>
           <para>The use of this foreground service type may be restricted. Additionally, apps must declare a service-level &lt;property&gt; in AndroidManifest.xml as a hint of what the exact use case here is.</para>
+          <code lang="text/java"> &lt;uses-permission
+     android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+ /&gt;
+ &lt;service
+     android:name=".MySpecialForegroundService"
+     android:foregroundServiceType="specialUse"&gt;
+     &lt;property
+         android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+         android:value="foo"
+     /&gt;
+&lt;/service&gt;</code>
           <para>In a future release of Android, if the above foreground service type foo is supported by the platform, to offer the backward compatibility, the app could specify the android:maxSdkVersion attribute in the &lt;uses-permission&gt; section, and also add the foreground service type foo into the android:foregroundServiceType, therefore the same app could be installed in both platforms.</para>
+          <code lang="text/java"> &lt;uses-permission
+     android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+     android:maxSdkVersion="last_sdk_version_without_type_foo"
+ /&gt;
+ &lt;service
+     android:name=".MySpecialForegroundService"
+     android:foregroundServiceType="specialUse|foo"&gt;
+     &lt;property
+         android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+         android:value="foo"
+     /&gt;
+&lt;/service&gt;</code>
           <para>Requires Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/ServiceInfo#FOREGROUND_SERVICE_TYPE_SPECIAL_USE" title="Reference documentation">Android reference for <code>android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>

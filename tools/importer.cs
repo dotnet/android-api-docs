@@ -1323,6 +1323,14 @@ static class ImporterProgram
             .Where(value => IsMeaningfulChannel(value, "remarks"))
             .Distinct(StringComparer.Ordinal)
             .ToList();
+        var sourceDocumentation = docs.Paragraphs
+            .Select(paragraph => new SourceParagraph(
+                paragraph.IsCode ? paragraph.Text : CleanSourceText(paragraph.Text),
+                paragraph.IsCode))
+            .Where(paragraph => paragraph.IsCode ||
+                IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .Distinct()
+            .ToList();
         var hasReferenceMetadata = summaryElement.Descendants("a").Any(link =>
             (string?)link.Attribute("title") == "Reference documentation");
         var hasAttribution = summaryElement.Descendants("a").Any(link =>
@@ -1365,10 +1373,7 @@ static class ImporterProgram
             return blockText;
         }
 
-        var prose = repairEligible || creationEligible
-            ? sourceParagraphs
-            : existingProse;
-        if (prose.Count == 0)
+        if (sourceDocumentation.Count == 0 && existingProse.Count == 0)
             return blockText;
 
         var newline = file.Newline;
@@ -1377,9 +1382,13 @@ static class ImporterProgram
         var summaryIndent = blockText[lineStart..summary.Index];
         var paraIndent = summaryIndent + "  ";
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
-        var additions = prose
-            .Select(paragraph => $"{paraIndent}<para>{XmlEscape(paragraph)}</para>")
-            .ToList();
+        var additions = repairEligible || creationEligible
+            ? sourceDocumentation
+                .Select(paragraph => RenderDocumentationParagraph(paragraph, paraIndent))
+                .ToList()
+            : existingProse
+                .Select(paragraph => $"{paraIndent}<para>{XmlEscape(paragraph)}</para>")
+                .ToList();
         additions.Add(
             $"{paraIndent}<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
             $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
@@ -2313,6 +2322,54 @@ static class ImporterProgram
                 NormalizeText(enumDocs.Element("remarks")!.Value)
                     .Equals("To be added.", StringComparison.Ordinal),
             "enum discarded remarks retain only placeholder");
+        var enumFileWithCode = LoadedFile.Load(
+            repositoryRoot,
+            Path.Combine(fixtureRoot, "enum-source.xml"));
+        enumFileWithCode.SelectOwners(null);
+        var enumFavoriteWithCode = enumFileWithCode.Owners.Single(
+            owner => (string?)owner.Member?.Attribute("MemberName") == "Favorite");
+        var enumDocsWithCode = enumMapped.Docs! with
+        {
+            Paragraphs =
+            [
+                enumMapped.Docs.Paragraphs[0],
+                new SourceParagraph(
+                    "<service android:foregroundServiceType=\"foo\">\n" +
+                    "  <property android:value=\"foo\" />\n" +
+                    "</service>",
+                    true),
+                .. enumMapped.Docs.Paragraphs.Skip(1),
+            ],
+        };
+        var enumCodeSummary = enumFavoriteWithCode.Placeholders.Single(item => item.Name == "summary");
+        Assert(
+            TryReplacePlaceholder(
+                enumFileWithCode.Text,
+                enumFileWithCode.DocsBlocks[enumFavoriteWithCode.Order],
+                enumCodeSummary,
+                ReplacementFor(enumCodeSummary, enumDocsWithCode, true).Text!,
+                out var enumCodeText,
+                out _),
+            "enum summary replacement with code");
+        enumFileWithCode.UpdateBlockOffsets(enumFavoriteWithCode.Order, enumCodeText);
+        enumCodeText = AddSourceDocumentationIfSafe(
+            enumCodeText,
+            enumFileWithCode,
+            enumFavoriteWithCode,
+            enumDocsWithCode);
+        var enumCodeSummaryElement = XDocument.Parse(enumCodeText)
+            .Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "Favorite")
+            .Element("Docs")!.Element("summary")!;
+        Assert(
+            enumCodeSummaryElement.Descendants("code").Any(code =>
+                (string?)code.Attribute("lang") == "text/java" &&
+                code.Value.Equals(
+                    "<service android:foregroundServiceType=\"foo\">\n" +
+                    "  <property android:value=\"foo\" />\n" +
+                    "</service>",
+                    StringComparison.Ordinal)),
+            "enum summaries preserve source code examples and line breaks");
         var enumMetadataSourceUrl = XmlAttributeEscape(enumMapped.Docs!.SourceUrl);
         var enumSourceLabel = enumMapped.Docs.SourceKind == "android" ? "Android" : "Java";
         var enumExpectedSource =
