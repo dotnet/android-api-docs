@@ -102,11 +102,15 @@
         <Parameter Name="frameCommitCallback" Type="Java.Lang.IRunnable" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="frameCommitCallback">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor to run the callback on. It is strongly recommended that this executor post to a different thread, as the calling thread is highly sensitive to being blocked. This value cannot be null.</param>
+        <param name="frameCommitCallback">The callback to invoke when the frame content has been drawn. Will be invoked on the given Executor. This value cannot be null.</param>
+        <summary>Adds a frame commit callback.</summary>
+        <returns>this instance. This value cannot be null.</returns>
+        <remarks>
+          <para>Adds a frame commit callback. This callback will be invoked when the current rendering content has been rendered into a frame and submitted to the swap chain. The frame may not currently be visible on the display when this is invoked, but it has been submitted. This callback is useful in combination with PixelCopy to capture the current rendered content of the UI reliably.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/HardwareRenderer.FrameRenderRequest#setFrameCommitCallback(java.util.concurrent.Executor,%20java.lang.Runnable)" title="Reference documentation">Android reference for <code>android.graphics.HardwareRenderer.FrameRenderRequest.setFrameCommitCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetVsyncTime">
@@ -136,10 +140,14 @@
         <Parameter Name="vsyncTime" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="vsyncTime">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="vsyncTime">The vsync timestamp for this frame. The timestamp is in nanoseconds and should come from a CLOCK_MONOTONIC source.</param>
+        <summary>Sets the vsync time that represents the start point of this frame.</summary>
+        <returns>this instance. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the vsync time that represents the start point of this frame. Typically this comes from Choreographer.FrameCallback. Other compatible time sources include System.nanoTime(), however if the result is being displayed on-screen then using Choreographer is strongly recommended to ensure smooth animations. If the clock source is not from a CLOCK_MONOTONIC source then any animations driven directly by RenderThread will not be synchronized properly with the current frame.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/HardwareRenderer.FrameRenderRequest#setVsyncTime(long)" title="Reference documentation">Android reference for <code>android.graphics.HardwareRenderer.FrameRenderRequest.setVsyncTime</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWaitForPresent">
@@ -169,10 +177,14 @@
         <Parameter Name="shouldWait" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="shouldWait">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="shouldWait">If true the next call to syncAndDraw() will block until completion.</param>
+        <summary>Sets whether or not syncAndDraw() should block until the frame has been presented.</summary>
+        <returns>this instance. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets whether or not syncAndDraw() should block until the frame has been presented. If this is true and syncAndDraw() does not return HardwareRenderer.SYNC_FRAME_DROPPED or an error then when syncAndDraw() has returned the frame has been submitted to the Surface. The default and typically recommended value is false, as blocking for present will prevent pipelining from happening, reducing overall throughput. This is useful for situations such as SurfaceHolder.Callback2.surfaceRedrawNeeded(SurfaceHolder) where it is desired to block until a frame has been presented to ensure first-frame consistency with other Surfaces.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/HardwareRenderer.FrameRenderRequest#setWaitForPresent(boolean)" title="Reference documentation">Android reference for <code>android.graphics.HardwareRenderer.FrameRenderRequest.setWaitForPresent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SyncAndDraw">

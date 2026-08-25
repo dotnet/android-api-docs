@@ -42,9 +42,16 @@
       </ReturnValue>
       <MemberValue>1144402265</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android dense depth image format.</para>
+          <para>Each pixel is 16 bits, representing a depth ranging measurement from a depth camera or similar sensor. The 16-bit sample consists of a confidence value and the actual ranging measurement.</para>
+          <para>The confidence value is an estimate of correctness for this sample. It is encoded in the 3 most significant bits of the sample, with a value of 0 representing 100% confidence, a value of 1 representing 0% confidence, a value of 2 representing 1/7, a value of 3 representing 2/7, and so on.</para>
+          <para>As an example, the following sample extracts the range and confidence from the first pixel of a DEPTH16-format Image, and converts the confidence to a floating-point value between 0 and 1.f inclusive, with 1.f representing maximum confidence:</para>
+          <para>This format assumes an even width an even height a horizontal stride multiple of 16 pixels</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#DEPTH16" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.DEPTH16</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -73,7 +80,11 @@
       </ReturnValue>
       <MemberValue>1768253795</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Depth augmented compressed JPEG format. JPEG compressed main image along with XMP embedded depth metadata following ISO 16684-1:2011(E).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#DEPTH_JPEG" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.DEPTH_JPEG</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="DepthPointCloud">
@@ -101,9 +112,14 @@
       </ReturnValue>
       <MemberValue>257</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android sparse depth point cloud format. A variable-length list of 3D points plus a confidence value, with each point represented by four floats; first the X, Y, Z position coordinates, and then the confidence value.</para>
+          <para>The number of points is (size of the buffer in bytes) / 16. The coordinate system and units of the position values depend on the source of the point cloud data. The confidence value is between 0.f and 1.f, inclusive, with 0 representing 0% confidence and 1.f representing 100% confidence in the measured position values.</para>
+          <para>As an example, the following code extracts the first depth point in a DEPTH_POINT_CLOUD format Image: For camera devices that support the DEPTH_OUTPUT capability, DEPTH_POINT_CLOUD coordinates have units of meters, and the coordinate system is defined by the camera's pose transforms: CameraCharacteristics.LENS_POSE_TRANSLATION and CameraCharacteristics.LENS_POSE_ROTATION. That means the origin is the optical center of the camera device, and the positive Z axis points along the camera's optical axis, toward the scene.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#DEPTH_POINT_CLOUD" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.DEPTH_POINT_CLOUD</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -132,9 +148,17 @@
       </ReturnValue>
       <MemberValue>41</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Multi-plane Android RGB format</para>
+          <para>This format is a generic RGB format, capable of describing most RGB formats, with 8 bits per color sample.</para>
+          <para>Images in this format are always represented by three separate buffers of data, one for each color plane. Additional information always accompanies the buffers, describing the row stride and the pixel stride for each plane.</para>
+          <para>The order of planes in the array returned by Image#getPlanes() is guaranteed such that plane #0 is always R (red), plane #1 is always G (green), and plane #2 is always B (blue).</para>
+          <para>All three planes are guaranteed to have the same row strides and pixel strides.</para>
+          <para>For example, the Image object can provide data in this format from a MediaCodec through MediaCodec.getOutputImage(int) object.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#FLEX_RGB_888" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.FLEX_RGB_888</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -163,9 +187,17 @@
       </ReturnValue>
       <MemberValue>42</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Multi-plane Android RGBA format</para>
+          <para>This format is a generic RGBA format, capable of describing most RGBA formats, with 8 bits per color sample.</para>
+          <para>Images in this format are always represented by four separate buffers of data, one for each color plane. Additional information always accompanies the buffers, describing the row stride and the pixel stride for each plane.</para>
+          <para>The order of planes in the array returned by Image#getPlanes() is guaranteed such that plane #0 is always R (red), plane #1 is always G (green), plane #2 is always B (blue), and plane #3 is always A (alpha). This format may represent pre-multiplied or non-premultiplied alpha.</para>
+          <para>All four planes are guaranteed to have the same row strides and pixel strides.</para>
+          <para>For example, the Image object can provide data in this format from a MediaCodec through MediaCodec.getOutputImage(int) object.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#FLEX_RGBA_8888" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.FLEX_RGBA_8888</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -194,7 +226,11 @@
       </ReturnValue>
       <MemberValue>1212500294</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Compressed HEIC format. This format defines the HEIC brand of High Efficiency Image File Format as described in ISO/IEC 23008-12.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#HEIC" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.HEIC</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="HeicUltrahdr">
@@ -222,7 +258,11 @@
       </ReturnValue>
       <MemberValue>4102</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>High Efficiency Image File Format (HEIF) with embedded HDR gain map This format defines the HEIC brand of High Efficiency Image File Format as described in ISO/IEC 23008-12:2024 with HDR gain map according to ISO/CD 21496‐1.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#HEIC_ULTRAHDR" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.HEIC_ULTRAHDR</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Jpeg">
@@ -277,7 +317,11 @@
       </ReturnValue>
       <MemberValue>4101</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Compressed JPEG format that includes an embedded recovery map. JPEG compressed main image along with embedded recovery map following the Ultra HDR Image format specification.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#JPEG_R" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.JPEG_R</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Nv16">
@@ -359,9 +403,14 @@
       </ReturnValue>
       <MemberValue>34</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android private opaque image format. The choices of the actual format and pixel data layout are entirely up to the device-specific and framework internal implementations, and may vary depending on use cases even for the same device. The buffers of this format can be produced by components like ImageWriter, and interpreted correctly by consumers like CameraDevice based on the device/framework private information. However, these buffers are not directly accessible to the application.</para>
+          <para>When an Image of this format is obtained from an ImageReader or ImageWriter, the getPlanes() method will return an empty Plane array.</para>
+          <para>If a buffer of this format is to be used as an OpenGL ES texture, the framework will assume that sampling the texture will always return an alpha value of 1.0 (i.e. the buffer contains only opaque pixel values).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#PRIVATE" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.PRIVATE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -386,9 +435,17 @@
       </ReturnValue>
       <MemberValue>37</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android 10-bit raw format</para>
+          <para>This is a single-plane, 10-bit per pixel, densely packed (in each row), unprocessed format, usually representing raw Bayer-pattern images coming from an image sensor.</para>
+          <para>In an image buffer with this format, starting from the first pixel of each row, each 4 consecutive pixels are packed into 5 bytes (40 bits). Each one of the first 4 bytes contains the top 8 bits of each pixel, The fifth byte contains the 2 least significant bits of the 4 pixels, the exact layout data for each 4 consecutive pixels is illustrated below ( Pi[j] stands for the jth bit of the ith pixel):</para>
+          <para>This format assumes a width multiple of 4 pixels an even height</para>
+          <para>Since this is a densely packed format, the pixel stride is always 0. The application must use the pixel data layout defined in above table to access each row data. When row stride is equal to width * (10 / 8), there will be no padding bytes at the end of each row, the entire image data is densely packed. When stride is larger than width * (10 / 8), padding bytes will be present at the end of each row.</para>
+          <para>For example, the Image object can provide data in this format from a CameraDevice (if supported) through a ImageReader object. The Image#getPlanes() will return a single plane containing the pixel data. The pixel stride is always 0 in Image.Plane.getPixelStride(), and the Image.Plane.getRowStride() describes the vertical neighboring pixel distance (in bytes) between adjacent rows.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW10" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW10</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -417,9 +474,17 @@
       </ReturnValue>
       <MemberValue>38</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android 12-bit raw format</para>
+          <para>This is a single-plane, 12-bit per pixel, densely packed (in each row), unprocessed format, usually representing raw Bayer-pattern images coming from an image sensor.</para>
+          <para>In an image buffer with this format, starting from the first pixel of each row, each two consecutive pixels are packed into 3 bytes (24 bits). The first and second byte contains the top 8 bits of first and second pixel. The third byte contains the 4 least significant bits of the two pixels, the exact layout data for each two consecutive pixels is illustrated below (Pi[j] stands for the jth bit of the ith pixel):</para>
+          <para>This format assumes a width multiple of 4 pixels an even height</para>
+          <para>Since this is a densely packed format, the pixel stride is always 0. The application must use the pixel data layout defined in above table to access each row data. When row stride is equal to width * (12 / 8), there will be no padding bytes at the end of each row, the entire image data is densely packed. When stride is larger than width * (12 / 8), padding bytes will be present at the end of each row.</para>
+          <para>For example, the Image object can provide data in this format from a CameraDevice (if supported) through a ImageReader object. The Image#getPlanes() will return a single plane containing the pixel data. The pixel stride is always 0 in Image.Plane.getPixelStride(), and the Image.Plane.getRowStride() describes the vertical neighboring pixel distance (in bytes) between adjacent rows.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW12" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW12</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -448,9 +513,13 @@
       </ReturnValue>
       <MemberValue>36</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Private raw camera sensor image format, a single channel image with implementation dependent pixel layout.</para>
+          <para>RAW_PRIVATE is a format for unprocessed raw image buffers coming from an image sensor. The actual structure of buffers of this format is implementation-dependent.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW_PRIVATE" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW_PRIVATE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -475,9 +544,13 @@
       </ReturnValue>
       <MemberValue>32</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>General raw camera sensor image format, usually representing a single-channel Bayer-mosaic image. Each pixel color sample is stored with 16 bits of precision.</para>
+          <para>The layout of the color mosaic, the maximum and minimum encoding values of the raw pixel data, the color space of the image, and all other needed information to interpret a raw sensor image must be queried from the CameraDevice which produced the image.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW_SENSOR" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW_SENSOR</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -560,7 +633,14 @@
       </ReturnValue>
       <MemberValue>538982489</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android Y8 format.</para>
+          <para>Y8 is a YUV planar format comprised of a WxH Y plane only, with each pixel being represented by 8 bits. It is equivalent to just the Y plane from YV12 format.</para>
+          <para>This format assumes an even width an even height a horizontal stride multiple of 16 pixels</para>
+          <para>For example, the Image object can provide data in this format from a CameraDevice (if supported) through a ImageReader object. The Image#getPlanes() will return a single plane containing the pixel data. The pixel stride is always 1 in Image.Plane.getPixelStride(), and the Image.Plane.getRowStride() describes the vertical neighboring pixel distance (in bytes) between adjacent rows.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#Y8" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.Y8</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="YcbcrP010">
@@ -588,7 +668,12 @@
       </ReturnValue>
       <MemberValue>54</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android YUV P010 format.</para>
+          <para>For example, the Image object can provide data in this format from a CameraDevice through a ImageReader object if this format is supported by CameraDevice.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#YCBCR_P010" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.YCBCR_P010</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="YcbcrP210">
@@ -616,7 +701,12 @@
       </ReturnValue>
       <MemberValue>60</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android YUV P210 format.</para>
+          <para>For example, the Image object can provide data in this format from a CameraDevice through a ImageReader object if this format is supported by CameraDevice.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#YCBCR_P210" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.YCBCR_P210</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Yuv420888">
@@ -640,9 +730,18 @@
       </ReturnValue>
       <MemberValue>35</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Multi-plane Android YUV 420 format</para>
+          <para>This format is a generic YCbCr format, capable of describing any 4:2:0 chroma-subsampled planar or semiplanar buffer (but not fully interleaved), with 8 bits per color sample.</para>
+          <para>Images in this format are always represented by three separate buffers of data, one for each color plane. Additional information always accompanies the buffers, describing the row stride and the pixel stride for each plane.</para>
+          <para>The order of planes in the array returned by Image#getPlanes() is guaranteed such that plane #0 is always Y, plane #1 is always U (Cb), and plane #2 is always V (Cr).</para>
+          <para>The Y-plane is guaranteed not to be interleaved with the U/V planes (in particular, pixel stride is always 1 in yPlane.getPixelStride() ).</para>
+          <para>The U/V planes are guaranteed to have the same row stride and pixel stride (in particular, uPlane.getRowStride() == vPlane.getRowStride() and uPlane.getPixelStride() == vPlane.getPixelStride(); ).</para>
+          <para>For example, the Image object can provide data in this format from a CameraDevice through a ImageReader object.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#YUV_420_888" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.YUV_420_888</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -671,9 +770,18 @@
       </ReturnValue>
       <MemberValue>39</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Multi-plane Android YUV 422 format</para>
+          <para>This format is a generic YCbCr format, capable of describing any 4:2:2 chroma-subsampled (planar, semiplanar or interleaved) format, with 8 bits per color sample.</para>
+          <para>Images in this format are always represented by three separate buffers of data, one for each color plane. Additional information always accompanies the buffers, describing the row stride and the pixel stride for each plane.</para>
+          <para>The order of planes in the array returned by Image#getPlanes() is guaranteed such that plane #0 is always Y, plane #1 is always U (Cb), and plane #2 is always V (Cr).</para>
+          <para>In contrast to the YUV_420_888 format, the Y-plane may have a pixel stride greater than 1 in yPlane.getPixelStride().</para>
+          <para>The U/V planes are guaranteed to have the same row stride and pixel stride (in particular, uPlane.getRowStride() == vPlane.getRowStride() and uPlane.getPixelStride() == vPlane.getPixelStride(); ).</para>
+          <para>For example, the Image object can provide data in this format from a MediaCodec through MediaCodec.getOutputImage(int) object.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#YUV_422_888" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.YUV_422_888</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -702,9 +810,18 @@
       </ReturnValue>
       <MemberValue>40</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Multi-plane Android YUV 444 format</para>
+          <para>This format is a generic YCbCr format, capable of describing any 4:4:4 (planar, semiplanar or interleaved) format, with 8 bits per color sample.</para>
+          <para>Images in this format are always represented by three separate buffers of data, one for each color plane. Additional information always accompanies the buffers, describing the row stride and the pixel stride for each plane.</para>
+          <para>The order of planes in the array returned by Image#getPlanes() is guaranteed such that plane #0 is always Y, plane #1 is always U (Cb), and plane #2 is always V (Cr).</para>
+          <para>In contrast to the YUV_420_888 format, the Y-plane may have a pixel stride greater than 1 in yPlane.getPixelStride().</para>
+          <para>The U/V planes are guaranteed to have the same row stride and pixel stride (in particular, uPlane.getRowStride() == vPlane.getRowStride() and uPlane.getPixelStride() == vPlane.getPixelStride(); ).</para>
+          <para>For example, the Image object can provide data in this format from a MediaCodec through MediaCodec.getOutputImage(int) object.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#YUV_444_888" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.YUV_444_888</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -757,9 +874,17 @@
       </ReturnValue>
       <MemberValue>842094169</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android YUV format.</para>
+          <para>This format is exposed to software decoders and applications.</para>
+          <para>YV12 is a 4:2:0 YCrCb planar format comprised of a WxH Y plane followed by (W/2) x (H/2) Cr and Cb planes.</para>
+          <para>This format assumes an even width an even height a horizontal stride multiple of 16 pixels a vertical stride equal to the height</para>
+          <para>For the android.hardware.camera2 API, the YUV_420_888 format is recommended for YUV output instead.</para>
+          <para>For the older camera API, this format is guaranteed to be supported for Camera preview images since API level 12; for earlier API versions, check Camera.Parameters.getSupportedPreviewFormats(). Note that for camera preview callback use (see Camera.setPreviewCallback(PreviewCallback) ), the stride value is the smallest possible; that is, it is equal to:</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#YV12" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.YV12</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
