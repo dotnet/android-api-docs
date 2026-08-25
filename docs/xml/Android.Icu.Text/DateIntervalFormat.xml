@@ -558,10 +558,14 @@
         <Parameter Name="dtInterval" Type="Android.Icu.Util.DateInterval" />
       </Parameters>
       <Docs>
-        <param name="dtInterval">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="dtInterval">DateInterval to be formatted.</param>
+        <summary>Format a DateInterval to produce a FormattedDateInterval.</summary>
+        <returns>A FormattedDateInterval containing the format result.</returns>
+        <remarks>
+          <para>Format a DateInterval to produce a FormattedDateInterval. The FormattedDateInterval exposes field information about the formatted string.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#formatToValue(android.icu.util.DateInterval)" title="Reference documentation">Android reference for <code>android.icu.text.DateIntervalFormat.formatToValue</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FormatToValue">
@@ -592,11 +596,15 @@
         <Parameter Name="toCalendar" Type="Android.Icu.Util.Calendar" />
       </Parameters>
       <Docs>
-        <param name="fromCalendar">To be added.</param>
-        <param name="toCalendar">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fromCalendar">calendar set to the from date in date interval to be formatted into date interval string</param>
+        <param name="toCalendar">calendar set to the to date in date interval to be formatted into date interval string</param>
+        <summary>Format 2 Calendars to produce a FormattedDateInterval.</summary>
+        <returns>A FormattedDateInterval containing the format result.</returns>
+        <remarks>
+          <para>Format 2 Calendars to produce a FormattedDateInterval. The FormattedDateInterval exposes field information about the formatted string.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#formatToValue(android.icu.util.Calendar,%20android.icu.util.Calendar)" title="Reference documentation">Android reference for <code>android.icu.text.DateIntervalFormat.formatToValue</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetContext">
@@ -626,10 +634,14 @@
         <Parameter Name="type" Type="Android.Icu.Text.DisplayContext+Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">the DisplayContext.Type whose value to return</param>
+        <summary>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as CAPITALIZATION.</summary>
+        <returns>the current DisplayContext setting for the specified type</returns>
+        <remarks>
+          <para>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as CAPITALIZATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getContext(android.icu.text.DisplayContext.Type)" title="Reference documentation">Android reference for <code>android.icu.text.DateIntervalFormat.getContext</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInstance">
@@ -833,20 +845,52 @@
         <summary>Construct a DateIntervalFormat from skeleton and a given locale.</summary>
         <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Construct a DateIntervalFormat from skeleton and a given locale.</para>
-          <para>This is a convenient override of
-            getInstance(String skeleton, ULocale locale)</para>
-          <para>Example code:{</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String, java.util.Locale)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton and a given locale. This is a convenient override of getInstance(String skeleton, ULocale locale)</para>
+          <para>Example code:</para>
+          <code lang="text/java">import java.util.Date;
+
+import android.icu.text.DateFormat;
+import android.icu.text.DateIntervalFormat;
+import android.icu.text.DateIntervalInfo;
+import android.icu.util.Calendar;
+import android.icu.util.DateInterval;
+import android.icu.util.GregorianCalendar;
+import android.icu.util.ULocale;
+...
+final Date date[] = {
+        new GregorianCalendar(2007,10,10,10,10,10).getTime(),
+        new GregorianCalendar(2008,10,10,10,10,10).getTime(),
+        new GregorianCalendar(2008,11,10,10,10,10).getTime(),
+        new GregorianCalendar(2008,11,10,15,10,10).getTime(),
+};
+final DateInterval dtitv[] = {
+        new DateInterval(date[0].getTime(),date[1].getTime()),
+        new DateInterval(date[1].getTime(),date[2].getTime()),
+        new DateInterval(date[2].getTime(),date[3].getTime()),
+};
+final String [] skeletons = {
+        DateFormat.YEAR_ABBR_MONTH_DAY,
+        DateFormat.MONTH_DAY,
+        DateFormat.HOUR_MINUTE,
+};
+System.out.printf("%-15s%-35s%-35s%-35s%-35s\n", "Skeleton", "from","to","Date Interval in en_US", "Date Interval in Ja");
+int i=0;
+for (String skeleton:skeletons) {
+    System.out.printf("%-15s%-35s%-35s", skeleton,date[i].toString(), date[i+1].toString());
+    DateIntervalFormat dtitvfmtEn = DateIntervalFormat.getInstance(skeleton, ULocale.ENGLISH);
+    DateIntervalFormat dtitvfmtJa = DateIntervalFormat.getInstance(skeleton, ULocale.JAPANESE);
+    System.out.printf("%-35s%-35s\n", dtitvfmtEn.format(dtitv[i]),dtitvfmtJa.format(dtitv[i]));
+    i++;
+}
+/** output of the sample code:
+ *********************************************************************************************************************************************************
+ Skeleton       from                               to                                 Date Interval in en_US             Date Interval in Ja
+ yMMMd          Sat Nov 10 10:10:10 EST 2007       Mon Nov 10 10:10:10 EST 2008       Nov 10, 2007 \u2013 Nov 10, 2008        2007\u5e7411\u670810\u65e5\uff5e2008\u5e7411\u670810\u65e5
+ MMMMd          Mon Nov 10 10:10:10 EST 2008       Wed Dec 10 10:10:10 EST 2008       November 10 \u2013 December 10          11\u670810\u65e5\uff5e12\u670810\u65e5
+ jm             Wed Dec 10 10:10:10 EST 2008       Wed Dec 10 15:10:10 EST 2008       10:10 AM \u2013 3:10 PM                 10:10\uff5e15:10
+ *********************************************************************************************************************************************************/</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20java.util.Locale)" title="Reference documentation">Android reference for <code>android.icu.text.DateIntervalFormat.getInstance</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -959,21 +1003,48 @@
             a DateIntervalInfo, and the given locale.</summary>
         <returns>a date time interval formatter.</returns>
         <remarks>
-          <para>Construct a DateIntervalFormat from skeleton
-            a DateIntervalInfo, and the given locale.</para>
-          <para>This is a convenient override of
-            getInstance(String skeleton, ULocale locale, DateIntervalInfo dtitvinf)</para>
-          <para>Example code:{</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20java.util.Locale,%20android.icu.text.DateIntervalInfo)" title="Reference documentation">Java documentation for <code>android.icu.text.DateIntervalFormat.getInstance(java.lang.String, java.util.Locale, android.icu.text.DateIntervalInfo)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Construct a DateIntervalFormat from skeleton a DateIntervalInfo, and the given locale. This is a convenient override of getInstance(String skeleton, ULocale locale, DateIntervalInfo dtitvinf)</para>
+          <para>Example code:</para>
+          <code lang="text/java">final Date date[] = {
+        new GregorianCalendar(2007,9,10,10,10,10).getTime(),
+        new GregorianCalendar(2007,10,10,10,10,10).getTime(),
+        new GregorianCalendar(2007,10,10,22,10,10).getTime(),
+};
+final DateInterval dtitv[] = {
+        new DateInterval(date[0].getTime(),date[1].getTime()),
+        new DateInterval(date[1].getTime(),date[2].getTime()),
+};
+final String [] skeletons = {
+        DateFormat.YEAR_ABBR_MONTH_DAY,
+        DateFormat.HOUR24_MINUTE,
+};
+System.out.printf("%-15s%-35s%-35s%-45s%-35s\n", "Skeleton", "from","to", "Date Interval in en_US", "Date Interval in Ja");
+// Create an empty DateIntervalInfo object
+DateIntervalInfo dtitvinf = new DateIntervalInfo(ULocale.ENGLISH);
+// Set Date Time internal pattern for MONTH, DAY_OF_MONTH, HOUR_OF_DAY
+dtitvinf.setIntervalPattern("yMMMd", Calendar.MONTH, "y 'Diff' MMM d --- MMM d");
+dtitvinf.setIntervalPattern("Hm", Calendar.HOUR_OF_DAY, "yyyy MMM d HH:mm ~ HH:mm");
+// Set fallback interval pattern
+dtitvinf.setFallbackIntervalPattern("{0} ~~~ {1}");
+// Get the DateIntervalFormat with the custom pattern
+for (String skeleton:skeletons){
+    for (int i=0;i&lt;2;i++) {
+        System.out.printf("%-15s%-35s%-35s", skeleton,date[i].toString(), date[i+1].toString());
+        DateIntervalFormat dtitvfmtEn = DateIntervalFormat.getInstance(skeleton,ULocale.ENGLISH,dtitvinf);
+        DateIntervalFormat dtitvfmtJa = DateIntervalFormat.getInstance(skeleton,ULocale.JAPANESE,dtitvinf);
+        System.out.printf("%-45s%-35s\n", dtitvfmtEn.format(dtitv[i]),dtitvfmtJa.format(dtitv[i]));
+    }
+}
+/** output of the sample code:
+ *************************************************************************************************************************************************************************
+  Skeleton       from                               to                                 Date Interval in en_US                       Date Interval in Ja
+  yMMMd          Wed Oct 10 10:10:10 EDT 2007       Sat Nov 10 10:10:10 EST 2007       2007 Diff Oct 10 --- Nov 10                  2007 Diff 10\u6708 10 --- 11\u6708 10
+  yMMMd          Sat Nov 10 10:10:10 EST 2007       Sat Nov 10 22:10:10 EST 2007       Nov 10, 2007                                 2007\u5e7411\u670810\u65e5
+  Hm             Wed Oct 10 10:10:10 EDT 2007       Sat Nov 10 10:10:10 EST 2007       10/10/2007, 10:10 ~~~ 11/10/2007, 10:10      2007/10/10 10:10 ~~~ 2007/11/10 10:10
+  Hm             Sat Nov 10 10:10:10 EST 2007       Sat Nov 10 22:10:10 EST 2007       2007 Nov 10 10:10 ~ 22:10                    2007 11\u6708 10 10:10 ~ 22:10
+ *************************************************************************************************************************************************************************/</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/DateIntervalFormat#getInstance(java.lang.String,%20java.util.Locale,%20android.icu.text.DateIntervalInfo)" title="Reference documentation">Android reference for <code>android.icu.text.DateIntervalFormat.getInstance</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
