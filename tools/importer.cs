@@ -1508,6 +1508,8 @@ static class ImporterProgram
             "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.",
             "Java is a registered trademark of Oracle and/or its affiliates.",
             "Last updated ",
+            "See also:",
+            "Constant Value:",
         ];
         foreach (var marker in footerMarkers)
         {
@@ -1515,7 +1517,12 @@ static class ImporterProgram
             if (markerIndex >= 0)
                 text = text[..markerIndex].Trim();
         }
-        if (text.EndsWith(':', StringComparison.Ordinal))
+        text = Regex.Replace(
+            text,
+            @"\.\s*\.",
+            ".",
+            RegexOptions.CultureInvariant).TrimStart('.', ' ');
+        if (text.EndsWith(":", StringComparison.Ordinal))
         {
             var completeSentences = Regex.Matches(
                 text,
@@ -1871,11 +1878,12 @@ static class ImporterProgram
         var structuredList = file.Owners.Single(owner =>
             owner.Id.EndsWith(".StructuredList", StringComparison.Ordinal));
         var structuredListResult = MapOwner(structuredList, pages);
+        var structuredListProse = string.Join("|", structuredListResult.Docs?.Paragraphs ?? []);
         Assert(
-            structuredListResult.Docs?.Summary.Contains(
-                "First case.; Second case.",
-                StringComparison.Ordinal) == true &&
-                !structuredListResult.Docs.Summary.Contains(
+            structuredListProse.Contains(
+                "First case. Nested detail; Second case.",
+                StringComparison.Ordinal) &&
+                !structuredListProse.Contains(
                     "Ignore this item.",
                     StringComparison.Ordinal),
             "Android prose lists retain visible item separators and exclude nolist content");
@@ -1884,10 +1892,15 @@ static class ImporterProgram
         var postListResult = MapOwner(postList, pages);
         var postListProse = string.Join("|", postListResult.Docs?.Paragraphs ?? []);
         Assert(
-            postListProse.IndexOf("First case.; Second case.", StringComparison.Ordinal) <
-                postListProse.IndexOf("Also note this visible prose after the list.", StringComparison.Ordinal) &&
-                postListProse.Contains("Requires the visible permission.", StringComparison.Ordinal),
-            "malformed nested paragraphs preserve ordered post-list prose");
+            postListProse.IndexOf(
+                "following cases: First case. Nested detail; Second case.",
+                StringComparison.Ordinal) <
+                postListProse.IndexOf(
+                    "Requires the visible permission.",
+                    StringComparison.Ordinal) &&
+                postListProse.Contains("Requires the visible permission.", StringComparison.Ordinal) &&
+                !postListProse.Contains("Constant Value:", StringComparison.Ordinal),
+            "malformed nested paragraphs preserve ordered post-list permission prose without metadata");
         var listField = file.Owners.Single(owner =>
             owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
         var listFieldResult = MapOwner(listField, pages);
@@ -2231,8 +2244,14 @@ static class ImporterProgram
             "quoted generic link stripped without corrupt fragments");
         var codeSample = androidPage.Members.Single(member => member.Name == "CODE_SAMPLE");
         Assert(
-            codeSample.Docs?.Summary == "Requires the special permission.",
-            "code-sample paragraphs skipped and malformed Android link recovered");
+            codeSample.Docs?.Summary == "Documents a sample-capable feature." &&
+                codeSample.Docs.Paragraphs.Any(paragraph => paragraph.Contains(
+                    "Post-sample guidance.",
+                    StringComparison.Ordinal)) &&
+                codeSample.Docs.Paragraphs.Contains(
+                    "Requires the special permission.",
+                    StringComparer.Ordinal),
+            "code blocks are excluded while surrounding prose is preserved");
         var inlineSample = androidPage.Members.Single(member => member.Name == "INLINE_SAMPLE");
         Assert(
             inlineSample.Docs?.Summary == "Combines |s and marks FOO.",
