@@ -474,10 +474,12 @@
         <Parameter Name="type" Type="Android.Icu.Text.PluralRules+PluralType" />
       </Parameters>
       <Docs>
-        <param name="ulocale">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ulocale">the default number formatting will be done using this locale.</param>
+        <param name="type">The plural type (e.g., cardinal or ordinal).</param>
+        <summary>Creates a new PluralFormat for the plural type.</summary>
         <remarks>
+          <para>Creates a new PluralFormat for the plural type. The standard number formatting will be done using the given locale.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/PluralFormat#PluralFormat(android.icu.util.ULocale,%20android.icu.text.PluralRules.PluralType)" title="Reference documentation">Android reference for <code>android.icu.text.PluralFormat.PluralFormat</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -514,21 +516,77 @@
         <summary>Creates a new cardinal-number <c>PluralFormat</c> for a given pattern string and
             locale.</summary>
         <remarks>
-          <para>Creates a new cardinal-number <c>PluralFormat</c> for a given pattern string and
-            locale.
-            The locale will be used to get the set of plural rules and for
-            standard number formatting.</para>
-          <para>Example code:{</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/icu/text/PluralFormat#PluralFormat(android.icu.util.ULocale,%20java.lang.String)" title="Reference documentation">Java documentation for <code>android.icu.text.PluralFormat.PluralFormat(android.icu.util.ULocale, java.lang.String)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Creates a new cardinal-number PluralFormat for a given pattern string and locale. The locale will be used to get the set of plural rules and for standard number formatting.</para>
+          <para>Example code:</para>
+          <code lang="text/java">import java.text.FieldPosition;
+
+import android.icu.text.MessageFormat;
+import android.icu.text.PluralFormat;
+import android.icu.util.ULocale;
+...
+ULocale locEn = new ULocale("en");
+ULocale locSl = new ULocale("sl");
+
+String patEn = "one{dog} other{dogs}";                      // English 'dog'
+String patSl = "one{pes} two{psa} few{psi} other{psov}";    // Slovenian translation of dog in Plural Form
+
+// Create a new PluralFormat for a given locale locale and pattern string
+PluralFormat plfmtEn = new PluralFormat(locEn, patEn);
+PluralFormat plfmtSl = new PluralFormat(locSl, patSl);
+// Constructs a MessageFormat for the specified locale and pattern.
+MessageFormat msgfmtEn = new MessageFormat("{0,number} {1}", locEn);
+MessageFormat msgfmtSl = new MessageFormat("{0,number} {1}", locSl);
+
+final int[] numbers = {0, 1, 2, 3, 4, 5, 10, 100, 101, 102};
+System.out.println("Output by using PluralFormat and MessageFormat API\n");
+System.out.printf("%-16s%-16s%-16s\n", "Number", "English", "Slovenian");
+
+// Use MessageFormat.format () to format the objects and appends to the given StringBuffer
+for (int num : numbers) {
+    StringBuffer msgEn = new StringBuffer();
+    StringBuffer msgSl = new StringBuffer();
+
+    msgfmtEn.format(new Object[] {num, plfmtEn.format(num)}, msgEn, new FieldPosition(0));
+    msgfmtSl.format(new Object[] {num, plfmtSl.format(num)}, msgSl, new FieldPosition(0));
+
+    System.out.printf("%-16s%-16s%-16s\n", num, msgEn, msgSl);
+}
+
+System.out.println();
+
+// Equivalent code with message format pattern
+String msgPatEn = "{0,plural, one{# dog} other{# dogs}}";
+String msgPatSl = "{0,plural, one{# pes} two{# psa} few{# psi} other{# psov}}";
+
+MessageFormat altMsgfmtEn = new MessageFormat(msgPatEn, locEn);
+MessageFormat altMsgfmtSl = new MessageFormat(msgPatSl, locSl);
+System.out.println("Same Output by using MessageFormat API only\n");
+System.out.printf("%-16s%-16s%-16s\n", "Number", "English", "Slovenian");
+for (int num : numbers) {
+    StringBuffer msgEn = new StringBuffer();
+    StringBuffer msgSl = new StringBuffer();
+
+    altMsgfmtEn.format(new Object[] {num}, msgEn, new FieldPosition(0));
+    altMsgfmtSl.format(new Object[] {num}, msgSl, new FieldPosition(0));
+
+    System.out.printf("%-16s%-16s%-16s\n", num, msgEn, msgSl);
+}
+/** output of the sample code:
+ ********************************************************************
+  Number          English         Slovenian
+  0               0 dogs          0 psov
+  1               1 dog           1 pes
+  2               2 dogs          2 psa
+  3               3 dogs          3 psi
+  4               4 dogs          4 psi
+  5               5 dogs          5 psov
+  10              10 dogs         10 psov
+  100             100 dogs        100 psov
+  101             101 dogs        101 pes
+  102             102 dogs        102 psa
+ *******************************************************************/</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/PluralFormat#PluralFormat(android.icu.util.ULocale,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.icu.text.PluralFormat.PluralFormat</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -603,10 +661,12 @@
         <Parameter Name="type" Type="Android.Icu.Text.PluralRules+PluralType" />
       </Parameters>
       <Docs>
-        <param name="locale">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="locale">the default number formatting will be done using this locale.</param>
+        <param name="type">The plural type (e.g., cardinal or ordinal).</param>
+        <summary>Creates a new PluralFormat for the plural type.</summary>
         <remarks>
+          <para>Creates a new PluralFormat for the plural type. The standard number formatting will be done using the given Locale.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/PluralFormat#PluralFormat(java.util.Locale,%20android.icu.text.PluralRules.PluralType)" title="Reference documentation">Android reference for <code>android.icu.text.PluralFormat.PluralFormat</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -710,11 +770,13 @@
         <Parameter Name="pattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="ulocale">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="pattern">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="ulocale">the PluralFormat will be configured with rules for this locale. This locale will also be used for standard number formatting.</param>
+        <param name="type">The plural type (e.g., cardinal or ordinal).</param>
+        <param name="pattern">the pattern for this PluralFormat.</param>
+        <summary>Creates a new PluralFormat for a plural type, a pattern and a locale.</summary>
         <remarks>
+          <para>Creates a new PluralFormat for a plural type, a pattern and a locale.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/PluralFormat#PluralFormat(android.icu.util.ULocale,%20android.icu.text.PluralRules.PluralType,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.icu.text.PluralFormat.PluralFormat</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
