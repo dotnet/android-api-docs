@@ -1647,7 +1647,7 @@ static class ImporterProgram
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
-        Assert(file.Owners.Count == 13, "fixture owner count");
+        Assert(file.Owners.Count == 14, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1901,6 +1901,18 @@ static class ImporterProgram
                 postListProse.Contains("Requires the visible permission.", StringComparison.Ordinal) &&
                 !postListProse.Contains("Constant Value:", StringComparison.Ordinal),
             "malformed nested paragraphs preserve ordered post-list permission prose without metadata");
+        var systemList = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".SystemList", StringComparison.Ordinal));
+        var systemListResult = MapOwner(systemList, pages);
+        var systemListProse = string.Join("|", systemListResult.Docs?.Paragraphs ?? []);
+        Assert(
+            systemListProse.Contains(
+                "following cases: First eligible case < max; Second eligible case.",
+                StringComparison.Ordinal) &&
+                systemListProse.Contains(
+                    "Requires the required permission.",
+                    StringComparison.Ordinal),
+            $"malformed system list preserves items and permission tail: {systemListProse}");
         var listField = file.Owners.Single(owner =>
             owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
         var listFieldResult = MapOwner(listField, pages);
@@ -3751,6 +3763,7 @@ static class ImporterProgram
 
         static List<SourceParagraph> ExtractParagraphs(string html)
         {
+            html = NormalizeHtmlLists(html);
             html = NormalizeNestedListParagraphs(html);
             html = Regex.Replace(
                 html,
@@ -3903,6 +3916,9 @@ static class ImporterProgram
         }
 
         static string HtmlText(string html, bool includeCode = false)
+            => HtmlTextCore(NormalizeHtmlLists(html), includeCode);
+
+        static string NormalizeHtmlLists(string html)
         {
             html = Regex.Replace(
                 html,
@@ -3921,17 +3937,17 @@ static class ImporterProgram
                     @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
                     match =>
                     {
-                        var item = HtmlText(match.Groups["body"].Value, includeCode);
+                        var item = HtmlTextCore(match.Groups["body"].Value);
                         if (item.Length == 0)
                             return "";
                         return (listItemIndex++ == 0 ? " " : "; ") +
                             (listItemIndex < listMatches.Count
-                                ? item.TrimEnd('.', ' ')
-                                : item);
+                                ? WebUtility.HtmlEncode(item.TrimEnd('.', ' '))
+                                : WebUtility.HtmlEncode(item));
                     },
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             }
-            return HtmlTextCore(html, includeCode);
+            return html;
         }
 
         static string HtmlTextCore(string html, bool includeCode = false)
