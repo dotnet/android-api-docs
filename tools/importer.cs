@@ -1519,7 +1519,7 @@ static class ImporterProgram
         }
         text = Regex.Replace(
             text,
-            @"\.\s*\.",
+            @"\.\s+\.",
             ".",
             RegexOptions.CultureInvariant).TrimStart('.', ' ');
         if (text.EndsWith(":", StringComparison.Ordinal))
@@ -1886,7 +1886,7 @@ static class ImporterProgram
                 !structuredListProse.Contains(
                     "Ignore this item.",
                     StringComparison.Ordinal),
-            "Android prose lists retain visible item separators and exclude nolist content");
+            $"Android prose lists retain visible item separators and exclude nolist content: {structuredListProse}");
         var postList = file.Owners.Single(owner =>
             owner.Id.EndsWith(".PostList", StringComparison.Ordinal));
         var postListResult = MapOwner(postList, pages);
@@ -2245,13 +2245,20 @@ static class ImporterProgram
         var codeSample = androidPage.Members.Single(member => member.Name == "CODE_SAMPLE");
         Assert(
             codeSample.Docs?.Summary == "Documents a sample-capable feature." &&
-                codeSample.Docs.Paragraphs.Any(paragraph => paragraph.Contains(
+                codeSample.Docs.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode &&
+                    paragraph.Text.Contains(
                     "Post-sample guidance.",
                     StringComparison.Ordinal)) &&
-                codeSample.Docs.Paragraphs.Contains(
-                    "Requires the special permission.",
-                    StringComparer.Ordinal),
-            "code blocks are excluded while surrounding prose is preserved");
+                codeSample.Docs.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode &&
+                    paragraph.Text.Equals(
+                        "Requires the special permission.",
+                        StringComparison.Ordinal)) &&
+                codeSample.Docs.Paragraphs.Any(paragraph =>
+                    paragraph.IsCode &&
+                    paragraph.Text.Contains("example()", StringComparison.Ordinal)),
+            "code blocks and surrounding prose are preserved in source order");
         var inlineSample = androidPage.Members.Single(member => member.Name == "INLINE_SAMPLE");
         Assert(
             inlineSample.Docs?.Summary == "Combines |s and marks FOO.",
@@ -3744,9 +3751,16 @@ static class ImporterProgram
 
         static List<SourceParagraph> ExtractParagraphs(string html)
         {
+            html = NormalizeNestedListParagraphs(html);
+            html = Regex.Replace(
+                html,
+                @"</p>\s*\.\s*<br>\s*(?=Requires\b)",
+                "<br>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
+            var listDepth = 0;
 
             void CompleteElement(
                 (string Tag, int TagStart, int ContentStart) open,
@@ -3782,14 +3796,23 @@ static class ImporterProgram
 
             foreach (Match tag in Regex.Matches(
                 html,
-                @"<(?<close>/)?(?<tag>p|pre|devsite-code)\b[^>]*>",
+                @"<(?<close>/)?(?<tag>p|pre|devsite-code|ul|ol)\b[^>]*>",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             {
                 var name = tag.Groups["tag"].Value;
+                if (name.Equals("ul", StringComparison.OrdinalIgnoreCase) ||
+                    name.Equals("ol", StringComparison.OrdinalIgnoreCase))
+                {
+                    listDepth = tag.Groups["close"].Success
+                        ? Math.Max(0, listDepth - 1)
+                        : listDepth + 1;
+                    continue;
+                }
                 if (!tag.Groups["close"].Success)
                 {
                     // HTML permits omitted </p>; a nested paragraph starts a new block.
                     if (name.Equals("p", StringComparison.OrdinalIgnoreCase) &&
+                        listDepth == 0 &&
                         stack.Count > 0 &&
                         stack.Peek().Tag.Equals("p", StringComparison.OrdinalIgnoreCase))
                     {
@@ -3799,6 +3822,8 @@ static class ImporterProgram
                     continue;
                 }
 
+                if (name.Equals("p", StringComparison.OrdinalIgnoreCase) && listDepth > 0)
+                    continue;
                 if (stack.Count == 0)
                     continue;
                 var open = stack.Pop();
@@ -3818,6 +3843,20 @@ static class ImporterProgram
                 .Distinct()
                 .ToList();
         }
+
+        static string NormalizeNestedListParagraphs(string html) =>
+            Regex.Replace(
+                html,
+                @"(?<open><(?:ul|ol)\b[^>]*>)(?<body>.*?)(?<close></(?:ul|ol)>|$)",
+                match =>
+                    match.Groups["open"].Value +
+                    Regex.Replace(
+                        match.Groups["body"].Value,
+                        @"</?p\b[^>]*>",
+                        "<br>",
+                        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) +
+                    match.Groups["close"].Value,
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static void AddSourceTextParagraph(
             string html,
@@ -3864,6 +3903,38 @@ static class ImporterProgram
         }
 
         static string HtmlText(string html, bool includeCode = false)
+        {
+            html = Regex.Replace(
+                html,
+                @"<ul\b[^>]*\bclass=""[^""]*\bnolist\b[^""]*""[^>]*>.*?</ul>",
+                " ",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var listMatches = Regex.Matches(
+                html,
+                @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (listMatches.Count > 0)
+            {
+                var listItemIndex = 0;
+                html = Regex.Replace(
+                    html,
+                    @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
+                    match =>
+                    {
+                        var item = HtmlText(match.Groups["body"].Value, includeCode);
+                        if (item.Length == 0)
+                            return "";
+                        return (listItemIndex++ == 0 ? " " : "; ") +
+                            (listItemIndex < listMatches.Count
+                                ? item.TrimEnd('.', ' ')
+                                : item);
+                    },
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            }
+            return HtmlTextCore(html, includeCode);
+        }
+
+        static string HtmlTextCore(string html, bool includeCode = false)
         {
             var repairedMalformedHref = Regex.Replace(
                 html,
@@ -4005,9 +4076,8 @@ static class ImporterProgram
         }
 
         static bool IsEllipsis(string text, int periodIndex) =>
-            periodIndex >= 2 &&
-            text[periodIndex - 1] == '.' &&
-            text[periodIndex - 2] == '.';
+            (periodIndex > 0 && text[periodIndex - 1] == '.') ||
+            (periodIndex + 1 < text.Length && text[periodIndex + 1] == '.');
 
         static bool IsAbbreviation(string text, int periodIndex)
         {
