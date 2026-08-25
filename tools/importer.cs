@@ -1640,7 +1640,7 @@ static class ImporterProgram
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
-        Assert(file.Owners.Count == 12, "fixture owner count");
+        Assert(file.Owners.Count == 13, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1879,6 +1879,15 @@ static class ImporterProgram
                     "Ignore this item.",
                     StringComparison.Ordinal),
             "Android prose lists retain visible item separators and exclude nolist content");
+        var postList = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".PostList", StringComparison.Ordinal));
+        var postListResult = MapOwner(postList, pages);
+        var postListProse = string.Join("|", postListResult.Docs?.Paragraphs ?? []);
+        Assert(
+            postListProse.IndexOf("First case.; Second case.", StringComparison.Ordinal) <
+                postListProse.IndexOf("Also note this visible prose after the list.", StringComparison.Ordinal) &&
+                postListProse.Contains("Requires the visible permission.", StringComparison.Ordinal),
+            "malformed nested paragraphs preserve ordered post-list prose");
         var listField = file.Owners.Single(owner =>
             owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
         var listFieldResult = MapOwner(listField, pages);
