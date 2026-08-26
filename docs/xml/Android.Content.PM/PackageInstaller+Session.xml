@@ -953,13 +953,17 @@
         <Parameter Name="onChecksumsReadyListener" Type="Android.Content.PM.PackageManager+IOnChecksumsReadyListener" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="required">To be added.</param>
-        <param name="trustedInstallers">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="onChecksumsReadyListener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="name">previously written as part of this session. openWrite(String, long, long) This value cannot be null.</param>
+        <param name="required">to explicitly request the checksum types. Will incur significant CPU/memory/disk usage. Value is either 0 or a combination of the following: Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256; Checksum.TYPE_WHOLE_MD5; Checksum.TYPE_WHOLE_SHA1; Checksum.TYPE_WHOLE_SHA256; Checksum.TYPE_WHOLE_SHA512; Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256; Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512</param>
+        <param name="trustedInstallers">for checksums enforced by installer, which installers are to be trusted. PackageManager.TRUST_ALL will return checksums from any installer, PackageManager.TRUST_NONE disables optimized installer-enforced checksums, otherwise the list has to be a non-empty list of certificates. This value cannot be null.</param>
+        <param name="executor">the Executor on which to invoke the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="onChecksumsReadyListener">called once when the results are available. This value cannot be null.</param>
+        <summary>Requests checksums for the APK file in session.</summary>
+        <remarks>
+          <para>Requests checksums for the APK file in session. A possible use case is replying to Intent.ACTION_PACKAGE_NEEDS_VERIFICATION broadcast. The checksums will be returned asynchronously via onChecksumsReadyListener.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageInstaller.Session#requestChecksums(java.lang.String,%20int,%20java.util.List&lt;java.security.cert.Certificate&gt;,%20java.util.concurrent.Executor,%20android.content.pm.PackageManager.OnChecksumsReadyListener)" title="Reference documentation">Android reference for <code>android.content.pm.PackageInstaller.Session.requestChecksums</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestUserPreapproval">
@@ -990,10 +994,14 @@
         <Parameter Name="statusReceiver" Type="Android.Content.IntentSender" />
       </Parameters>
       <Docs>
-        <param name="details">To be added.</param>
-        <param name="statusReceiver">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="details">the adequate context to this session for requesting the approval from users prior to commit. This value cannot be null.</param>
+        <param name="statusReceiver">called when the state of the session changes. Intents sent to this receiver contain PackageInstaller.EXTRA_STATUS and the PackageInstaller.EXTRA_PRE_APPROVAL would be true. Refer to the individual status codes on how to handle them. This value cannot be null.</param>
+        <summary>Attempt to request the approval before committing this session.</summary>
+        <remarks>
+          <para>Attempt to request the approval before committing this session. For installers that have been granted the REQUEST_INSTALL_PACKAGES permission, they can request the approval from users before Session.commit(IntentSender) is called. This may require user intervention as well. When user intervention is required, installers will receive a PackageInstaller.STATUS_PENDING_USER_ACTION callback, and PackageInstaller.STATUS_SUCCESS otherwise. In case that requesting user pre-approval is not available, installers will receive PackageInstaller.STATUS_FAILURE_BLOCKED instead. Note that if the users decline the request, this session will be abandoned. If user intervention is required but never resolved, or requesting user pre-approval is not available, you may still call Session.commit(IntentSender) as the typical installation.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageInstaller.Session#requestUserPreapproval(android.content.pm.PackageInstaller.PreapprovalDetails,%20android.content.IntentSender)" title="Reference documentation">Android reference for <code>android.content.pm.PackageInstaller.Session.requestUserPreapproval</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetChecksums">

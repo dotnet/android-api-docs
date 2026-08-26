@@ -67,6 +67,7 @@ static class ImporterProgram
             var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
             var files = SelectFiles(repositoryRoot, docsRoot, options);
             report.FilesScanned = files.Count;
+            var interfaceMemberResolver = new InterfaceMemberResolver(docsRoot);
 
             var loadedFiles = new List<LoadedFile>();
             foreach (var path in files)
@@ -76,7 +77,7 @@ static class ImporterProgram
                     var file = LoadedFile.Load(repositoryRoot, path);
                     if (!MatchesNamespace(file.Root, options.Namespace))
                         continue;
-                    file.SelectOwners(options.Member);
+                    file.SelectOwners(options.Member, interfaceMemberResolver);
                     loadedFiles.Add(file);
                 }
                 catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
@@ -476,7 +477,7 @@ static class ImporterProgram
             return MappingResult.Success(page.TypeDocs);
         }
 
-        var registration = Registration.Member(owner.Member);
+        var registration = owner.MemberRegistration ?? Registration.Member(owner.Member);
         if (registration is null)
             return MappingResult.Skip(
                 "missing_member_registration",
@@ -500,7 +501,7 @@ static class ImporterProgram
                     "No declared field detail section matched the registered Java field name.",
                     owner.SourceRequest.Url);
             var fieldDocs = fields[0].Docs;
-            if (fieldDocs is null || string.IsNullOrWhiteSpace(fieldDocs.Summary))
+            if (fieldDocs is null)
                 return MappingResult.Skip(
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
@@ -543,7 +544,7 @@ static class ImporterProgram
         }
 
         var docs = exact[0].Docs;
-        if (docs is null || string.IsNullOrWhiteSpace(docs.Summary))
+        if (docs is null)
             return MappingResult.Skip(
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
@@ -707,11 +708,12 @@ static class ImporterProgram
     static string RemoveLeadingJavaType(string value)
     {
         var cleaned = CleanSourceText(value);
-        return Regex.Replace(
+        cleaned = Regex.Replace(
             cleaned,
             @"^(?:[\w.$]+(?:<[^>]+>)?(?:\[\])?)\s*:\s*(?=\S)",
             "",
             RegexOptions.CultureInvariant).Trim();
+        return CleanSourceText(cleaned);
     }
 
     static bool IsMeaningfulChannel(string value, string channel)
@@ -726,6 +728,7 @@ static class ImporterProgram
             normalized.StartsWith(
                 "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
                 StringComparison.OrdinalIgnoreCase) ||
+            normalized.Contains("ERROR(", StringComparison.Ordinal) ||
             Regex.IsMatch(
                 normalized,
                 @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
@@ -758,6 +761,13 @@ static class ImporterProgram
             @"^This (?:constant|method|field|class|interface) (?:is|was) deprecated(?: in API level \d+)?$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
+        if (normalized.EndsWith(":", StringComparison.Ordinal) ||
+            normalized.EndsWith("i.e.", StringComparison.OrdinalIgnoreCase) ||
+            Regex.IsMatch(
+                normalized,
+                @"\b(?:and|or)$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            return false;
         return true;
     }
 
@@ -775,7 +785,10 @@ static class ImporterProgram
             .ToList();
         return matches.Count switch
         {
-            1 => Replacement.Use(matches[0]),
+            1 => ChannelValueOrSkip(
+                matches[0],
+                "exception",
+                "source_exception_not_meaningful"),
             > 1 => Replacement.Skip(
                 "ambiguous_source_exception",
                 $"Multiple source exceptions matched '{placeholder.Key}'."),
@@ -909,9 +922,9 @@ static class ImporterProgram
                 file,
                 docs,
                 allowEnumCreation);
+            updatedBlock = RemoveEnumDiscardedMetadata(updatedBlock, docs);
             if (updatedBlock.Equals(blockText, StringComparison.Ordinal))
                 return text;
-            updatedBlock = RemoveEnumDiscardedMetadata(updatedBlock);
             return text[..block.Start] + updatedBlock + text[block.End..];
         }
 
@@ -930,7 +943,6 @@ static class ImporterProgram
             remarksText.StartsWith(
                 "Portions of this page are modifications based on work created and shared by",
                 StringComparison.Ordinal);
-
         var newline = file.Newline;
         var docsIndent = file.IndentAt(block.Start);
         var childIndent = docsIndent + "  ";
@@ -1225,20 +1237,54 @@ static class ImporterProgram
             : text[..block.Start] + normalizedBlock + text[block.End..];
     }
 
-    static string RemoveEnumDiscardedMetadata(string blockText) =>
-        Regex.Replace(
+    static string RemoveEnumDiscardedMetadata(string blockText, SourceDocs docs)
+    {
+        var document = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
+        var summary = document.Element("summary");
+        if (summary is null)
+            return blockText;
+
+        var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
+        var expectedSource = XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
+            $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
+            "</a></format></para>");
+        var expectedAttribution = docs.SourceKind == "android"
+            ? XElement.Parse($"<para>{AndroidAttribution}</para>")
+            : null;
+        var hasSource = summary.Elements("para").Any(paragraph =>
+            XNode.DeepEquals(paragraph, expectedSource));
+        var hasAttribution = expectedAttribution is null ||
+            summary.Elements("para").Any(paragraph =>
+                XNode.DeepEquals(paragraph, expectedAttribution));
+        if (!hasSource || !hasAttribution)
+            return blockText;
+
+        return Regex.Replace(
             blockText,
             @"<remarks\b(?<attrs>[^>]*)>(?<body>.*?)</remarks>",
             match =>
             {
                 var body = Regex.Replace(
                     match.Groups["body"].Value,
-                    @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>\r?\n?",
-                    "",
+                    @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?</para>\r?\n?",
+                    paragraph =>
+                    {
+                        var element = XElement.Parse(paragraph.Value.Trim());
+                        var isTransferredSource = XNode.DeepEquals(element, expectedSource);
+                        var isTransferredAttribution = expectedAttribution is not null &&
+                            XNode.DeepEquals(element, expectedAttribution);
+                        return isTransferredSource || isTransferredAttribution
+                            ? ""
+                            : paragraph.Value;
+                    },
                     RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
-                return $"<remarks{match.Groups["attrs"].Value}>{body}</remarks>";
+                return string.IsNullOrWhiteSpace(body)
+                    ? $"<remarks{match.Groups["attrs"].Value} />"
+                    : $"<remarks{match.Groups["attrs"].Value}>{body}</remarks>";
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
 
     static string AddEnumSummaryMetadata(
         string blockText,
@@ -1276,6 +1322,14 @@ static class ImporterProgram
             .Select(paragraph => CleanSourceText(paragraph.Text))
             .Where(value => IsMeaningfulChannel(value, "remarks"))
             .Distinct(StringComparer.Ordinal)
+            .ToList();
+        var sourceDocumentation = docs.Paragraphs
+            .Select(paragraph => new SourceParagraph(
+                paragraph.IsCode ? paragraph.Text : CleanSourceText(paragraph.Text),
+                paragraph.IsCode))
+            .Where(paragraph => paragraph.IsCode ||
+                IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .Distinct()
             .ToList();
         var hasReferenceMetadata = summaryElement.Descendants("a").Any(link =>
             (string?)link.Attribute("title") == "Reference documentation");
@@ -1319,10 +1373,7 @@ static class ImporterProgram
             return blockText;
         }
 
-        var prose = repairEligible || creationEligible
-            ? sourceParagraphs
-            : existingProse;
-        if (prose.Count == 0)
+        if (sourceDocumentation.Count == 0 && existingProse.Count == 0)
             return blockText;
 
         var newline = file.Newline;
@@ -1331,9 +1382,13 @@ static class ImporterProgram
         var summaryIndent = blockText[lineStart..summary.Index];
         var paraIndent = summaryIndent + "  ";
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
-        var additions = prose
-            .Select(paragraph => $"{paraIndent}<para>{XmlEscape(paragraph)}</para>")
-            .ToList();
+        var additions = repairEligible || creationEligible
+            ? sourceDocumentation
+                .Select(paragraph => RenderDocumentationParagraph(paragraph, paraIndent))
+                .ToList()
+            : existingProse
+                .Select(paragraph => $"{paraIndent}<para>{XmlEscape(paragraph)}</para>")
+                .ToList();
         additions.Add(
             $"{paraIndent}<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
             $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
@@ -1440,6 +1495,15 @@ static class ImporterProgram
             "CharSequence.subSequence()",
             StringComparison.Ordinal);
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
+        text = Regex.Replace(
+            text,
+            @"^ff the error is (?<error>UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE) this field\b",
+            "If the error is ${error}, this field",
+            RegexOptions.CultureInvariant);
+        text = text.Replace(
+            "optional intent to start a follow up action required to facilitate the unarchival flow",
+            "intent to start a follow up action required to facilitate the unarchival flow",
+            StringComparison.Ordinal);
         text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
     }
@@ -1453,12 +1517,29 @@ static class ImporterProgram
             "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.",
             "Java is a registered trademark of Oracle and/or its affiliates.",
             "Last updated ",
+            "See also:",
+            "Constant Value:",
         ];
         foreach (var marker in footerMarkers)
         {
             var markerIndex = text.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
             if (markerIndex >= 0)
                 text = text[..markerIndex].Trim();
+        }
+        text = Regex.Replace(
+            text,
+            @"\.\s+\.",
+            ".",
+            RegexOptions.CultureInvariant).TrimStart('.', ' ');
+        if (text.EndsWith(":", StringComparison.Ordinal))
+        {
+            var completeSentences = Regex.Matches(
+                text,
+                @"[.!?](?=\s|$)",
+                RegexOptions.CultureInvariant);
+            text = completeSentences.Count == 0
+                ? ""
+                : text[..(completeSentences[^1].Index + 1)].Trim();
         }
         return text;
     }
@@ -1574,8 +1655,8 @@ static class ImporterProgram
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
-        file.SelectOwners(null);
-        Assert(file.Owners.Count == 6, "fixture owner count");
+        file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+        Assert(file.Owners.Count == 14, "fixture owner count");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -1677,6 +1758,17 @@ static class ImporterProgram
         {
             [request.Url] = SourceLoadResult.Success(androidPage),
         };
+        var implementedComparator = file.Owners.Single(owner =>
+            owner.Id.Contains("IComparator#Compare", StringComparison.Ordinal));
+        var comparatorRequest = implementedComparator.SourceRequest ??
+            throw new InvalidOperationException("SELF-TEST FAIL: implemented interface source request");
+        pages[comparatorRequest.Url] = SourceLoadResult.Success(
+            SourcePage.Parse(comparatorRequest, javaHtml));
+        Assert(
+            comparatorRequest.JavaPath == "java/util/Comparator" &&
+                MapOwner(implementedComparator, pages).Docs?.Summary ==
+                    "Compares two fixture objects.",
+            "implemented interface resolves through the exact canonical registration");
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -1767,11 +1859,96 @@ static class ImporterProgram
         var mismatchResult = MapOwner(mismatch, pages);
         Assert(mismatchResult.ErrorReason == "overload_signature_mismatch", "overload mismatch skip");
 
-        var favorite = file.Owners.Single(owner => owner.Id.Contains("Favorite", StringComparison.Ordinal));
+        var favorite = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".Favorite", StringComparison.Ordinal));
         var favoriteResult = MapOwner(favorite, pages);
         Assert(
             favoriteResult.Docs?.Summary == "Identifies the favorite fixture value for the user\u2019s selection.",
             "exact field match");
+        var favoriteProperty = file.Owners.Single(owner =>
+            owner.Id.Contains("FavoriteProperty", StringComparison.Ordinal));
+        var favoritePropertyResult = MapOwner(favoriteProperty, pages);
+        Assert(
+            favoritePropertyResult.Docs?.Summary == favoriteResult.Docs?.Summary,
+            "descriptor-less property registration maps to an exact source field");
+        var tableOnly = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".TableOnly(System.Int32)", StringComparison.Ordinal));
+        var tableOnlyResult = MapOwner(tableOnly, pages);
+        Assert(
+            tableOnlyResult.Docs is not null,
+            "channel-only Android documentation maps to the exact member");
+        Assert(
+            tableOnlyResult.Docs!.Summary.Length == 0 &&
+                tableOnlyResult.Docs.Returns == "Value is either 0 or FIRST; SECOND" &&
+                ReplacementFor(
+                    tableOnly.Placeholders.Single(placeholder => placeholder.Target == "param:value"),
+                    tableOnlyResult.Docs).Text == "the fixture value",
+            "channel-only Android documentation is imported without a guessed summary");
+        var structuredList = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".StructuredList", StringComparison.Ordinal));
+        var structuredListResult = MapOwner(structuredList, pages);
+        var structuredListProse = string.Join("|", structuredListResult.Docs?.Paragraphs ?? []);
+        Assert(
+            structuredListProse.Contains(
+                "First case. Nested detail; Second case.",
+                StringComparison.Ordinal) &&
+                !structuredListProse.Contains(
+                    "Ignore this item.",
+                    StringComparison.Ordinal),
+            $"Android prose lists retain visible item separators and exclude nolist content: {structuredListProse}");
+        var postList = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".PostList", StringComparison.Ordinal));
+        var postListResult = MapOwner(postList, pages);
+        var postListProse = string.Join("|", postListResult.Docs?.Paragraphs ?? []);
+        Assert(
+            postListProse.IndexOf(
+                "following cases: First case. Nested detail; Second case.",
+                StringComparison.Ordinal) <
+                postListProse.IndexOf(
+                    "Requires the visible permission.",
+                    StringComparison.Ordinal) &&
+                postListProse.Contains("Requires the visible permission.", StringComparison.Ordinal) &&
+                !postListProse.Contains("Constant Value:", StringComparison.Ordinal),
+            "malformed nested paragraphs preserve ordered post-list permission prose without metadata");
+        var systemList = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".SystemList", StringComparison.Ordinal));
+        var systemListResult = MapOwner(systemList, pages);
+        var systemListProse = string.Join("|", systemListResult.Docs?.Paragraphs ?? []);
+        Assert(
+            systemListProse.Contains(
+                "following cases: First eligible case < max; Second eligible case.",
+                StringComparison.Ordinal) &&
+                systemListProse.Contains(
+                    "Requires the required permission.",
+                    StringComparison.Ordinal),
+            $"malformed system list preserves items and permission tail: {systemListProse}");
+        var listField = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".ListField", StringComparison.Ordinal));
+        var listFieldResult = MapOwner(listField, pages);
+        Assert(
+            listFieldResult.Docs?.Summary == "Retains this exact sentence.",
+            "list introduction retains only complete leading source sentences");
+        var emptyConstructor = file.Owners.Single(owner =>
+            owner.Id.EndsWith(".#ctor", StringComparison.Ordinal));
+        var emptyConstructorResult = MapOwner(emptyConstructor, pages);
+        var emptyConstructorReport = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        Assert(
+            ReportMappingFailure(
+                emptyConstructorReport,
+                file,
+                emptyConstructor,
+                emptyConstructorResult) &&
+                emptyConstructorReport.Entries.Count == 1 &&
+                emptyConstructorReport.Entries[0].Reason == "source_documentation_empty" &&
+                emptyConstructorReport.Entries[0].SourceUrl.EndsWith(
+                    "#Widget()",
+                    StringComparison.Ordinal),
+            "empty source documentation report retains the exact Android member URL");
         var typeOnly = ReplacementFor(
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
@@ -1797,8 +1974,28 @@ static class ImporterProgram
             CleanSourceText("CharSequence.subsequence()") == "CharSequence.subSequence()",
             "canonical CharSequence method casing");
         Assert(
+            CleanSourceText(
+                "ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
+                    "If the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE, this field should be set.",
+            "known Android parameter typo cleanup");
+        Assert(
+            CleanSourceText(
+                "optional intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.") ==
+                    "intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.",
+            "contradictory optional unarchival intent cleanup");
+        Assert(
+            RemoveLeadingJavaType(
+                "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
+                    "If the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE, this field should be set.",
+            "typed Android parameter typo cleanup");
+        Assert(
             androidPage.Members.Single(member => member.Name == "Widget").Docs is null,
             "boilerplate-only member documentation skip");
+        Assert(
+            androidPage.Members.Single(member => member.Name == "Widget").Url.EndsWith(
+                "#Widget()",
+                StringComparison.Ordinal),
+            "empty Android member documentation retains its exact source URL");
         Assert(
             !favoriteResult.Docs.Paragraphs.Any(
                 paragraph => paragraph.Text.Contains("Content and code samples", StringComparison.Ordinal) ||
@@ -2066,6 +2263,27 @@ static class ImporterProgram
                 !favoriteResult.Docs.Paragraphs[0].Text.Contains(")\"&gt;", StringComparison.Ordinal) &&
                 favoriteResult.Docs.Paragraphs[0].Text.Contains("consume(List)", StringComparison.Ordinal),
             "quoted generic link stripped without corrupt fragments");
+        var codeSample = androidPage.Members.Single(member => member.Name == "CODE_SAMPLE");
+        Assert(
+            codeSample.Docs?.Summary == "Documents a sample-capable feature." &&
+                codeSample.Docs.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode &&
+                    paragraph.Text.Contains(
+                    "Post-sample guidance.",
+                    StringComparison.Ordinal)) &&
+                codeSample.Docs.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode &&
+                    paragraph.Text.Equals(
+                        "Requires the special permission.",
+                        StringComparison.Ordinal)) &&
+                codeSample.Docs.Paragraphs.Any(paragraph =>
+                    paragraph.IsCode &&
+                    paragraph.Text.Contains("example()", StringComparison.Ordinal)),
+            "code blocks and surrounding prose are preserved in source order");
+        var inlineSample = androidPage.Members.Single(member => member.Name == "INLINE_SAMPLE");
+        Assert(
+            inlineSample.Docs?.Summary == "Combines |s and marks FOO.",
+            "inline markup preserves adjacent punctuation");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
@@ -2104,6 +2322,137 @@ static class ImporterProgram
                 NormalizeText(enumDocs.Element("remarks")!.Value)
                     .Equals("To be added.", StringComparison.Ordinal),
             "enum discarded remarks retain only placeholder");
+        var enumFileWithCode = LoadedFile.Load(
+            repositoryRoot,
+            Path.Combine(fixtureRoot, "enum-source.xml"));
+        enumFileWithCode.SelectOwners(null);
+        var enumFavoriteWithCode = enumFileWithCode.Owners.Single(
+            owner => (string?)owner.Member?.Attribute("MemberName") == "Favorite");
+        var enumDocsWithCode = enumMapped.Docs! with
+        {
+            Paragraphs =
+            [
+                enumMapped.Docs.Paragraphs[0],
+                new SourceParagraph(
+                    "<service android:foregroundServiceType=\"foo\">\n" +
+                    "  <property android:value=\"foo\" />\n" +
+                    "</service>",
+                    true),
+                .. enumMapped.Docs.Paragraphs.Skip(1),
+            ],
+        };
+        var enumCodeSummary = enumFavoriteWithCode.Placeholders.Single(item => item.Name == "summary");
+        Assert(
+            TryReplacePlaceholder(
+                enumFileWithCode.Text,
+                enumFileWithCode.DocsBlocks[enumFavoriteWithCode.Order],
+                enumCodeSummary,
+                ReplacementFor(enumCodeSummary, enumDocsWithCode, true).Text!,
+                out var enumCodeText,
+                out _),
+            "enum summary replacement with code");
+        enumFileWithCode.UpdateBlockOffsets(enumFavoriteWithCode.Order, enumCodeText);
+        enumCodeText = AddSourceDocumentationIfSafe(
+            enumCodeText,
+            enumFileWithCode,
+            enumFavoriteWithCode,
+            enumDocsWithCode);
+        var enumCodeSummaryElement = XDocument.Parse(enumCodeText)
+            .Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "Favorite")
+            .Element("Docs")!.Element("summary")!;
+        Assert(
+            enumCodeSummaryElement.Descendants("code").Any(code =>
+                (string?)code.Attribute("lang") == "text/java" &&
+                code.Value.Equals(
+                    "<service android:foregroundServiceType=\"foo\">\n" +
+                    "  <property android:value=\"foo\" />\n" +
+                    "</service>",
+                    StringComparison.Ordinal)),
+            "enum summaries preserve source code examples and line breaks");
+        var enumMetadataSourceUrl = XmlAttributeEscape(enumMapped.Docs!.SourceUrl);
+        var enumSourceLabel = enumMapped.Docs.SourceKind == "android" ? "Android" : "Java";
+        var enumExpectedSource =
+            $"<para><format type=\"text/html\"><a href=\"{enumMetadataSourceUrl}\" " +
+            $"title=\"Reference documentation\">{enumSourceLabel} reference for <code>{XmlEscape(enumMapped.Docs.SourceLabel)}</code>.</a></format></para>";
+        var enumMetadataWithoutTransfer =
+            "<Docs><summary><para>Keep semantic prose.</para></summary><remarks>\n" +
+            $"  {enumExpectedSource}\n" +
+            $"  <para>{AndroidAttribution}</para>\n" +
+            "</remarks></Docs>";
+        Assert(
+            RemoveEnumDiscardedMetadata(enumMetadataWithoutTransfer, enumMapped.Docs!) ==
+                enumMetadataWithoutTransfer,
+            "enum remarks metadata is preserved until summary transfer is confirmed");
+        var enumMetadataWithTransfer = enumMetadataWithoutTransfer.Replace(
+            "<summary><para>Keep semantic prose.</para></summary>",
+            "<summary>" +
+            enumExpectedSource +
+            $"<para>{AndroidAttribution}</para>" +
+            "</summary>",
+            StringComparison.Ordinal);
+        var prunedEnumMetadata = RemoveEnumDiscardedMetadata(
+            enumMetadataWithTransfer,
+            enumMapped.Docs!);
+        Assert(
+            prunedEnumMetadata.Contains("<remarks />", StringComparison.Ordinal) &&
+                !XElement.Parse(prunedEnumMetadata)
+                    .Element("remarks")!
+                    .Descendants("a")
+                    .Any(),
+            "enum remarks metadata self-closes after verified summary transfer");
+        var favoriteRemarksClose = enumText.IndexOf("</remarks>", StringComparison.Ordinal);
+        var enumTextWithDuplicateMetadata =
+            enumText[..favoriteRemarksClose] +
+            "\n" +
+            $"          {enumExpectedSource}\n" +
+            $"          <para>{AndroidAttribution}</para>\n" +
+            "          <para><format type=\"text/html\"><a href=\"https://example.invalid/unrelated\" title=\"Reference documentation\">Keep unrelated content.</a></format></para>\n" +
+            enumText[favoriteRemarksClose..];
+        enumFile.UpdateBlockOffsets(enumFavorite.Order, enumTextWithDuplicateMetadata);
+        var prunedEnumText = AddSourceDocumentationIfSafe(
+            enumTextWithDuplicateMetadata,
+            enumFile,
+            enumFavorite,
+            enumMapped.Docs!);
+        var prunedEnumRemarks = XDocument.Parse(prunedEnumText)
+            .Root!
+            .Element("Members")!
+            .Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "Favorite")
+            .Element("Docs")!
+            .Element("remarks")!;
+        Assert(
+            !prunedEnumRemarks.Descendants("a").Any(link =>
+                UrlsEqual(
+                    WebUtility.HtmlDecode((string?)link.Attribute("href") ?? ""),
+                    enumMapped.Docs!.SourceUrl) ||
+                ((string?)link.Attribute("href"))?.Equals(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal) == true) &&
+                prunedEnumRemarks.Descendants("a").Any(link =>
+                    ((string?)link.Attribute("href"))?.Equals(
+                        "https://example.invalid/unrelated",
+                        StringComparison.Ordinal) == true) &&
+                NormalizeText(prunedEnumRemarks.Value).Contains(
+                    "To be added.",
+                    StringComparison.Ordinal) &&
+                NormalizeText(prunedEnumRemarks.Value).Contains(
+                    "Keep unrelated content.",
+                    StringComparison.Ordinal),
+            "already-complete enum summary prunes only duplicate remarks metadata");
+        var enumMetadataWithUnrelatedPolicyLink = enumMetadataWithoutTransfer.Replace(
+            "<summary><para>Keep semantic prose.</para></summary>",
+            "<summary>" +
+            enumExpectedSource +
+            "<para><format type=\"text/html\"><a href=\"https://developers.google.com/terms/site-policies\">Unrelated policy link.</a></format></para>" +
+            "</summary>",
+            StringComparison.Ordinal);
+        Assert(
+            RemoveEnumDiscardedMetadata(
+                enumMetadataWithUnrelatedPolicyLink,
+                enumMapped.Docs!) == enumMetadataWithUnrelatedPolicyLink,
+            "enum remarks attribution is preserved until the exact attribution paragraph transfers");
 
         enumFile.UpdateBlockOffsets(enumFavorite.Order, enumText);
         var enumDeprecated = enumFile.Owners.Single(
@@ -2563,7 +2912,9 @@ static class ImporterProgram
             };
         }
 
-        public void SelectOwners(string? memberFilter)
+        public void SelectOwners(
+            string? memberFilter,
+            InterfaceMemberResolver? interfaceMemberResolver = null)
         {
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
@@ -2606,14 +2957,22 @@ static class ImporterProgram
                     .Select((element, index) => Placeholder.Create(element, index))
                     .ToList();
                 var memberField = member is null ? null : Registration.JniField(member);
+                var memberRegistration = member is null ? null : Registration.Member(member);
+                var interfaceMember = memberRegistration is null && member is not null
+                    ? interfaceMemberResolver?.Resolve(member)
+                    : null;
+                memberRegistration ??= interfaceMember?.Registration;
                 var request = member is null
                     ? typeRequest
-                    : SourceRequest.Create(memberField?.Owner) ?? typeRequest;
+                    : SourceRequest.Create(memberField?.Owner) ??
+                        interfaceMember?.SourceRequest ??
+                        typeRequest;
                 Owners.Add(new DocsOwner(
                     order,
                     id,
                     docs,
                     member,
+                    memberRegistration,
                     request,
                     placeholders,
                     isEnum && (string?)member?.Element("MemberType") == "Field"));
@@ -2715,6 +3074,7 @@ static class ImporterProgram
         string Id,
         XElement Docs,
         XElement? Member,
+        MemberRegistration? MemberRegistration,
         SourceRequest? SourceRequest,
         List<Placeholder> Placeholders,
         bool IsEnumField);
@@ -2786,7 +3146,8 @@ static class ImporterProgram
                         match.Groups["descriptor"].Value,
                         false);
             }
-            if (member.Element("MemberType")?.Value == "Field")
+            var memberType = member.Element("MemberType")?.Value;
+            if (memberType is "Field" or "Property")
             {
                 var jniField = JniField(member);
                 if (jniField is not null)
@@ -2816,6 +3177,91 @@ static class ImporterProgram
                         match.Groups["name"].Value);
             }
             return null;
+        }
+    }
+
+    sealed record InterfaceMemberMapping(
+        MemberRegistration Registration,
+        SourceRequest SourceRequest);
+
+    sealed class InterfaceMemberResolver
+    {
+        readonly string docsRoot;
+        readonly Dictionary<string, InterfaceMemberMapping?> cache =
+            new(StringComparer.Ordinal);
+
+        public InterfaceMemberResolver(string docsRoot) => this.docsRoot = docsRoot;
+
+        public InterfaceMemberMapping? Resolve(XElement member)
+        {
+            foreach (var reference in member
+                .Element("Implements")?
+                .Elements("InterfaceMember")
+                .Select(item => item.Value)
+                .Where(value => value.Length > 0) ?? [])
+            {
+                if (!cache.TryGetValue(reference, out var mapping))
+                {
+                    mapping = ResolveReference(reference);
+                    cache[reference] = mapping;
+                }
+                if (mapping is not null)
+                    return mapping;
+            }
+            return null;
+        }
+
+        InterfaceMemberMapping? ResolveReference(string reference)
+        {
+            var signatureEnd = reference.IndexOf('(');
+            var memberReference = signatureEnd >= 0
+                ? reference[..signatureEnd]
+                : reference;
+            var separator = memberReference.LastIndexOf('.');
+            if (reference.Length < 3 || separator <= 2)
+                return null;
+
+            var typeName = memberReference[2..separator];
+            var typeSeparator = typeName.LastIndexOf('.');
+            if (typeSeparator <= 0)
+                return null;
+
+            var path = Path.Combine(
+                docsRoot,
+                typeName[..typeSeparator],
+                typeName[(typeSeparator + 1)..] + ".xml");
+            if (!File.Exists(path))
+                return null;
+
+            try
+            {
+                var document = XDocument.Load(path);
+                var root = document.Root;
+                if (root is null || !string.Equals(
+                    (string?)root.Attribute("FullName"),
+                    typeName,
+                    StringComparison.Ordinal))
+                    return null;
+
+                var interfaceMember = root
+                    .Element("Members")?
+                    .Elements("Member")
+                    .SingleOrDefault(item => item.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == reference));
+                if (interfaceMember is null)
+                    return null;
+
+                var registration = Registration.Member(interfaceMember);
+                var request = SourceRequest.Create(Registration.Type(root));
+                return registration is null || request is null
+                    ? null
+                    : new InterfaceMemberMapping(registration, request);
+            }
+            catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
+            {
+                return null;
+            }
         }
     }
 
@@ -3056,7 +3502,8 @@ static class ImporterProgram
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractAndroidDocs(fragment, request, heading.Title, url)));
+                    ExtractAndroidDocs(fragment, request, heading.Title, url),
+                    url));
             }
 
             return new SourcePage
@@ -3108,7 +3555,7 @@ static class ImporterProgram
                     row.Groups["row"].Value,
                     @"<td\b[^>]*>(?<cell>.*?)</td>",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                    .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                    .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                     .ToList();
                 if (cells.Count >= 2 && Regex.IsMatch(cells[0], @"^[A-Za-z_]\w*$"))
                     parameters.TryAdd(cells[0], cells[1]);
@@ -3127,10 +3574,13 @@ static class ImporterProgram
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = ExtractParagraphs(prose);
-            if (paragraphs.Count == 0)
+            if (paragraphs.Count == 0 &&
+                parameters.Count == 0 &&
+                returns.Length == 0 &&
+                exceptions.Count == 0)
                 return null;
             return new SourceDocs(
-                FirstSentence(paragraphs[0].Text),
+                paragraphs.Count > 0 ? FirstSentence(paragraphs[0].Text) : "",
                 paragraphs,
                 parameters,
                 returns,
@@ -3157,13 +3607,13 @@ static class ImporterProgram
                             row.Groups["row"].Value,
                             @"<t[dh]\b[^>]*>(?<cell>.*?)</t[dh]>",
                             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                             .ToList(),
                         Headings = Regex.Matches(
                             row.Groups["row"].Value,
                             @"<th\b[^>]*>(?<cell>.*?)</th>",
                             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
-                            .Select(cell => HtmlText(cell.Groups["cell"].Value))
+                            .Select(cell => HtmlTableCellText(cell.Groups["cell"].Value))
                             .ToList(),
                     })
                     .ToList();
@@ -3214,7 +3664,7 @@ static class ImporterProgram
             var members = new List<SourceMember>();
             foreach (Match section in Regex.Matches(
                 html,
-                @"<section\b(?<attrs>[^>]*)>(?<body>.*?)</section>",
+                @"<section\b(?=[^>]*\bclass=""[^""]*\bdetail\b[^""]*"")(?<attrs>[^>]*)>(?<body>.*?)</section>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             {
                 var attributes = ParseAttributes(section.Groups["attrs"].Value);
@@ -3224,14 +3674,23 @@ static class ImporterProgram
                     continue;
                 var anchor = WebUtility.HtmlDecode(encodedAnchor);
                 var isField = !anchor.Contains('(', StringComparison.Ordinal);
-                var arguments = isField ? null : Descriptor.FromAnchor(anchor, request.JavaPath);
-                if (!isField && arguments is null)
-                    continue;
                 var body = section.Groups["body"].Value;
                 var heading = Regex.Match(
                     body,
-                    @"<h3\b[^>]*>(?<name>.*?)</h3>",
+                    @"<h3\b(?<attrs>[^>]*)>(?<name>.*?)</h3>",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                var detailAnchor = anchor;
+                if (heading.Success)
+                {
+                    var headingAttributes = ParseAttributes(heading.Groups["attrs"].Value);
+                    if (headingAttributes.TryGetValue("id", out var headingAnchor))
+                        detailAnchor = headingAnchor;
+                }
+                var arguments = isField
+                    ? null
+                    : Descriptor.FromAnchor(detailAnchor, request.JavaPath);
+                if (!isField && arguments is null)
+                    continue;
                 var displayName = heading.Success ? HtmlText(heading.Groups["name"].Value) : anchor.Split('(', 2)[0];
                 var anchorName = anchor.Split('(', 2)[0];
                 var isConstructor = anchorName is "<init>" or "%3Cinit%3E" ||
@@ -3243,7 +3702,8 @@ static class ImporterProgram
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractJavaDocs(body, request, displayName, url)));
+                    ExtractJavaDocs(body, request, displayName, url),
+                    url));
             }
             return new SourcePage
             {
@@ -3281,8 +3741,6 @@ static class ImporterProgram
             string url)
         {
             var paragraphs = ExtractBlocks(body);
-            if (paragraphs.Count == 0)
-                return null;
             var notes = Regex.Match(
                 body,
                 @"<dl\b[^>]*class=""[^""]*\bnotes\b[^""]*""[^>]*>(?<notes>.*?)</dl>",
@@ -3291,8 +3749,13 @@ static class ImporterProgram
             var parameters = ExtractJavaParameters(noteBody);
             var returns = ExtractJavaNoteValue(noteBody, "Returns:");
             var exceptions = ExtractJavaExceptions(noteBody);
+            if (paragraphs.Count == 0 &&
+                parameters.Count == 0 &&
+                returns.Length == 0 &&
+                exceptions.Count == 0)
+                return null;
             return new SourceDocs(
-                FirstSentence(paragraphs[0].Text),
+                paragraphs.Count > 0 ? FirstSentence(paragraphs[0].Text) : "",
                 paragraphs,
                 parameters,
                 returns,
@@ -3357,9 +3820,17 @@ static class ImporterProgram
 
         static List<SourceParagraph> ExtractParagraphs(string html)
         {
+            html = NormalizeHtmlLists(html);
+            html = NormalizeNestedListParagraphs(html);
+            html = Regex.Replace(
+                html,
+                @"</p>\s*\.\s*<br>\s*(?=Requires\b)",
+                "<br>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
+            var listDepth = 0;
 
             void CompleteElement(
                 (string Tag, int TagStart, int ContentStart) open,
@@ -3395,14 +3866,23 @@ static class ImporterProgram
 
             foreach (Match tag in Regex.Matches(
                 html,
-                @"<(?<close>/)?(?<tag>p|pre|devsite-code)\b[^>]*>",
+                @"<(?<close>/)?(?<tag>p|pre|devsite-code|ul|ol)\b[^>]*>",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             {
                 var name = tag.Groups["tag"].Value;
+                if (name.Equals("ul", StringComparison.OrdinalIgnoreCase) ||
+                    name.Equals("ol", StringComparison.OrdinalIgnoreCase))
+                {
+                    listDepth = tag.Groups["close"].Success
+                        ? Math.Max(0, listDepth - 1)
+                        : listDepth + 1;
+                    continue;
+                }
                 if (!tag.Groups["close"].Success)
                 {
                     // HTML permits omitted </p>; a nested paragraph starts a new block.
                     if (name.Equals("p", StringComparison.OrdinalIgnoreCase) &&
+                        listDepth == 0 &&
                         stack.Count > 0 &&
                         stack.Peek().Tag.Equals("p", StringComparison.OrdinalIgnoreCase))
                     {
@@ -3412,6 +3892,8 @@ static class ImporterProgram
                     continue;
                 }
 
+                if (name.Equals("p", StringComparison.OrdinalIgnoreCase) && listDepth > 0)
+                    continue;
                 if (stack.Count == 0)
                     continue;
                 var open = stack.Pop();
@@ -3431,6 +3913,20 @@ static class ImporterProgram
                 .Distinct()
                 .ToList();
         }
+
+        static string NormalizeNestedListParagraphs(string html) =>
+            Regex.Replace(
+                html,
+                @"(?<open><(?:ul|ol)\b[^>]*>)(?<body>.*?)(?<close></(?:ul|ol)>|$)",
+                match =>
+                    match.Groups["open"].Value +
+                    Regex.Replace(
+                        match.Groups["body"].Value,
+                        @"</?p\b[^>]*>",
+                        "<br>",
+                        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) +
+                    match.Groups["close"].Value,
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static void AddSourceTextParagraph(
             string html,
@@ -3477,9 +3973,50 @@ static class ImporterProgram
         }
 
         static string HtmlText(string html, bool includeCode = false)
+            => HtmlTextCore(NormalizeHtmlLists(html), includeCode);
+
+        static string NormalizeHtmlLists(string html)
         {
-            var withoutIgnored = Regex.Replace(
+            html = Regex.Replace(
                 html,
+                @"<ul\b[^>]*\bclass=""[^""]*\bnolist\b[^""]*""[^>]*>.*?</ul>",
+                " ",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var listMatches = Regex.Matches(
+                html,
+                @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (listMatches.Count > 0)
+            {
+                var listItemIndex = 0;
+                html = Regex.Replace(
+                    html,
+                    @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
+                    match =>
+                    {
+                        var item = HtmlTextCore(match.Groups["body"].Value);
+                        if (item.Length == 0)
+                            return "";
+                        return (listItemIndex++ == 0 ? " " : "; ") +
+                            (listItemIndex < listMatches.Count
+                                ? WebUtility.HtmlEncode(item.TrimEnd('.', ' '))
+                                : WebUtility.HtmlEncode(item));
+                    },
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            }
+            return html;
+        }
+
+        static string HtmlTextCore(string html, bool includeCode = false)
+        {
+            var repairedMalformedHref = Regex.Replace(
+                html,
+                @"(?<prefix>\bhref\s*=\s*"")(?<url>[^""\s>]+)>(?=\s*[A-Za-z])",
+                match =>
+                    $"{match.Groups["prefix"].Value}{match.Groups["url"].Value}\">",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var withoutIgnored = Regex.Replace(
+                repairedMalformedHref,
                 includeCode
                     ? @"<(?:script|style|svg)\b[^>]*>.*?</(?:script|style|svg)>"
                     : @"<(?:script|style|svg|pre|devsite-code)\b[^>]*>.*?</(?:script|style|svg|pre|devsite-code)>",
@@ -3491,6 +4028,34 @@ static class ImporterProgram
                 " ",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             return CleanSourceText(StripHtmlTags(withBreaks, addWhitespace: false));
+        }
+
+        static string HtmlTableCellText(string html)
+        {
+            var listItems = Regex.Matches(
+                html,
+                @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Select(match => HtmlText(match.Groups["body"].Value))
+                .Where(item => item.Length > 0)
+                .ToList();
+            if (listItems.Count == 0)
+                return HtmlText(html);
+
+            var withoutListItems = Regex.Replace(
+                html,
+                @"<li\b[^>]*>.*?(?=<li\b|</(?:ul|ol)\b|$)",
+                " ",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var listIntroduction = HtmlText(withoutListItems);
+            return listIntroduction.EndsWith(":", StringComparison.Ordinal)
+                ? CleanSourceText($"{listIntroduction} {string.Join("; ", listItems)}")
+                : Regex.IsMatch(
+                    listIntroduction,
+                    @"\bor$",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                    ? CleanSourceText($"{listIntroduction} {string.Join("; ", listItems)}")
+                    : HtmlText(html);
         }
 
         static string HtmlCodeText(string html)
@@ -3584,9 +4149,8 @@ static class ImporterProgram
         }
 
         static bool IsEllipsis(string text, int periodIndex) =>
-            periodIndex >= 2 &&
-            text[periodIndex - 1] == '.' &&
-            text[periodIndex - 2] == '.';
+            (periodIndex > 0 && text[periodIndex - 1] == '.') ||
+            (periodIndex + 1 < text.Length && text[periodIndex + 1] == '.');
 
         static bool IsAbbreviation(string text, int periodIndex)
         {
@@ -3618,6 +4182,7 @@ static class ImporterProgram
             }
             return hasClosingDelimiter &&
                     (next == text.Length || char.IsWhiteSpace(text[next]));
+
         }
     }
 
@@ -3626,10 +4191,8 @@ static class ImporterProgram
         bool IsConstructor,
         bool IsField,
         List<string>? ArgumentDescriptors,
-        SourceDocs? Docs)
-    {
-        public string Url => Docs?.SourceUrl ?? "";
-    }
+        SourceDocs? Docs,
+        string Url);
 
     sealed record SourceParagraph(string Text, bool IsCode);
 
