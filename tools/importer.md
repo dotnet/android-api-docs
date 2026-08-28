@@ -20,17 +20,19 @@ path or namespace write scope. Generated `docs/xml/index.xml` and non-API
 The default limit is 25 placeholder elements.
 
 The importer uses the managed type registration, exact JNI names and descriptors,
-and `JniField` owner metadata for projected constants. It skips members with
-missing registrations, unknown type descriptors, overload mismatches, ambiguous
-matches, inherited-only detail, missing documentation channels, or source text
-that contains only a Java type, nullability marker, cross-reference heading, or
-standalone deprecation boilerplate. Android page license/trademark footers and update
-timestamps are filtered, and literal Unicode escapes are decoded before XML
-escaping. HTML tags are removed with quoted attributes intact, and empty table
-description cells remain empty rather than shifting Java types into prose. Java
-`deprecation-block` containers are excluded before selecting exact `block`
-documentation. Android return tables are selected only by an exact `Returns`
-heading cell, not by prose containing that word.
+and `JniField` owner metadata for projected constants. It also recognizes scalar
+`JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
+Array-rank `JniTypeSignature` metadata is not mapped to its element type because
+Java API pages do not declare array wrapper types. It skips members with missing
+registrations, unknown type descriptors, overload mismatches, ambiguous matches,
+inherited-only detail, missing documentation channels, or source text that contains
+only a Java type, nullability marker, cross-reference heading, or standalone
+deprecation boilerplate. Android page license/trademark footers and update timestamps
+are filtered, and literal Unicode escapes are decoded before XML escaping. HTML tags
+are removed with quoted attributes intact, and empty table description cells remain
+empty rather than shifting Java types into prose. Java `deprecation-block` containers
+are excluded before selecting exact `block` documentation. Android return tables are
+selected only by an exact `Returns` heading cell, not by prose containing that word.
 Imported remarks use `<para>` elements, with stale links for the same source
 member replaced and current links placed before existing attribution. Enum field
 prose, source links, and attribution are emitted in `<summary>` because their
