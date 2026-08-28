@@ -1768,9 +1768,20 @@ static class ImporterProgram
             },
             "source-verified inherited JavaException hashCode mapping");
         Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is
+            {
+                Registration: { Name: "IsSameObject" },
+                SourceRequest.Kind: "jni",
+            } &&
+                SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaException.Equals(System.Object)") is
+                {
+                    Registration: { Name: "IsSameObject" },
+                    SourceRequest.Kind: "jni",
+                },
+            "source-verified Java peer equality mappings");
+        Assert(
             SourceVerifiedMemberMappings.Resolve(
-                "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
-                SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
+                "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null,
             "managed-only overloads are not source-mapped");
         var jniRequest = JniSpecificationMappings.Resolve(
             "Java.Interop.JniEnvironment+Arrays",
@@ -3386,8 +3397,12 @@ static class ImporterProgram
                     Mapping("java/lang/Throwable", ".ctor", "(Ljava/lang/String;)V"),
                 ["M:Java.Interop.JavaException.GetHashCode"] =
                     Mapping("java/lang/Object", "hashCode", "()I"),
+                ["M:Java.Interop.JavaException.Equals(System.Object)"] =
+                    JniMapping("IsSameObject"),
                 ["M:Java.Interop.JavaObject.GetHashCode"] =
                     Mapping("java/lang/Object", "hashCode", "()I"),
+                ["M:Java.Interop.JavaObject.Equals(System.Object)"] =
+                    JniMapping("IsSameObject"),
                 ["M:Java.Interop.JavaObject.ToString"] =
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.Object.ToString(Java.Interop.JniObjectReference)"] =
@@ -3406,6 +3421,11 @@ static class ImporterProgram
                 SourceRequest.Create(javaPath) ??
                     throw new InvalidOperationException(
                         $"Unsupported source-verified Java path '{javaPath}'."));
+
+        static InterfaceMemberMapping JniMapping(string functionName) =>
+            new(
+                new MemberRegistration(functionName, null, false),
+                SourceRequest.CreateJni(functionName));
     }
 
     static class JniSpecificationMappings
@@ -3922,6 +3942,7 @@ static class ImporterProgram
                 if (name.Length > 0 && value.Length > 0)
                     result.TryAdd(name, value);
             }
+            var sourceParameters = new Dictionary<string, string>(result, StringComparer.Ordinal);
             foreach (var (source, target) in new[]
             {
                 ("clazz", "type"),
@@ -3942,13 +3963,14 @@ static class ImporterProgram
                 ("nMethods", "numMethods"),
                 ("ref1", "object1"),
                 ("ref2", "object2"),
+                ("ref2", "obj"),
                 ("obj", "toThrow"),
                 ("str", "stringInstance"),
                 ("unicodeChars", "value"),
                 ("string", "stringInstance"),
             })
             {
-                if (result.TryGetValue(source, out var value))
+                if (sourceParameters.TryGetValue(source, out var value))
                     result.TryAdd(target, value);
             }
             return result;
