@@ -22,6 +22,9 @@ The default limit is 25 placeholder elements.
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
+Narrow source-verified mappings cover Java.Interop runtime members whose upstream
+implementation embeds an exact JNI member identifier and whose identity is also
+confirmed by sibling generated binding metadata.
 Array-rank `JniTypeSignature` metadata is not mapped to its element type because
 Java API pages do not declare array wrapper types. It skips members with missing
 registrations, unknown type descriptors, overload mismatches, ambiguous matches,

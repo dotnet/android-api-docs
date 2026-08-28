@@ -1698,6 +1698,47 @@ static class ImporterProgram
             Registration.Member(jniConstructorSignature) ==
                 new MemberRegistration(".ctor", "()V", false),
             "JniConstructorSignature member registration");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaException.#ctor") is
+            {
+                Registration: { Name: ".ctor", Descriptor: "()V" },
+                SourceRequest.JavaPath: "java/lang/Throwable",
+            },
+            "source-verified JavaException constructor mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Java.Interop.JavaException.#ctor(System.String)") is
+            {
+                Registration: { Name: ".ctor", Descriptor: "(Ljava/lang/String;)V" },
+                SourceRequest.JavaPath: "java/lang/Throwable",
+            },
+            "source-verified JavaException string constructor mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.GetHashCode") is
+            {
+                Registration: { Name: "hashCode", Descriptor: "()I" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified JavaObject hashCode mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.ToString") is
+            {
+                Registration: { Name: "toString", Descriptor: "()Ljava/lang/String;" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified JavaObject toString mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaException.GetHashCode") is
+            {
+                Registration: { Name: "hashCode", Descriptor: "()I" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified inherited JavaException hashCode mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
+                SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
+            "managed-only overloads are not source-mapped");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -3003,10 +3044,15 @@ static class ImporterProgram
                     ? interfaceMemberResolver?.Resolve(member)
                     : null;
                 memberRegistration ??= interfaceMember?.Registration;
+                var sourceVerifiedMember = memberRegistration is null && member is not null
+                    ? SourceVerifiedMemberMappings.Resolve(id)
+                    : null;
+                memberRegistration ??= sourceVerifiedMember?.Registration;
                 var request = member is null
                     ? typeRequest
                     : SourceRequest.Create(memberField?.Owner) ??
                         interfaceMember?.SourceRequest ??
+                        sourceVerifiedMember?.SourceRequest ??
                         typeRequest;
                 Owners.Add(new DocsOwner(
                     order,
@@ -3245,6 +3291,37 @@ static class ImporterProgram
     sealed record InterfaceMemberMapping(
         MemberRegistration Registration,
         SourceRequest SourceRequest);
+
+    static class SourceVerifiedMemberMappings
+    {
+        static readonly IReadOnlyDictionary<string, InterfaceMemberMapping> Mappings =
+            new Dictionary<string, InterfaceMemberMapping>(StringComparer.Ordinal)
+            {
+                ["M:Java.Interop.JavaException.#ctor"] =
+                    Mapping("java/lang/Throwable", ".ctor", "()V"),
+                ["M:Java.Interop.JavaException.#ctor(System.String)"] =
+                    Mapping("java/lang/Throwable", ".ctor", "(Ljava/lang/String;)V"),
+                ["M:Java.Interop.JavaException.GetHashCode"] =
+                    Mapping("java/lang/Object", "hashCode", "()I"),
+                ["M:Java.Interop.JavaObject.GetHashCode"] =
+                    Mapping("java/lang/Object", "hashCode", "()I"),
+                ["M:Java.Interop.JavaObject.ToString"] =
+                    Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
+            };
+
+        public static InterfaceMemberMapping? Resolve(string memberId) =>
+            Mappings.GetValueOrDefault(memberId);
+
+        static InterfaceMemberMapping Mapping(
+            string javaPath,
+            string name,
+            string descriptor) =>
+            new(
+                new MemberRegistration(name, descriptor, false),
+                SourceRequest.Create(javaPath) ??
+                    throw new InvalidOperationException(
+                        $"Unsupported source-verified Java path '{javaPath}'."));
+    }
 
     sealed class InterfaceMemberResolver
     {
