@@ -13,6 +13,7 @@ static class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
     const string JavaReference = "https://docs.oracle.com/en/java/javase/21/docs/api/";
+    const string JniReference = "https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html";
     const string UserAgent = "dotnet-android-api-docs-importer/1.0 (+https://github.com/dotnet/android-api-docs)";
     const int MaximumDownloadBytes = 12 * 1024 * 1024;
     const string AndroidAttribution =
@@ -483,6 +484,29 @@ static class ImporterProgram
                 "missing_member_registration",
                 "The managed member has no JNI registration; no name-based guess was attempted.",
                 owner.SourceRequest.Url);
+        if (owner.SourceRequest.Kind == "jni")
+        {
+            var functions = page.Members
+                .Where(member => member.Name.Equals(registration.Name, StringComparison.Ordinal))
+                .ToList();
+            if (functions.Count > 1)
+                return MappingResult.Skip(
+                    "ambiguous_exact_match",
+                    $"The official JNI specification contained {functions.Count} exact matches for {registration.Name}.",
+                    owner.SourceRequest.Url);
+            if (functions.Count == 0)
+                return MappingResult.Skip(
+                    "member_not_declared_on_source_page",
+                    $"No JNI function section matched {registration.Name}.",
+                    owner.SourceRequest.Url);
+            var functionDocs = functions[0].Docs;
+            if (functionDocs is null)
+                return MappingResult.Skip(
+                    "source_documentation_empty",
+                    "The exact JNI function had no usable prose.",
+                    functions[0].Url);
+            return MappingResult.Success(functionDocs);
+        }
 
         if (registration.IsField)
         {
@@ -1653,6 +1677,7 @@ static class ImporterProgram
         var sourcePath = Path.Combine(fixtureRoot, "source.xml");
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
+        var jniHtml = File.ReadAllText(Path.Combine(fixtureRoot, "jni-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
@@ -1747,6 +1772,46 @@ static class ImporterProgram
                 "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
                 SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
             "managed-only overloads are not source-mapped");
+        var jniRequest = JniSpecificationMappings.Resolve(
+            "Java.Interop.JniEnvironment+Arrays",
+            "M:Java.Interop.JniEnvironment.Arrays.GetArrayLength(Java.Interop.JniObjectReference)",
+            "GetArrayLength")?.SourceRequest ??
+            throw new InvalidOperationException("SELF-TEST FAIL: JNI specification mapping");
+        var jniPage = SourcePage.Parse(jniRequest, jniHtml);
+        var getArrayLength = jniPage.Members.Single(member => member.Name == "GetArrayLength");
+        Assert(
+            getArrayLength.Docs is
+            {
+                Summary: "Returns the number of elements in the array.",
+                Returns: "Returns the length of the array.",
+            } &&
+                getArrayLength.Docs.Parameters["array"] ==
+                    "a Java array object, must not be NULL." &&
+                getArrayLength.Url == JniReference + "#getarraylength",
+            "JNI specification function parsing");
+        Assert(
+            jniPage.Members.Count(member => member.Name == "GetMethodID") == 1 &&
+                jniPage.Members.Single(member => member.Name == "GetMethodID").Docs?.Summary ==
+                    "Returns the method ID for an instance method of a class.",
+            "JNI prose references do not create duplicate functions");
+        Assert(
+            jniPage.Members.Any(member => member.Name == "CallObjectMethod") &&
+                jniPage.Members.Any(member => member.Name == "CallVoidMethod"),
+            "JNI grouped function families expand to exact function names");
+        Assert(
+            JniSpecificationMappings.Resolve(
+                "Java.Interop.JniEnvironment+Arrays",
+                "M:Java.Interop.JniEnvironment.Arrays.CreateMarshalBooleanArray(System.Boolean[])",
+                "CreateMarshalBooleanArray") is null &&
+                JniSpecificationMappings.Resolve(
+                    "Java.Interop.JniEnvironment+Types",
+                    "M:Java.Interop.JniEnvironment.Types.FindClass(System.String)",
+                    "FindClass") is null &&
+                JniSpecificationMappings.Resolve(
+                    "Java.Interop.JniEnvironment+Exceptions",
+                    "M:Java.Interop.JniEnvironment.Exceptions.Throw(System.Exception)",
+                    "Throw") is null,
+            "managed JNI helpers are not specification-mapped");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -3056,11 +3121,16 @@ static class ImporterProgram
                     ? SourceVerifiedMemberMappings.Resolve(id)
                     : null;
                 memberRegistration ??= sourceVerifiedMember?.Registration;
+                var jniSpecificationMember = memberRegistration is null && member is not null
+                    ? JniSpecificationMappings.Resolve(typeName, id, name)
+                    : null;
+                memberRegistration ??= jniSpecificationMember?.Registration;
                 var request = member is null
                     ? typeRequest
                     : SourceRequest.Create(memberField?.Owner) ??
                         interfaceMember?.SourceRequest ??
                         sourceVerifiedMember?.SourceRequest ??
+                        jniSpecificationMember?.SourceRequest ??
                         typeRequest;
                 Owners.Add(new DocsOwner(
                     order,
@@ -3333,6 +3403,88 @@ static class ImporterProgram
                         $"Unsupported source-verified Java path '{javaPath}'."));
     }
 
+    static class JniSpecificationMappings
+    {
+        static readonly HashSet<string> FullyMappedTypes = new(StringComparer.Ordinal)
+        {
+            "Java.Interop.JniEnvironment+IO",
+            "Java.Interop.JniEnvironment+InstanceFields",
+            "Java.Interop.JniEnvironment+InstanceMethods",
+            "Java.Interop.JniEnvironment+Monitors",
+            "Java.Interop.JniEnvironment+StaticFields",
+            "Java.Interop.JniEnvironment+StaticMethods",
+        };
+        static readonly HashSet<string> ReferenceMembers = new(StringComparer.Ordinal)
+        {
+            "EnsureLocalCapacity",
+            "GetJavaVM",
+            "PopLocalFrame",
+            "PushLocalFrame",
+        };
+        static readonly HashSet<string> ExceptionMembers = new(StringComparer.Ordinal)
+        {
+            "ExceptionCheck",
+            "ExceptionClear",
+            "ExceptionDescribe",
+            "ExceptionOccurred",
+            "FatalError",
+            "Throw",
+            "ThrowNew",
+        };
+        static readonly HashSet<string> StringMembers = new(StringComparer.Ordinal)
+        {
+            "GetStringChars",
+            "GetStringLength",
+            "NewString",
+            "ReleaseStringChars",
+        };
+        static readonly HashSet<string> ObjectMembers = new(StringComparer.Ordinal)
+        {
+            "AllocObject",
+            "NewObject",
+        };
+        static readonly HashSet<string> TypeMembers = new(StringComparer.Ordinal)
+        {
+            "DefineClass",
+            "GetObjectClass",
+            "GetSuperclass",
+            "IsAssignableFrom",
+            "IsInstanceOf",
+            "IsSameObject",
+            "RegisterNatives",
+            "UnregisterNatives",
+        };
+
+        public static InterfaceMemberMapping? Resolve(
+            string typeName,
+            string memberId,
+            string? memberName)
+        {
+            if (memberName is null)
+                return null;
+            var mapped =
+                FullyMappedTypes.Contains(typeName) ||
+                typeName == "Java.Interop.JniEnvironment+Arrays" &&
+                    !memberName.StartsWith("CreateMarshal", StringComparison.Ordinal) ||
+                typeName == "Java.Interop.JniEnvironment+Exceptions" &&
+                    ExceptionMembers.Contains(memberName) &&
+                    memberId != "M:Java.Interop.JniEnvironment.Exceptions.Throw(System.Exception)" ||
+                typeName == "Java.Interop.JniEnvironment+References" &&
+                    ReferenceMembers.Contains(memberName) ||
+                typeName == "Java.Interop.JniEnvironment+Strings" &&
+                    StringMembers.Contains(memberName) ||
+                typeName == "Java.Interop.JniEnvironment+Object" &&
+                    ObjectMembers.Contains(memberName) ||
+                typeName == "Java.Interop.JniEnvironment+Types" &&
+                    TypeMembers.Contains(memberName);
+            return mapped
+                ? new InterfaceMemberMapping(
+                    new MemberRegistration(memberName, null, false),
+                    SourceRequest.CreateJni(memberName))
+                : null;
+        }
+    }
+
     sealed class InterfaceMemberResolver
     {
         readonly string docsRoot;
@@ -3416,6 +3568,9 @@ static class ImporterProgram
 
     sealed record SourceRequest(string JavaPath, string Url, string Kind)
     {
+        public static SourceRequest CreateJni(string functionName) =>
+            new($"jni/{functionName}", JniReference, "jni");
+
         public static SourceRequest? Create(string? javaPath)
         {
             if (string.IsNullOrWhiteSpace(javaPath))
@@ -3602,9 +3757,179 @@ static class ImporterProgram
         public List<SourceMember> Members { get; init; } = [];
 
         public static SourcePage Parse(SourceRequest request, string html) =>
-            request.Kind == "android"
-                ? ParseAndroid(request, html)
-                : ParseJava(request, html);
+            request.Kind switch
+            {
+                "android" => ParseAndroid(request, html),
+                "jni" => ParseJni(request, html),
+                _ => ParseJava(request, html),
+            };
+
+        static SourcePage ParseJni(SourceRequest request, string html)
+        {
+            var members = new List<SourceMember>();
+            var headings = Regex.Matches(
+                html,
+                @"<h3\b[^>]*\bid=""(?<id>[^""]+)""[^>]*>(?<title>.*?)</h3>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .ToList();
+            for (var index = 0; index < headings.Count; index++)
+            {
+                var heading = headings[index];
+                var end = index + 1 < headings.Count ? headings[index + 1].Index : html.Length;
+                var nextH2 = html.IndexOf("<h2", heading.Index + heading.Length, StringComparison.OrdinalIgnoreCase);
+                if (nextH2 >= 0)
+                    end = Math.Min(end, nextH2);
+                var fragment = html[(heading.Index + heading.Length)..end];
+                var proseEnd = fragment.IndexOf("<h4", StringComparison.OrdinalIgnoreCase);
+                var prose = proseEnd >= 0 ? fragment[..proseEnd] : fragment;
+                var signatures = JniFunctionNames(
+                    heading.Groups["id"].Value,
+                    prose);
+                if (signatures.Count == 0)
+                    continue;
+                foreach (Match paragraph in Regex.Matches(
+                    prose,
+                    @"<p\b[^>]*>.*?</p>",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                {
+                    if (Regex.IsMatch(
+                        HtmlText(paragraph.Value),
+                        @"JNIEnv\s*\*\s*env",
+                        RegexOptions.CultureInvariant))
+                        prose = prose.Replace(paragraph.Value, " ", StringComparison.Ordinal);
+                }
+                var paragraphs = ExtractParagraphs(prose);
+                var parameters = ExtractJniParameters(JniHeadingSection(fragment, "PARAMETERS:"));
+                var returns = HtmlText(JniHeadingSection(fragment, "RETURNS:"));
+                var exceptions = ExtractJniExceptions(JniHeadingSection(fragment, "THROWS:"));
+                var anchor = heading.Groups["id"].Value;
+                var url = request.Url + "#" + anchor;
+                foreach (var name in signatures)
+                {
+                    var docs = paragraphs.Count == 0 &&
+                        parameters.Count == 0 &&
+                        returns.Length == 0 &&
+                        exceptions.Count == 0
+                            ? null
+                            : new SourceDocs(
+                                paragraphs.Count > 0 ? FirstSentence(paragraphs[0].Text) : "",
+                                paragraphs,
+                                parameters,
+                                returns,
+                                exceptions,
+                                url,
+                                $"JNI.{name}",
+                                request.Kind);
+                    members.Add(new SourceMember(name, false, false, [], docs, url));
+                }
+            }
+            return new SourcePage { Members = members };
+        }
+
+        static List<string> JniFunctionNames(string anchor, string prose)
+        {
+            var names = Regex.Matches(
+                prose,
+                @"<p\b[^>]*>(?<prototype>.*?)</p>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Select(match => HtmlText(match.Groups["prototype"].Value))
+                .Where(prototype => Regex.IsMatch(
+                    prototype,
+                    @"JNIEnv\s*\*\s*env",
+                    RegexOptions.CultureInvariant))
+                .SelectMany(prototype => Regex.Matches(
+                    prototype,
+                    @"\b(?<name>[A-Z][A-Za-z0-9]+)\s*\(\s*JNIEnv\s*\*\s*env",
+                    RegexOptions.CultureInvariant)
+                    .Select(match => match.Groups["name"].Value))
+                .ToList();
+            var types = new[]
+            {
+                "Object", "Boolean", "Byte", "Char", "Short",
+                "Int", "Long", "Float", "Double",
+            };
+            IEnumerable<string> Expand(string prefix, string suffix) =>
+                types.Select(type => prefix + type + suffix);
+            names.AddRange(anchor switch
+            {
+                "gettypefield-routines" => Expand("Get", "Field"),
+                "settypefield-routines" => Expand("Set", "Field"),
+                "getstatictypefield-routines" => Expand("GetStatic", "Field"),
+                "setstatictypefield-routines" => Expand("SetStatic", "Field"),
+                "calltypemethod-routines-calltypemethoda-routines-calltypemethodv-routines" =>
+                    Expand("Call", "Method").Append("CallVoidMethod"),
+                "callnonvirtualtypemethod-routines-callnonvirtualtypemethoda-routines-callnonvirtualtypemethodv-routines" =>
+                    Expand("CallNonvirtual", "Method").Append("CallNonvirtualVoidMethod"),
+                "callstatictypemethod-routines-callstatictypemethoda-routines-callstatictypemethodv-routines" =>
+                    Expand("CallStatic", "Method").Append("CallStaticVoidMethod"),
+                "newprimitivetypearray-routines" => types.Skip(1).Select(type => "New" + type + "Array"),
+                "getprimitivetypearrayelements-routines" =>
+                    types.Skip(1).Select(type => "Get" + type + "ArrayElements"),
+                "releaseprimitivetypearrayelements-routines" =>
+                    types.Skip(1).Select(type => "Release" + type + "ArrayElements"),
+                "getprimitivetypearrayregion-routines" =>
+                    types.Skip(1).Select(type => "Get" + type + "ArrayRegion"),
+                "setprimitivetypearrayregion-routines" =>
+                    types.Skip(1).Select(type => "Set" + type + "ArrayRegion"),
+                _ => [],
+            });
+            return names.Distinct(StringComparer.Ordinal).ToList();
+        }
+
+        static string JniHeadingSection(string fragment, string heading)
+        {
+            var match = Regex.Match(
+                fragment,
+                $@"<h4\b[^>]*>\s*{Regex.Escape(heading)}\s*</h4>(?<body>.*?)(?=<h4\b|<hr\b|$)",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            return match.Success ? match.Groups["body"].Value : "";
+        }
+
+        static Dictionary<string, string> ExtractJniParameters(string html)
+        {
+            var result = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (Match item in Regex.Matches(
+                html,
+                @"<p\b[^>]*>\s*<code\b[^>]*>(?<name>[A-Za-z_]\w*)</code>\s*:\s*(?<value>.*?)</p>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            {
+                var name = HtmlText(item.Groups["name"].Value);
+                var value = HtmlText(item.Groups["value"].Value);
+                if (name.Length > 0 && value.Length > 0)
+                    result.TryAdd(name, value);
+            }
+            foreach (var (source, target) in new[]
+            {
+                ("clazz", "type"),
+                ("obj", "instance"),
+                ("methodID", "method"),
+                ("fieldID", "field"),
+                ("len", "length"),
+                ("buf", "buffer"),
+            })
+            {
+                if (result.TryGetValue(source, out var value))
+                    result.TryAdd(target, value);
+            }
+            return result;
+        }
+
+        static Dictionary<string, string> ExtractJniExceptions(string html)
+        {
+            var result = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (Match item in Regex.Matches(
+                html,
+                @"<p\b[^>]*>\s*(?:<code\b[^>]*>)?(?<name>[A-Za-z_][\w.]*)"
+                    + @"(?:</code>)?\s*:\s*(?<value>.*?)</p>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            {
+                var name = HtmlText(item.Groups["name"].Value).Split('.').Last();
+                var value = HtmlText(item.Groups["value"].Value);
+                if (name.Length > 0 && value.Length > 0)
+                    result.TryAdd(name, value);
+            }
+            return result;
+        }
 
         static SourcePage ParseAndroid(SourceRequest request, string html)
         {
