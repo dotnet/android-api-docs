@@ -1728,6 +1728,14 @@ static class ImporterProgram
             },
             "source-verified JavaObject toString mapping");
         Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Java.Interop.JniEnvironment.Object.ToString(Java.Interop.JniObjectReference)") is
+            {
+                Registration: { Name: "toString", Descriptor: "()Ljava/lang/String;" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified JniEnvironment Object.toString mapping");
+        Assert(
             SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaException.GetHashCode") is
             {
                 Registration: { Name: "hashCode", Descriptor: "()I" },
@@ -3306,6 +3314,8 @@ static class ImporterProgram
                 ["M:Java.Interop.JavaObject.GetHashCode"] =
                     Mapping("java/lang/Object", "hashCode", "()I"),
                 ["M:Java.Interop.JavaObject.ToString"] =
+                    Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
+                ["M:Java.Interop.JniEnvironment.Object.ToString(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
             };
 
