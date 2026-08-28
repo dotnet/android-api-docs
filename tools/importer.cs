@@ -3798,7 +3798,11 @@ static class ImporterProgram
                         RegexOptions.CultureInvariant))
                         prose = prose.Replace(paragraph.Value, " ", StringComparison.Ordinal);
                 }
-                var paragraphs = ExtractParagraphs(prose);
+                var paragraphs = ExtractParagraphs(prose)
+                    .Where(paragraph => !paragraph.Text.StartsWith(
+                        "The following table describes the specific ",
+                        StringComparison.Ordinal))
+                    .ToList();
                 var parameters = ExtractJniParameters(JniHeadingSection(fragment, "PARAMETERS:"));
                 var returns = HtmlText(JniHeadingSection(fragment, "RETURNS:"));
                 var exceptions = ExtractJniExceptions(JniHeadingSection(fragment, "THROWS:"));
