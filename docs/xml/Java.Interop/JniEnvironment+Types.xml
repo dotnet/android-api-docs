@@ -47,13 +47,15 @@
         <Parameter Name="bufferLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="loader">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="bufferLength">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">the name of the class or interface to be defined. The string is encoded in modified UTF-8. This value may be NULL, or it must match the name encoded within the class file data.</param>
+        <param name="loader">a class loader assigned to the defined class. This value may be NULL, indicating the "null class loader" (or "bootstrap class loader").</param>
+        <param name="buffer">buffer containing the.class file data. A NULL value will cause a ClassFormatError.</param>
+        <param name="bufferLength">buffer length.</param>
+        <summary>Loads a class from a buffer of raw class data.</summary>
+        <returns>Returns a Java class object or NULL if an error occurs.</returns>
         <remarks>
+          <para>Loads a class from a buffer of raw class data. The buffer containing the raw class data is not referenced by the VM after the DefineClass call returns, and it may be discarded if desired.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#defineclass" title="Reference documentation">Java reference for <code>JNI.DefineClass</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -162,10 +164,12 @@
         <Parameter Name="instance" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="instance">a Java object, must not be NULL.</param>
+        <summary>Returns the class of an object.</summary>
+        <returns>Returns a Java class object.</returns>
         <remarks>
+          <para>Returns the class of an object.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#getobjectclass" title="Reference documentation">Java reference for <code>JNI.GetObjectClass</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -187,10 +191,13 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">a Java class object, must not be NULL.</param>
+        <summary>If clazz represents any class other than the class Object, then this function returns the object that represents the superclass of the class specified by clazz.</summary>
+        <returns>Returns the superclass of the class represented by clazz, or NULL.</returns>
         <remarks>
+          <para>If clazz represents any class other than the class Object, then this function returns the object that represents the superclass of the class specified by clazz.</para>
+          <para>If clazz specifies the class Object, or clazz represents an interface, this function returns NULL.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#getsuperclass" title="Reference documentation">Java reference for <code>JNI.GetSuperclass</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -244,11 +251,13 @@
         <Parameter Name="class2" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="class1">To be added.</param>
-        <param name="class2">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="class1">the first class argument, must not be NULL.</param>
+        <param name="class2">the second class argument, must not be NULL.</param>
+        <summary>Determines whether an object of clazz1 can be safely cast to clazz2.</summary>
+        <returns>Returns JNI_TRUE if either of the following is true: The first and second class arguments refer to the same Java class; The first class is a subclass of the second class; The first class has the second class as one of its interfaces.</returns>
         <remarks>
+          <para>Determines whether an object of clazz1 can be safely cast to clazz2.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#isassignablefrom" title="Reference documentation">Java reference for <code>JNI.IsAssignableFrom</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -271,11 +280,13 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="instance">a Java object, possibly a NULL value.</param>
+        <param name="type">a Java class object, must not be NULL.</param>
+        <summary>Tests whether an object is an instance of a class.</summary>
+        <returns>Returns JNI_TRUE if obj can be cast to clazz; otherwise, returns JNI_FALSE. A NULL object can be cast to any class.</returns>
         <remarks>
+          <para>Tests whether an object is an instance of a class.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#isinstanceof" title="Reference documentation">Java reference for <code>JNI.IsInstanceOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -298,11 +309,13 @@
         <Parameter Name="object2" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="object1">To be added.</param>
-        <param name="object2">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="object1">a Java object, may be NULL.</param>
+        <param name="object2">a Java object, may be NULL.</param>
+        <summary>Tests whether two references refer to the same Java object.</summary>
+        <returns>Returns JNI_TRUE if ref1 and ref2 refer to the same Java object, or are both NULL; otherwise, returns JNI_FALSE.</returns>
         <remarks>
+          <para>Tests whether two references refer to the same Java object.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#issameobject" title="Reference documentation">Java reference for <code>JNI.IsSameObject</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -325,10 +338,19 @@
         <Parameter Name="methods" Type="Java.Interop.JniNativeMethodRegistration[]" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">a Java class object, must not be NULL.</param>
+        <param name="methods">the native methods in the class, must not be NULL.</param>
+        <summary>Registers native methods with the class specified by the clazz argument.</summary>
         <remarks>
+          <para>Registers native methods with the class specified by the clazz argument. The methods parameter specifies an array of JNINativeMethod structures that contain the names, signatures, and function pointers of the native methods. The name and signature fields of the JNINativeMethod structure are pointers to modified UTF-8 strings. The nMethods parameter specifies the number of native methods in the array.</para>
+          <code lang="text/java">typedef struct {
+    char *name;
+    char *signature;
+    void *fnPtr;
+} JNINativeMethod;</code>
+          <code lang="text/java">ReturnType (*fnPtr)(JNIEnv *env, jobject objectOrClass, ...);</code>
+          <para>Be aware that RegisterNatives can change the documented behavior of the JVM (including cryptographic algorithms, correctness, security, type safety), by changing the native code to be executed for a given native Java method. Therefore use applications that have native libraries utilizing the RegisterNatives function with caution.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#registernatives" title="Reference documentation">Java reference for <code>JNI.RegisterNatives</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -352,11 +374,20 @@
         <Parameter Name="numMethods" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <param name="numMethods">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">a Java class object, must not be NULL.</param>
+        <param name="methods">the native methods in the class, must not be NULL.</param>
+        <param name="numMethods">the number of native methods in the class, must be greater than zero.</param>
+        <summary>Registers native methods with the class specified by the clazz argument.</summary>
         <remarks>
+          <para>Registers native methods with the class specified by the clazz argument. The methods parameter specifies an array of JNINativeMethod structures that contain the names, signatures, and function pointers of the native methods. The name and signature fields of the JNINativeMethod structure are pointers to modified UTF-8 strings. The nMethods parameter specifies the number of native methods in the array.</para>
+          <code lang="text/java">typedef struct {
+    char *name;
+    char *signature;
+    void *fnPtr;
+} JNINativeMethod;</code>
+          <code lang="text/java">ReturnType (*fnPtr)(JNIEnv *env, jobject objectOrClass, ...);</code>
+          <para>Be aware that RegisterNatives can change the documented behavior of the JVM (including cryptographic algorithms, correctness, security, type safety), by changing the native code to be executed for a given native Java method. Therefore use applications that have native libraries utilizing the RegisterNatives function with caution.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#registernatives" title="Reference documentation">Java reference for <code>JNI.RegisterNatives</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -403,9 +434,12 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">a Java class object, must not be NULL.</param>
+        <summary>Unregisters native methods of a class.</summary>
         <remarks>
+          <para>Unregisters native methods of a class. The class goes back to the state before it was linked or registered with its native method functions.</para>
+          <para>This function should not be used in normal native code. Instead, it provides special programs a way to reload and relink native libraries.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#unregisternatives" title="Reference documentation">Java reference for <code>JNI.UnregisterNatives</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

@@ -44,10 +44,13 @@
         <Parameter Name="buffer" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">a direct java.nio.Buffer object, must not be NULL.</param>
+        <summary>Fetches and returns the starting address of the memory region referenced by the given direct java.nio.Buffer.</summary>
+        <returns>Returns the starting address of the memory region referenced by the buffer. Returns NULL if the memory region is undefined, if the given object is not a direct java.nio.Buffer, or if JNI access to direct buffers is not supported by this virtual machine.</returns>
         <remarks>
+          <para>Fetches and returns the starting address of the memory region referenced by the given direct java.nio.Buffer.</para>
+          <para>This function allows native code to access the same memory region that is accessible to Java code via the buffer object.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#getdirectbufferaddress" title="Reference documentation">Java reference for <code>JNI.GetDirectBufferAddress</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -69,10 +72,12 @@
         <Parameter Name="buffer" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">a direct java.nio.Buffer object, must not be NULL.</param>
+        <summary>Fetches and returns the capacity of the memory region referenced by the given direct java.nio.Buffer.</summary>
+        <returns>Returns the capacity of the memory region associated with the buffer. Returns -1 if the given object is not a direct java.nio.Buffer, if the object is an unaligned view buffer and the processor architecture does not support unaligned access, or if JNI access to direct buffers is not supported by this virtual machine.</returns>
         <remarks>
+          <para>Fetches and returns the capacity of the memory region referenced by the given direct java.nio.Buffer. The capacity is the number of elements that the memory region contains.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#getdirectbuffercapacity" title="Reference documentation">Java reference for <code>JNI.GetDirectBufferCapacity</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -95,11 +100,14 @@
         <Parameter Name="capacity" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
-        <param name="capacity">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="address">the starting address of the memory region, must not be NULL.</param>
+        <param name="capacity">the size in bytes of the memory region, must be nonnegative and less than or equal to Integer.MAX_VALUE</param>
+        <summary>Allocates and returns a direct java.nio.ByteBuffer referring to the block of memory starting at the memory address address and extending capacity bytes.</summary>
+        <returns>Returns a local reference to the newly-instantiated java.nio.ByteBuffer object. Returns NULL if an exception occurs, or if JNI access to direct buffers is not supported by this virtual machine.</returns>
         <remarks>
+          <para>Allocates and returns a direct java.nio.ByteBuffer referring to the block of memory starting at the memory address address and extending capacity bytes. The byte order of the returned buffer is always big-endian (high byte first; java.nio.ByteOrder.BIG_ENDIAN).</para>
+          <para>Native code that calls this function and returns the resulting byte-buffer object to Java-level code should ensure that the buffer refers to a valid region of memory that is accessible for reading and, if appropriate, writing. An attempt to access an invalid memory location from Java code will either return an arbitrary value, have no visible effect, or cause an unspecified exception to be thrown.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#newdirectbytebuffer" title="Reference documentation">Java reference for <code>JNI.NewDirectByteBuffer</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

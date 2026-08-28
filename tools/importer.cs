@@ -1799,6 +1799,11 @@ static class ImporterProgram
                 jniPage.Members.Any(member => member.Name == "CallVoidMethod"),
             "JNI grouped function families expand to exact function names");
         Assert(
+            jniPage.Members.Single(member => member.Name == "NewObject")
+                .Docs?.Parameters["args"] ==
+                    "Programmers place constructor arguments in an args array of jvalues.",
+            "JNI array-argument variant documentation");
+        Assert(
             JniSpecificationMappings.Resolve(
                 "Java.Interop.JniEnvironment+Arrays",
                 "M:Java.Interop.JniEnvironment.Arrays.CreateMarshalBooleanArray(System.Boolean[])",
@@ -3804,7 +3809,13 @@ static class ImporterProgram
                         StringComparison.Ordinal))
                     .ToList();
                 var parameters = ExtractJniParameters(JniHeadingSections(fragment, "PARAMETERS:"));
+                var args = ExtractJniArrayArguments(fragment);
+                if (args.Length > 0)
+                    parameters.TryAdd("args", args);
                 var returns = HtmlText(JniHeadingSection(fragment, "RETURNS:"));
+                if (returns.Length == 0)
+                    returns = paragraphs.FirstOrDefault(paragraph =>
+                        paragraph.Text.StartsWith("Returns ", StringComparison.Ordinal))?.Text ?? "";
                 var exceptions = ExtractJniExceptions(JniHeadingSections(fragment, "THROWS:"));
                 var anchor = heading.Groups["id"].Value;
                 var url = request.Url + "#" + anchor;
@@ -3921,12 +3932,36 @@ static class ImporterProgram
                 ("buf", "buffer"),
                 ("mode", "releaseMode"),
                 ("elems", "elements"),
+                ("sig", "signature"),
+                ("bufLen", "bufferLength"),
+                ("clazz", "klass"),
+                ("clazz1", "class1"),
+                ("clazz2", "class2"),
+                ("vm", "invocationPointer"),
+                ("msg", "message"),
+                ("nMethods", "numMethods"),
+                ("ref1", "object1"),
+                ("ref2", "object2"),
+                ("obj", "toThrow"),
+                ("str", "stringInstance"),
+                ("unicodeChars", "value"),
+                ("string", "stringInstance"),
             })
             {
                 if (result.TryGetValue(source, out var value))
                     result.TryAdd(target, value);
             }
             return result;
+        }
+
+        static string ExtractJniArrayArguments(string fragment)
+        {
+            var match = Regex.Match(
+                fragment,
+                @"<h4\b[^>]*\bid=""(?<id>[^""]*(?:newobjecta|methoda-routines)[^""]*)""[^>]*>"
+                    + @".*?</h4>\s*<p\b[^>]*>(?<value>.*?)</p>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            return match.Success ? HtmlText(match.Groups["value"].Value) : "";
         }
 
         static Dictionary<string, string> ExtractJniExceptions(string html)

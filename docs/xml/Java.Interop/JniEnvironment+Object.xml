@@ -44,10 +44,14 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">a reference to a Java class object, must not be NULL.</param>
+        <summary>Allocates a new Java object without invoking any of the constructors for the object.</summary>
+        <returns>Returns a Java object, or NULL if the object cannot be constructed.</returns>
         <remarks>
+          <para>Allocates a new Java object without invoking any of the constructors for the object. Returns a reference to the object.</para>
+          <para>Note: The Java Language Specification, "Implementing Finalization" (JLS §12.6.1) states: "An object o is not finalizable until its constructor has invoked the constructor for Object on o and that invocation has completed successfully". Since AllocObject() does not invoke a constructor, objects created with this function are not eligible for finalization.</para>
+          <para>The clazz argument must not refer to an array class.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#allocobject" title="Reference documentation">Java reference for <code>JNI.AllocObject</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -76,11 +80,14 @@
         <Parameter Name="method" Type="Java.Interop.JniMethodInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="method">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">a reference to a Java class object, must not be NULL.</param>
+        <param name="method">the method ID of the constructor.</param>
+        <summary>Constructs a new Java object.</summary>
+        <returns>Returns a Java object, or NULL if the object cannot be constructed.</returns>
         <remarks>
+          <para>Constructs a new Java object. The method ID indicates which constructor method to invoke. This ID must be obtained by calling GetMethodID() with &lt;init&gt; as the method name and void (V) as the return type.</para>
+          <para>The clazz argument must not refer to an array class.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#newobject-newobjecta-newobjectv" title="Reference documentation">Java reference for <code>JNI.NewObject</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -111,12 +118,15 @@
         <Parameter Name="args" Type="Java.Interop.JniArgumentValue*" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="method">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">a reference to a Java class object, must not be NULL.</param>
+        <param name="method">the method ID of the constructor.</param>
+        <param name="args">Programmers place all arguments that are to be passed to the constructor in an args array of jvalues that immediately follows the methodID argument. NewObjectA() accepts the arguments in this array, and, in turn, passes them to the Java method that the programmer wishes to invoke.</param>
+        <summary>Constructs a new Java object.</summary>
+        <returns>Returns a Java object, or NULL if the object cannot be constructed.</returns>
         <remarks>
+          <para>Constructs a new Java object. The method ID indicates which constructor method to invoke. This ID must be obtained by calling GetMethodID() with &lt;init&gt; as the method name and void (V) as the return type.</para>
+          <para>The clazz argument must not refer to an array class.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#newobject-newobjecta-newobjectv" title="Reference documentation">Java reference for <code>JNI.NewObject</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
