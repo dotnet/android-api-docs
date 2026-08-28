@@ -3803,9 +3803,9 @@ static class ImporterProgram
                         "The following table describes the specific ",
                         StringComparison.Ordinal))
                     .ToList();
-                var parameters = ExtractJniParameters(JniHeadingSection(fragment, "PARAMETERS:"));
+                var parameters = ExtractJniParameters(JniHeadingSections(fragment, "PARAMETERS:"));
                 var returns = HtmlText(JniHeadingSection(fragment, "RETURNS:"));
-                var exceptions = ExtractJniExceptions(JniHeadingSection(fragment, "THROWS:"));
+                var exceptions = ExtractJniExceptions(JniHeadingSections(fragment, "THROWS:"));
                 var anchor = heading.Groups["id"].Value;
                 var url = request.Url + "#" + anchor;
                 foreach (var name in signatures)
@@ -3889,6 +3889,15 @@ static class ImporterProgram
             return match.Success ? match.Groups["body"].Value : "";
         }
 
+        static string JniHeadingSections(string fragment, string heading) =>
+            string.Join(
+                "\n",
+                Regex.Matches(
+                    fragment,
+                    $@"<h4\b[^>]*>\s*{Regex.Escape(heading)}\s*</h4>(?<body>.*?)(?=<h4\b|<hr\b|$)",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                    .Select(match => match.Groups["body"].Value));
+
         static Dictionary<string, string> ExtractJniParameters(string html)
         {
             var result = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -3910,6 +3919,8 @@ static class ImporterProgram
                 ("fieldID", "field"),
                 ("len", "length"),
                 ("buf", "buffer"),
+                ("mode", "releaseMode"),
+                ("elems", "elements"),
             })
             {
                 if (result.TryGetValue(source, out var value))
