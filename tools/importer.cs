@@ -1865,10 +1865,16 @@ static class ImporterProgram
         var attachRequest = SourceVerifiedMemberMappings.Resolve(
             "M:Java.Interop.JniRuntime.AttachCurrentThread(System.String,Java.Interop.JniObjectReference)") ??
             throw new InvalidOperationException("SELF-TEST FAIL: JNI invocation mapping");
+        var attachDocs = SourcePage.Parse(attachRequest.SourceRequest, jniInvocationHtml)
+            .Members.Single(member => member.Name == "AttachCurrentThread")
+            .Docs;
         Assert(
-            SourcePage.Parse(attachRequest.SourceRequest, jniInvocationHtml)
-                .Members.Single(member => member.Name == "AttachCurrentThread")
-                .Docs?.Summary == "Attaches the current thread to a Java VM as a non-daemon thread.",
+            attachDocs?.Summary ==
+                "Attaches the current thread to a Java VM as a non-daemon thread." &&
+                attachDocs.Parameters["name"] ==
+                    "the name of the thread as a modified UTF-8 string, or NULL" &&
+                attachDocs.Parameters["group"] ==
+                    "global ref of a ThreadGroup object, or NULL",
             "JNI invocation function parsing");
         Assert(
             JniSpecificationMappings.Resolve(
@@ -4001,6 +4007,7 @@ static class ImporterProgram
                         StringComparison.Ordinal))
                     .ToList();
                 var parameters = ExtractJniParameters(JniHeadingSections(fragment, "PARAMETERS:"));
+                ExtractJniAttachArguments(fragment, parameters);
                 var args = ExtractJniArrayArguments(fragment);
                 if (args.Length > 0)
                     parameters.TryAdd("args", args);
@@ -4156,6 +4163,22 @@ static class ImporterProgram
                     + @".*?</h4>\s*<p\b[^>]*>(?<value>.*?)</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             return match.Success ? HtmlText(match.Groups["value"].Value) : "";
+        }
+
+        static void ExtractJniAttachArguments(
+            string fragment,
+            Dictionary<string, string> parameters)
+        {
+            foreach (Match match in Regex.Matches(
+                fragment,
+                @"(?:char\s+\*(?<name>name)|jobject\s+(?<name>group))\s*;"
+                    + @"\s*/\*\s*(?<value>.*?)\s*\*/",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant))
+            {
+                var value = NormalizeText(match.Groups["value"].Value);
+                if (value.Length > 0)
+                    parameters.TryAdd(match.Groups["name"].Value, value);
+            }
         }
 
         static Dictionary<string, string> ExtractJniExceptions(string html)
