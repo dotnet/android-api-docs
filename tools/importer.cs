@@ -1780,6 +1780,25 @@ static class ImporterProgram
                 },
             "source-verified Java peer equality mappings");
         Assert(
+                SourceVerifiedMemberMappings.Resolve("P:Java.Interop.JavaObject.JniIdentityHashCode") is
+                {
+                    Registration: { Name: "identityHashCode", Descriptor: "(Ljava/lang/Object;)I" },
+                    SourceRequest.JavaPath: "java/lang/System",
+                } &&
+                    SourceVerifiedMemberMappings.Resolve(
+                        "P:Java.Interop.JavaException.JniIdentityHashCode") is
+                    {
+                        Registration: { Name: "identityHashCode", Descriptor: "(Ljava/lang/Object;)I" },
+                        SourceRequest.JavaPath: "java/lang/System",
+                    } &&
+                    SourceVerifiedMemberMappings.Resolve(
+                        "M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)") is
+                    {
+                        Registration: { Name: "identityHashCode", Descriptor: "(Ljava/lang/Object;)I" },
+                        SourceRequest.JavaPath: "java/lang/System",
+                    },
+                "source-verified Java identity hash mappings");
+        Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null,
             "managed-only overloads are not source-mapped");
@@ -3399,14 +3418,20 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "hashCode", "()I"),
                 ["M:Java.Interop.JavaException.Equals(System.Object)"] =
                     JniMapping("IsSameObject"),
+                ["P:Java.Interop.JavaException.JniIdentityHashCode"] =
+                    Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
                 ["M:Java.Interop.JavaObject.GetHashCode"] =
                     Mapping("java/lang/Object", "hashCode", "()I"),
                 ["M:Java.Interop.JavaObject.Equals(System.Object)"] =
                     JniMapping("IsSameObject"),
+                ["P:Java.Interop.JavaObject.JniIdentityHashCode"] =
+                    Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
                 ["M:Java.Interop.JavaObject.ToString"] =
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.Object.ToString(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
+                ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
+                    Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
