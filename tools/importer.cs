@@ -1657,6 +1657,47 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 14, "fixture owner count");
+        var jniTypeSignature = XElement.Parse(
+            """
+            <Type>
+              <Attributes>
+                <Attribute>
+                  <AttributeName Language="C#">[Java.Interop.JniTypeSignature("java/lang/Object", GenerateJavaPeer=false)]</AttributeName>
+                </Attribute>
+              </Attributes>
+            </Type>
+            """);
+        var jniArrayTypeSignature = XElement.Parse(
+            """
+            <Type>
+              <Attributes>
+                <Attribute>
+                  <AttributeName Language="C#">[Java.Interop.JniTypeSignature("java/lang/Object", ArrayRank=1, GenerateJavaPeer=false)]</AttributeName>
+                </Attribute>
+              </Attributes>
+            </Type>
+            """);
+        var jniConstructorSignature = XElement.Parse(
+            """
+            <Member>
+              <MemberType>Constructor</MemberType>
+              <Attributes>
+                <Attribute>
+                  <AttributeName Language="C#">[Java.Interop.JniConstructorSignature("()V")]</AttributeName>
+                </Attribute>
+              </Attributes>
+            </Member>
+            """);
+        Assert(
+            Registration.Type(jniTypeSignature) == "java/lang/Object",
+            "JniTypeSignature type registration");
+        Assert(
+            Registration.Type(jniArrayTypeSignature) is null,
+            "array JniTypeSignature is not mapped to its element type");
+        Assert(
+            Registration.Member(jniConstructorSignature) ==
+                new MemberRegistration(".ctor", "()V", false),
+            "JniConstructorSignature member registration");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -3113,8 +3154,17 @@ static class ImporterProgram
         static readonly Regex TypeRegex = new(
             @"Register\(""(?<name>[^""]+)""",
             RegexOptions.CultureInvariant);
+        static readonly Regex JniTypeRegex = new(
+            @"JniTypeSignature\s*\(\s*""(?<name>[^""]+)""(?<options>[^)]*)\)",
+            RegexOptions.CultureInvariant);
+        static readonly Regex ArrayRankRegex = new(
+            @"\bArrayRank\s*=\s*(?<rank>\d+)",
+            RegexOptions.CultureInvariant);
         static readonly Regex MemberRegex = new(
             @"Register\(""(?<name>[^""]+)""\s*,\s*""(?<descriptor>[^""]*)""",
+            RegexOptions.CultureInvariant);
+        static readonly Regex JniConstructorRegex = new(
+            @"JniConstructorSignature\s*\(\s*""(?<descriptor>[^""]*)""",
             RegexOptions.CultureInvariant);
         static readonly Regex JniFieldRegex = new(
             @"JniField=""(?<owner>[^""]+)\.(?<name>[^"".]+)""",
@@ -3128,6 +3178,12 @@ static class ImporterProgram
             {
                 var match = TypeRegex.Match(attribute.Value);
                 if (match.Success)
+                    return match.Groups["name"].Value;
+                match = JniTypeRegex.Match(attribute.Value);
+                if (!match.Success)
+                    continue;
+                var arrayRank = ArrayRankRegex.Match(match.Groups["options"].Value);
+                if (!arrayRank.Success || arrayRank.Groups["rank"].Value == "0")
                     return match.Groups["name"].Value;
             }
             return null;
@@ -3143,6 +3199,12 @@ static class ImporterProgram
                 if (match.Success)
                     return new MemberRegistration(
                         match.Groups["name"].Value,
+                        match.Groups["descriptor"].Value,
+                        false);
+                match = JniConstructorRegex.Match(attribute.Value);
+                if (match.Success)
+                    return new MemberRegistration(
+                        ".ctor",
                         match.Groups["descriptor"].Value,
                         false);
             }
