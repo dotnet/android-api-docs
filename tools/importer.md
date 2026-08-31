@@ -25,9 +25,6 @@ and `JniField` owner metadata for projected constants. It also recognizes scalar
 Narrow source-verified mappings cover Java.Interop runtime members whose upstream
 implementation embeds an exact JNI member identifier and whose identity is also
 confirmed by sibling generated binding metadata.
-Exact `JniEnvironment` wrappers are also mapped to named functions in the official
-Java 21 JNI Functions specification. Managed helper overloads remain excluded, and
-grouped JNI function families are expanded only to their declared function names.
 Array-rank `JniTypeSignature` metadata is not mapped to its element type because
 Java API pages do not declare array wrapper types. It skips members with missing
 registrations, unknown type descriptors, overload mismatches, ambiguous matches,
