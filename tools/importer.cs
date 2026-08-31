@@ -14,8 +14,6 @@ static class ImporterProgram
     const string AndroidReference = "https://developer.android.com/reference/";
     const string JavaReference = "https://docs.oracle.com/en/java/javase/21/docs/api/";
     const string JniReference = "https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html";
-    const string JniTypesReference = "https://docs.oracle.com/en/java/javase/21/docs/specs/jni/types.html";
-    const string JniInvocationReference = "https://docs.oracle.com/en/java/javase/21/docs/specs/jni/invocation.html";
     const string UserAgent = "dotnet-android-api-docs-importer/1.0 (+https://github.com/dotnet/android-api-docs)";
     const int MaximumDownloadBytes = 12 * 1024 * 1024;
     const string AndroidAttribution =
@@ -486,7 +484,7 @@ static class ImporterProgram
                 "missing_member_registration",
                 "The managed member has no JNI registration; no name-based guess was attempted.",
                 owner.SourceRequest.Url);
-        if (owner.SourceRequest.Kind is "jni" or "jni-invocation")
+        if (owner.SourceRequest.Kind == "jni")
         {
             var functions = page.Members
                 .Where(member => member.Name.Equals(registration.Name, StringComparison.Ordinal))
@@ -1680,8 +1678,6 @@ static class ImporterProgram
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
         var jniHtml = File.ReadAllText(Path.Combine(fixtureRoot, "jni-reference.html"));
-        var jniTypesHtml = File.ReadAllText(Path.Combine(fixtureRoot, "jni-types-reference.html"));
-        var jniInvocationHtml = File.ReadAllText(Path.Combine(fixtureRoot, "jni-invocation-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
@@ -1772,19 +1768,7 @@ static class ImporterProgram
             },
             "source-verified inherited JavaException hashCode mapping");
         Assert(
-            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is
-            {
-                Registration: { Name: "IsSameObject" },
-                SourceRequest.Kind: "jni",
-            } &&
-                SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaException.Equals(System.Object)") is
-                {
-                    Registration: { Name: "IsSameObject" },
-                    SourceRequest.Kind: "jni",
-                },
-            "source-verified Java peer equality mappings");
-        Assert(
-                SourceVerifiedMemberMappings.Resolve("P:Java.Interop.JavaObject.JniIdentityHashCode") is
+            SourceVerifiedMemberMappings.Resolve("P:Java.Interop.JavaObject.JniIdentityHashCode") is
                 {
                     Registration: { Name: "identityHashCode", Descriptor: "(Ljava/lang/Object;)I" },
                     SourceRequest.JavaPath: "java/lang/System",
@@ -1804,7 +1788,8 @@ static class ImporterProgram
                 "source-verified Java identity hash mappings");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
-                "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null,
+                "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
+                SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
             "managed-only overloads are not source-mapped");
         var jniRequest = JniSpecificationMappings.Resolve(
             "Java.Interop.JniEnvironment+Arrays",
@@ -1837,45 +1822,6 @@ static class ImporterProgram
                 .Docs?.Parameters["args"] ==
                     "Programmers place constructor arguments in an args array of jvalues.",
             "JNI array-argument variant documentation");
-        var jniValueTypeRequest = SourceVerifiedTypeMappings.Resolve(
-            "Java.Interop.JniArgumentValue") ??
-            throw new InvalidOperationException("SELF-TEST FAIL: JNI value type mapping");
-        var jniValueTypeDocs = SourcePage.Parse(
-            jniValueTypeRequest,
-            jniTypesHtml).TypeDocs;
-        Assert(
-            jniValueTypeDocs?.Summary ==
-                "The jvalue union type is used as the element type in argument arrays." &&
-                jniValueTypeDocs.Paragraphs.Count(paragraph =>
-                    paragraph.Text.StartsWith(
-                        "The jvalue union type is used as the element type",
-                        StringComparison.Ordinal)) == 1,
-            $"JNI types specification parsing ({jniValueTypeRequest.Kind}, " +
-                $"{jniValueTypeRequest.JavaPath}): {jniValueTypeDocs?.Summary ?? "<missing>"}");
-        var jniIdTypeDocs = SourcePage.Parse(
-            SourceRequest.CreateJniType("field-and-method-ids", "JNI field and method IDs"),
-            jniTypesHtml).TypeDocs;
-        Assert(
-            jniIdTypeDocs?.Summary == "Method and field IDs are regular C pointer types." &&
-                jniIdTypeDocs.Paragraphs.Any(paragraph => paragraph.IsCode) &&
-                ReplacementFor(
-                    new Placeholder(0, "summary", "", "summary"),
-                    jniIdTypeDocs).Text == "Method and field IDs are regular C pointer types.",
-            "JNI ID type colon intro and code preservation");
-        var attachRequest = SourceVerifiedMemberMappings.Resolve(
-            "M:Java.Interop.JniRuntime.AttachCurrentThread(System.String,Java.Interop.JniObjectReference)") ??
-            throw new InvalidOperationException("SELF-TEST FAIL: JNI invocation mapping");
-        var attachDocs = SourcePage.Parse(attachRequest.SourceRequest, jniInvocationHtml)
-            .Members.Single(member => member.Name == "AttachCurrentThread")
-            .Docs;
-        Assert(
-            attachDocs?.Summary ==
-                "Attaches the current thread to a Java VM as a non-daemon thread." &&
-                attachDocs.Parameters["name"] ==
-                    "the name of the thread as a modified UTF-8 string, or NULL" &&
-                attachDocs.Parameters["group"] ==
-                    "global ref of a ThreadGroup object, or NULL",
-            "JNI invocation function parsing");
         Assert(
             JniSpecificationMappings.Resolve(
                 "Java.Interop.JniEnvironment+Arrays",
@@ -3150,10 +3096,9 @@ static class ImporterProgram
             InterfaceMemberResolver? interfaceMemberResolver = null)
         {
             Owners.Clear();
-            var typeName = (string?)Root.Attribute("FullName") ?? (string?)Root.Attribute("Name") ?? "";
             var typeRegistration = Registration.Type(Root);
-            var typeRequest = SourceRequest.Create(typeRegistration) ??
-                SourceVerifiedTypeMappings.Resolve(typeName);
+            var typeRequest = SourceRequest.Create(typeRegistration);
+            var typeName = (string?)Root.Attribute("FullName") ?? (string?)Root.Attribute("Name") ?? "";
             var isEnum = Root.Elements("TypeSignature").Any(signature =>
                 (string?)signature.Attribute("Language") == "C#" &&
                 ((string?)signature.Attribute("Value"))?.StartsWith(
@@ -3460,14 +3405,10 @@ static class ImporterProgram
                     Mapping("java/lang/Throwable", ".ctor", "(Ljava/lang/String;)V"),
                 ["M:Java.Interop.JavaException.GetHashCode"] =
                     Mapping("java/lang/Object", "hashCode", "()I"),
-                ["M:Java.Interop.JavaException.Equals(System.Object)"] =
-                    JniMapping("IsSameObject"),
                 ["P:Java.Interop.JavaException.JniIdentityHashCode"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
                 ["M:Java.Interop.JavaObject.GetHashCode"] =
                     Mapping("java/lang/Object", "hashCode", "()I"),
-                ["M:Java.Interop.JavaObject.Equals(System.Object)"] =
-                    JniMapping("IsSameObject"),
                 ["P:Java.Interop.JavaObject.JniIdentityHashCode"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
                 ["M:Java.Interop.JavaObject.ToString"] =
@@ -3476,10 +3417,6 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
-                ["M:Java.Interop.JniRuntime.AttachCurrentThread(System.String,Java.Interop.JniObjectReference)"] =
-                    InvocationMapping("AttachCurrentThread"),
-                ["M:Java.Interop.JniRuntime.DestroyRuntime"] =
-                    InvocationMapping("DestroyJavaVM"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
@@ -3494,37 +3431,6 @@ static class ImporterProgram
                 SourceRequest.Create(javaPath) ??
                     throw new InvalidOperationException(
                         $"Unsupported source-verified Java path '{javaPath}'."));
-
-        static InterfaceMemberMapping JniMapping(string functionName) =>
-            new(
-                new MemberRegistration(functionName, null, false),
-                SourceRequest.CreateJni(functionName));
-
-        static InterfaceMemberMapping InvocationMapping(string functionName) =>
-            new(
-                new MemberRegistration(functionName, null, false),
-                SourceRequest.CreateJniInvocation(functionName));
-    }
-
-    static class SourceVerifiedTypeMappings
-    {
-        static readonly IReadOnlyDictionary<string, SourceRequest> Mappings =
-            new Dictionary<string, SourceRequest>(StringComparer.Ordinal)
-            {
-                ["Java.Interop.JniArgumentValue"] =
-                    SourceRequest.CreateJniType("the-value-type", "JNI.jvalue"),
-                ["Java.Interop.JniFieldInfo"] =
-                    SourceRequest.CreateJniType("field-and-method-ids", "JNI field and method IDs"),
-                ["Java.Interop.JniMethodInfo"] =
-                    SourceRequest.CreateJniType("field-and-method-ids", "JNI field and method IDs"),
-                ["Java.Interop.JniObjectReference"] =
-                    SourceRequest.CreateJniType("reference-types", "JNI reference types"),
-                ["Java.Interop.JniTypeSignature"] =
-                    SourceRequest.CreateJniType("type-signatures", "JNI type signatures"),
-            };
-
-        public static SourceRequest? Resolve(string typeName) =>
-            Mappings.GetValueOrDefault(typeName);
     }
 
     static class JniSpecificationMappings
@@ -3694,12 +3600,6 @@ static class ImporterProgram
     {
         public static SourceRequest CreateJni(string functionName) =>
             new($"jni/{functionName}", JniReference, "jni");
-
-        public static SourceRequest CreateJniType(string anchor, string label) =>
-            new($"jni-types/{anchor}/{label}", JniTypesReference + "#" + anchor, "jni-types");
-
-        public static SourceRequest CreateJniInvocation(string functionName) =>
-            new($"jni-invocation/{functionName}", JniInvocationReference, "jni-invocation");
 
         public static SourceRequest? Create(string? javaPath)
         {
@@ -3891,77 +3791,8 @@ static class ImporterProgram
             {
                 "android" => ParseAndroid(request, html),
                 "jni" => ParseJni(request, html),
-                "jni-invocation" => ParseJni(request, html),
-                "jni-types" => ParseJniType(request, html),
                 _ => ParseJava(request, html),
             };
-
-        static SourcePage ParseJniType(SourceRequest request, string html)
-        {
-            var parts = request.JavaPath.Split('/', 3);
-            if (parts.Length != 3)
-                return new SourcePage();
-            var heading = Regex.Match(
-                html,
-                $@"<h2\b[^>]*\bid=""{Regex.Escape(parts[1])}""[^>]*>.*?</h2>",
-                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (!heading.Success)
-                return new SourcePage();
-            var bodyStart = heading.Index + heading.Length;
-            var bodyEnd = html.IndexOf("<h2", bodyStart, StringComparison.OrdinalIgnoreCase);
-            if (bodyEnd < 0)
-                bodyEnd = html.Length;
-            var body = html[bodyStart..bodyEnd];
-            var introMatch = Regex.Match(
-                body,
-                @"<p\b[^>]*>(?<intro>.*?)</p>",
-                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            var rawIntro = introMatch.Success
-                ? CleanSourceText(HtmlText(introMatch.Groups["intro"].Value))
-                : "";
-            var intro = rawIntro.Length > 0 ? FirstSentence(rawIntro) : "";
-            if (intro.EndsWith(":", StringComparison.Ordinal))
-                intro = intro[..^1] + ".";
-            var paragraphs = ExtractJniTypeParagraphs(body, intro);
-            if (parts[1] == "type-signatures")
-                paragraphs = intro.Length > 0 ? [new SourceParagraph(intro, IsCode: false)] : [];
-            if (paragraphs.Count == 0)
-                return new SourcePage();
-            return new SourcePage
-            {
-                TypeDocs = new SourceDocs(
-                    FirstSentence(intro.Length > 0 ? intro : paragraphs[0].Text),
-                    paragraphs,
-                    new Dictionary<string, string>(StringComparer.Ordinal),
-                    "",
-                    new Dictionary<string, string>(StringComparer.Ordinal),
-                    request.Url,
-                    parts[2],
-                    request.Kind),
-            };
-        }
-
-        static List<SourceParagraph> ExtractJniTypeParagraphs(string body, string intro)
-        {
-            var result = new List<SourceParagraph>();
-            foreach (Match block in Regex.Matches(
-                body,
-                @"<(?<tag>p|pre)\b[^>]*>(?<body>.*?)</\k<tag>>",
-                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-            {
-                var isCode = block.Groups["tag"].Value.Equals(
-                    "pre",
-                    StringComparison.OrdinalIgnoreCase);
-                var text = isCode
-                    ? HtmlCodeText(block.Groups["body"].Value)
-                    : CleanSourceParagraph(HtmlText(block.Groups["body"].Value));
-                if (!isCode && result.Count == 0 && intro.Length > 0)
-                    text = intro;
-                if (text.Length > 0 && !result.Contains(new SourceParagraph(text, isCode)))
-                    result.Add(new SourceParagraph(text, isCode));
-            }
-            return result;
-        }
 
         static SourcePage ParseJni(SourceRequest request, string html)
         {
@@ -3988,26 +3819,21 @@ static class ImporterProgram
                     continue;
                 foreach (Match paragraph in Regex.Matches(
                     prose,
-                    @"<(?<tag>p|pre)\b[^>]*>.*?</\k<tag>>",
+                    @"<p\b[^>]*>.*?</p>",
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
                 {
                     if (Regex.IsMatch(
                         HtmlText(paragraph.Value),
-                        @"(?:JNIEnv|JavaVM)\s*\*\s*\w+",
+                        @"JNIEnv\s*\*\s*env",
                         RegexOptions.CultureInvariant))
                         prose = prose.Replace(paragraph.Value, " ", StringComparison.Ordinal);
                 }
                 var paragraphs = ExtractParagraphs(prose)
-                    .Where(paragraph => !paragraph.IsCode || !Regex.IsMatch(
-                        paragraph.Text,
-                        @"(?:JNIEnv|JavaVM)\s*\*\s*\w+",
-                        RegexOptions.CultureInvariant))
                     .Where(paragraph => !paragraph.Text.StartsWith(
                         "The following table describes the specific ",
                         StringComparison.Ordinal))
                     .ToList();
                 var parameters = ExtractJniParameters(JniHeadingSections(fragment, "PARAMETERS:"));
-                ExtractJniAttachArguments(fragment, parameters);
                 var args = ExtractJniArrayArguments(fragment);
                 if (args.Length > 0)
                     parameters.TryAdd("args", args);
@@ -4044,16 +3870,16 @@ static class ImporterProgram
         {
             var names = Regex.Matches(
                 prose,
-                @"<(?<tag>p|pre)\b[^>]*>(?<prototype>.*?)</\k<tag>>",
+                @"<p\b[^>]*>(?<prototype>.*?)</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
                 .Select(match => HtmlText(match.Groups["prototype"].Value))
                 .Where(prototype => Regex.IsMatch(
                     prototype,
-                    @"(?:JNIEnv|JavaVM)\s*\*\s*\w+",
+                    @"JNIEnv\s*\*\s*env",
                     RegexOptions.CultureInvariant))
                 .SelectMany(prototype => Regex.Matches(
                     prototype,
-                    @"\b(?<name>[A-Z][A-Za-z0-9]+)\s*\(\s*(?:JNIEnv|JavaVM)\s*\*\s*\w+",
+                    @"\b(?<name>[A-Z][A-Za-z0-9]+)\s*\(\s*JNIEnv\s*\*\s*env",
                     RegexOptions.CultureInvariant)
                     .Select(match => match.Groups["name"].Value))
                 .ToList();
@@ -4121,7 +3947,6 @@ static class ImporterProgram
                 if (name.Length > 0 && value.Length > 0)
                     result.TryAdd(name, value);
             }
-            var sourceParameters = new Dictionary<string, string>(result, StringComparer.Ordinal);
             foreach (var (source, target) in new[]
             {
                 ("clazz", "type"),
@@ -4142,14 +3967,13 @@ static class ImporterProgram
                 ("nMethods", "numMethods"),
                 ("ref1", "object1"),
                 ("ref2", "object2"),
-                ("ref2", "obj"),
                 ("obj", "toThrow"),
                 ("str", "stringInstance"),
                 ("unicodeChars", "value"),
                 ("string", "stringInstance"),
             })
             {
-                if (sourceParameters.TryGetValue(source, out var value))
+                if (result.TryGetValue(source, out var value))
                     result.TryAdd(target, value);
             }
             return result;
@@ -4163,22 +3987,6 @@ static class ImporterProgram
                     + @".*?</h4>\s*<p\b[^>]*>(?<value>.*?)</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             return match.Success ? HtmlText(match.Groups["value"].Value) : "";
-        }
-
-        static void ExtractJniAttachArguments(
-            string fragment,
-            Dictionary<string, string> parameters)
-        {
-            foreach (Match match in Regex.Matches(
-                fragment,
-                @"(?:char\s+\*(?<name>name)|jobject\s+(?<name>group))\s*;"
-                    + @"\s*/\*\s*(?<value>.*?)\s*\*/",
-                RegexOptions.Singleline | RegexOptions.CultureInvariant))
-            {
-                var value = NormalizeText(match.Groups["value"].Value);
-                if (value.Length > 0)
-                    parameters.TryAdd(match.Groups["name"].Value, value);
-            }
         }
 
         static Dictionary<string, string> ExtractJniExceptions(string html)

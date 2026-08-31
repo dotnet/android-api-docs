@@ -28,10 +28,6 @@ confirmed by sibling generated binding metadata.
 Exact `JniEnvironment` wrappers are also mapped to named functions in the official
 Java 21 JNI Functions specification. Managed helper overloads remain excluded, and
 grouped JNI function families are expanded only to their declared function names.
-Selected JNI value, reference, ID, and signature types use exact sections from the
-official Java 21 JNI Types and Data Structures specification.
-Source-verified `JniRuntime` JavaVM operations use the official Java 21 JNI
-Invocation API.
 Array-rank `JniTypeSignature` metadata is not mapped to its element type because
 Java API pages do not declare array wrapper types. It skips members with missing
 registrations, unknown type descriptors, overload mismatches, ambiguous matches,
