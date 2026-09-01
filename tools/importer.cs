@@ -1657,6 +1657,115 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 14, "fixture owner count");
+        var jniTypeSignature = XElement.Parse(
+            """
+            <Type>
+              <Attributes>
+                <Attribute>
+                  <AttributeName Language="C#">[Java.Interop.JniTypeSignature("java/lang/Object", GenerateJavaPeer=false)]</AttributeName>
+                </Attribute>
+              </Attributes>
+            </Type>
+            """);
+        var jniArrayTypeSignature = XElement.Parse(
+            """
+            <Type>
+              <Attributes>
+                <Attribute>
+                  <AttributeName Language="C#">[Java.Interop.JniTypeSignature("java/lang/Object", ArrayRank=1, GenerateJavaPeer=false)]</AttributeName>
+                </Attribute>
+              </Attributes>
+            </Type>
+            """);
+        var jniConstructorSignature = XElement.Parse(
+            """
+            <Member>
+              <MemberType>Constructor</MemberType>
+              <Attributes>
+                <Attribute>
+                  <AttributeName Language="C#">[Java.Interop.JniConstructorSignature("()V")]</AttributeName>
+                </Attribute>
+              </Attributes>
+            </Member>
+            """);
+        Assert(
+            Registration.Type(jniTypeSignature) == "java/lang/Object",
+            "JniTypeSignature type registration");
+        Assert(
+            Registration.Type(jniArrayTypeSignature) is null,
+            "array JniTypeSignature is not mapped to its element type");
+        Assert(
+            Registration.Member(jniConstructorSignature) ==
+                new MemberRegistration(".ctor", "()V", false),
+            "JniConstructorSignature member registration");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaException.#ctor") is
+            {
+                Registration: { Name: ".ctor", Descriptor: "()V" },
+                SourceRequest.JavaPath: "java/lang/Throwable",
+            },
+            "source-verified JavaException constructor mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Java.Interop.JavaException.#ctor(System.String)") is
+            {
+                Registration: { Name: ".ctor", Descriptor: "(Ljava/lang/String;)V" },
+                SourceRequest.JavaPath: "java/lang/Throwable",
+            },
+            "source-verified JavaException string constructor mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.GetHashCode") is
+            {
+                Registration: { Name: "hashCode", Descriptor: "()I" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified JavaObject hashCode mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.ToString") is
+            {
+                Registration: { Name: "toString", Descriptor: "()Ljava/lang/String;" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified JavaObject toString mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Java.Interop.JniEnvironment.Object.ToString(Java.Interop.JniObjectReference)") is
+            {
+                Registration: { Name: "toString", Descriptor: "()Ljava/lang/String;" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified JniEnvironment Object.toString mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaException.GetHashCode") is
+            {
+                Registration: { Name: "hashCode", Descriptor: "()I" },
+                SourceRequest.JavaPath: "java/lang/Object",
+            },
+            "source-verified inherited JavaException hashCode mapping");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve("P:Java.Interop.JavaObject.JniIdentityHashCode") is
+                {
+                    Registration: { Name: "identityHashCode", Descriptor: "(Ljava/lang/Object;)I" },
+                    SourceRequest.JavaPath: "java/lang/System",
+                } &&
+                    SourceVerifiedMemberMappings.Resolve(
+                        "P:Java.Interop.JavaException.JniIdentityHashCode") is
+                    {
+                        Registration: { Name: "identityHashCode", Descriptor: "(Ljava/lang/Object;)I" },
+                        SourceRequest.JavaPath: "java/lang/System",
+                    } &&
+                    SourceVerifiedMemberMappings.Resolve(
+                        "M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)") is
+                    {
+                        Registration: { Name: "identityHashCode", Descriptor: "(Ljava/lang/Object;)I" },
+                        SourceRequest.JavaPath: "java/lang/System",
+                    },
+                "source-verified Java identity hash mappings");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
+                SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
+            "managed-only overloads are not source-mapped");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -2962,10 +3071,15 @@ static class ImporterProgram
                     ? interfaceMemberResolver?.Resolve(member)
                     : null;
                 memberRegistration ??= interfaceMember?.Registration;
+                var sourceVerifiedMember = memberRegistration is null && member is not null
+                    ? SourceVerifiedMemberMappings.Resolve(id)
+                    : null;
+                memberRegistration ??= sourceVerifiedMember?.Registration;
                 var request = member is null
                     ? typeRequest
                     : SourceRequest.Create(memberField?.Owner) ??
                         interfaceMember?.SourceRequest ??
+                        sourceVerifiedMember?.SourceRequest ??
                         typeRequest;
                 Owners.Add(new DocsOwner(
                     order,
@@ -3113,8 +3227,17 @@ static class ImporterProgram
         static readonly Regex TypeRegex = new(
             @"Register\(""(?<name>[^""]+)""",
             RegexOptions.CultureInvariant);
+        static readonly Regex JniTypeRegex = new(
+            @"JniTypeSignature\s*\(\s*""(?<name>[^""]+)""(?<options>[^)]*)\)",
+            RegexOptions.CultureInvariant);
+        static readonly Regex ArrayRankRegex = new(
+            @"\bArrayRank\s*=\s*(?<rank>\d+)",
+            RegexOptions.CultureInvariant);
         static readonly Regex MemberRegex = new(
             @"Register\(""(?<name>[^""]+)""\s*,\s*""(?<descriptor>[^""]*)""",
+            RegexOptions.CultureInvariant);
+        static readonly Regex JniConstructorRegex = new(
+            @"JniConstructorSignature\s*\(\s*""(?<descriptor>[^""]*)""",
             RegexOptions.CultureInvariant);
         static readonly Regex JniFieldRegex = new(
             @"JniField=""(?<owner>[^""]+)\.(?<name>[^"".]+)""",
@@ -3128,6 +3251,12 @@ static class ImporterProgram
             {
                 var match = TypeRegex.Match(attribute.Value);
                 if (match.Success)
+                    return match.Groups["name"].Value;
+                match = JniTypeRegex.Match(attribute.Value);
+                if (!match.Success)
+                    continue;
+                var arrayRank = ArrayRankRegex.Match(match.Groups["options"].Value);
+                if (!arrayRank.Success || arrayRank.Groups["rank"].Value == "0")
                     return match.Groups["name"].Value;
             }
             return null;
@@ -3143,6 +3272,12 @@ static class ImporterProgram
                 if (match.Success)
                     return new MemberRegistration(
                         match.Groups["name"].Value,
+                        match.Groups["descriptor"].Value,
+                        false);
+                match = JniConstructorRegex.Match(attribute.Value);
+                if (match.Success)
+                    return new MemberRegistration(
+                        ".ctor",
                         match.Groups["descriptor"].Value,
                         false);
             }
@@ -3183,6 +3318,45 @@ static class ImporterProgram
     sealed record InterfaceMemberMapping(
         MemberRegistration Registration,
         SourceRequest SourceRequest);
+
+    static class SourceVerifiedMemberMappings
+    {
+        static readonly IReadOnlyDictionary<string, InterfaceMemberMapping> Mappings =
+            new Dictionary<string, InterfaceMemberMapping>(StringComparer.Ordinal)
+            {
+                ["M:Java.Interop.JavaException.#ctor"] =
+                    Mapping("java/lang/Throwable", ".ctor", "()V"),
+                ["M:Java.Interop.JavaException.#ctor(System.String)"] =
+                    Mapping("java/lang/Throwable", ".ctor", "(Ljava/lang/String;)V"),
+                ["M:Java.Interop.JavaException.GetHashCode"] =
+                    Mapping("java/lang/Object", "hashCode", "()I"),
+                ["P:Java.Interop.JavaException.JniIdentityHashCode"] =
+                    Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Java.Interop.JavaObject.GetHashCode"] =
+                    Mapping("java/lang/Object", "hashCode", "()I"),
+                ["P:Java.Interop.JavaObject.JniIdentityHashCode"] =
+                    Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Java.Interop.JavaObject.ToString"] =
+                    Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
+                ["M:Java.Interop.JniEnvironment.Object.ToString(Java.Interop.JniObjectReference)"] =
+                    Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
+                ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
+                    Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+            };
+
+        public static InterfaceMemberMapping? Resolve(string memberId) =>
+            Mappings.GetValueOrDefault(memberId);
+
+        static InterfaceMemberMapping Mapping(
+            string javaPath,
+            string name,
+            string descriptor) =>
+            new(
+                new MemberRegistration(name, descriptor, false),
+                SourceRequest.Create(javaPath) ??
+                    throw new InvalidOperationException(
+                        $"Unsupported source-verified Java path '{javaPath}'."));
+    }
 
     sealed class InterfaceMemberResolver
     {
