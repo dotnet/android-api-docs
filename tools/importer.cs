@@ -2949,6 +2949,11 @@ static class ImporterProgram
                 "<param name=\"title\">To be added.</param>",
                 $"<param name=\"title\">{RemoveLeadingJavaType(mappedDocs.Parameters["title"])}</param>",
                 StringComparison.Ordinal);
+            channelOnlyText = Regex.Replace(
+                channelOnlyText,
+                @"<remarks>\s*<para>Keep this existing prose\.</para>\s*</remarks>",
+                "<remarks>To be added.</remarks>",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant);
             var channelOnlyPath = Path.Combine(tempDirectory, "channel-only.xml");
             File.WriteAllText(channelOnlyPath, channelOnlyText, new UTF8Encoding(false));
             var channelOnlyFile = LoadedFile.Load(repositoryRoot, channelOnlyPath);
