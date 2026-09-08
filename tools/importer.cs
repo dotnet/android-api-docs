@@ -1112,7 +1112,24 @@ static class ImporterProgram
                 NormalizeText(element.Value) == RemoveLeadingJavaType(parameter.Value))) ||
             (IsMeaningfulChannel(RemoveLeadingJavaType(docs.Returns), "returns") &&
              owner.Docs.Element("returns") is XElement returns &&
-             NormalizeText(returns.Value) == RemoveLeadingJavaType(docs.Returns));
+             NormalizeText(returns.Value) == RemoveLeadingJavaType(docs.Returns)) ||
+            (ReplacementFor(
+                 new Placeholder(0, "value", "", "value"),
+                 docs).Text is string value &&
+             owner.Docs.Element("value") is XElement valueElement &&
+             NormalizeText(valueElement.Value) == value) ||
+            owner.Docs.Elements("exception").Any(element =>
+            {
+                var replacement = ReplacementFor(
+                    new Placeholder(
+                        0,
+                        "exception",
+                        (string?)element.Attribute("cref") ?? "",
+                        "exception"),
+                    docs);
+                return replacement.Text is not null &&
+                    NormalizeText(element.Value) == replacement.Text;
+            });
     }
 
     static bool ShouldAddSourceDocumentation(
@@ -3116,6 +3133,36 @@ static class ImporterProgram
             Assert(
                 !NormalizeText(channelOnlyRemarks.Value).Contains("To be added.", StringComparison.Ordinal),
                 "channel-only source import clears the remarks placeholder");
+            var valueAndExceptionDocs = mappedDocs with
+            {
+                Parameters = [],
+                Returns = "int: the stored value",
+                Exceptions = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["IllegalArgumentException"] = "if the title is invalid",
+                },
+            };
+            var valueAndExceptionText = channelOnlyText
+                .Replace(
+                    "<returns>To be added.</returns>",
+                    "<returns>To be added.</returns><value>the stored value</value>",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<exception cref=\"T:Java.Lang.IllegalArgumentException\">To be added.</exception>",
+                    "<exception cref=\"T:Java.Lang.IllegalArgumentException\">if the title is invalid</exception>",
+                    StringComparison.Ordinal);
+            var valueAndExceptionPath = Path.Combine(tempDirectory, "value-exception-only.xml");
+            File.WriteAllText(valueAndExceptionPath, valueAndExceptionText, new UTF8Encoding(false));
+            var valueAndExceptionFile = LoadedFile.Load(repositoryRoot, valueAndExceptionPath);
+            valueAndExceptionFile.SelectOwners(null);
+            var valueAndExceptionOwner = valueAndExceptionFile.Owners.Single(owner =>
+                owner.Id.Contains("SetTitle", StringComparison.Ordinal));
+            Assert(
+                HasChannelOnlySourceMetadata(
+                    valueAndExceptionFile,
+                    valueAndExceptionOwner,
+                    valueAndExceptionDocs),
+                "value and exception-only source imports are eligible for metadata repair");
 
             var repairFailureDocument = XDocument.Parse(
                 legacyEnumText,
