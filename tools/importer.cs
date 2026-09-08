@@ -3450,6 +3450,22 @@ static class ImporterProgram
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setLayoutLabelNonLocalized", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
                 ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetSubtypeNameOverride(System.String)"] =
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setSubtypeNameOverride", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetSelectedText(Android.Views.InputMethods.IInputConnection,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getSelectedText", "(I)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetTextAfterCursor(Android.Views.InputMethods.IInputConnection,System.Int32,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getTextAfterCursor", "(II)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetTextBeforeCursor(Android.Views.InputMethods.IInputConnection,System.Int32,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getTextBeforeCursor", "(II)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.ReplaceText(Android.Views.InputMethods.IInputConnection,System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
