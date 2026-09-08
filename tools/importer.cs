@@ -1797,6 +1797,20 @@ static class ImporterProgram
                 "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
                 SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
             "managed-only overloads are not source-mapped");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)") is
+                {
+                    Registration: { Name: "commitText", Descriptor: "(Ljava/lang/CharSequence;I)Z" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/BaseInputConnection",
+                } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.CursorAnchorInfo.Builder.SetComposingText(System.Int32,System.String)") is
+                {
+                    Registration: { Name: "setComposingText", Descriptor: "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/CursorAnchorInfo$Builder",
+                },
+            "InputMethods string aliases map to their exact JNI counterparts");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -3408,6 +3422,14 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.SetComposingText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.CursorAnchorInfo.Builder.SetComposingText(System.Int32,System.String)"] =
+                    Mapping("android/view/inputmethod/CursorAnchorInfo$Builder", "setComposingText", "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>

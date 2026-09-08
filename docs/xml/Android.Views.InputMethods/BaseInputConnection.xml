@@ -489,10 +489,10 @@
         <Parameter Name="newCursorPosition" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="text">The text to commit. This may include styles.</param>
+        <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>Default implementation replaces any existing composing text with the given text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation replaces any existing composing text with the given text. In addition,
             only if fallback mode, a key event is sent for the new text and the current editable buffer
@@ -1707,14 +1707,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="start">Value is 0 or greater</param>
+        <param name="end">Value is 0 or greater</param>
         <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
         <param name="textAttribute">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Replace the specific range in the editor with suggested text.</summary>
+        <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
+        <remarks>
+          <para>Replace the specific range in the editor with suggested text.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#replaceText(int,%20int,%20java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.replaceText</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReportFullscreenMode">
@@ -2024,11 +2028,11 @@
         <Parameter Name="newCursorPosition" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="text">The composing text with styles if necessary. If no style object attached to the text, the default style for composing text is used. See Spanned for how to attach style object to the text. SpannableString and SpannableStringBuilder are two implementations of the interface Spanned.</param>
+        <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>The default implementation places the given text into the editable, replacing any existing
             composing text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation places the given text into the editable, replacing any existing
             composing text. The new text is marked as in a composing state with the composing style.</para>
