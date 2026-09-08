@@ -1685,6 +1685,9 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 14, "fixture owner count");
+        Assert(
+            LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
+            "mixed-newline files preserve their predominant line ending");
         var jniTypeSignature = XElement.Parse(
             """
             <Type>
@@ -3071,12 +3074,18 @@ static class ImporterProgram
                 Path = path,
                 RelativePath = Relative(repositoryRoot, path),
                 Text = text,
-                Newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n",
+                Newline = SelectNewline(text),
                 HasUtf8Bom = hasBom,
                 Root = root,
                 DocsBlocks = FindDocsBlocks(text),
             };
         }
+
+        public static string SelectNewline(string text) =>
+            Regex.Matches(text, "\r\n", RegexOptions.CultureInvariant).Count >
+                Regex.Matches(text, "(?<!\r)\n", RegexOptions.CultureInvariant).Count
+                ? "\r\n"
+                : "\n";
 
         public void SelectOwners(
             string? memberFilter,
