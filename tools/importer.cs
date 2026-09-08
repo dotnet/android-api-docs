@@ -651,8 +651,12 @@ static class ImporterProgram
                 : Replacement.Skip(
                     "source_parameter_missing",
                     $"The exact source member did not document parameter '{placeholder.Key}'."),
-            "returns" or "value" => ChannelValueOrSkip(
+            "returns" => ChannelValueOrSkip(
                 docs.Returns,
+                placeholder.Name,
+                "source_return_missing"),
+            "value" => ChannelValueOrSkip(
+                string.IsNullOrWhiteSpace(docs.Returns) ? docs.Summary : docs.Returns,
                 placeholder.Name,
                 "source_return_missing"),
             "exception" => ExceptionReplacement(placeholder, docs),
@@ -1622,6 +1626,23 @@ static class ImporterProgram
             "optional intent to start a follow up action required to facilitate the unarchival flow",
             "intent to start a follow up action required to facilitate the unarchival flow",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "The availability for \"paid content, either to-own or rental (user has not purchased/rented).",
+            "The availability for \"paid content\", either to-own or rental (user has not purchased/rented).",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Time shift is handle locally",
+            "Time shift is handled locally",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Time shift is handle remotely",
+            "Time shift is handled remotely",
+            StringComparison.Ordinal);
+        text = Regex.Replace(
+            text,
+            @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
+            "",
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
     }
@@ -2180,6 +2201,12 @@ static class ImporterProgram
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
         Assert(typeOnly.Reason == "source_channel_not_meaningful", "type-only return skip");
+        var valueSummaryFallback = ReplacementFor(
+            new Placeholder(0, "value", "", "value"),
+            favoriteResult.Docs! with { Returns = "" });
+        Assert(
+            valueSummaryFallback.Text == favoriteResult.Docs.Summary,
+            "property value falls back to exact source summary");
         var simpleTypeOnly = ReplacementFor(
             new Placeholder(0, "param", "items", "param:items"),
             favoriteResult.Docs! with
@@ -2210,6 +2237,16 @@ static class ImporterProgram
                 "optional intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.") ==
                     "intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.",
             "contradictory optional unarchival intent cleanup");
+        Assert(
+            CleanSourceText(
+                "The availability for \"paid content, either to-own or rental (user has not purchased/rented).") ==
+                    "The availability for \"paid content\", either to-own or rental (user has not purchased/rented).",
+            "unbalanced Android content quote cleanup");
+        Assert(
+            CleanSourceText(
+                "Time shift is handle locally. TODO Link: Tuner#Tuner(Context, string, int).") ==
+                    "Time shift is handled locally.",
+            "Android time-shift and TODO metadata cleanup");
         Assert(
             RemoveLeadingJavaType(
                 "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
