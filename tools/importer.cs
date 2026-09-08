@@ -148,6 +148,7 @@ static class ImporterProgram
                 foreach (var owner in file.Owners.OrderBy(item => item.Order))
                 {
                     var ownerChanged = false;
+                    var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
                     var deferredRemarksPlaceholder = false;
                     var normalized = NormalizeStaleNestedConstructorLinks(
@@ -238,6 +239,7 @@ static class ImporterProgram
                         file.UpdateBlockOffsets(owner.Order, text);
                         fileChanged = true;
                         ownerChanged = true;
+                        importedSourceChannel = true;
                         replacedRemarksPlaceholder |= placeholder.Name is "remarks" or "para";
                         remaining--;
                         report.Entries.Add(ReportEntry.Changed(
@@ -253,27 +255,36 @@ static class ImporterProgram
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
                     var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
+                    var channelOnlyMetadataRepair = HasChannelOnlySourceMetadata(
+                        file,
+                        owner,
+                        mapping.Docs!);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          augmentedRemarksRepair ||
                          truncatedSummaryRepair ||
                          codeExampleRepair ||
-                         metadataOnlyRemarksRepair))
+                         metadataOnlyRemarksRepair ||
+                         channelOnlyMetadataRepair))
                     {
                         var refreshed = truncatedSummaryRepair
                             ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
                             : text;
                         if (codeExampleRepair)
                             refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
-                        if (enumSummaryRepair || augmentedRemarksRepair || metadataOnlyRemarksRepair)
+                        if (enumSummaryRepair ||
+                            augmentedRemarksRepair ||
+                            metadataOnlyRemarksRepair ||
+                            channelOnlyMetadataRepair)
                         {
                             refreshed = AddSourceDocumentationIfSafe(
                                 refreshed,
                                 file,
                                 owner,
                                 mapping.Docs,
-                                allowEnumCreation: false);
+                                allowEnumCreation: false,
+                                addMetadataForChannelOnlyMember: channelOnlyMetadataRepair);
                         }
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
@@ -313,7 +324,12 @@ static class ImporterProgram
                             deferredRemarksPlaceholder,
                             replacedRemarksPlaceholder))
                     {
-                        text = AddSourceDocumentationIfSafe(text, file, owner, mapping.Docs);
+                        text = AddSourceDocumentationIfSafe(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs,
+                            addMetadataForChannelOnlyMember: importedSourceChannel);
                         file.UpdateBlockOffsets(owner.Order, text);
                     }
                 }
@@ -918,7 +934,8 @@ static class ImporterProgram
         LoadedFile file,
         DocsOwner owner,
         SourceDocs docs,
-        bool allowEnumCreation = true)
+        bool allowEnumCreation = true,
+        bool addMetadataForChannelOnlyMember = false)
     {
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
@@ -942,7 +959,9 @@ static class ImporterProgram
         {
             if (HasAugmentedRemarksPlaceholder(file, owner))
                 blockText = RemoveImporterRemarksMetadata(blockText);
-            return text[..block.Start] + blockText + text[block.End..];
+            if (!addMetadataForChannelOnlyMember)
+                return text[..block.Start] + blockText + text[block.End..];
+            blockText = RemoveStandaloneRemarksPlaceholder(blockText);
         }
 
         blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
@@ -1050,6 +1069,31 @@ static class ImporterProgram
             file.Text[block.Start..block.End],
             @"<remarks\b[^>]*>[ \t\r\n]*To be added\.?[ \t\r\n]*(?=<para\b)",
             RegexOptions.CultureInvariant);
+    }
+
+    static bool HasChannelOnlySourceMetadata(
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (docs.Paragraphs.Count > 0 ||
+            !owner.Placeholders.Any(placeholder => placeholder.Name is "remarks" or "para"))
+        {
+            return false;
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        if (ContainsSourceUrl(file.Text[block.Start..block.End], docs.SourceUrl))
+            return false;
+
+        return docs.Parameters.Any(parameter =>
+            IsMeaningfulChannel(RemoveLeadingJavaType(parameter.Value), "param") &&
+            owner.Docs.Elements("param").Any(element =>
+                (string?)element.Attribute("name") == parameter.Key &&
+                NormalizeText(element.Value) == RemoveLeadingJavaType(parameter.Value))) ||
+            (IsMeaningfulChannel(RemoveLeadingJavaType(docs.Returns), "returns") &&
+             owner.Docs.Element("returns") is XElement returns &&
+             NormalizeText(returns.Value) == RemoveLeadingJavaType(docs.Returns));
     }
 
     static bool ShouldAddSourceDocumentation(
@@ -1167,6 +1211,13 @@ static class ImporterProgram
             blockText,
             @"(?<open><remarks\b[^>]*>)[ \t\r\n]*To be added\.?(?<separator>[ \t\r\n]*)(?=<para\b)",
             match => match.Groups["open"].Value + match.Groups["separator"].Value,
+            RegexOptions.CultureInvariant);
+
+    static string RemoveStandaloneRemarksPlaceholder(string blockText) =>
+        Regex.Replace(
+            blockText,
+            @"<remarks(?<attrs>\b[^>]*)>[ \t\r\n]*To be added\.?[ \t\r\n]*</remarks>",
+            "<remarks${attrs} />",
             RegexOptions.CultureInvariant);
 
     static string ReplaceTruncatedSummary(
@@ -2452,6 +2503,10 @@ static class ImporterProgram
                 StringComparison.Ordinal) &&
                 !cleanedMissingRemarks.Descendants("a").Any(),
             "missing source remarks retain their placeholder without importer metadata");
+        Assert(
+            RemoveStandaloneRemarksPlaceholder("<Docs><remarks>To be added.</remarks></Docs>") ==
+                "<Docs><remarks /></Docs>",
+            "channel-only source imports clear a standalone remarks placeholder before metadata insertion");
         const string emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
             "    <para><format type=\"text/html\"><a " +
@@ -2890,6 +2945,31 @@ static class ImporterProgram
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var channelOnlyText = fixtureText.Replace(
+                "<param name=\"title\">To be added.</param>",
+                $"<param name=\"title\">{mappedDocs.Parameters["title"]}</param>",
+                StringComparison.Ordinal);
+            var channelOnlyPath = Path.Combine(tempDirectory, "channel-only.xml");
+            File.WriteAllText(channelOnlyPath, channelOnlyText, new UTF8Encoding(false));
+            var channelOnlyFile = LoadedFile.Load(repositoryRoot, channelOnlyPath);
+            channelOnlyFile.SelectOwners(null);
+            var channelOnlyOwner = channelOnlyFile.Owners.Single(owner =>
+                owner.Id.Contains("SetTitle", StringComparison.Ordinal));
+            var channelOnlyDocs = mappedDocs with { Paragraphs = [] };
+            Assert(
+                HasChannelOnlySourceMetadata(channelOnlyFile, channelOnlyOwner, channelOnlyDocs),
+                "channel-only source import is eligible for metadata repair");
+            var channelOnlyRepaired = AddSourceDocumentationIfSafe(
+                channelOnlyFile.Text,
+                channelOnlyFile,
+                channelOnlyOwner,
+                channelOnlyDocs,
+                addMetadataForChannelOnlyMember: true);
+            Assert(
+                channelOnlyRepaired.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal) &&
+                !channelOnlyRepaired.Contains("<remarks>To be added.", StringComparison.Ordinal),
+                "channel-only source import adds metadata without retaining a remarks placeholder");
+
             var repairFailureDocument = XDocument.Parse(
                 legacyEnumText,
                 LoadOptions.PreserveWhitespace);
