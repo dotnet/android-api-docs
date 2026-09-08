@@ -1750,10 +1750,10 @@ static class ImporterProgram
             "String convenience overload maps to the exact CharSequence JNI descriptor");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
-                "M:Android.Text.TextUtils.LastIndexOf(System.String,System.String,System.Int32)") is
+                "M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32)") is
             {
                 Registration.Name: "lastIndexOf",
-                Registration.Descriptor: "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)I",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;CI)I",
                 SourceRequest.JavaPath: "android/text/TextUtils",
             },
             "String convenience overload maps to the exact CharSequence JNI descriptor");
@@ -3493,16 +3493,10 @@ static class ImporterProgram
                     Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;II)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;C)I"),
-                ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.String)"] =
-                    Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CI)I"),
-                ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.String,System.Int32)"] =
-                    Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CII)I"),
-                ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.String,System.Int32,System.Int32)"] =
-                    Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;II)I"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
