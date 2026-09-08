@@ -251,16 +251,13 @@ static class ImporterProgram
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
                     var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
-                    var duplicateImporterReferences = mapping.Docs is not null &&
-                        HasDuplicateImporterSourceReferences(file, owner, mapping.Docs.SourceUrl);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          augmentedRemarksRepair ||
                          truncatedSummaryRepair ||
                          codeExampleRepair ||
-                         metadataOnlyRemarksRepair ||
-                         duplicateImporterReferences))
+                         metadataOnlyRemarksRepair))
                     {
                         var refreshed = truncatedSummaryRepair
                             ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
@@ -272,27 +269,7 @@ static class ImporterProgram
                             refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
                             file.UpdateBlockOffsets(owner.Order, refreshed);
                         }
-                        if (duplicateImporterReferences)
-                        {
-                            refreshed = RemoveDuplicateImporterSourceReferences(
-                                refreshed,
-                                file,
-                                owner,
-                                mapping.Docs.SourceUrl);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
-                        if (metadataOnlyRemarksRepair)
-                        {
-                            refreshed = mapping.Docs.Paragraphs.Count == 0
-                                ? RemoveDuplicateImporterSourceReferences(
-                                    refreshed,
-                                    file,
-                                    owner,
-                                    mapping.Docs.SourceUrl)
-                                : ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
-                        if (enumSummaryRepair || augmentedRemarksRepair)
+                        if (enumSummaryRepair || augmentedRemarksRepair || metadataOnlyRemarksRepair)
                         {
                             refreshed = AddSourceDocumentationIfSafe(
                                 refreshed,
@@ -971,21 +948,11 @@ static class ImporterProgram
         }
 
         blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
+        blockText = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
         blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         var metadataOnly = HasMetadataOnlyRemarks(blockText);
-        if (metadataOnly)
-        {
-            if (docs.Paragraphs.Count == 0)
-            {
-                var normalizedBlock = RemoveDuplicateImporterSourceReferences(blockText, docs.SourceUrl);
-                return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
-                    ? text
-                    : text[..block.Start] + normalizedBlock + text[block.End..];
-            }
-            return ReplaceIncompleteCodeExampleRemarks(text, file, owner, docs);
-        }
-        blockText = RemoveDuplicateImporterSourceReferences(blockText, docs.SourceUrl);
-        if (ContainsSourceUrl(blockText, docs.SourceUrl) && !metadataOnly)
+        if (ContainsSourceUrl(blockText, docs.SourceUrl) &&
+            (!metadataOnly || docs.Paragraphs.Count == 0))
             return text[..block.Start] + blockText + text[block.End..];
 
         var remarks = owner.Docs.Element("remarks");
@@ -1265,29 +1232,40 @@ static class ImporterProgram
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
     }
 
+    static string RemoveDuplicateSourceLinks(string blockText, string sourceUrl)
+    {
+        var foundSource = false;
+        return Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                var href = Regex.Match(
+                    match.Value,
+                    @"\bhref=""(?<url>[^""]+)""",
+                    RegexOptions.CultureInvariant);
+                if (!href.Success ||
+                    !UrlsEqual(WebUtility.HtmlDecode(href.Groups["url"].Value), sourceUrl))
+                {
+                    return match.Value;
+                }
+
+                if (foundSource)
+                    return "";
+                foundSource = true;
+                return match.Value;
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
     static int CountImporterSourceReferences(string blockText, string sourceUrl) =>
         Regex.Matches(
             blockText,
             @"<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>",
             RegexOptions.Singleline | RegexOptions.CultureInvariant)
             .Count(match =>
-            {
-                var href = Regex.Match(
-                    match.Value,
-                    @"\bhref=""(?<url>[^""]+)""",
-                    RegexOptions.CultureInvariant);
-                return TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) &&
-                    UrlsEqual(importerSourceUrl, sourceUrl);
-            });
-
-    static bool HasDuplicateImporterSourceReferences(
-        LoadedFile file,
-        DocsOwner owner,
-        string sourceUrl)
-    {
-        var block = file.DocsBlocks[owner.Order];
-        return CountImporterSourceReferences(file.Text[block.Start..block.End], sourceUrl) > 1;
-    }
+                TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) &&
+                UrlsEqual(importerSourceUrl, sourceUrl));
 
     static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
     {
@@ -1297,39 +1275,6 @@ static class ImporterProgram
             RegexOptions.Singleline | RegexOptions.CultureInvariant);
         sourceUrl = match.Success ? WebUtility.HtmlDecode(match.Groups["url"].Value) : "";
         return match.Success;
-    }
-
-    static string RemoveDuplicateImporterSourceReferences(
-        string text,
-        LoadedFile file,
-        DocsOwner owner,
-        string sourceUrl)
-    {
-        var block = file.DocsBlocks[owner.Order];
-        var blockText = text[block.Start..block.End];
-        var normalizedBlock = RemoveDuplicateImporterSourceReferences(blockText, sourceUrl);
-        return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
-            ? text
-            : text[..block.Start] + normalizedBlock + text[block.End..];
-    }
-
-    static string RemoveDuplicateImporterSourceReferences(string blockText, string sourceUrl)
-    {
-        var retained = 0;
-        var normalizedBlock = Regex.Replace(
-            blockText,
-            @"(?:^[ \t]*)?<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
-            match =>
-            {
-                if (!TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) ||
-                    !UrlsEqual(importerSourceUrl, sourceUrl))
-                {
-                    return match.Value;
-                }
-                return retained++ == 0 ? match.Value : "";
-            },
-            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
-        return normalizedBlock;
     }
 
     static string NormalizeStaleNestedConstructorLinks(
@@ -1805,6 +1750,9 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 14, "fixture owner count");
+        Assert(
+            LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
+            "mixed-newline files preserve their predominant line ending");
         var jniTypeSignature = XElement.Parse(
             """
             <Type>
@@ -1914,10 +1862,40 @@ static class ImporterProgram
                 "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
                 SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
             "managed-only overloads are not source-mapped");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)") is
+                {
+                    Registration: { Name: "commitText", Descriptor: "(Ljava/lang/CharSequence;I)Z" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/BaseInputConnection",
+                } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.CursorAnchorInfo.Builder.SetComposingText(System.Int32,System.String)") is
+                {
+                    Registration: { Name: "setComposingText", Descriptor: "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/CursorAnchorInfo$Builder",
+                } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)") is
+                {
+                    Registration: { Name: "commitText", Descriptor: "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/InputConnectionWrapper",
+                },
+            "InputMethods string aliases map to their exact JNI counterparts");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var comparisonPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "<p>Sets the widget title. The exact JNI overload is required.</p>",
+                "<p>Sets the widget title if <= 0. The exact JNI overload is required.</p>",
+                StringComparison.Ordinal));
+        Assert(
+            comparisonPage.Members.Single(member => member.Name == "setTitle").Docs?.Summary ==
+                "Sets the widget title if <= 0.",
+            "literal comparisons in Android HTML text are preserved");
         var abbreviationPage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -2090,6 +2068,25 @@ static class ImporterProgram
                     "<para>Sets the widget title. The exact JNI overload is required.</para>",
                     StringComparison.Ordinal),
             "metadata-only remarks are refreshed from source");
+        var metadataOnlySource = mappedDocs with { Paragraphs = [] };
+        file.UpdateBlockOffsets(setTitle.Order, metadataOnlyText);
+        var metadataOnlyOnce = AddSourceDocumentationIfSafe(
+            metadataOnlyText,
+            file,
+            setTitle,
+            metadataOnlySource);
+        file.UpdateBlockOffsets(setTitle.Order, metadataOnlyOnce);
+        var metadataOnlyTwice = AddSourceDocumentationIfSafe(
+            metadataOnlyOnce,
+            file,
+            setTitle,
+            metadataOnlySource);
+        Assert(
+            Regex.Matches(
+                metadataOnlyTwice,
+                Regex.Escape(mappedDocs.SourceUrl),
+                RegexOptions.CultureInvariant).Count == 1,
+            "metadata-only remarks do not duplicate an existing source reference");
         file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var truncatedSummaryText = file.Text.Replace(
             "<summary>To be added.</summary>",
@@ -2432,8 +2429,8 @@ static class ImporterProgram
         const string userReference =
             "<para><format type=\"text/html\"><a href=\"https://example.invalid/reference\" title=\"Reference documentation\">User-authored reference.</a></format></para>";
         var duplicateMetadataRepairText =
-            $"<Docs><remarks>{duplicateMetadataReference}{userReference}{duplicateMetadataReference}" +
-            $"<para>{AndroidAttribution}</para></remarks></Docs>";
+            $"<Docs><remarks>\n{duplicateMetadataReference}\n{userReference}\n{duplicateMetadataReference}\n" +
+            $"<para>{AndroidAttribution}</para>\n</remarks></Docs>";
         Assert(
             TryGetImporterSourceReferenceUrl(duplicateMetadataReference, out var duplicateSourceUrl) &&
                 UrlsEqual(duplicateSourceUrl, favoriteResult.Docs.SourceUrl),
@@ -2450,7 +2447,7 @@ static class ImporterProgram
                 "",
                 StringComparison.Ordinal)),
             "metadata-only repair preserves user-authored reference content");
-        var deduplicatedMetadataRepairText = RemoveDuplicateImporterSourceReferences(
+        var deduplicatedMetadataRepairText = RemoveDuplicateSourceLinks(
             duplicateMetadataRepairText,
             favoriteResult.Docs.SourceUrl);
         Assert(
@@ -2459,7 +2456,7 @@ static class ImporterProgram
                 favoriteResult.Docs.SourceUrl) == 1 &&
             deduplicatedMetadataRepairText.Contains(userReference, StringComparison.Ordinal) &&
             deduplicatedMetadataRepairText.Contains(AndroidAttribution, StringComparison.Ordinal) &&
-            RemoveDuplicateImporterSourceReferences(
+            RemoveDuplicateSourceLinks(
                 deduplicatedMetadataRepairText,
                 favoriteResult.Docs.SourceUrl).Equals(
                     deduplicatedMetadataRepairText,
@@ -3232,12 +3229,18 @@ static class ImporterProgram
                 Path = path,
                 RelativePath = Relative(repositoryRoot, path),
                 Text = text,
-                Newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n",
+                Newline = SelectNewline(text),
                 HasUtf8Bom = hasBom,
                 Root = root,
                 DocsBlocks = FindDocsBlocks(text),
             };
         }
+
+        public static string SelectNewline(string text) =>
+            Regex.Matches(text, "\r\n", RegexOptions.CultureInvariant).Count >
+                Regex.Matches(text, "(?<!\r)\n", RegexOptions.CultureInvariant).Count
+                ? "\r\n"
+                : "\n";
 
         public void SelectOwners(
             string? memberFilter,
@@ -3560,6 +3563,44 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.SetComposingText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.CursorAnchorInfo.Builder.SetComposingText(System.Int32,System.String)"] =
+                    Mapping("android/view/inputmethod/CursorAnchorInfo$Builder", "setComposingText", "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "commitText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.SetComposingText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.SetComposingText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetLayoutLabelNonLocalized(System.String)"] =
+                    Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setLayoutLabelNonLocalized", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetSubtypeNameOverride(System.String)"] =
+                    Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setSubtypeNameOverride", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetSelectedText(Android.Views.InputMethods.IInputConnection,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getSelectedText", "(I)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetTextAfterCursor(Android.Views.InputMethods.IInputConnection,System.Int32,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getTextAfterCursor", "(II)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetTextBeforeCursor(Android.Views.InputMethods.IInputConnection,System.Int32,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getTextBeforeCursor", "(II)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.ReplaceText(Android.Views.InputMethods.IInputConnection,System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
@@ -4477,11 +4518,15 @@ static class ImporterProgram
             var text = new StringBuilder(html.Length);
             var inTag = false;
             var quote = '\0';
-            foreach (var character in html)
+            for (var index = 0; index < html.Length; index++)
             {
+                var character = html[index];
                 if (!inTag)
                 {
-                    if (character == '<')
+                    if (character == '<' &&
+                        index + 1 < html.Length &&
+                        (char.IsLetter(html[index + 1]) ||
+                         html[index + 1] is '/' or '!' or '?'))
                     {
                         inTag = true;
                         quote = '\0';
