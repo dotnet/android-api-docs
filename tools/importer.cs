@@ -1798,6 +1798,16 @@ static class ImporterProgram
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var comparisonPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "<p>Sets the widget title. The exact JNI overload is required.</p>",
+                "<p>Sets the widget title if <= 0. The exact JNI overload is required.</p>",
+                StringComparison.Ordinal));
+        Assert(
+            comparisonPage.Members.Single(member => member.Name == "setTitle").Docs?.Summary ==
+                "Sets the widget title if <= 0.",
+            "literal comparisons in Android HTML text are preserved");
         var abbreviationPage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -4306,11 +4316,15 @@ static class ImporterProgram
             var text = new StringBuilder(html.Length);
             var inTag = false;
             var quote = '\0';
-            foreach (var character in html)
+            for (var index = 0; index < html.Length; index++)
             {
+                var character = html[index];
                 if (!inTag)
                 {
-                    if (character == '<')
+                    if (character == '<' &&
+                        index + 1 < html.Length &&
+                        (char.IsLetter(html[index + 1]) ||
+                         html[index + 1] is '/' or '!' or '?'))
                     {
                         inTag = true;
                         quote = '\0';
