@@ -3135,6 +3135,7 @@ static class ImporterProgram
                 "channel-only source import clears the remarks placeholder");
             var valueAndExceptionDocs = mappedDocs with
             {
+                Paragraphs = [],
                 Parameters = [],
                 Returns = "int: the stored value",
                 Exceptions = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -3157,6 +3158,38 @@ static class ImporterProgram
             valueAndExceptionFile.SelectOwners(null);
             var valueAndExceptionOwner = valueAndExceptionFile.Owners.Single(owner =>
                 owner.Id.Contains("SetTitle", StringComparison.Ordinal));
+            Assert(
+                valueAndExceptionOwner.Docs.Element("value")?.Value == "the stored value",
+                "value-only fixture contains the exact source value");
+            Assert(
+                valueAndExceptionOwner.Docs.Element("exception")?.Value == "if the title is invalid",
+                "exception-only fixture contains the exact source exception");
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "value", "", "value"),
+                    valueAndExceptionDocs).Text == "the stored value" &&
+                ReplacementFor(
+                    new Placeholder(
+                        0,
+                        "exception",
+                        "T:Java.Lang.IllegalArgumentException",
+                        "exception"),
+                    valueAndExceptionDocs).Text == "if the title is invalid",
+                "value and exception-only fixture matches exact source channels");
+            Assert(
+                valueAndExceptionDocs.Paragraphs.Count == 0,
+                "value and exception-only fixture has no source paragraphs");
+            Assert(
+                valueAndExceptionOwner.Placeholders.Any(placeholder =>
+                    placeholder.Name is "remarks" or "para"),
+                "value and exception-only fixture retains its remarks placeholder");
+            Assert(
+                !ContainsSourceUrl(
+                    valueAndExceptionFile.Text[
+                        valueAndExceptionFile.DocsBlocks[valueAndExceptionOwner.Order].Start..
+                        valueAndExceptionFile.DocsBlocks[valueAndExceptionOwner.Order].End],
+                    valueAndExceptionDocs.SourceUrl),
+                "value and exception-only fixture has no source metadata");
             Assert(
                 HasChannelOnlySourceMetadata(
                     valueAndExceptionFile,
