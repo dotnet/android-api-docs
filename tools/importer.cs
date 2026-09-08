@@ -148,6 +148,7 @@ static class ImporterProgram
                 foreach (var owner in file.Owners.OrderBy(item => item.Order))
                 {
                     var ownerChanged = false;
+                    var replacedRemarksPlaceholder = false;
                     var normalized = NormalizeStaleNestedConstructorLinks(
                         text,
                         file.DocsBlocks[owner.Order]);
@@ -235,6 +236,7 @@ static class ImporterProgram
                         file.UpdateBlockOffsets(owner.Order, text);
                         fileChanged = true;
                         ownerChanged = true;
+                        replacedRemarksPlaceholder |= placeholder.Name is "remarks" or "para";
                         remaining--;
                         report.Entries.Add(ReportEntry.Changed(
                             "would_apply",
@@ -303,7 +305,9 @@ static class ImporterProgram
                         }
                     }
 
-                    if (ownerChanged && mapping.Docs is not null)
+                    if (ownerChanged &&
+                        mapping.Docs is not null &&
+                        ShouldAddSourceDocumentation(remaining, replacedRemarksPlaceholder))
                     {
                         text = AddSourceDocumentationIfSafe(text, file, owner, mapping.Docs);
                         file.UpdateBlockOffsets(owner.Order, text);
@@ -1042,6 +1046,9 @@ static class ImporterProgram
             @"<remarks\b[^>]*>[ \t\r\n]*To be added\.?[ \t\r\n]*(?=<para\b)",
             RegexOptions.CultureInvariant);
     }
+
+    static bool ShouldAddSourceDocumentation(int remaining, bool replacedRemarksPlaceholder) =>
+        remaining > 0 || replacedRemarksPlaceholder;
 
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
@@ -2055,6 +2062,11 @@ static class ImporterProgram
             "Android parameter type-prefix cleanup");
         Assert(mappedDocs.Returns == "the number of displayed characters", "Android return");
         Assert(mappedDocs.Exceptions["IllegalArgumentException"] == "if title is empty", "Android exception");
+        Assert(
+            !ShouldAddSourceDocumentation(0, false) &&
+                ShouldAddSourceDocumentation(0, true) &&
+                ShouldAddSourceDocumentation(1, false),
+            "exhausted batches do not augment skipped remarks placeholders");
 
         var mismatch = file.Owners.Single(owner => owner.Id.Contains("SetCount", StringComparison.Ordinal));
         var mismatchResult = MapOwner(mismatch, pages);
