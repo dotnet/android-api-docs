@@ -155,6 +155,7 @@ static class ImporterProgram
                     {
                         if (remaining == 0)
                         {
+                            file.UpdateBlockOffsets(owner.Order, text);
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -203,6 +204,7 @@ static class ImporterProgram
 
                         if (remaining == 0)
                         {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -307,6 +309,7 @@ static class ImporterProgram
                                 : "remarks";
                             if (remaining == 0)
                             {
+                                RestoreOffsetsAfterSkippedRepair(file, owner, text);
                                 report.Entries.Add(ReportEntry.Skipped(
                                     file.RelativePath,
                                     owner.Id,
@@ -612,6 +615,12 @@ static class ImporterProgram
         }
         return true;
     }
+
+    static void RestoreOffsetsAfterSkippedRepair(
+        LoadedFile file,
+        DocsOwner owner,
+        string unchangedText) =>
+        file.UpdateBlockOffsets(owner.Order, unchangedText);
 
     static bool MemberNameMatches(SourceMember member, string name, bool constructor) =>
         constructor
@@ -2887,6 +2896,21 @@ static class ImporterProgram
             emptyRemarksDocs.Elements("remarks").Count() == 1 &&
                 emptyRemarksDocs.Element("remarks")!.Descendants("a").Any(),
             "self-closing remarks expanded in place");
+        var firstOwner = file.Owners[0];
+        var laterOwner = file.Owners[1];
+        var expectedLaterBlock = emptyRemarksText[
+            file.DocsBlocks[laterOwner.Order].Start..file.DocsBlocks[laterOwner.Order].End];
+        var speculativeCappedRepairText = emptyRemarksText.Replace(
+            "<Docs>",
+            "<Docs> ",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(firstOwner.Order, speculativeCappedRepairText);
+        RestoreOffsetsAfterSkippedRepair(file, firstOwner, emptyRemarksText);
+        Assert(
+            emptyRemarksText[
+                file.DocsBlocks[laterOwner.Order].Start..file.DocsBlocks[laterOwner.Order].End] ==
+                expectedLaterBlock,
+            "capped repair restores later documentation block offsets");
 
         var tempDirectory = Path.Combine(
             Path.GetTempPath(),
