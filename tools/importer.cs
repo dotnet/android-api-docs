@@ -928,6 +928,15 @@ static class ImporterProgram
             return text[..block.Start] + updatedBlock + text[block.End..];
         }
 
+        var hasRemarksPlaceholder = owner.Placeholders.Any(
+            placeholder => placeholder.Name is "remarks" or "para");
+        if (docs.Paragraphs.Count == 0 && hasRemarksPlaceholder)
+        {
+            if (HasAugmentedRemarksPlaceholder(file, owner))
+                blockText = RemoveImporterRemarksMetadata(blockText);
+            return text[..block.Start] + blockText + text[block.End..];
+        }
+
         blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
         blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         var metadataOnly = HasMetadataOnlyRemarks(blockText);
@@ -1253,6 +1262,13 @@ static class ImporterProgram
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
     }
+
+    static string RemoveImporterRemarksMetadata(string blockText) =>
+        Regex.Replace(
+            blockText,
+            @"[ \t\r\n]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>",
+            "",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
     static string NormalizeStaleNestedConstructorLinks(
         string text,
@@ -2338,6 +2354,15 @@ static class ImporterProgram
         Assert(
             repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
             "importer metadata remarks preserves reference metadata");
+        var cleanedMissingRemarksText = RemoveImporterRemarksMetadata(metadataRepairText);
+        var cleanedMissingRemarks = XDocument.Parse(cleanedMissingRemarksText)
+            .Root!.Element("remarks")!;
+        Assert(
+            NormalizeText(cleanedMissingRemarks.Value).Equals(
+                "To be added.",
+                StringComparison.Ordinal) &&
+                !cleanedMissingRemarks.Descendants("a").Any(),
+            "missing source remarks retain their placeholder without importer metadata");
         const string emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
             "    <para><format type=\"text/html\"><a " +
