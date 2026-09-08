@@ -155,6 +155,7 @@ static class ImporterProgram
                     {
                         if (remaining == 0)
                         {
+                            file.UpdateBlockOffsets(owner.Order, text);
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -203,6 +204,7 @@ static class ImporterProgram
 
                         if (remaining == 0)
                         {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -260,8 +262,13 @@ static class ImporterProgram
                         var refreshed = truncatedSummaryRepair
                             ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
                             : text;
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                         if (codeExampleRepair)
+                        {
                             refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                        }
                         if (enumSummaryRepair || augmentedRemarksRepair || metadataOnlyRemarksRepair)
                         {
                             refreshed = AddSourceDocumentationIfSafe(
@@ -270,6 +277,7 @@ static class ImporterProgram
                                 owner,
                                 mapping.Docs,
                                 allowEnumCreation: false);
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                         }
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
@@ -278,6 +286,7 @@ static class ImporterProgram
                                 : "remarks";
                             if (remaining == 0)
                             {
+                                RestoreOffsetsAfterSkippedRepair(file, owner, text);
                                 report.Entries.Add(ReportEntry.Skipped(
                                     file.RelativePath,
                                     owner.Id,
@@ -584,6 +593,12 @@ static class ImporterProgram
         return true;
     }
 
+    static void RestoreOffsetsAfterSkippedRepair(
+        LoadedFile file,
+        DocsOwner owner,
+        string unchangedText) =>
+        file.UpdateBlockOffsets(owner.Order, unchangedText);
+
     static bool MemberNameMatches(SourceMember member, string name, bool constructor) =>
         constructor
             ? member.IsConstructor && (
@@ -622,8 +637,12 @@ static class ImporterProgram
                 : Replacement.Skip(
                     "source_parameter_missing",
                     $"The exact source member did not document parameter '{placeholder.Key}'."),
-            "returns" or "value" => ChannelValueOrSkip(
+            "returns" => ChannelValueOrSkip(
                 docs.Returns,
+                placeholder.Name,
+                "source_return_missing"),
+            "value" => ChannelValueOrSkip(
+                string.IsNullOrWhiteSpace(docs.Returns) ? docs.Summary : docs.Returns,
                 placeholder.Name,
                 "source_return_missing"),
             "exception" => ExceptionReplacement(placeholder, docs),
@@ -1084,16 +1103,26 @@ static class ImporterProgram
 
         var withoutMetadata = Regex.Replace(
             remarks.Groups["body"].Value,
-            @"<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>",
-            "",
+            @"<para\b[^>]*>(?:(?!</para>).)*?</para>",
+            match => IsImporterMetadataParagraph(match.Value) ? "" : match.Value,
             RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        return NormalizeText(
-            Regex.Replace(
-                withoutMetadata,
-                @"<[^>]*>",
-                " ",
-                RegexOptions.Singleline | RegexOptions.CultureInvariant)).Length == 0;
+        return NormalizeText(Regex.Replace(
+            withoutMetadata,
+            @"<[^>]*>",
+            " ",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant)).Length == 0;
     }
+
+    static bool IsImporterMetadataParagraph(string paragraph) =>
+        TryGetImporterSourceReferenceUrl(paragraph, out _) ||
+        Regex.IsMatch(
+            paragraph,
+            @"^\s*<para>\s*<format type=""text/html""><a href=""https://(?:developer\.android\.com/reference|docs\.oracle\.com/en/java/javase/21/docs/api)/[^""]+"" title=""Reference documentation"">(?:Android|Java) reference\.</a></format>\s*</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant) ||
+        Regex.IsMatch(
+            paragraph,
+            @"^\s*<para\b[^>]*>.*?https://developers\.google\.com/terms/site-policies.*?</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
     static string ReplaceIncompleteCodeExampleRemarks(
         string text,
@@ -1183,7 +1212,7 @@ static class ImporterProgram
         var expectedMember = SourceAnchorMember(sourceUrl);
         return Regex.Replace(
             blockText,
-            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            @"(?:^[ \t]*)?<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
             match =>
             {
                 var href = Regex.Match(
@@ -1227,6 +1256,25 @@ static class ImporterProgram
                 return match.Value;
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
+    static int CountImporterSourceReferences(string blockText, string sourceUrl) =>
+        Regex.Matches(
+            blockText,
+            @"<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant)
+            .Count(match =>
+                TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) &&
+                UrlsEqual(importerSourceUrl, sourceUrl));
+
+    static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
+    {
+        var match = Regex.Match(
+            paragraph,
+            @"^\s*<para>\s*<format type=""text/html""><a href=""(?<url>[^""]+)"" title=""Reference documentation"">(?:Android|Java) reference for <code>[^<]+</code>\.</a></format>\s*</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        sourceUrl = match.Success ? WebUtility.HtmlDecode(match.Groups["url"].Value) : "";
+        return match.Success;
     }
 
     static string NormalizeStaleNestedConstructorLinks(
@@ -1532,6 +1580,23 @@ static class ImporterProgram
             "optional intent to start a follow up action required to facilitate the unarchival flow",
             "intent to start a follow up action required to facilitate the unarchival flow",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "The availability for \"paid content, either to-own or rental (user has not purchased/rented).",
+            "The availability for \"paid content\", either to-own or rental (user has not purchased/rented).",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Time shift is handle locally",
+            "Time shift is handled locally",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Time shift is handle remotely",
+            "Time shift is handled remotely",
+            StringComparison.Ordinal);
+        text = Regex.Replace(
+            text,
+            @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
+            "",
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
     }
@@ -2142,6 +2207,12 @@ static class ImporterProgram
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
         Assert(typeOnly.Reason == "source_channel_not_meaningful", "type-only return skip");
+        var valueSummaryFallback = ReplacementFor(
+            new Placeholder(0, "value", "", "value"),
+            favoriteResult.Docs! with { Returns = "" });
+        Assert(
+            valueSummaryFallback.Text == favoriteResult.Docs.Summary,
+            "property value falls back to exact source summary");
         var simpleTypeOnly = ReplacementFor(
             new Placeholder(0, "param", "items", "param:items"),
             favoriteResult.Docs! with
@@ -2172,6 +2243,16 @@ static class ImporterProgram
                 "optional intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.") ==
                     "intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.",
             "contradictory optional unarchival intent cleanup");
+        Assert(
+            CleanSourceText(
+                "The availability for \"paid content, either to-own or rental (user has not purchased/rented).") ==
+                    "The availability for \"paid content\", either to-own or rental (user has not purchased/rented).",
+            "unbalanced Android content quote cleanup");
+        Assert(
+            CleanSourceText(
+                "Time shift is handle locally. TODO Link: Tuner#Tuner(Context, string, int).") ==
+                    "Time shift is handled locally.",
+            "Android time-shift and TODO metadata cleanup");
         Assert(
             RemoveLeadingJavaType(
                 "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
@@ -2342,6 +2423,45 @@ static class ImporterProgram
         Assert(
             repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
             "importer metadata remarks preserves reference metadata");
+        var duplicateMetadataReference =
+            $"<para><format type=\"text/html\"><a href=\"{favoriteResult.Docs!.SourceUrl}\" " +
+            $"title=\"Reference documentation\">Android reference for <code>{favoriteResult.Docs.SourceLabel}</code>.</a></format></para>";
+        const string userReference =
+            "<para><format type=\"text/html\"><a href=\"https://example.invalid/reference\" title=\"Reference documentation\">User-authored reference.</a></format></para>";
+        var duplicateMetadataRepairText =
+            $"<Docs><remarks>\n{duplicateMetadataReference}\n{userReference}\n{duplicateMetadataReference}\n" +
+            $"<para>{AndroidAttribution}</para>\n</remarks></Docs>";
+        Assert(
+            TryGetImporterSourceReferenceUrl(duplicateMetadataReference, out var duplicateSourceUrl) &&
+                UrlsEqual(duplicateSourceUrl, favoriteResult.Docs.SourceUrl),
+            "metadata-only fixture uses importer reference syntax");
+        Assert(
+            CountImporterSourceReferences(
+                duplicateMetadataRepairText,
+                favoriteResult.Docs.SourceUrl) == 2,
+            "metadata-only fixture contains duplicate importer references");
+        Assert(
+            !HasMetadataOnlyRemarks(duplicateMetadataRepairText) &&
+            HasMetadataOnlyRemarks(duplicateMetadataRepairText.Replace(
+                userReference,
+                "",
+                StringComparison.Ordinal)),
+            "metadata-only repair preserves user-authored reference content");
+        var deduplicatedMetadataRepairText = RemoveDuplicateSourceLinks(
+            duplicateMetadataRepairText,
+            favoriteResult.Docs.SourceUrl);
+        Assert(
+            CountImporterSourceReferences(
+                deduplicatedMetadataRepairText,
+                favoriteResult.Docs.SourceUrl) == 1 &&
+            deduplicatedMetadataRepairText.Contains(userReference, StringComparison.Ordinal) &&
+            deduplicatedMetadataRepairText.Contains(AndroidAttribution, StringComparison.Ordinal) &&
+            RemoveDuplicateSourceLinks(
+                deduplicatedMetadataRepairText,
+                favoriteResult.Docs.SourceUrl).Equals(
+                    deduplicatedMetadataRepairText,
+                    StringComparison.Ordinal),
+            "metadata-only repairs deduplicate importer references without removing user content");
         const string emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
             "    <para><format type=\"text/html\"><a " +
@@ -2773,6 +2893,21 @@ static class ImporterProgram
             emptyRemarksDocs.Elements("remarks").Count() == 1 &&
                 emptyRemarksDocs.Element("remarks")!.Descendants("a").Any(),
             "self-closing remarks expanded in place");
+        var firstOwner = file.Owners[0];
+        var laterOwner = file.Owners[1];
+        var expectedLaterBlock = emptyRemarksText[
+            file.DocsBlocks[laterOwner.Order].Start..file.DocsBlocks[laterOwner.Order].End];
+        var speculativeCappedRepairText = emptyRemarksText.Replace(
+            "<Docs>",
+            "<Docs> ",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(firstOwner.Order, speculativeCappedRepairText);
+        RestoreOffsetsAfterSkippedRepair(file, firstOwner, emptyRemarksText);
+        Assert(
+            emptyRemarksText[
+                file.DocsBlocks[laterOwner.Order].Start..file.DocsBlocks[laterOwner.Order].End] ==
+                expectedLaterBlock,
+            "capped repair restores later documentation block offsets");
 
         var tempDirectory = Path.Combine(
             Path.GetTempPath(),
