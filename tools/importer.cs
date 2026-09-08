@@ -1758,6 +1758,7 @@ static class ImporterProgram
                 SourceRequest.JavaPath: "android/text/TextUtils",
             },
             "String convenience overload maps to the exact CharSequence JNI descriptor");
+        Assert(
             LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
             "mixed-newline files preserve their predominant line ending");
         var jniTypeSignature = XElement.Parse(
