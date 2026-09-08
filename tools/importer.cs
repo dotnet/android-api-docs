@@ -263,8 +263,13 @@ static class ImporterProgram
                         var refreshed = truncatedSummaryRepair
                             ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
                             : text;
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                         if (codeExampleRepair)
+                        {
                             refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                        }
                         if (duplicateImporterReferences)
                         {
                             refreshed = RemoveDuplicateImporterSourceReferences(
@@ -272,6 +277,7 @@ static class ImporterProgram
                                 file,
                                 owner,
                                 mapping.Docs.SourceUrl);
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                         }
                         if (metadataOnlyRemarksRepair)
                         {
@@ -282,6 +288,7 @@ static class ImporterProgram
                                     owner,
                                     mapping.Docs.SourceUrl)
                                 : ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                         }
                         if (enumSummaryRepair || augmentedRemarksRepair)
                         {
@@ -291,6 +298,7 @@ static class ImporterProgram
                                 owner,
                                 mapping.Docs,
                                 allowEnumCreation: false);
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                         }
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
@@ -955,7 +963,12 @@ static class ImporterProgram
         if (metadataOnly)
         {
             if (docs.Paragraphs.Count == 0)
-                return RemoveDuplicateImporterSourceReferences(text, file, owner, docs.SourceUrl);
+            {
+                var normalizedBlock = RemoveDuplicateImporterSourceReferences(blockText, docs.SourceUrl);
+                return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
+                    ? text
+                    : text[..block.Start] + normalizedBlock + text[block.End..];
+            }
             return ReplaceIncompleteCodeExampleRemarks(text, file, owner, docs);
         }
         blockText = RemoveDuplicateImporterSourceReferences(blockText, docs.SourceUrl);
