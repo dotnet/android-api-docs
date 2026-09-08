@@ -147,10 +147,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Tell the editor that you are starting a batch of editor operations.</summary>
+        <returns>true if a batch edit is now in progress, false otherwise. Since this method starts a batch edit, that means it will always return true unless the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Tell the editor that you are starting a batch of editor operations. The editor will try to avoid sending you updates about its state until endBatchEdit() is called. Batch edits nest.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#beginBatchEdit()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.beginBatchEdit()</code>.</a>
@@ -200,10 +200,10 @@
       <Docs>
         <param name="states">The states to be cleared, may be one or more bits as
  per <see cref="P:Android.Views.KeyEvent.MetaState" />.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Clear the given meta key pressed states in the given input connection.</summary>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Clear the given meta key pressed states in the given input connection.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#clearMetaKeyStates(int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.clearMetaKeyStates(int)</code>.</a>
@@ -246,9 +246,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added</summary>
+        <summary>Called by the system up to only once to notify that the system is about to invalidate connection between the input method and the application.</summary>
         <remarks>
-          <para>To be added</para>
+          <para>Called by the system up to only once to notify that the system is about to invalidate connection between the input method and the application.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#closeConnection()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.closeConnection()</code>.</a>
@@ -289,10 +289,10 @@
       </Parameters>
       <Docs>
         <param name="text">The committed completion.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Commit a completion the user has selected from the possible ones previously reported to InputMethodSession#displayCompletions(CompletionInfo[]) or InputMethodManager#displayCompletions(View, CompletionInfo[]).</summary>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Commit a completion the user has selected from the possible ones previously reported to InputMethodSession#displayCompletions(CompletionInfo[]) or InputMethodManager#displayCompletions(View, CompletionInfo[]). This will result in the same behavior as if the user had selected the completion from the actual UI. In all other respects, this behaves like commitText(CharSequence,int).</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#commitCompletion(android.view.inputmethod.CompletionInfo)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.commitCompletion(android.view.inputmethod.CompletionInfo)</code>.</a>
@@ -346,13 +346,13 @@
         <Parameter Name="opts" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="inputContentInfo">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="opts">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="inputContentInfo">Content to be inserted. This value cannot be null.</param>
+        <param name="flags">InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION if the content provider allows grantUriPermissions or 0 if the application does not need to call InputContentInfo.requestPermission().</param>
+        <param name="opts">optional bundle data. This can be null.</param>
+        <summary>Called by the input method to commit content such as a PNG image to the editor.</summary>
+        <returns>true if this request is accepted by the application, whether the request is already handled or still being handled in background, false otherwise.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Called by the input method to commit content such as a PNG image to the editor.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#commitContent(android.view.inputmethod.InputContentInfo,%20int,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.commitContent(android.view.inputmethod.InputContentInfo, int, android.os.Bundle)</code>.</a>
@@ -393,10 +393,10 @@
       </Parameters>
       <Docs>
         <param name="correctionInfo">Detailed information about the correction.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Commit a correction automatically performed on the raw user's input.</summary>
+        <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Commit a correction automatically performed on the raw user's input. A typical example would be to correct typos using a dictionary.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#commitCorrection(android.view.inputmethod.CorrectionInfo)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.commitCorrection(android.view.inputmethod.CorrectionInfo)</code>.</a>
@@ -448,10 +448,10 @@
         because the editor can make modifications to the text
         you are providing so it is not possible to correctly specify
         locations there.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Commit text to the text box and set the new cursor position.</summary>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Commit text to the text box and set the new cursor position.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#commitText(java.lang.CharSequence,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.commitText(java.lang.CharSequence, int)</code>.</a>
@@ -547,12 +547,12 @@
       </Parameters>
       <Docs>
         <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>The variant of InputConnection.commitText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up text.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#commitText(java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.commitText(java.lang.CharSequence, int, android.view.inputmethod.TextAttribute)</code>.</a>
@@ -656,10 +656,10 @@
         current cursor position.</param>
         <param name="afterLength">The number of characters to be deleted after the
         current cursor position.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Delete beforeLength characters of text before the current cursor position, and delete afterLength characters of text after the current cursor position, excluding the selection.</summary>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Delete beforeLength characters of text before the current cursor position, and delete afterLength characters of text after the current cursor position, excluding the selection. Before and after refer to the order of the characters in the string, not to their visual representation: this means you don't have to figure out the direction of the text and can just use the indices as-is.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#deleteSurroundingText(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.deleteSurroundingText(int, int)</code>.</a>
@@ -705,12 +705,12 @@
         <Parameter Name="afterLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="beforeLength">To be added.</param>
-        <param name="afterLength">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="beforeLength">The number of characters before the cursor to be deleted, in code points. If this is greater than the number of existing characters between the beginning of the text and the cursor, then this method does not fail but deletes all the characters in that range.</param>
+        <param name="afterLength">The number of characters after the cursor to be deleted, in code points. If this is greater than the number of existing characters between the cursor and the end of the text, then this method does not fail but deletes all the characters in that range.</param>
+        <summary>A variant of deleteSurroundingText(int, int).</summary>
+        <returns>true on success, false if the input connection is no longer valid. Before Android Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>A variant of deleteSurroundingText(int, int). Major differences are: The lengths are supplied in code points, not in Java chars or in glyphs; This method does nothing if there are one or more invalid surrogate pairs in the requested range.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#deleteSurroundingTextInCodePoints(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.deleteSurroundingTextInCodePoints(int, int)</code>.</a>
@@ -748,10 +748,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Tell the editor that you are done with a batch edit previously initiated with beginBatchEdit().</summary>
+        <returns>For editor authors, you must return true if a batch edit is still in progress after closing the latest one (in other words, if the nesting count is still a positive number). Return false otherwise. For IME authors, you will always receive true as long as the request was sent to the editor, and receive false only if the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Tell the editor that you are done with a batch edit previously initiated with beginBatchEdit(). This ends the latest batch only.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#endBatchEdit()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.endBatchEdit()</code>.</a>
@@ -790,10 +790,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Have the text editor finish whatever composing text is currently active.</summary>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Have the text editor finish whatever composing text is currently active. This simply leaves the text as-is, removing any special composing styling or other state that was around it. The cursor position remains unchanged.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#finishComposingText()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.finishComposingText()</code>.</a>
@@ -846,10 +846,10 @@
  constants are defined so that you can simply pass the current
  <see cref="P:Android.Views.InputMethods.EditorInfo.InputType" /> value
  directly in to here.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <summary>Retrieve the current capitalization mode in effect at the current cursor position in the text.</summary>
+        <returns>the caps mode flags that are in effect at the current cursor position. See TYPE_TEXT_FLAG_CAPS_* in InputType.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Retrieve the current capitalization mode in effect at the current cursor position in the text. See TextUtils.getCapsMode for more information.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getCursorCapsMode(int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getCursorCapsMode(int)</code>.</a>
@@ -902,10 +902,10 @@
  <see cref="T:Android.Views.InputMethods.ExtractedTextRequest" /></param>
         <param name="flags">Additional options to control the client, either 0 or
  <see cref="F:Android.Views.InputMethods.InputConnection.GetExtractedTextMonitor" />.</param>
-        <summary>To be added</summary>
+        <summary>Retrieve the current text in the input connection's editor, and monitor for any changes to it.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Retrieve the current text in the input connection's editor, and monitor for any changes to it. This function returns with the current text, and optionally the input connection can send updates to the input method when its text changes.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getExtractedText(android.view.inputmethod.ExtractedTextRequest,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getExtractedText(android.view.inputmethod.ExtractedTextRequest, int)</code>.</a>
@@ -997,10 +997,10 @@
       <Docs>
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
-        <summary>To be added</summary>
+        <summary>Gets the selected text, if any.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Gets the selected text, if any.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getSelectedText(int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getSelectedText(int)</code>.</a>
@@ -1047,13 +1047,13 @@
         <Parameter Name="flags" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="beforeLength">To be added.</param>
-        <param name="afterLength">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added</summary>
+        <param name="beforeLength">The expected length of the text before the cursor. Value is 0 or greater</param>
+        <param name="afterLength">The expected length of the text after the cursor. Value is 0 or greater</param>
+        <param name="flags">Supplies additional options controlling how the text is returned. May be either 0 or InputConnection.GET_TEXT_WITH_STYLES. Value is either 0 or InputConnection.GET_TEXT_WITH_STYLES</param>
+        <summary>Gets the surrounding text around the current cursor, with beforeLength characters of text before the cursor (start of the selection), afterLength characters of text after the cursor (end of the selection), and all of the selected text.</summary>
         <returns>To be added.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Gets the surrounding text around the current cursor, with beforeLength characters of text before the cursor (start of the selection), afterLength characters of text after the cursor (end of the selection), and all of the selected text. The range are for java characters, not glyphs that can be multiple characters.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getSurroundingText(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getSurroundingText(int, int, int)</code>.</a>
@@ -1148,7 +1148,7 @@
         <param name="n">The expected length of the text.</param>
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
-        <summary>To be added</summary>
+        <summary>Get n characters of text after the current cursor position.</summary>
         <returns>To be added.</returns>
         <remarks>
           <para>To be added</para>
