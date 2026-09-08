@@ -249,19 +249,40 @@ static class ImporterProgram
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
                     var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
+                    var duplicateImporterReferences = mapping.Docs is not null &&
+                        HasDuplicateImporterSourceReferences(file, owner, mapping.Docs.SourceUrl);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          augmentedRemarksRepair ||
                          truncatedSummaryRepair ||
                          codeExampleRepair ||
-                         metadataOnlyRemarksRepair))
+                         metadataOnlyRemarksRepair ||
+                         duplicateImporterReferences))
                     {
                         var refreshed = truncatedSummaryRepair
                             ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
                             : text;
-                        if (codeExampleRepair || metadataOnlyRemarksRepair)
+                        if (codeExampleRepair)
                             refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
+                        if (duplicateImporterReferences)
+                        {
+                            refreshed = RemoveDuplicateImporterSourceReferences(
+                                refreshed,
+                                file,
+                                owner,
+                                mapping.Docs.SourceUrl);
+                        }
+                        if (metadataOnlyRemarksRepair)
+                        {
+                            refreshed = mapping.Docs.Paragraphs.Count == 0
+                                ? RemoveDuplicateImporterSourceReferences(
+                                    refreshed,
+                                    file,
+                                    owner,
+                                    mapping.Docs.SourceUrl)
+                                : ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
+                        }
                         if (enumSummaryRepair || augmentedRemarksRepair)
                         {
                             refreshed = AddSourceDocumentationIfSafe(
@@ -931,6 +952,13 @@ static class ImporterProgram
         blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
         blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         var metadataOnly = HasMetadataOnlyRemarks(blockText);
+        if (metadataOnly)
+        {
+            if (docs.Paragraphs.Count == 0)
+                return RemoveDuplicateImporterSourceReferences(text, file, owner, docs.SourceUrl);
+            return ReplaceIncompleteCodeExampleRemarks(text, file, owner, docs);
+        }
+        blockText = RemoveDuplicateImporterSourceReferences(blockText, docs.SourceUrl);
         if (ContainsSourceUrl(blockText, docs.SourceUrl) && !metadataOnly)
             return text[..block.Start] + blockText + text[block.End..];
 
@@ -1082,16 +1110,26 @@ static class ImporterProgram
 
         var withoutMetadata = Regex.Replace(
             remarks.Groups["body"].Value,
-            @"<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>",
-            "",
+            @"<para\b[^>]*>(?:(?!</para>).)*?</para>",
+            match => IsImporterMetadataParagraph(match.Value) ? "" : match.Value,
             RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        return NormalizeText(
-            Regex.Replace(
-                withoutMetadata,
-                @"<[^>]*>",
-                " ",
-                RegexOptions.Singleline | RegexOptions.CultureInvariant)).Length == 0;
+        return NormalizeText(Regex.Replace(
+            withoutMetadata,
+            @"<[^>]*>",
+            " ",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant)).Length == 0;
     }
+
+    static bool IsImporterMetadataParagraph(string paragraph) =>
+        TryGetImporterSourceReferenceUrl(paragraph, out _) ||
+        Regex.IsMatch(
+            paragraph,
+            @"^\s*<para>\s*<format type=""text/html""><a href=""https://(?:developer\.android\.com/reference|docs\.oracle\.com/en/java/javase/21/docs/api)/[^""]+"" title=""Reference documentation"">(?:Android|Java) reference\.</a></format>\s*</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant) ||
+        Regex.IsMatch(
+            paragraph,
+            @"^\s*<para\b[^>]*>.*?https://developers\.google\.com/terms/site-policies.*?</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
     static string ReplaceIncompleteCodeExampleRemarks(
         string text,
@@ -1181,7 +1219,7 @@ static class ImporterProgram
         var expectedMember = SourceAnchorMember(sourceUrl);
         return Regex.Replace(
             blockText,
-            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            @"(?:^[ \t]*)?<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
             match =>
             {
                 var href = Regex.Match(
@@ -1199,6 +1237,73 @@ static class ImporterProgram
                     : match.Value;
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
+    static int CountImporterSourceReferences(string blockText, string sourceUrl) =>
+        Regex.Matches(
+            blockText,
+            @"<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant)
+            .Count(match =>
+            {
+                var href = Regex.Match(
+                    match.Value,
+                    @"\bhref=""(?<url>[^""]+)""",
+                    RegexOptions.CultureInvariant);
+                return TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) &&
+                    UrlsEqual(importerSourceUrl, sourceUrl);
+            });
+
+    static bool HasDuplicateImporterSourceReferences(
+        LoadedFile file,
+        DocsOwner owner,
+        string sourceUrl)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return CountImporterSourceReferences(file.Text[block.Start..block.End], sourceUrl) > 1;
+    }
+
+    static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
+    {
+        var match = Regex.Match(
+            paragraph,
+            @"^\s*<para>\s*<format type=""text/html""><a href=""(?<url>[^""]+)"" title=""Reference documentation"">(?:Android|Java) reference for <code>[^<]+</code>\.</a></format>\s*</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        sourceUrl = match.Success ? WebUtility.HtmlDecode(match.Groups["url"].Value) : "";
+        return match.Success;
+    }
+
+    static string RemoveDuplicateImporterSourceReferences(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        string sourceUrl)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var normalizedBlock = RemoveDuplicateImporterSourceReferences(blockText, sourceUrl);
+        return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
+            ? text
+            : text[..block.Start] + normalizedBlock + text[block.End..];
+    }
+
+    static string RemoveDuplicateImporterSourceReferences(string blockText, string sourceUrl)
+    {
+        var retained = 0;
+        var normalizedBlock = Regex.Replace(
+            blockText,
+            @"(?:^[ \t]*)?<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                if (!TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) ||
+                    !UrlsEqual(importerSourceUrl, sourceUrl))
+                {
+                    return match.Value;
+                }
+                return retained++ == 0 ? match.Value : "";
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+        return normalizedBlock;
     }
 
     static string NormalizeStaleNestedConstructorLinks(
@@ -2262,6 +2367,45 @@ static class ImporterProgram
         Assert(
             repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
             "importer metadata remarks preserves reference metadata");
+        var duplicateMetadataReference =
+            $"<para><format type=\"text/html\"><a href=\"{favoriteResult.Docs!.SourceUrl}\" " +
+            $"title=\"Reference documentation\">Android reference for <code>{favoriteResult.Docs.SourceLabel}</code>.</a></format></para>";
+        const string userReference =
+            "<para><format type=\"text/html\"><a href=\"https://example.invalid/reference\" title=\"Reference documentation\">User-authored reference.</a></format></para>";
+        var duplicateMetadataRepairText =
+            $"<Docs><remarks>{duplicateMetadataReference}{userReference}{duplicateMetadataReference}" +
+            $"<para>{AndroidAttribution}</para></remarks></Docs>";
+        Assert(
+            TryGetImporterSourceReferenceUrl(duplicateMetadataReference, out var duplicateSourceUrl) &&
+                UrlsEqual(duplicateSourceUrl, favoriteResult.Docs.SourceUrl),
+            "metadata-only fixture uses importer reference syntax");
+        Assert(
+            CountImporterSourceReferences(
+                duplicateMetadataRepairText,
+                favoriteResult.Docs.SourceUrl) == 2,
+            "metadata-only fixture contains duplicate importer references");
+        Assert(
+            !HasMetadataOnlyRemarks(duplicateMetadataRepairText) &&
+            HasMetadataOnlyRemarks(duplicateMetadataRepairText.Replace(
+                userReference,
+                "",
+                StringComparison.Ordinal)),
+            "metadata-only repair preserves user-authored reference content");
+        var deduplicatedMetadataRepairText = RemoveDuplicateImporterSourceReferences(
+            duplicateMetadataRepairText,
+            favoriteResult.Docs.SourceUrl);
+        Assert(
+            CountImporterSourceReferences(
+                deduplicatedMetadataRepairText,
+                favoriteResult.Docs.SourceUrl) == 1 &&
+            deduplicatedMetadataRepairText.Contains(userReference, StringComparison.Ordinal) &&
+            deduplicatedMetadataRepairText.Contains(AndroidAttribution, StringComparison.Ordinal) &&
+            RemoveDuplicateImporterSourceReferences(
+                deduplicatedMetadataRepairText,
+                favoriteResult.Docs.SourceUrl).Equals(
+                    deduplicatedMetadataRepairText,
+                    StringComparison.Ordinal),
+            "metadata-only repairs deduplicate importer references without removing user content");
         const string emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
             "    <para><format type=\"text/html\"><a " +
